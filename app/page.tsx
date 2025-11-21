@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Marquee from "react-fast-marquee"; // Библиотека для бегущей строки
 import { useState, useRef, useEffect } from "react";
 import { 
   ArrowRight, 
@@ -17,16 +18,19 @@ import {
   PenTool,
   Building,
   Palette,
-  Layers
+  Layers,
+  CheckCircle,
+  Clock // <--- ВОТ ОНА, ДОБАВЛЕНА!
 } from "lucide-react";
 
-// --- ДАННЫЕ ---
+// --- ДАННЫЕ: ЛОГОТИПЫ ---
 const clients = [
   "KANGO", "COFFEE BOOM", "SMALL", "MAGNUM", 
   "TECHNODOM", "SULPAK", "BI GROUP", "BAZIS-A",
   "KASPI", "HALYK BANK", "DODO PIZZA"
 ];
 
+// --- ДАННЫЕ: УСЛУГИ ---
 const services = [
   {
     title: "Объемные буквы",
@@ -72,10 +76,11 @@ const services = [
   }
 ];
 
+// --- ДАННЫЕ: FAQ ---
 const faqs = [
   {
     q: "Сколько стоит вывеска?",
-    a: "Цена зависит от технологии и размеров. Объемные буквы начинаются от 400 тг за см высоты. Например, слово 'МЯСО' высотой 30см выйдет примерно в 40-50 тыс. тенге. Точную смету мы дадим после бесплатного замера."
+    a: "Цена зависит от технологии и размеров. Объемные буквы начинаются от 400 тг за см высоты. Точную смету мы дадим после бесплатного замера."
   },
   {
     q: "Вы делаете согласование с Акиматом?",
@@ -91,22 +96,10 @@ const faqs = [
   }
 ];
 
-// --- ДАННЫЕ ЛОГОТИПОВ (PLACEHOLDERS) ---
-const clientLogos = [
-  { name: "Magnum", src: "https://placehold.co/200x80/orange/white.png?text=MAGNUM" },
-  { name: "Small", src: "https://placehold.co/200x80/red/white.png?text=SMALL" },
-  { name: "BI Group", src: "https://placehold.co/200x80/003399/white.png?text=BI+GROUP" },
-  { name: "Technodom", src: "https://placehold.co/200x80/ffcc00/black.png?text=TECHNODOM" },
-  { name: "Kango", src: "https://placehold.co/200x80/66cc33/white.png?text=KANGO" },
-  { name: "Coffee Boom", src: "https://placehold.co/200x80/6f4e37/white.png?text=COFFEE" },
-  { name: "Sulpak", src: "https://placehold.co/200x80/ff0000/white.png?text=SULPAK" },
-  { name: "Kaspi", src: "https://placehold.co/200x80/f14635/white.png?text=KASPI" },
-];
-
 export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   
-  // --- REFS ДЛЯ КАРУСЕЛИ ---
+  // Refs для карусели
   const sliderRef = useRef<HTMLDivElement>(null);
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -116,7 +109,7 @@ export default function Home() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  // --- ЛОГИКА 1: КНОПКИ ---
+  // --- ЛОГИКА КАРУСЕЛИ ---
   const scrollButtons = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
       const scrollAmount = 400; 
@@ -127,14 +120,11 @@ export default function Home() {
     }
   };
 
-  // --- ЛОГИКА 2: DRAG & DROP (ИСПРАВЛЕНО: УБРАН КОНФЛИКТ С CSS SNAP) ---
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!sliderRef.current) return;
     isDown.current = true;
     sliderRef.current.style.cursor = 'grabbing';
-    // Важно: при начале перетаскивания отключаем плавность CSS, чтобы было мгновенно
     sliderRef.current.style.scrollBehavior = 'auto'; 
-    
     startX.current = e.pageX - sliderRef.current.offsetLeft;
     scrollLeft.current = sliderRef.current.scrollLeft;
   };
@@ -143,7 +133,6 @@ export default function Home() {
     isDown.current = false;
     if (sliderRef.current) {
         sliderRef.current.style.cursor = 'grab';
-        // Возвращаем плавность для кнопок
         sliderRef.current.style.scrollBehavior = 'smooth';
     }
   };
@@ -160,36 +149,25 @@ export default function Home() {
     if (!isDown.current || !sliderRef.current) return;
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
-    // Множитель 2 делает свайп более "резвым"
-    const walk = (x - startX.current) * 2; 
+    const walk = (x - startX.current) * 1.5;
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
-  // --- ЛОГИКА 3: КОЛЕСО МЫШИ (ИСПРАВЛЕНО) ---
   useEffect(() => {
     const slider = sliderRef.current;
     if (!slider) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // Игнорируем, если скролла нет или он очень маленький
-      if (Math.abs(e.deltaY) < 1) return;
-
-      // Определяем границы с небольшой погрешностью (2px)
+      if (e.deltaY === 0) return;
       const isAtEnd = Math.ceil(slider.scrollLeft + slider.clientWidth) >= slider.scrollWidth - 2;
       const isAtStart = slider.scrollLeft <= 0;
 
-      // Если мы в конце и крутим вниз (вправо) -> Скроллим страницу
-      if (e.deltaY > 0 && isAtEnd) return;
-      
-      // Если мы в начале и крутим вверх (влево) -> Скроллим страницу
-      if (e.deltaY < 0 && isAtStart) return;
+      if ((e.deltaY > 0 && isAtEnd) || (e.deltaY < 0 && isAtStart)) return;
 
-      // Иначе -> Крутим карусель
       e.preventDefault();
       slider.scrollLeft += e.deltaY;
     };
 
-    // passive: false нужен, чтобы работал preventDefault
     slider.addEventListener('wheel', handleWheel, { passive: false });
     return () => slider.removeEventListener('wheel', handleWheel);
   }, []);
@@ -197,7 +175,6 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0F172A]">
       
-      {/* Скрываем скроллбар */}
       <style jsx global>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -255,40 +232,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. БЕГУЩАЯ СТРОКА (Логотипы видны) */}
-      <section className="py-10 bg-slate-950 border-b border-slate-800 overflow-hidden">
-        <div className="container mx-auto px-4 mb-8">
-           <p className="text-center text-gray-500 text-sm uppercase tracking-widest font-medium">
+      {/* 2. БЕГУЩАЯ СТРОКА (REACT-FAST-MARQUEE) */}
+      <section className="py-12 bg-slate-950 border-b border-slate-800 relative z-20">
+        <div className="container mx-auto px-4 mb-10">
+           <p className="text-center text-gray-500 text-xs md:text-sm uppercase tracking-[0.3em] font-semibold">
              Нам доверяют бизнес в Астане
            </p>
         </div>
         
-        <div className="relative flex overflow-x-hidden group">
-           <div className="animate-marquee whitespace-nowrap flex gap-16 items-center min-w-full">
-              {clientLogos.map((logo, index) => (
-                 <div key={index} className="relative w-40 h-16 flex items-center justify-center">
-                    {/* Логотипы серые, при наведении - цветные */}
-                    <img 
-                      src={logo.src} 
-                      alt={logo.name}
-                      className="max-h-full w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer filter"
-                    />
-                 </div>
+        <div className="relative flex">
+           <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none"></div>
+           <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none"></div>
+
+           <Marquee gradient={false} speed={40} autoFill={true} className="overflow-hidden" style={{ overflowY: 'hidden' }}>
+              {clients.map((client, index) => (
+                 <span 
+                   key={index} 
+                   className="text-4xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter hover:text-orange-600 transition-colors duration-300 cursor-default select-none mx-12 leading-none py-2" 
+                 >
+                    {client}
+                 </span>
               ))}
-           </div>
-           <div className="absolute top-0 animate-marquee2 whitespace-nowrap flex gap-16 items-center min-w-full ml-16">
-              {clientLogos.map((logo, index) => (
-                 <div key={index} className="relative w-40 h-16 flex items-center justify-center">
-                    <img 
-                      src={logo.src} 
-                      alt={logo.name}
-                      className="max-h-full w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-pointer filter"
-                    />
-                 </div>
-              ))}
-           </div>
-           <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-950 to-transparent z-10"></div>
-           <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-950 to-transparent z-10"></div>
+           </Marquee>
         </div>
       </section>
 
@@ -302,7 +267,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. КАРУСЕЛЬ УСЛУГ (РАБОЧИЙ ВАРИАНТ С JS) */}
+      {/* 4. КАРУСЕЛЬ УСЛУГ */}
       <section className="py-24 bg-[#0F172A] overflow-hidden">
          <div className="container mx-auto px-4">
             <div className="flex justify-between items-end mb-12">
@@ -310,20 +275,14 @@ export default function Home() {
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Что мы производим</h2>
                 <p className="text-gray-400">Полный цикл: от таблички до крышной установки</p>
               </div>
-              
               <div className="hidden md:flex gap-3">
                  <button onClick={() => scrollButtons('left')} className="p-3 rounded-full border border-slate-700 text-white hover:bg-slate-800 transition active:scale-95"><ChevronLeft className="w-6 h-6"/></button>
                  <button onClick={() => scrollButtons('right')} className="p-3 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition shadow-lg active:scale-95"><ChevronRight className="w-6 h-6"/></button>
               </div>
             </div>
-            
-            {/* Важно: Убраны классы snap-x snap-mandatory, так как они конфликтуют с JS-свайпом */}
             <div 
               ref={sliderRef}
-              onMouseDown={handleMouseDown} 
-              onMouseLeave={handleMouseLeave} 
-              onMouseUp={handleMouseUp} 
-              onMouseMove={handleMouseMove}
+              onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}
               className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing"
             >
                {services.map((service, i) => (
@@ -399,7 +358,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. BENTO GRID (ТЕМНАЯ ВЕРСИЯ) */}
+      {/* 7. СВЕЖИЕ ПРОЕКТЫ (Bento Grid) */}
       <section className="py-32 bg-slate-950 border-t border-slate-800/50 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent"></div>
         <div className="container mx-auto px-4">
@@ -445,7 +404,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. FAQ (УЛУЧШЕННЫЙ) */}
+      {/* 8. FAQ */}
       <section className="py-24 bg-slate-950 relative overflow-hidden">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-orange-500/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="container mx-auto px-4 max-w-4xl relative z-10">
@@ -469,14 +428,80 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. CTA */}
+      {/* 9. ОТЗЫВЫ (NEW) */}
+      <section className="py-24 bg-[#0F172A]">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Что говорят клиенты</h2>
+            <div className="flex items-center justify-center gap-2 text-gray-400">
+               <span>Рейтинг 4.9 в</span>
+               <span className="font-bold text-white bg-green-600 px-2 py-0.5 rounded text-sm">2GIS</span>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+             {[
+               {name: "Айгерим С.", role: "Coffee Boom", text: "Заказывали объемные буквы для кофейни. Сделали за 3 дня, как и обещали. Монтажники аккуратные, мусор за собой убрали."},
+               {name: "Ерлан М.", role: 'ТОО "StroyInvest"', text: "Отличная работа с документами. Сами подготовили эскиз для Акимата, согласовали с первого раза."},
+               {name: "Дмитрий К.", role: 'Магазин "Техно"', text: "Цена адекватная, качество на высоте. Понравилось, что есть свой цех, можно приехать и посмотреть материалы вживую."}
+             ].map((rev, i) => (
+               <div key={i} className="bg-slate-900 p-8 rounded-2xl border border-slate-800 relative hover:border-slate-700 transition">
+                  <div className="flex gap-1 text-orange-500 mb-4">
+                     {[1,2,3,4,5].map(star => <svg key={star} className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>)}
+                  </div>
+                  <p className="text-gray-300 mb-6 leading-relaxed">"{rev.text}"</p>
+                  <div className="flex items-center gap-4">
+                     <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-500">{rev.name[0]}</div>
+                     <div>
+                        <div className="text-white font-bold">{rev.name}</div>
+                        <div className="text-xs text-gray-500">{rev.role}</div>
+                     </div>
+                  </div>
+               </div>
+             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 10. КАРТА И КОНТАКТЫ (NEW) */}
+      <section className="py-0 bg-slate-950 border-t border-slate-800 relative h-[600px]">
+         <div className="absolute inset-0 bg-slate-800">
+            <iframe 
+              src="https://yandex.ru/map-widget/v1/?ll=71.497162%2C51.194223&mode=search&ol=geo&ouri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgg2NjIzOTY5MRJO0JrQsNC30LDRh9GB0YLQs0L0LCBBc3RhbmEsIEFxxb5vLCAxMTAsINCQ0YHRgtCw0L3QsCAwMTAwMDAsINCQ0YHRgtCw0L3QsCAwMTAwMDAiCg21RlFCFU_PUEI%2C&z=16.63" 
+              width="100%" height="100%" frameBorder="0"
+              style={{ filter: 'grayscale(100%) invert(90%) hue-rotate(180deg)' }} 
+              className="opacity-80"
+            ></iframe>
+         </div>
+         <div className="container mx-auto px-4 h-full flex items-center relative pointer-events-none">
+            <div className="bg-slate-900/90 backdrop-blur-md p-10 rounded-3xl border border-slate-800 shadow-2xl max-w-md pointer-events-auto">
+               <h3 className="text-2xl font-bold text-white mb-6">Приезжайте в гости</h3>
+               <div className="space-y-6">
+                  <div className="flex gap-4">
+                     <div className="w-12 h-12 bg-orange-600/20 rounded-full flex items-center justify-center text-orange-500 flex-shrink-0"><MapPin/></div>
+                     <div><p className="text-sm text-gray-400">Адрес цеха и офиса</p><p className="text-white font-medium text-lg">г. Астана, ул. Акжол 110</p></div>
+                  </div>
+                  <div className="flex gap-4">
+                     <div className="w-12 h-12 bg-orange-600/20 rounded-full flex items-center justify-center text-orange-500 flex-shrink-0"><Clock/></div>
+                     <div><p className="text-sm text-gray-400">Режим работы</p><p className="text-white font-medium text-lg">Пн-Пт: 09:00 - 18:00</p></div>
+                  </div>
+                  <div className="flex gap-4">
+                     <div className="w-12 h-12 bg-orange-600/20 rounded-full flex items-center justify-center text-orange-500 flex-shrink-0"><Phone/></div>
+                     <div><p className="text-sm text-gray-400">Телефон</p><a href="tel:+77071356701" className="text-white font-medium text-lg hover:text-orange-500 transition">+7 (707) 135-67-01</a></div>
+                  </div>
+               </div>
+               <a href="https://go.2gis.com/..." target="_blank" className="mt-8 flex items-center justify-center w-full py-4 border border-slate-600 text-white rounded-xl hover:bg-slate-800 transition font-bold">Построить маршрут</a>
+            </div>
+         </div>
+      </section>
+
+      {/* 11. CTA */}
       <section className="py-20 bg-[#0F172A]">
         <div className="container mx-auto px-4">
           <div className="bg-gradient-to-r from-orange-600 to-orange-500 rounded-3xl p-10 md:p-16 text-center relative overflow-hidden shadow-2xl shadow-orange-900/40">
             <div className="absolute top-0 left-0 w-full h-full bg-black opacity-10"></div>
             <div className="relative z-10 max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Нужна консультация?</h2>
-              <p className="text-orange-50 text-lg mb-10">Оставьте заявку на бесплатный замер. Мы приедем с образцами материалов.</p>
+              <p className="text-orange-50 text-lg mb-10">Оставьте заявку на бесплатный замер.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button className="h-14 px-10 bg-white text-orange-600 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">Вызвать замерщика</button>
                 <a href="tel:+77071356701" className="h-14 px-10 border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition flex items-center justify-center gap-2"><Phone className="w-5 h-5"/> +7 (707) 135-67-01</a>
