@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Marquee from "react-fast-marquee"; 
+import Marquee from "react-fast-marquee";
 import { useState, useRef, useEffect } from "react";
 import { 
   ArrowRight, 
@@ -20,105 +20,70 @@ import {
   Palette,
   Layers,
   CheckCircle,
-  Clock 
+  Clock,
+  Ruler,
+  XCircle 
 } from "lucide-react";
 
 // --- ДАННЫЕ ---
-const clients = [
-  "KANGO", "COFFEE BOOM", "SMALL", "MAGNUM", 
-  "TECHNODOM", "SULPAK", "BI GROUP", "BAZIS-A",
-  "KASPI", "HALYK BANK", "DODO PIZZA"
-];
-
+const clients = [ "KANGO", "COFFEE BOOM", "SMALL", "MAGNUM", "TECHNODOM", "SULPAK", "BI GROUP", "BAZIS-A", "KASPI", "HALYK BANK", "DODO PIZZA" ];
 const services = [
-  {
-    title: "Объемные буквы",
-    desc: "Лицевая и контражурная подсветка. Премиальный акрил.",
-    price: "от 400 тг/см",
-    link: "/services/volume-letters",
-    image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800" 
-  },
-  {
-    title: "Световые короба",
-    desc: "Лайтбоксы сложных форм, инкрустация.",
-    price: "от 45 000 тг/кв.м",
-    link: "#",
-    image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    title: "Неоновые вывески",
-    desc: "Гибкий неон для интерьера и фотозон.",
-    price: "Индивидуально",
-    link: "#",
-    image: "https://images.unsplash.com/photo-1554189097-ffe88e99047d?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    title: "Крышные установки",
-    desc: "Громадные буквы на крышу. Расчет нагрузок.",
-    price: "Проектно",
-    link: "#",
-    image: "https://images.unsplash.com/photo-1517677208171-0bc5e2553e57?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    title: "Панель-кронштейны",
-    desc: "Двусторонние торцевые вывески.",
-    price: "от 35 000 тг",
-    link: "#",
-    image: "https://images.unsplash.com/photo-1582560475093-ba66accbc424?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    title: "Входные группы",
-    desc: "Козырьки, композит, полная обшивка.",
-    price: "Проектно",
-    link: "#",
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800"
-  }
+  { title: "Объемные буквы", desc: "Лицевая и контражурная подсветка. Премиальный акрил.", price: "от 400 тг/см", link: "/services/volume-letters", image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800" },
+  { title: "Световые короба", desc: "Лайтбоксы сложных форм, инкрустация.", price: "от 45 000 тг/кв.м", link: "#", image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=800" },
+  { title: "Неоновые вывески", desc: "Гибкий неон для интерьера и фотозон.", price: "Индивидуально", link: "#", image: "https://images.unsplash.com/photo-1554189097-ffe88e99047d?auto=format&fit=crop&q=80&w=800" },
+  { title: "Крышные установки", desc: "Громадные буквы на крышу. Расчет нагрузок.", price: "Проектно", link: "#", image: "https://images.unsplash.com/photo-1517677208171-0bc5e2553e57?auto=format&fit=crop&q=80&w=800" },
+  { title: "Панель-кронштейны", desc: "Двусторонние торцевые вывески.", price: "от 35 000 тг", link: "#", image: "https://images.unsplash.com/photo-1582560475093-ba66accbc424?auto=format&fit=crop&q=80&w=800" },
+  { title: "Входные группы", desc: "Козырьки, композит, полная обшивка.", price: "Проектно", link: "#", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800" }
+];
+const faqs = [
+  { q: "Сколько стоит заказать вывеску в Астане, и как рассчитывается цена?", a: "Цена рассчитывается индивидуально по честной смете. Стоимость объемных световых букв начинается от 400 тенге за сантиметр высоты. Финальная сумма зависит от выбранной технологии (световой короб, неон, контражур) и материалов (алюминиевый борт, акрил). Мы гарантируем отсутствие скрытых доплат." },
+  { q: "Нужно ли разрешение на установку вывески в Астане, и как проходит согласование?", a: "Да, обязательно. В Астане действует строгий «Дизайн-код», и большинство вывесок требуют согласования. Наша компания берет на себя подготовку всего пакета документов и подачу эскизного проекта в Управление архитектуры и градостроительства, чтобы избежать штрафов и демонтажа." },
+  { q: "Какие материалы вы используете, чтобы вывеска не выгорела на солнце и не замерзла зимой?", a: "Мы используем морозостойкие премиальные материалы, подходящие для климата Казахстана. Это немецкий транслюцентный акрил (не желтеет), пленка Oracal 8100, профессиональная краска Flame и герметичные LED-модули IP67. Мы даем гарантию 1 год." },
+  { q: "Какой минимальный срок изготовления наружной рекламы?", a: "Благодаря собственному цеху (ЧПУ и лазерная резка) мы можем изготовить стандартные буквы или лайтбокс в течение 3-5 рабочих дней с момента утверждения макета и предоплаты. Срочные заказы возможны, обсуждаются индивидуально." },
+  { q: "Даете ли вы гарантию, и что в неё входит?", a: "Мы предоставляем официальную гарантию 1 год по договору. Гарантия распространяется на целостность конструкции, качество пленки и электрику. В случае выхода из строя светодиодов или блока питания, мы производим ремонт бесплатно в течение 24 часов." }
+];
+const allReviews = [
+  { name: "Айгерим С.", role: "Coffee Boom", text: "Заказывали объемные буквы для кофейни. Сделали за 3 дня, как и обещали. Монтажники аккуратные, мусор за собой убрали. Идеально!"},
+  { name: "Ерлан М.", role: 'ТОО "StroyInvest"', text: "Отличная работа с документами. Сами подготовили эскиз для Акимата, согласовали с первого раза. Вы лучшие!"},
+  { name: "Дмитрий К.", role: 'Магазин "Техно"', text: "Цена адекватная, качество на высоте. Понравилось, что есть свой цех, можно приехать и посмотреть материалы вживую. Рекомендую!"},
+  { name: "Аслан К.", role: 'Торговый центр "Керуен"', text: "Заказали сложную крышную установку. Инженеры ADLight сами сделали расчёты и получили все разрешения. Работа выполнена точно в срок."},
+  { name: "Виктория Т.", role: 'Фитнес-клуб "World Class"', text: "Наши неоновые вывески были изготовлены идеально. Цвет насыщенный, как и просили. Отличная коммуникация на всех этапах."},
+  { name: "Рашид Б.", role: 'АЗС "GasPoint"', text: "Постоянно работаем с ADLight по брендированию заправок. Пленка Oracal служит дольше, чем у конкурентов. Качество стабильное."},
+  { name: "Тимур Н.", role: 'Бар "Loft"', text: "Сделали интерьерную подсветку и логотип над барной стойкой. Вписалось в дизайн идеально. Спасибо за оперативность."},
+  { name: "Елена С.", role: 'Студия маникюра "Nails"', text: "Заказывала панель-кронштейн. Теперь нас видно с двух сторон улицы. Дизайн-проект сделали бесплатно и быстро."}
 ];
 
-const faqs = [
-  {
-    q: "Сколько стоит вывеска?",
-    a: "Цена зависит от технологии и размеров. Объемные буквы начинаются от 400 тг за см высоты. Точную смету мы дадим после бесплатного замера."
-  },
-  {
-    q: "Вы делаете согласование с Акиматом?",
-    a: "Да, это наша сильная сторона. Мы готовим эскизный проект, фотопривязку и помогаем подать документы в Управление урбанистики через E-Otinish. Мы знаем Дизайн-код Астаны, поэтому наши вывески не демонтируют."
-  },
-  {
-    q: "Какие сроки изготовления?",
-    a: "Стандартный срок — 3-5 рабочих дней с момента утверждения макета и предоплаты. Срочные заказы (за 24 часа) обсуждаются индивидуально."
-  },
-  {
-    q: "Какая гарантия?",
-    a: "Мы даем официальную гарантию 1 год по договору. Она распространяется на целостность конструкции, пленку (от выцветания) и электрику. Если диод перегорит — заменим бесплатно."
-  }
-];
+// --- УНИВЕРСАЛЬНЫЙ СКРОЛЛЕР ДЛЯ КНОПОК (FIXED TS ERROR) ---
+const scrollCarousel = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
+    if (ref && ref.current) {
+        const scrollAmount = 400; 
+        ref.current.scrollBy({
+            left: direction === 'right' ? scrollAmount : -scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+};
 
 export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   
-  // Refs для карусели
-  const sliderRef = useRef<HTMLDivElement>(null);
+  // Refs
+  const sliderRef = useRef<HTMLDivElement>(null); 
+  const reviewsSliderRef = useRef<HTMLDivElement>(null); 
+  
+  // Drag Refs
   const isDown = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  const isReviewsDown = useRef(false);
+  const startReviewsX = useRef(0);
+  const scrollReviewsLeft = useRef(0);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  // --- ЛОГИКА КАРУСЕЛИ (КОМАНДЫ) ---
-  const scrollButtons = (direction: 'left' | 'right') => {
-    if (sliderRef.current) {
-      const scrollAmount = 400; 
-      sliderRef.current.scrollBy({
-        left: direction === 'right' ? scrollAmount : -scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  // --- ЛОГИКА 2: DRAG & DROP ---
+  // --- DRAG & DROP HANDLERS ---
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!sliderRef.current) return;
     isDown.current = true;
@@ -127,23 +92,14 @@ export default function Home() {
     startX.current = e.pageX - sliderRef.current.offsetLeft;
     scrollLeft.current = sliderRef.current.scrollLeft;
   };
-
   const handleMouseLeave = () => {
     isDown.current = false;
-    if (sliderRef.current) {
-        sliderRef.current.style.cursor = 'grab';
-        sliderRef.current.style.scrollBehavior = 'smooth';
-    }
+    if (sliderRef.current) { sliderRef.current.style.cursor = 'grab'; sliderRef.current.style.scrollBehavior = 'smooth'; }
   };
-
   const handleMouseUp = () => {
     isDown.current = false;
-    if (sliderRef.current) {
-        sliderRef.current.style.cursor = 'grab';
-        sliderRef.current.style.scrollBehavior = 'smooth';
-    }
+    if (sliderRef.current) { sliderRef.current.style.cursor = 'grab'; sliderRef.current.style.scrollBehavior = 'smooth'; }
   };
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDown.current || !sliderRef.current) return;
     e.preventDefault();
@@ -151,25 +107,48 @@ export default function Home() {
     const walk = (x - startX.current) * 1.5;
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
+  
+  const handleReviewsMouseDown = (e: React.MouseEvent) => {
+    if (!reviewsSliderRef.current) return;
+    isReviewsDown.current = true;
+    reviewsSliderRef.current.style.cursor = 'grabbing';
+    reviewsSliderRef.current.style.scrollBehavior = 'auto';
+    startReviewsX.current = e.pageX - reviewsSliderRef.current.offsetLeft;
+    scrollReviewsLeft.current = reviewsSliderRef.current.scrollLeft;
+  };
+  const handleReviewsMouseLeave = () => {
+    isReviewsDown.current = false;
+    if (reviewsSliderRef.current) { reviewsSliderRef.current.style.cursor = 'grab'; reviewsSliderRef.current.style.scrollBehavior = 'smooth'; }
+  };
+  const handleReviewsMouseUp = () => {
+    isReviewsDown.current = false;
+    if (reviewsSliderRef.current) { reviewsSliderRef.current.style.cursor = 'grab'; reviewsSliderRef.current.style.scrollBehavior = 'smooth'; }
+  };
+  const handleReviewsMouseMove = (e: React.MouseEvent) => {
+    if (!isReviewsDown.current || !reviewsSliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - reviewsSliderRef.current.offsetLeft;
+    const walk = (x - startReviewsX.current) * 1.5;
+    reviewsSliderRef.current.scrollLeft = scrollReviewsLeft.current - walk;
+  };
 
-  // --- ЛОГИКА 3: КОЛЕСО МЫШИ (УМНЫЙ СКРОЛЛ) ---
+  // --- WHEEL HANDLER ---
   useEffect(() => {
-    const slider = sliderRef.current;
-    if (!slider) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      if (e.deltaY === 0) return;
-      const isAtEnd = Math.ceil(slider.scrollLeft + slider.clientWidth) >= slider.scrollWidth - 2;
-      const isAtStart = slider.scrollLeft <= 0;
-
-      if ((e.deltaY > 0 && isAtEnd) || (e.deltaY < 0 && isAtStart)) return;
-
-      e.preventDefault();
-      slider.scrollLeft += e.deltaY;
-    };
-
-    slider.addEventListener('wheel', handleWheel, { passive: false });
-    return () => slider.removeEventListener('wheel', handleWheel);
+    const sliders = [sliderRef.current, reviewsSliderRef.current];
+    sliders.forEach(slider => {
+      if (slider) {
+        const handleWheel = (e: WheelEvent) => {
+          if (e.deltaY === 0) return;
+          const isAtEnd = Math.ceil(slider.scrollLeft + slider.clientWidth) >= slider.scrollWidth - 2;
+          const isAtStart = slider.scrollLeft <= 0;
+          if ((e.deltaY > 0 && isAtEnd) || (e.deltaY < 0 && isAtStart)) return;
+          e.preventDefault();
+          slider.scrollLeft += e.deltaY;
+        };
+        slider.addEventListener('wheel', handleWheel, { passive: false });
+        return () => slider.removeEventListener('wheel', handleWheel);
+      }
+    });
   }, []);
 
   return (
@@ -241,8 +220,8 @@ export default function Home() {
         </div>
         
         <div className="relative flex">
-           <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none"></div>
-           <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none"></div>
+           <div className="absolute inset-y-0 left-0 w-24 md:w-32 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none"></div>
+           <div className="absolute inset-y-0 right-0 w-24 md:w-32 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none"></div>
 
            <Marquee gradient={false} speed={40} autoFill={true} className="overflow-hidden" style={{ overflowY: 'hidden' }}>
               {clients.map((client, index) => (
@@ -274,8 +253,8 @@ export default function Home() {
               </div>
               
               <div className="hidden md:flex gap-3">
-                 <button onClick={() => scrollButtons('left')} className="p-3 rounded-full border border-slate-700 text-white hover:bg-slate-800 transition active:scale-95"><ChevronLeft className="w-6 h-6"/></button>
-                 <button onClick={() => scrollButtons('right')} className="p-3 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition shadow-lg active:scale-95"><ChevronRight className="w-6 h-6"/></button>
+                 <button onClick={() => scrollCarousel(sliderRef, 'left')} className="p-3 rounded-full border border-slate-700 text-white hover:bg-slate-800 transition active:scale-95"><ChevronLeft className="w-6 h-6"/></button>
+                 <button onClick={() => scrollCarousel(sliderRef, 'right')} className="p-3 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition shadow-lg active:scale-95"><ChevronRight className="w-6 h-6"/></button>
               </div>
             </div>
             
@@ -285,7 +264,7 @@ export default function Home() {
               className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing"
             >
                {services.map((service, i) => (
-                 <Link key={i} href={service.link} draggable={false} className="relative group min-w-[300px] md:min-w-[380px] h-[450px] flex-shrink-0 rounded-2xl overflow-hidden border border-slate-800 hover:border-orange-500/50 transition-colors">
+                 <Link key={i} href={service.link} draggable={false} className="relative group min-w-[300px] md:min-w-[380px] h-[450px] flex-shrink-0 rounded-2xl overflow-hidden border border-slate-800 hover:border-orange-500/50 transition-colors flex-none">
                     <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none" style={{ backgroundImage: `url(${service.image})` }}></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent opacity-90 pointer-events-none"></div>
                     <div className="absolute inset-0 flex flex-col justify-end p-8 pointer-events-none">
@@ -324,62 +303,82 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. ТЕХНОЛОГИИ */}
+      {/* 6. СОБСТВЕННОЕ ПРОИЗВОДСТВО */}
       <section data-aos="fade-up" className="py-24 bg-[#0F172A]">
         <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
-          <div>
-             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Свое производство — <br/>ваша гарантия цены</h2>
-             <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-               Многие "агентства" просто перезаказывают вывески в гаражах. Мы — реальный завод на ул. Акжол 110.
-             </p>
-             <div className="space-y-6">
-               {[
-                 {icon: <Palette/>, title: "Oracal 8100 (Германия)", desc: "Пленка не выцветает на солнце."},
-                 {icon: <Layers/>, title: "Двойная УФ-печать", desc: "Сочные цвета даже ночью."},
-                 {icon: <Hammer/>, title: "Покраска Flame", desc: "Профессиональная эмаль, стойкая к сколам."}
-               ].map((item, i) => (
-                 <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="flex gap-4 p-4 rounded-xl hover:bg-slate-800/50 transition">
-                   <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 text-orange-500">{item.icon}</div>
-                   <div><h4 className="text-white font-bold text-lg">{item.title}</h4><p className="text-gray-400 text-sm">{item.desc}</p></div>
-                 </div>
-               ))}
-             </div>
+          <div className="space-y-10">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Качество, которое <span className="text-orange-500">служит годами</span></h2>
+            <p className="text-gray-400 text-lg leading-relaxed max-w-lg">Наше производство — это гарантия. Мы используем только премиальные материалы и технологии.</p>
+            <div className="space-y-6">
+              {[{icon: <Zap/>, title: "Запас мощности +30%", desc: "Исключает перегрев."}, {icon: <Palette/>, title: "Покраска Flame", desc: "Устойчива к сколам."}, {icon: <ShieldCheck/>, title: "Гарантия 1 год", desc: "По договору."}, {icon: <Layers/>, title: "Акрил и Алюминий", desc: "Немецкие материалы."}].map((item, i) => (
+                <div key={i} data-aos="fade-up" data-aos-delay={i * 50} className="flex gap-4 p-4 rounded-xl hover:bg-slate-800/50 transition duration-300 ease-in-out">
+                  <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 text-orange-500">{item.icon}</div>
+                  <div><h4 className="text-white font-bold text-lg">{item.title}</h4><p className="text-gray-400 text-sm">{item.desc}</p></div>
+                </div>
+              ))}
+            </div>
+            <div data-aos="fade-up" data-aos-delay="300" className="mt-12 flex flex-col sm:flex-row gap-4">
+              <Link href="/services/volume-letters" className="h-14 px-8 flex items-center justify-center bg-orange-600 rounded-xl text-white font-bold text-lg hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 active:scale-95">Получить расчет</Link>
+            </div>
           </div>
-          <div data-aos="fade-left" data-aos-delay="200" className="relative h-[500px] bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden group">
-             <div className="absolute inset-0 flex items-center justify-center text-slate-600 font-bold text-2xl">ФОТО ЦЕХА</div>
-             <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 p-4 rounded-xl border border-slate-700">
-               <div className="text-white font-bold">ул. Акжол 110</div>
-               <div className="text-orange-500 text-sm">Наш адрес</div>
+          <div data-aos="fade-left" data-aos-delay="200" className="relative">
+             <div className="relative h-[450px] bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden group">
+               <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1621243869279-d56711867c48?auto=format&fit=crop&q=80&w=1200')" }}></div>
+               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition"></div>
+               <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 p-4 rounded-xl border border-slate-700">
+                 <div className="text-white font-bold">Производственный цех: ул. Акжол 110</div>
+               </div>
+             </div>
+             <div className="grid grid-cols-2 gap-4 mt-6">
+                 <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 text-center"><div className="text-3xl font-bold text-white mb-1">300+</div><div className="text-gray-500 text-sm">проектов</div></div>
+                 <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 text-center"><div className="text-3xl font-bold text-white mb-1">50k ч</div><div className="text-gray-500 text-sm">ресурс LED</div></div>
              </div>
           </div>
         </div>
       </section>
 
-      {/* 7. BENTO GRID (СВЕЖИЕ ПРОЕКТЫ) */}
+      {/* 7. BENTO GRID */}
       <section data-aos="fade-up" className="py-32 bg-slate-950 border-t border-slate-800/50 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent"></div>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Свежие проекты</h2>
+            <div><h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Свежие проекты</h2><p className="text-gray-400 text-lg">То, что мы сдали на прошлой неделе</p></div>
             <a href="#" className="inline-flex items-center justify-center px-6 py-3 border border-slate-700 rounded-xl text-white hover:bg-slate-800 hover:border-slate-600 transition group">Все 300+ работ <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition"/></a>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[600px]">
-            {/* Карточки Bento (Пример) */}
-            {[
-              {title: "Emerald Tower", category: "КРЫШНАЯ", url: 'https://images.unsplash.com/photo-1550534791-2677533605ab?auto=format&fit=crop&q=80&w=1200', size: 'large'},
-              {title: "LOFT Bar Astana", category: "Интерьерный неон", url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800', size: 'medium'},
-              {title: "Аптека Biocare", category: "Входная группа", url: 'https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&q=80&w=600', size: 'small'},
-              {title: "Кофейня Marrone", category: "Лайтбокс", url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=600', size: 'small'}
-            ].map((project, i) => (
-              <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className={`${project.size === 'large' ? 'md:col-span-2 md:row-span-2' : project.size === 'medium' ? 'md:col-span-2' : 'md:col-span-1'} group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]`}>
-                <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `url('${project.url}')` }}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
-                <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
-                  <div className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-orange-600 rounded-full">{project.category}</div>
-                  <h3 className={`font-bold text-white ${project.size === 'large' ? 'text-4xl' : 'text-xl'}`}>{project.title}</h3>
-                </div>
+            <div className="md:col-span-2 md:row-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800">
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1550534791-2677533605ab?auto=format&fit=crop&q=80&w=1200')" }}></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
+              <div className="absolute bottom-0 left-0 p-8 w-full">
+                <div className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-orange-600 rounded-full">КРЫШНАЯ УСТАНОВКА</div>
+                <h3 className="text-3xl font-bold text-white mb-2">БЦ "Emerald Tower"</h3>
+                <p className="text-gray-300 line-clamp-2">Изготовление и монтаж букв высотой 2.5 метра.</p>
               </div>
-            ))}
+            </div>
+            <div className="md:col-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800')" }}></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
+              <div className="absolute bottom-0 left-0 p-6">
+                <div className="text-orange-400 text-xs font-bold mb-1 tracking-wider uppercase">Интерьерный неон</div>
+                <h3 className="text-xl font-bold text-white">LOFT Bar Astana</h3>
+              </div>
+            </div>
+            <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&q=80&w=600')" }}></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
+              <div className="absolute bottom-0 left-0 p-6">
+                <div className="text-blue-400 text-xs font-bold mb-1 tracking-wider uppercase">Входная группа</div>
+                <h3 className="text-lg font-bold text-white">Аптека "Biocare"</h3>
+              </div>
+            </div>
+            <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=600')" }}></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
+              <div className="absolute bottom-0 left-0 p-6">
+                <div className="text-green-400 text-xs font-bold mb-1 tracking-wider uppercase">Лайтбокс</div>
+                <h3 className="text-lg font-bold text-white">Кофейня "Marrone"</h3>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -394,7 +393,7 @@ export default function Home() {
           </div>
           <div className="space-y-4">
             {faqs.map((item, index) => (
-              <div key={index} data-aos="fade-up" data-aos-delay={index * 50} className={`group rounded-2xl transition-all duration-300 ${openFaq === index ? 'bg-slate-900 ring-1 ring-orange-500/30 shadow-2xl shadow-orange-900/10' : 'bg-slate-900/50 hover:bg-slate-900 border border-slate-800'}`}>
+              <div key={index} className={`group rounded-2xl transition-all duration-300 ${openFaq === index ? 'bg-slate-900 ring-1 ring-orange-500/30 shadow-2xl shadow-orange-900/10' : 'bg-slate-900/50 hover:bg-slate-900 border border-slate-800'}`}>
                 <button onClick={() => toggleFaq(index)} className="w-full flex items-center justify-between p-6 md:p-8 text-left focus:outline-none">
                   <span className={`text-lg md:text-xl font-bold transition-colors duration-300 ${openFaq === index ? 'text-orange-500' : 'text-white group-hover:text-orange-400'}`}>{item.q}</span>
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-orange-500 text-white rotate-180' : 'bg-slate-800 text-gray-400 group-hover:bg-slate-700'}`}><ChevronDown className="w-6 h-6"/></div>
@@ -408,23 +407,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. ОТЗЫВЫ */}
-      <section data-aos="fade-up" className="py-24 bg-[#0F172A]">
+      {/* 9. ОТЗЫВЫ (ФИКС: 30% ШИРИНЫ) */}
+      <section data-aos="fade-up" className="py-24 bg-[#0F172A] border-t border-slate-800">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Что говорят клиенты</h2>
-            <div className="flex items-center justify-center gap-2 text-gray-400">
-               <span>Рейтинг 4.9 в</span>
-               <span className="font-bold text-white bg-green-600 px-2 py-0.5 rounded text-sm">2GIS</span>
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Что говорят клиенты</h2>
+              <div className="flex items-center gap-2 text-gray-400">
+                <span>Рейтинг 4.9 на основе 82 отзывов в</span>
+                <span className="font-bold text-white bg-green-600 px-2 py-0.5 rounded text-sm">2GIS</span>
+              </div>
+            </div>
+            <div className="hidden md:flex gap-3">
+               <button onClick={() => scrollCarousel(reviewsSliderRef, 'left')} className="p-3 rounded-full border border-slate-700 text-white hover:bg-slate-800 transition active:scale-95"><ChevronLeft className="w-6 h-6"/></button>
+               <button onClick={() => scrollCarousel(reviewsSliderRef, 'right')} className="p-3 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition shadow-lg active:scale-95"><ChevronRight className="w-6 h-6"/></button>
             </div>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-             {[
-               {name: "Айгерим С.", role: "Coffee Boom", text: "Заказывали объемные буквы для кофейни. Сделали за 3 дня, как и обещали. Монтажники аккуратные, мусор за собой убрали."},
-               {name: "Ерлан М.", role: 'ТОО "StroyInvest"', text: "Отличная работа с документами. Сами подготовили эскиз для Акимата, согласовали с первого раза."},
-               {name: "Дмитрий К.", role: 'Магазин "Техно"', text: "Цена адекватная, качество на высоте. Понравилось, что есть свой цех, можно приехать и посмотреть материалы вживую."}
-             ].map((rev, i) => (
-               <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="bg-slate-900 p-8 rounded-2xl border border-slate-800 relative hover:border-slate-700 transition">
+          
+          <div 
+            ref={reviewsSliderRef}
+            onMouseDown={handleReviewsMouseDown} onMouseLeave={handleReviewsMouseLeave} onMouseUp={handleReviewsMouseUp} onMouseMove={handleReviewsMouseMove}
+            className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing"
+          >
+             {allReviews.map((rev, i) => (
+               <div 
+                 key={i} 
+                 data-aos="fade-up" 
+                 data-aos-delay={i * 50} 
+                 // ФИКС: w-[30%] чтобы влезало 3 карточки + отступы
+                 className="relative group flex-none w-[85vw] md:w-[30%] bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-slate-700 transition select-none"
+               >
                   <div className="flex gap-1 text-orange-500 mb-4">
                      {[1,2,3,4,5].map(star => <svg key={star} className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>)}
                   </div>
@@ -436,7 +448,7 @@ export default function Home() {
                         <div className="text-xs text-gray-500">{rev.role}</div>
                      </div>
                   </div>
-               </div>
+                </div>
              ))}
           </div>
         </div>
@@ -445,12 +457,7 @@ export default function Home() {
       {/* 10. КАРТА И КОНТАКТЫ */}
       <section data-aos="fade-up" className="py-0 bg-slate-950 border-t border-slate-800 relative h-[600px]">
          <div className="absolute inset-0 bg-slate-800">
-            <iframe 
-              src="https://yandex.ru/map-widget/v1/?ll=71.497162%2C51.194223&mode=search&ol=geo&ouri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgg2NjIzOTY5MRJO0JrQsNC30LDRh9GB0YLQs0L0LCBBc3RhbmEsIEFxxb5vLCAxMTAsINCQ0YHRgtCw0L3QsCAwMTAwMDAsINCQ0YHRgtCw0L3QsCAwMTAwMDAiCg21RlFCFU_PUEI%2C&z=16.63" 
-              width="100%" height="100%" frameBorder="0"
-              style={{ filter: 'grayscale(100%) invert(90%) hue-rotate(180deg)' }} 
-              className="opacity-80"
-            ></iframe>
+            <iframe src="https://yandex.ru/map-widget/v1/?ll=71.497162%2C51.194223&mode=search&ol=geo&ouri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgg2NjIzOTY5MRJO0JrQsNC30LDRh9GB0YLQs0L0LCBBc3RhbmEsIEFxxb5vLCAxMTAsINCQ0YHRgtCw0L3QsCAwMTAwMDAsINCQ0YHRgtCw0L3QsCAwMTAwMDAiCg21RlFCFU_PUEI%2C&z=16.63" width="100%" height="100%" frameBorder="0" style={{ filter: 'grayscale(100%) invert(90%) hue-rotate(180deg)' }} className="opacity-80"></iframe>
          </div>
          <div className="container mx-auto px-4 h-full flex items-center relative pointer-events-none">
             <div className="bg-slate-900/90 backdrop-blur-md p-10 rounded-3xl border border-slate-800 shadow-2xl max-w-md pointer-events-auto">
@@ -475,17 +482,23 @@ export default function Home() {
       </section>
 
       {/* 11. CTA */}
-      <section data-aos="fade-up" className="py-20 bg-[#0F172A]">
+      <section data-aos="fade-up" className="py-24 bg-[#0F172A]">
         <div className="container mx-auto px-4">
-          <div className="bg-gradient-to-r from-orange-600 to-orange-500 rounded-3xl p-10 md:p-16 text-center relative overflow-hidden shadow-2xl shadow-orange-900/40">
-            <div className="absolute top-0 left-0 w-full h-full bg-black opacity-10"></div>
-            <div className="relative z-10 max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Нужна консультация?</h2>
-              <p className="text-orange-50 text-lg mb-10">Оставьте заявку на бесплатный замер.</p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button className="h-14 px-10 bg-white text-orange-600 rounded-xl font-bold text-lg hover:bg-gray-100 transition shadow-xl">Вызвать замерщика</button>
-                <a href="tel:+77071356701" className="h-14 px-10 border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition flex items-center justify-center gap-2"><Phone className="w-5 h-5"/> +7 (707) 135-67-01</a>
-              </div>
+          <div className="bg-slate-900 rounded-3xl p-8 md:p-16 relative border border-slate-800 shadow-2xl shadow-black/50 overflow-hidden">
+            <div className="absolute top-0 left-1/2 w-full h-full bg-orange-600/10 blur-[150px] -z-10 rounded-full pointer-events-none"></div>
+            <div className="max-w-4xl mx-auto text-center relative z-10">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-3 tracking-tight">Получите бесплатный <span className="text-orange-500">дизайн-проект</span></h2>
+                <p className="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">Оставьте контакты, и мы пришлём пример фотопривязки.</p>
+                <form className="flex flex-col md:flex-row gap-4 w-full max-w-2xl mx-auto mb-6">
+                  <input type="text" placeholder="Ваше имя" className="flex-1 px-5 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl placeholder:text-gray-500 focus:ring-2 focus:ring-orange-600 outline-none transition" required/>
+                  <input type="tel" placeholder="+7 (___) ___-__-__" className="flex-1 px-5 py-4 bg-slate-800 border border-slate-700 text-white rounded-xl placeholder:text-gray-500 focus:ring-2 focus:ring-orange-600 outline-none transition" required/>
+                  <button type="submit" className="h-auto px-8 py-3 bg-orange-600 text-white font-bold text-lg rounded-xl hover:bg-orange-700 transition active:scale-95 shadow-lg shadow-orange-900/30 whitespace-nowrap">Отправить</button>
+                </form>
+                <div className="flex flex-wrap justify-center gap-6 mt-6 text-sm">
+                  <div className="flex items-center gap-2 text-gray-400"><ShieldCheck className="w-5 h-5 text-green-500"/> Гарантия по договору</div>
+                  <div className="flex items-center gap-2 text-gray-400"><XCircle className="w-5 h-5 text-red-500"/> Без спама и звонков</div>
+                  <div className="flex items-center gap-2 text-gray-400"><Ruler className="w-5 h-5 text-orange-500"/> Замер бесплатно</div>
+                </div>
             </div>
           </div>
         </div>
