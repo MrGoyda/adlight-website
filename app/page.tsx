@@ -28,12 +28,12 @@ import {
 // --- ДАННЫЕ ---
 const clients = [ "KANGO", "COFFEE BOOM", "SMALL", "MAGNUM", "TECHNODOM", "SULPAK", "BI GROUP", "BAZIS-A", "KASPI", "HALYK BANK", "DODO PIZZA" ];
 const services = [
-  { title: "Объемные буквы", desc: "Лицевая и контражурная подсветка. Премиальный акрил.", price: "от 400 тг/см", link: "/services/volume-letters", image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800" },
-  { title: "Световые короба", desc: "Лайтбоксы сложных форм, инкрустация.", price: "от 45 000 тг/кв.м", link: "#", image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=800" },
-  { title: "Неоновые вывески", desc: "Гибкий неон для интерьера и фотозон.", price: "Индивидуально", link: "#", image: "https://images.unsplash.com/photo-1554189097-ffe88e99047d?auto=format&fit=crop&q=80&w=800" },
-  { title: "Крышные установки", desc: "Громадные буквы на крышу. Расчет нагрузок.", price: "Проектно", link: "#", image: "https://images.unsplash.com/photo-1517677208171-0bc5e2553e57?auto=format&fit=crop&q=80&w=800" },
-  { title: "Панель-кронштейны", desc: "Двусторонние торцевые вывески.", price: "от 35 000 тг", link: "#", image: "https://images.unsplash.com/photo-1582560475093-ba66accbc424?auto=format&fit=crop&q=80&w=800" },
-  { title: "Входные группы", desc: "Козырьки, композит, полная обшивка.", price: "Проектно", link: "#", image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800" }
+  { title: "Объемные буквы", desc: "Лицевая, боковая и контражурная подсветка. Комбинирование техник.", price: "от 400 тг/см", link: "/services/volume-letters", image: "/loghtbox.jpg" },
+  { title: "Световые короба", desc: "Лайтбоксы сложных форм, инкрустация.", price: "от 45 000 тг/кв.м", link: "#", image: "/1solution.jpg" },
+  { title: "Неоновые вывески", desc: "Гибкий неон для интерьера и фотозон.", price: "Индивидуально", link: "#", image: "/neon.jpg" },
+  { title: "Крышные установки", desc: "Громадные буквы на крышу. Расчет нагрузок.", price: "Проектно", link: "#", image: "/krisha.jpg" },
+  { title: "Панель-кронштейны", desc: "Двусторонние торцевые вывески.", price: "от 35 000 тг", link: "#", image: "/panel.jpg" },
+  { title: "Входные группы", desc: "Козырьки, композит, полная обшивка.", price: "Проектно", link: "#", image: "/agro.jpg" }
 ];
 const faqs = [
   { q: "Сколько стоит заказать вывеску в Астане, и как рассчитывается цена?", a: "Цена рассчитывается индивидуально по честной смете. Стоимость объемных световых букв начинается от 400 тенге за сантиметр высоты. Финальная сумма зависит от выбранной технологии (световой короб, неон, контражур) и материалов (алюминиевый борт, акрил). Мы гарантируем отсутствие скрытых доплат." },
@@ -172,14 +172,13 @@ export default function Home() {
               Работаем в Астане и области
             </div>
             <h1 data-aos="fade-up" data-aos-delay="100" className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
-              Наружная реклама <br/>
+              Производство рекламных конструкций<br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">
-                без посредников
+              полного цикла в Астане.
               </span>
             </h1>
             <p data-aos="fade-up" data-aos-delay="200" className="text-gray-400 text-lg md:text-xl max-w-lg leading-relaxed">
-              Изготовим вывеску по Дизайн-коду Астаны за 3 дня. 
-              Собственный цех, гарантия на электрику и бесплатный дизайн-проект.
+              Комплексное оформление фасадов, премиальные вывески и архитектурная подсветка в Астане. Берем на себя сложные технические задачи, чтобы ваш бизнес был заметен.
             </p>
             <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col sm:flex-row gap-4 pt-2">
               <Link href="/services/volume-letters" className="h-14 px-8 flex items-center justify-center bg-orange-600 rounded-xl text-white font-bold text-lg hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 hover:scale-105 active:scale-95">
@@ -193,15 +192,15 @@ export default function Home() {
           <div className="relative">
              <div className="absolute inset-0 bg-orange-500/5 blur-3xl -z-10 rounded-full"></div>
              <div data-aos="fade-left" className="grid grid-cols-2 gap-4">
-                {['https://images.unsplash.com/photo-1524813686514-a57563d77965?auto=format&fit=crop&q=80&w=600', 
-                  'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=600',
-                  'https://images.unsplash.com/photo-1517677208171-0bc5e2553e57?auto=format&fit=crop&q=80&w=600',
-                  'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&q=80&w=600'].map((url, i) => (
+                {['/qazpost2.jpg', 
+                  '/kmg.jpeg',
+                  '/loghtbox.jpg',
+                  '/bagnaz.jpg'].map((url, i) => (
                   <div key={i} className="aspect-square rounded-2xl overflow-hidden relative group border border-slate-700/50 bg-slate-800">
                      <div className="absolute inset-0 bg-slate-800 group-hover:scale-110 transition duration-700" style={{backgroundImage: `url(${url})`, backgroundSize: 'cover'}}></div>
                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition"></div>
                      <div className="absolute bottom-4 left-4">
-                        <p className="text-white font-bold text-lg">{['KANGO', 'COFFEE', 'LOFT', 'SHOP'][i]}</p>
+                        <p className="text-white font-bold text-lg">{['QazPost', 'KMG', 'AO Студия танца', 'BagNaz магазин'][i]}</p>
                         <p className="text-xs text-gray-300">Вывеска</p>
                      </div>
                   </div>
@@ -280,7 +279,90 @@ export default function Home() {
             </div>
          </div>
       </section>
+{/* --- БЛОК: ДИЗАЙН-КОД (ОЧИЩЕННЫЙ) --- */}
+      <section data-aos="fade-up" className="py-24 bg-slate-900 relative overflow-hidden border-y border-slate-800">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-yellow-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+        
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            
+            {/* ЛЕВАЯ ЧАСТЬ: ТЕКСТ */}
+            <div>
+               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm font-bold mb-6">
+                 <span className="relative flex h-2 w-2">
+                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                   <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+                 </span>
+                 Важно для бизнеса в Астане
+               </div>
 
+               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+                 Спасаем от штрафов и <span className="text-yellow-500">демонтажа</span>
+               </h2>
+               
+               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
+                 В Астане действует строгий Дизайн-код. 80% вывесок, установленных "гаражными мастерами", приходится снимать через месяц. <br/><br/>
+                 Мы знаем требования Управления урбанистики наизусть. Ваша вывеска будет законной.
+               </p>
+
+               <ul className="space-y-4 mb-10">
+                 <li className="flex items-start gap-3">
+                   <div className="p-1 bg-green-500/10 rounded mt-1"><CheckCircle className="w-5 h-5 text-green-500"/></div>
+                   <div><strong className="text-white block">Проверка фасада</strong><span className="text-gray-400 text-sm">Проверим, разрешена ли вывеска на вашем здании.</span></div>
+                 </li>
+                 <li className="flex items-start gap-3">
+                   <div className="p-1 bg-green-500/10 rounded mt-1"><CheckCircle className="w-5 h-5 text-green-500"/></div>
+                   <div><strong className="text-white block">Эскизный проект</strong><span className="text-gray-400 text-sm">Подготовим альбом для подачи в Акимат.</span></div>
+                 </li>
+                 <li className="flex items-start gap-3">
+                   <div className="p-1 bg-green-500/10 rounded mt-1"><CheckCircle className="w-5 h-5 text-green-500"/></div>
+                   <div><strong className="text-white block">Сопровождение</strong><span className="text-gray-400 text-sm">Помогаем подать заявку через E-Otinish.</span></div>
+                 </li>
+               </ul>
+
+               <Link href="#" className="inline-flex items-center text-white font-bold text-lg hover:text-yellow-500 transition group">
+                 Читать подробнее про Дизайн-код <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition"/>
+               </Link>
+            </div>
+
+            {/* ПРАВАЯ ЧАСТЬ: ДОКУМЕНТ (БЕЗ ЛИШНИХ РАЗМЕРОВ) */}
+            <div className="relative">
+               {/* Карточка "Штраф" (фон) */}
+               <div className="absolute -right-4 top-10 w-64 bg-white p-4 rounded-lg shadow-xl transform rotate-6 opacity-80 blur-[1px]">
+                  <div className="h-2 w-1/2 bg-red-500 rounded mb-2"></div>
+                  <div className="h-2 w-3/4 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-2 w-full bg-gray-200 rounded mb-4"></div>
+                  <div className="text-red-600 font-bold text-xl border-2 border-red-600 inline-block px-2 py-1 rounded -rotate-12">ДЕМОНТАЖ</div>
+               </div>
+
+               {/* Карточка "Согласовано" (передний план) */}
+               <div className="relative bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-2xl">
+                  <div className="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white"><FileCheck/></div>
+                        <div>
+                           <div className="text-white font-bold text-sm">Эскизный проект</div>
+                           <div className="text-green-500 text-xs font-bold uppercase tracking-wider">Одобрено</div>
+                        </div>
+                     </div>
+                     <div className="text-gray-500 text-xs font-mono">№ 482-А</div>
+                  </div>
+                  <div 
+                    className="aspect-video bg-slate-900 rounded-lg border border-slate-700/50 relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('/dk.png')" }}>
+                  </div>
+
+                  <div className="mt-6 bg-green-500/10 border border-green-500/20 rounded-lg p-3 flex items-start gap-3">
+                     <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"/>
+                     <p className="text-green-400 text-xs leading-relaxed font-medium">
+                        Объект соответствует требованиям архитектурного облика столицы. Размещение разрешено.
+                     </p>
+                  </div>
+               </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
       {/* 5. ЭТАПЫ */}
       <section data-aos="fade-up" className="py-24 bg-slate-950 border-t border-slate-800">
         <div className="container mx-auto px-4">
@@ -323,7 +405,7 @@ export default function Home() {
           </div>
           <div data-aos="fade-left" data-aos-delay="200" className="relative">
              <div className="relative h-[450px] bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden group">
-               <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1621243869279-d56711867c48?auto=format&fit=crop&q=80&w=1200')" }}></div>
+               <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/ceh.jpg')" }}></div>
                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition"></div>
                <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 p-4 rounded-xl border border-slate-700">
                  <div className="text-white font-bold">Производственный цех: ул. Акжол 110</div>
@@ -347,36 +429,36 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[600px]">
             <div className="md:col-span-2 md:row-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1550534791-2677533605ab?auto=format&fit=crop&q=80&w=1200')" }}></div>
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/qazpost.jpg')" }}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
               <div className="absolute bottom-0 left-0 p-8 w-full">
-                <div className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-orange-600 rounded-full">КРЫШНАЯ УСТАНОВКА</div>
-                <h3 className="text-3xl font-bold text-white mb-2">БЦ "Emerald Tower"</h3>
-                <p className="text-gray-300 line-clamp-2">Изготовление и монтаж букв высотой 2.5 метра.</p>
+                <div className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-orange-600 rounded-full">Объемные буквы</div>
+                <h3 className="text-3xl font-bold text-white mb-2">БЦ "Monolith"</h3>
+                <p className="text-gray-300 line-clamp-2">Изготовление и монтаж вывесок для QazPost</p>
               </div>
             </div>
             <div className="md:col-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800')" }}></div>
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/1solution.jpg')" }}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
               <div className="absolute bottom-0 left-0 p-6">
-                <div className="text-orange-400 text-xs font-bold mb-1 tracking-wider uppercase">Интерьерный неон</div>
-                <h3 className="text-xl font-bold text-white">LOFT Bar Astana</h3>
+                <div className="text-orange-400 text-xs font-bold mb-1 tracking-wider uppercase">Объемные буквы и лайтбокс</div>
+                <h3 className="text-xl font-bold text-white">Юридическая компания 1Solution</h3>
               </div>
             </div>
             <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&q=80&w=600')" }}></div>
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/agro.jpg')" }}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
               <div className="absolute bottom-0 left-0 p-6">
-                <div className="text-blue-400 text-xs font-bold mb-1 tracking-wider uppercase">Входная группа</div>
-                <h3 className="text-lg font-bold text-white">Аптека "Biocare"</h3>
+                <div className="text-blue-400 text-xs font-bold mb-1 tracking-wider uppercase">Неон и вывеска</div>
+                <h3 className="text-lg font-bold text-white">Объемные буквы и неоновые вывески"</h3>
               </div>
             </div>
             <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=600')" }}></div>
+              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/fortuna.jpg')" }}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
               <div className="absolute bottom-0 left-0 p-6">
-                <div className="text-green-400 text-xs font-bold mb-1 tracking-wider uppercase">Лайтбокс</div>
-                <h3 className="text-lg font-bold text-white">Кофейня "Marrone"</h3>
+                <div className="text-green-400 text-xs font-bold mb-1 tracking-wider uppercase">Объемные буквы и панель-кронштейн</div>
+                <h3 className="text-lg font-bold text-white">Вывеска для агентства недвижимости Fortuna"</h3>
               </div>
             </div>
           </div>
