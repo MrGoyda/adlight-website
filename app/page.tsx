@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Marquee from "react-fast-marquee"; // Библиотека для бегущей строки
+import Marquee from "react-fast-marquee"; 
 import { useState, useRef, useEffect } from "react";
 import { 
   ArrowRight, 
@@ -20,17 +20,16 @@ import {
   Palette,
   Layers,
   CheckCircle,
-  Clock // <--- ВОТ ОНА, ДОБАВЛЕНА!
+  Clock 
 } from "lucide-react";
 
-// --- ДАННЫЕ: ЛОГОТИПЫ ---
+// --- ДАННЫЕ ---
 const clients = [
   "KANGO", "COFFEE BOOM", "SMALL", "MAGNUM", 
   "TECHNODOM", "SULPAK", "BI GROUP", "BAZIS-A",
   "KASPI", "HALYK BANK", "DODO PIZZA"
 ];
 
-// --- ДАННЫЕ: УСЛУГИ ---
 const services = [
   {
     title: "Объемные буквы",
@@ -76,7 +75,6 @@ const services = [
   }
 ];
 
-// --- ДАННЫЕ: FAQ ---
 const faqs = [
   {
     q: "Сколько стоит вывеска?",
@@ -109,7 +107,7 @@ export default function Home() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  // --- ЛОГИКА КАРУСЕЛИ ---
+  // --- ЛОГИКА КАРУСЕЛИ (КОМАНДЫ) ---
   const scrollButtons = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
       const scrollAmount = 400; 
@@ -120,11 +118,12 @@ export default function Home() {
     }
   };
 
+  // --- ЛОГИКА 2: DRAG & DROP ---
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!sliderRef.current) return;
     isDown.current = true;
     sliderRef.current.style.cursor = 'grabbing';
-    sliderRef.current.style.scrollBehavior = 'auto'; 
+    sliderRef.current.style.scrollBehavior = 'auto';
     startX.current = e.pageX - sliderRef.current.offsetLeft;
     scrollLeft.current = sliderRef.current.scrollLeft;
   };
@@ -153,6 +152,7 @@ export default function Home() {
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
+  // --- ЛОГИКА 3: КОЛЕСО МЫШИ (УМНЫЙ СКРОЛЛ) ---
   useEffect(() => {
     const slider = sliderRef.current;
     if (!slider) return;
@@ -185,24 +185,24 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-1/2 h-full bg-orange-600/10 blur-[120px] rounded-full pointer-events-none"></div>
         <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
           <div className="space-y-8 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-sm font-medium w-fit">
+            <div data-aos="fade-up" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-sm font-medium w-fit">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
               </span>
               Работаем в Астане и области
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
+            <h1 data-aos="fade-up" data-aos-delay="100" className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight">
               Наружная реклама <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">
                 без посредников
               </span>
             </h1>
-            <p className="text-gray-400 text-lg md:text-xl max-w-lg leading-relaxed">
+            <p data-aos="fade-up" data-aos-delay="200" className="text-gray-400 text-lg md:text-xl max-w-lg leading-relaxed">
               Изготовим вывеску по Дизайн-коду Астаны за 3 дня. 
               Собственный цех, гарантия на электрику и бесплатный дизайн-проект.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+            <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col sm:flex-row gap-4 pt-2">
               <Link href="/services/volume-letters" className="h-14 px-8 flex items-center justify-center bg-orange-600 rounded-xl text-white font-bold text-lg hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 hover:scale-105 active:scale-95">
                 Рассчитать стоимость
               </Link>
@@ -213,7 +213,7 @@ export default function Home() {
           </div>
           <div className="relative">
              <div className="absolute inset-0 bg-orange-500/5 blur-3xl -z-10 rounded-full"></div>
-             <div className="grid grid-cols-2 gap-4">
+             <div data-aos="fade-left" className="grid grid-cols-2 gap-4">
                 {['https://images.unsplash.com/photo-1524813686514-a57563d77965?auto=format&fit=crop&q=80&w=600', 
                   'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=600',
                   'https://images.unsplash.com/photo-1517677208171-0bc5e2553e57?auto=format&fit=crop&q=80&w=600',
@@ -232,8 +232,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. БЕГУЩАЯ СТРОКА (REACT-FAST-MARQUEE) */}
-      <section className="py-12 bg-slate-950 border-b border-slate-800 relative z-20">
+      {/* 2. БЕГУЩАЯ СТРОКА */}
+      <section data-aos="fade-up" className="py-10 bg-slate-950 border-b border-slate-800 relative z-20">
         <div className="container mx-auto px-4 mb-10">
            <p className="text-center text-gray-500 text-xs md:text-sm uppercase tracking-[0.3em] font-semibold">
              Нам доверяют бизнес в Астане
@@ -246,10 +246,7 @@ export default function Home() {
 
            <Marquee gradient={false} speed={40} autoFill={true} className="overflow-hidden" style={{ overflowY: 'hidden' }}>
               {clients.map((client, index) => (
-                 <span 
-                   key={index} 
-                   className="text-4xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter hover:text-orange-600 transition-colors duration-300 cursor-default select-none mx-12 leading-none py-2" 
-                 >
+                 <span key={index} className="text-4xl md:text-5xl font-black text-slate-800 uppercase tracking-tighter hover:text-orange-600 transition-colors duration-300 cursor-default select-none mx-12 leading-none py-2">
                     {client}
                  </span>
               ))}
@@ -258,7 +255,7 @@ export default function Home() {
       </section>
 
       {/* 3. ЦИФРЫ */}
-      <section className="border-b border-slate-800 bg-slate-900/50">
+      <section data-aos="fade-up" className="border-b border-slate-800 bg-slate-900/50">
         <div className="container mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
            <div><div className="text-4xl font-bold text-white mb-2">5 лет</div><div className="text-gray-500 text-sm">На рынке Астаны</div></div>
            <div><div className="text-4xl font-bold text-white mb-2">300+</div><div className="text-gray-500 text-sm">Реализованных вывесок</div></div>
@@ -268,18 +265,20 @@ export default function Home() {
       </section>
 
       {/* 4. КАРУСЕЛЬ УСЛУГ */}
-      <section className="py-24 bg-[#0F172A] overflow-hidden">
+      <section data-aos="fade-up" className="py-24 bg-[#0F172A] overflow-hidden">
          <div className="container mx-auto px-4">
             <div className="flex justify-between items-end mb-12">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Что мы производим</h2>
                 <p className="text-gray-400">Полный цикл: от таблички до крышной установки</p>
               </div>
+              
               <div className="hidden md:flex gap-3">
                  <button onClick={() => scrollButtons('left')} className="p-3 rounded-full border border-slate-700 text-white hover:bg-slate-800 transition active:scale-95"><ChevronLeft className="w-6 h-6"/></button>
                  <button onClick={() => scrollButtons('right')} className="p-3 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition shadow-lg active:scale-95"><ChevronRight className="w-6 h-6"/></button>
               </div>
             </div>
+            
             <div 
               ref={sliderRef}
               onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}
@@ -304,7 +303,7 @@ export default function Home() {
       </section>
 
       {/* 5. ЭТАПЫ */}
-      <section className="py-24 bg-slate-950 border-t border-slate-800">
+      <section data-aos="fade-up" className="py-24 bg-slate-950 border-t border-slate-800">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Как мы работаем</h2>
           <div className="grid md:grid-cols-4 gap-8 relative">
@@ -313,9 +312,9 @@ export default function Home() {
               {n:1, t:"Заявка", d:"Вы оставляете заявку. Мы приезжаем, замеряем фасад."},
               {n:2, t:"Дизайн", d:"Фотопривязка. Эскизный проект. Согласование."},
               {n:3, t:"Цех", d:"Изготовление на ЧПУ. Сборка и электрика."},
-              {n:4, t:"Монтаж", d:"Монтаж, подключение, гарантия."}
+              {n:4, t:"Монтаж", d:"Монтируем, подключение, гарантия."}
             ].map((step, i) => (
-              <div key={i} className="relative bg-slate-950">
+              <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="relative bg-slate-950">
                 <div className="w-16 h-16 bg-slate-900 border-2 border-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xl mb-6 mx-auto z-10 shadow-lg shadow-orange-900/20">{step.n}</div>
                 <h3 className="text-xl font-bold text-white text-center mb-3">{step.t}</h3>
                 <p className="text-gray-400 text-center text-sm">{step.d}</p>
@@ -326,7 +325,7 @@ export default function Home() {
       </section>
 
       {/* 6. ТЕХНОЛОГИИ */}
-      <section className="py-24 bg-[#0F172A]">
+      <section data-aos="fade-up" className="py-24 bg-[#0F172A]">
         <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-16 items-center">
           <div>
              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Свое производство — <br/>ваша гарантия цены</h2>
@@ -334,21 +333,19 @@ export default function Home() {
                Многие "агентства" просто перезаказывают вывески в гаражах. Мы — реальный завод на ул. Акжол 110.
              </p>
              <div className="space-y-6">
-               <div className="flex gap-4 p-4 rounded-xl hover:bg-slate-800/50 transition">
-                 <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 text-orange-500"><Palette/></div>
-                 <div><h4 className="text-white font-bold text-lg">Oracal 8100 (Германия)</h4><p className="text-gray-400 text-sm">Пленка не выцветает на солнце.</p></div>
-               </div>
-               <div className="flex gap-4 p-4 rounded-xl hover:bg-slate-800/50 transition">
-                 <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 text-orange-500"><Layers/></div>
-                 <div><h4 className="text-white font-bold text-lg">Двойная УФ-печать</h4><p className="text-gray-400 text-sm">Сочные цвета даже ночью.</p></div>
-               </div>
-               <div className="flex gap-4 p-4 rounded-xl hover:bg-slate-800/50 transition">
-                 <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 text-orange-500"><Hammer/></div>
-                 <div><h4 className="text-white font-bold text-lg">Покраска Flame</h4><p className="text-gray-400 text-sm">Профессиональная эмаль, стойкая к сколам.</p></div>
-               </div>
+               {[
+                 {icon: <Palette/>, title: "Oracal 8100 (Германия)", desc: "Пленка не выцветает на солнце."},
+                 {icon: <Layers/>, title: "Двойная УФ-печать", desc: "Сочные цвета даже ночью."},
+                 {icon: <Hammer/>, title: "Покраска Flame", desc: "Профессиональная эмаль, стойкая к сколам."}
+               ].map((item, i) => (
+                 <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="flex gap-4 p-4 rounded-xl hover:bg-slate-800/50 transition">
+                   <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 text-orange-500">{item.icon}</div>
+                   <div><h4 className="text-white font-bold text-lg">{item.title}</h4><p className="text-gray-400 text-sm">{item.desc}</p></div>
+                 </div>
+               ))}
              </div>
           </div>
-          <div className="relative h-[500px] bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden group">
+          <div data-aos="fade-left" data-aos-delay="200" className="relative h-[500px] bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden group">
              <div className="absolute inset-0 flex items-center justify-center text-slate-600 font-bold text-2xl">ФОТО ЦЕХА</div>
              <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 p-4 rounded-xl border border-slate-700">
                <div className="text-white font-bold">ул. Акжол 110</div>
@@ -358,54 +355,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. СВЕЖИЕ ПРОЕКТЫ (Bento Grid) */}
-      <section className="py-32 bg-slate-950 border-t border-slate-800/50 relative">
+      {/* 7. BENTO GRID (СВЕЖИЕ ПРОЕКТЫ) */}
+      <section data-aos="fade-up" className="py-32 bg-slate-950 border-t border-slate-800/50 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-gradient-to-r from-transparent via-orange-500/20 to-transparent"></div>
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div><h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Свежие проекты</h2><p className="text-gray-400 text-lg">То, что мы сдали на прошлой неделе</p></div>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Свежие проекты</h2>
             <a href="#" className="inline-flex items-center justify-center px-6 py-3 border border-slate-700 rounded-xl text-white hover:bg-slate-800 hover:border-slate-600 transition group">Все 300+ работ <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition"/></a>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[600px]">
-            <div className="md:col-span-2 md:row-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1550534791-2677533605ab?auto=format&fit=crop&q=80&w=1200')" }}></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
-              <div className="absolute bottom-0 left-0 p-8 w-full">
-                <div className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-orange-600 rounded-full">КРЫШНАЯ УСТАНОВКА</div>
-                <h3 className="text-3xl font-bold text-white mb-2">БЦ "Emerald Tower"</h3>
-                <p className="text-gray-300 line-clamp-2">Изготовление и монтаж букв высотой 2.5 метра на высоте 20 этажа.</p>
+            {/* Карточки Bento (Пример) */}
+            {[
+              {title: "Emerald Tower", category: "КРЫШНАЯ", url: 'https://images.unsplash.com/photo-1550534791-2677533605ab?auto=format&fit=crop&q=80&w=1200', size: 'large'},
+              {title: "LOFT Bar Astana", category: "Интерьерный неон", url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800', size: 'medium'},
+              {title: "Аптека Biocare", category: "Входная группа", url: 'https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&q=80&w=600', size: 'small'},
+              {title: "Кофейня Marrone", category: "Лайтбокс", url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=600', size: 'small'}
+            ].map((project, i) => (
+              <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className={`${project.size === 'large' ? 'md:col-span-2 md:row-span-2' : project.size === 'medium' ? 'md:col-span-2' : 'md:col-span-1'} group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]`}>
+                <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: `url('${project.url}')` }}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
+                <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                  <div className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-orange-600 rounded-full">{project.category}</div>
+                  <h3 className={`font-bold text-white ${project.size === 'large' ? 'text-4xl' : 'text-xl'}`}>{project.title}</h3>
+                </div>
               </div>
-            </div>
-            <div className="md:col-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800')" }}></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
-              <div className="absolute bottom-0 left-0 p-6">
-                <div className="text-orange-400 text-xs font-bold mb-1 tracking-wider uppercase">Интерьерный неон</div>
-                <h3 className="text-xl font-bold text-white">LOFT Bar Astana</h3>
-              </div>
-            </div>
-            <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&q=80&w=600')" }}></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
-              <div className="absolute bottom-0 left-0 p-6">
-                <div className="text-blue-400 text-xs font-bold mb-1 tracking-wider uppercase">Входная группа</div>
-                <h3 className="text-lg font-bold text-white">Аптека "Biocare"</h3>
-              </div>
-            </div>
-            <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-              <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=600')" }}></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
-              <div className="absolute bottom-0 left-0 p-6">
-                <div className="text-green-400 text-xs font-bold mb-1 tracking-wider uppercase">Лайтбокс</div>
-                <h3 className="text-lg font-bold text-white">Кофейня "Marrone"</h3>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* 8. FAQ */}
-      <section className="py-24 bg-slate-950 relative overflow-hidden">
+      <section data-aos="fade-up" className="py-24 bg-slate-950 relative overflow-hidden">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-orange-500/5 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="container mx-auto px-4 max-w-4xl relative z-10">
           <div className="text-center mb-16">
@@ -414,7 +394,7 @@ export default function Home() {
           </div>
           <div className="space-y-4">
             {faqs.map((item, index) => (
-              <div key={index} className={`group rounded-2xl transition-all duration-300 ${openFaq === index ? 'bg-slate-900 ring-1 ring-orange-500/30 shadow-2xl shadow-orange-900/10' : 'bg-slate-900/50 hover:bg-slate-900 border border-slate-800'}`}>
+              <div key={index} data-aos="fade-up" data-aos-delay={index * 50} className={`group rounded-2xl transition-all duration-300 ${openFaq === index ? 'bg-slate-900 ring-1 ring-orange-500/30 shadow-2xl shadow-orange-900/10' : 'bg-slate-900/50 hover:bg-slate-900 border border-slate-800'}`}>
                 <button onClick={() => toggleFaq(index)} className="w-full flex items-center justify-between p-6 md:p-8 text-left focus:outline-none">
                   <span className={`text-lg md:text-xl font-bold transition-colors duration-300 ${openFaq === index ? 'text-orange-500' : 'text-white group-hover:text-orange-400'}`}>{item.q}</span>
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-orange-500 text-white rotate-180' : 'bg-slate-800 text-gray-400 group-hover:bg-slate-700'}`}><ChevronDown className="w-6 h-6"/></div>
@@ -428,8 +408,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 9. ОТЗЫВЫ (NEW) */}
-      <section className="py-24 bg-[#0F172A]">
+      {/* 9. ОТЗЫВЫ */}
+      <section data-aos="fade-up" className="py-24 bg-[#0F172A]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Что говорят клиенты</h2>
@@ -444,7 +424,7 @@ export default function Home() {
                {name: "Ерлан М.", role: 'ТОО "StroyInvest"', text: "Отличная работа с документами. Сами подготовили эскиз для Акимата, согласовали с первого раза."},
                {name: "Дмитрий К.", role: 'Магазин "Техно"', text: "Цена адекватная, качество на высоте. Понравилось, что есть свой цех, можно приехать и посмотреть материалы вживую."}
              ].map((rev, i) => (
-               <div key={i} className="bg-slate-900 p-8 rounded-2xl border border-slate-800 relative hover:border-slate-700 transition">
+               <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="bg-slate-900 p-8 rounded-2xl border border-slate-800 relative hover:border-slate-700 transition">
                   <div className="flex gap-1 text-orange-500 mb-4">
                      {[1,2,3,4,5].map(star => <svg key={star} className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>)}
                   </div>
@@ -462,8 +442,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. КАРТА И КОНТАКТЫ (NEW) */}
-      <section className="py-0 bg-slate-950 border-t border-slate-800 relative h-[600px]">
+      {/* 10. КАРТА И КОНТАКТЫ */}
+      <section data-aos="fade-up" className="py-0 bg-slate-950 border-t border-slate-800 relative h-[600px]">
          <div className="absolute inset-0 bg-slate-800">
             <iframe 
               src="https://yandex.ru/map-widget/v1/?ll=71.497162%2C51.194223&mode=search&ol=geo&ouri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgg2NjIzOTY5MRJO0JrQsNC30LDRh9GB0YLQs0L0LCBBc3RhbmEsIEFxxb5vLCAxMTAsINCQ0YHRgtCw0L3QsCAwMTAwMDAsINCQ0YHRgtCw0L3QsCAwMTAwMDAiCg21RlFCFU_PUEI%2C&z=16.63" 
@@ -495,7 +475,7 @@ export default function Home() {
       </section>
 
       {/* 11. CTA */}
-      <section className="py-20 bg-[#0F172A]">
+      <section data-aos="fade-up" className="py-20 bg-[#0F172A]">
         <div className="container mx-auto px-4">
           <div className="bg-gradient-to-r from-orange-600 to-orange-500 rounded-3xl p-10 md:p-16 text-center relative overflow-hidden shadow-2xl shadow-orange-900/40">
             <div className="absolute top-0 left-0 w-full h-full bg-black opacity-10"></div>
