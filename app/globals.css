@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ДОБАВИТЬ ВОТ ЭТО: */
+html,
+body {
+  overflow-x: hidden; /* Жестко обрезает все, что вылезает по ширине */
+  width: 100%;
+  position: relative;
+}
+
+/* Если вдруг прокрутка все равно есть, можно добавить это к главному контейнеру */
+.overflow-fix {
+  overflow-x: hidden;
+  max-width: 100vw;
+}

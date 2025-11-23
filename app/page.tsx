@@ -181,7 +181,7 @@ export default function Home() {
               Комплексное оформление фасадов, премиальные вывески и архитектурная подсветка в Астане. Берем на себя сложные технические задачи, чтобы ваш бизнес был заметен.
             </p>
             <div data-aos="fade-up" data-aos-delay="300" className="flex flex-col sm:flex-row gap-4 pt-2">
-              <Link href="/services/volume-letters" className="h-14 px-8 flex items-center justify-center bg-orange-600 rounded-xl text-white font-bold text-lg hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 hover:scale-105 active:scale-95">
+              <Link href="/calculator" className="h-14 px-8 flex items-center justify-center bg-orange-600 rounded-xl text-white font-bold text-lg hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 hover:scale-105 active:scale-95">
                 Рассчитать стоимость
               </Link>
               <button className="h-14 px-8 flex items-center justify-center border border-slate-700 rounded-xl text-white font-medium hover:bg-slate-800 transition">
@@ -392,7 +392,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Качество, которое <span className="text-orange-500">служит годами</span></h2>
             <p className="text-gray-400 text-lg leading-relaxed max-w-lg">Наше производство — это гарантия. Мы используем только премиальные материалы и технологии.</p>
             <div className="space-y-6">
-              {[{icon: <Zap/>, title: "Запас мощности +30%", desc: "Исключает перегрев."}, {icon: <Palette/>, title: "Покраска Flame", desc: "Устойчива к сколам."}, {icon: <ShieldCheck/>, title: "Гарантия 1 год", desc: "По договору."}, {icon: <Layers/>, title: "Акрил и Алюминий", desc: "Немецкие материалы."}].map((item, i) => (
+              {[{icon: <Zap/>, title: "Запас мощности +30%", desc: "Исключает перегрев. И выход из строя"}, {icon: <Palette/>, title: "Профессиональные краски Flame", desc: "Не выцветают, приятный матовый цвет"}, {icon: <ShieldCheck/>, title: "Гарантия 1 год", desc: "Официально по договору."}, {icon: <Layers/>, title: "Акрил и ПВХ", desc: "Качественные и плотные материалы"}].map((item, i) => (
                 <div key={i} data-aos="fade-up" data-aos-delay={i * 50} className="flex gap-4 p-4 rounded-xl hover:bg-slate-800/50 transition duration-300 ease-in-out">
                   <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center flex-shrink-0 text-orange-500">{item.icon}</div>
                   <div><h4 className="text-white font-bold text-lg">{item.title}</h4><p className="text-gray-400 text-sm">{item.desc}</p></div>
@@ -412,8 +412,8 @@ export default function Home() {
                </div>
              </div>
              <div className="grid grid-cols-2 gap-4 mt-6">
-                 <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 text-center"><div className="text-3xl font-bold text-white mb-1">300+</div><div className="text-gray-500 text-sm">проектов</div></div>
-                 <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 text-center"><div className="text-3xl font-bold text-white mb-1">50k ч</div><div className="text-gray-500 text-sm">ресурс LED</div></div>
+                 <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 text-center"><div className="text-3xl font-bold text-white mb-1">300+</div><div className="text-gray-500 text-sm">реализованных проектов</div></div>
+                 <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 text-center"><div className="text-3xl font-bold text-white mb-1">50000 часов</div><div className="text-gray-500 text-sm">ресурс LED диодов</div></div>
              </div>
           </div>
         </div>

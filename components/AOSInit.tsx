@@ -1,18 +1,30 @@
-"use client"; // Обязательно, так как здесь используется useEffect
+"use client";
 
 import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { usePathname } from "next/navigation";
 
 export default function AOSInit() {
+  const pathname = usePathname(); // Следим за изменением пути (страницы)
+
   useEffect(() => {
+    // Инициализация один раз при загрузке
     AOS.init({
-      once: true, // Анимация проигрывается только один раз при прокрутке
-      disable: "phone", // Отключить анимацию на мобильных (опционально, можно убрать)
-      duration: 700, // Длительность анимации: 0.7 секунды
-      easing: "ease-out-cubic", // Плавный и естественный эффект
+      once: true,
+      disable: "phone",
+      duration: 700,
+      easing: "ease-out-cubic",
     });
   }, []);
 
-  return null; // Компонент ничего не рендерит, только запускает логику
+  useEffect(() => {
+    // ЖЕСТКИЙ ПЕРЕСЧЕТ при каждой смене страницы
+    // Небольшая задержка, чтобы DOM успел обновиться
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
+  }, [pathname]);
+
+  return null;
 }
