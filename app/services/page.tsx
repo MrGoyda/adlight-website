@@ -5,24 +5,23 @@ import {
   Zap,        
   Building,   
   Layers,
-  CheckCircle,
-  Shield,
-  Clock,
-  ChevronRight
+  ChevronRight,
+  Map,         // Иконка для навигации
+  Flag         // Иконка для стел
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
-import ComplexCTA from "@/components/ComplexCTA";
+import ComplexCTA from "@/components/ComplexCTA"; // Используем мощный CTA
 
 export const metadata = {
   title: "Каталог услуг ADLight | Наружная реклама в Астане",
-  description: "Полный спектр услуг: вывески, лайтбоксы, неон, крышные установки.",
+  description: "Полный спектр услуг: вывески, лайтбоксы, неон, крышные установки, стелы, навигация.",
 };
 
-// Данные для каталога (с ID для якорей)
+// Данные для каталога (ОБНОВЛЕННЫЕ ССЫЛКИ)
 const catalog = [
   {
-    id: "facade", // Якорь для скролла
+    id: "facade",
     category: "Фасадная реклама",
     icon: <Store className="w-5 h-5"/>,
     color: "text-orange-500",
@@ -30,28 +29,28 @@ const catalog = [
       {
         title: "Объемные буквы",
         price: "от 400 ₸/см",
-        link: "/services/volume-letters",
+        link: "/services/volume-letters", // ✅
         image: "/images/calc/face.jpg",
         tags: ["Хит продаж", "Согласование", "Гарантия 1 год"]
       },
       {
         title: "Световые короба",
         price: "от 45 000 ₸/м²",
-        link: "#", 
+        link: "/services/lightboxes", // ✅
         image: "/images/calc/lightbox-1.jpg",
         tags: ["Много текста", "Яркость", "Любая форма"]
       },
       {
         title: "Панель-кронштейны",
         price: "от 35 000 ₸",
-        link: "#",
+        link: "/services/panel-brackets", // ✅
         image: "/panel.jpg",
         tags: ["Двусторонние", "Для пешеходов", "Компактно"]
       }
     ]
   },
   {
-    id: "interior", // Якорь
+    id: "interior",
     category: "Интерьер и Атмосфера",
     icon: <Zap className="w-5 h-5"/>,
     color: "text-purple-500",
@@ -59,21 +58,28 @@ const catalog = [
       {
         title: "Неоновые вывески",
         price: "Индивидуально",
-        link: "#",
+        link: "/services/neon", // ✅
         image: "/neon.jpg",
         tags: ["Flex Neon 2.0", "Для фотозон", "Безопасно"]
       },
       {
         title: "Интерьерные лого",
         price: "от 25 000 ₸",
-        link: "#",
+        link: "/services/interior", // ✅
         image: "/1solution.jpg",
         tags: ["Тонкий акрил", "Ресепшн", "Контражур"]
+      },
+      {
+        title: "Таблички и Навигация",
+        price: "от 5 000 ₸",
+        link: "/services/navigation", // ✅ (Добавлено)
+        image: "/images/calc/acryl.jpg", // Можно заменить на фото таблички
+        tags: ["Бизнес-центры", "Указатели", "Гравировка"]
       }
     ]
   },
   {
-    id: "scale", // Якорь
+    id: "scale",
     category: "Инженерные проекты",
     icon: <Building className="w-5 h-5"/>,
     color: "text-blue-500",
@@ -81,16 +87,23 @@ const catalog = [
       {
         title: "Крышные установки",
         price: "Проектно",
-        link: "#",
+        link: "/services/roof-installations", // ✅
         image: "/krisha.jpg",
         tags: ["Документация", "Нагрузки", "Масштаб"]
       },
       {
         title: "Входные группы",
         price: "Проектно",
-        link: "#",
+        link: "/services/entrance-groups", // ✅
         image: "/agro.jpg",
         tags: ["Композит", "Козырьки", "Облицовка"]
+      },
+      {
+        title: "Стелы и Пилоны",
+        price: "Проектно",
+        link: "/services/pylons", // ✅ (Добавлено)
+        image: "/kmg.jpeg",
+        tags: ["Фундамент", "АЗС", "Навигация"]
       }
     ]
   }
@@ -100,7 +113,7 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-[#020617] font-sans selection:bg-orange-500/30">
       
-      {/* 1. HERO SECTION (ТОТ САМЫЙ, С ГОРОДОМ) */}
+      {/* 1. HERO SECTION */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]"></div>
@@ -115,7 +128,7 @@ export default function ServicesPage() {
            </div>
 
            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Левая часть: Текст */}
+              {/* Текст */}
               <div className="max-w-2xl relative z-20">
                   <h1 data-aos="fade-up" className="text-5xl md:text-7xl font-bold text-white mb-8 leading-[0.95] tracking-tight">
                      Комплексное оформление <br/>
@@ -142,7 +155,7 @@ export default function ServicesPage() {
                   </div>
               </div>
 
-              {/* Правая часть: 3D Город (СКРЫТ НА МОБИЛЬНЫХ) */}
+              {/* 3D Город (Скрыт на моб) */}
               <div className="hidden lg:flex relative h-[500px] w-full items-center justify-center" data-aos="fade-left" data-aos-delay="300">
                   <div className="absolute inset-0 bg-orange-500/10 blur-[100px] rounded-full pointer-events-none"></div>
                   <img 
@@ -155,11 +168,11 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* 2. КАТАЛОГ (КОМПАКТНЫЙ GRID) */}
+      {/* 2. КАТАЛОГ (GRID) */}
       <div className="container mx-auto px-4 pb-24">
-         
          {catalog.map((group, idx) => (
             <div key={idx} id={group.id} className="mb-16 last:mb-0 scroll-mt-24">
+               
                {/* Заголовок группы */}
                <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4" data-aos="fade-up">
                   <div className={`p-2 rounded-lg bg-white/5 ${group.color}`}>
@@ -178,7 +191,6 @@ export default function ServicesPage() {
                         data-aos-delay={i * 100}
                         className="group relative h-[280px] rounded-2xl overflow-hidden border border-white/10 hover:border-orange-500/50 transition-all duration-300 bg-[#0B1221]"
                      >
-                        {/* Картинка */}
                         <div className="absolute inset-0">
                            <img 
                               src={item.image} 
@@ -188,10 +200,7 @@ export default function ServicesPage() {
                            <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent"></div>
                         </div>
 
-                        {/* Контент */}
                         <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                           
-                           {/* Верх: Ярлыки (Tags) */}
                            <div className="flex flex-wrap gap-2">
                               {item.tags.map((tag, t) => (
                                  <span key={t} className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-white/90 border border-white/5">
@@ -199,8 +208,6 @@ export default function ServicesPage() {
                                  </span>
                               ))}
                            </div>
-
-                           {/* Низ: Заголовок и Цена */}
                            <div>
                               <h3 className="text-xl font-bold text-white mb-1 group-hover:text-orange-400 transition-colors">
                                  {item.title}
@@ -218,10 +225,9 @@ export default function ServicesPage() {
                </div>
             </div>
          ))}
-
       </div>
 
-      {/* 4. ЛИД-МАГНИТ */}
+      {/* 3. КОМПЛЕКСНОЕ ПРЕДЛОЖЕНИЕ (CTA) */}
       <ComplexCTA source="Страница: Каталог Услуг" />
 
     </div>

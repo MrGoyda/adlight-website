@@ -4,14 +4,65 @@ import Link from "next/link";
 import { useRef, useEffect } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
-// Данные услуг
+// Данные услуг (ДОБАВЛЕНЫ: Стелы и Навигация)
 const services = [
-  { title: "Объемные буквы", desc: "Лицевая, боковая и контражурная подсветка. Комбинирование техник.", price: "от 400 тг/см", link: "/services/volume-letters", image: "/images/calc/face.jpg" },
-  { title: "Световые короба", desc: "Лайтбоксы сложных форм, инкрустация.", price: "от 45 000 тг/кв.м", link: "#", image: "/images/calc/lightbox-1.jpg" },
-  { title: "Неоновые вывески", desc: "Гибкий неон для интерьера и фотозон.", price: "Индивидуально", link: "#", image: "/neon.jpg" },
-  { title: "Крышные установки", desc: "Громадные буквы на крышу. Расчет нагрузок.", price: "Проектно", link: "#", image: "/krisha.jpg" },
-  { title: "Панель-кронштейны", desc: "Двусторонние торцевые вывески.", price: "от 35 000 тг", link: "#", image: "/panel.jpg" },
-  { title: "Входные группы", desc: "Козырьки, композит, полная обшивка.", price: "Проектно", link: "#", image: "/agro.jpg" }
+  { 
+    title: "Объемные буквы", 
+    desc: "Лицевая, боковая и контражурная подсветка. Комбинирование техник.", 
+    price: "от 400 тг/см", 
+    link: "/services/volume-letters", 
+    image: "/images/calc/face.jpg" 
+  },
+  { 
+    title: "Световые короба", 
+    desc: "Лайтбоксы сложных форм, инкрустация.", 
+    price: "от 45 000 тг/кв.м", 
+    link: "/services/lightboxes", 
+    image: "/images/calc/lightbox-1.jpg" 
+  },
+  { 
+    title: "Неоновые вывески", 
+    desc: "Гибкий неон для интерьера и фотозон.", 
+    price: "Индивидуально", 
+    link: "/services/neon", 
+    image: "/neon.jpg" 
+  },
+  { 
+    title: "Крышные установки", 
+    desc: "Громадные буквы на крышу. Расчет нагрузок.", 
+    price: "Проектно", 
+    link: "/services/roof-installations", 
+    image: "/krisha.jpg" 
+  },
+  { 
+    title: "Панель-кронштейны", 
+    desc: "Двусторонние торцевые вывески.", 
+    price: "от 35 000 тг", 
+    link: "/services/panel-brackets", 
+    image: "/panel.jpg" 
+  },
+  { 
+    title: "Входные группы", 
+    desc: "Козырьки, композит, полная обшивка.", 
+    price: "Проектно", 
+    link: "/services/entrance-groups", 
+    image: "/agro.jpg" 
+  },
+  // --- НОВЫЕ УСЛУГИ ---
+  { 
+    title: "Рекламные стелы", 
+    desc: "Отдельно стоящие конструкции, пилоны для АЗС и навигации.", 
+    price: "Проектно", 
+    link: "/services/pylons", 
+    image: "/kmg.jpeg" 
+  },
+  { 
+    title: "Таблички и Навигация", 
+    desc: "Офисные таблички, указатели и системы навигации внутри зданий.", 
+    price: "от 5 000 ₸", 
+    link: "/services/navigation", 
+    image: "/1solution.jpg" // Используем фото интерьерной вывески
+  }
 ];
 
 interface ServicesCarouselProps {
@@ -26,17 +77,14 @@ export default function ServicesCarousel({
   hiddenLink 
 }: ServicesCarouselProps) {
   
-  // ФИЛЬТРАЦИЯ
+  // ФИЛЬТРАЦИЯ: Скрываем карточку, если ссылка совпадает
   const displayedServices = services.filter(s => s.link !== hiddenLink);
 
   const sliderRef = useRef<HTMLDivElement>(null);
-  
-  // Refs для Drag & Drop
   const isDown = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
-  // Логика скролла кнопками
   const scroll = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
       const scrollAmount = 400;
@@ -104,14 +152,12 @@ export default function ServicesCarousel({
   return (
     <section data-aos="fade-up" className="py-12 lg:py-24 bg-[#0F172A] overflow-hidden border-t border-slate-800">
        <div className="container mx-auto px-4">
-          {/* Заголовок и кнопки */}
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{title}</h2>
               <p className="text-gray-400">{subtitle}</p>
             </div>
             
-            {/* Правая часть: Ссылка + Кнопки */}
             <div className="flex items-center gap-6">
                <Link href="/services" className="text-orange-500 font-bold text-sm flex items-center gap-2 hover:text-orange-400 transition whitespace-nowrap">
                   Смотреть все <ArrowRight className="w-4 h-4"/>
