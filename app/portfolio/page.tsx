@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Calendar, Layers, ChevronRight } from "lucide-react";
+import { ArrowUpRight, Calendar, Layers, ChevronRight, ChevronLeft } from "lucide-react";
 
 // Импортируем данные
 import { PROJECTS, CATEGORIES, ProjectCategory } from "@/lib/projectsData";
@@ -10,13 +10,17 @@ import CallToAction from "@/components/CallToAction";
 
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<ProjectCategory | 'all'>('all');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Состояние для отображения стрелок навигации
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
 
   // Логика фильтрации
   const filteredProjects = activeCategory === 'all' 
     ? PROJECTS 
     : PROJECTS.filter(project => project.categories.includes(activeCategory));
 
-  // Сортировка (сначала новые)
   const sortedProjects = [...filteredProjects].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const formatDate = (dateString: string) => {
@@ -24,21 +28,72 @@ export default function PortfolioPage() {
     return new Date(dateString).toLocaleDateString('ru-RU', options);
   };
 
+  // Скролл колесиком мыши
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      const onWheel = (e: WheelEvent) => {
+        if (e.deltaY === 0) return;
+        e.preventDefault();
+        el.scrollBy({
+          left: e.deltaY,
+          behavior: "smooth"
+        });
+      };
+      el.addEventListener("wheel", onWheel);
+      return () => el.removeEventListener("wheel", onWheel);
+    }
+  }, []);
+
+  // Проверка позиции скролла (показывать ли стрелки)
+  const checkScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    // Погрешность 1px для надежности
+    setShowLeftArrow(scrollLeft > 0);
+    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 1);
+  };
+
+  // Слушаем событие скролла
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll);
+      // Проверяем при загрузке (вдруг экран широкий и стрелки не нужны)
+      checkScroll();
+      window.addEventListener("resize", checkScroll);
+      
+      return () => {
+        el.removeEventListener("scroll", checkScroll);
+        window.removeEventListener("resize", checkScroll);
+      };
+    }
+  }, []);
+
+  // Функция клика по стрелкам
+  const scrollFilter = (direction: 'left' | 'right') => {
+    const el = scrollContainerRef.current;
+    if (el) {
+      const scrollAmount = 200; // На сколько пикселей сдвигать
+      el.scrollBy({
+        left: direction === 'right' ? scrollAmount : -scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#020617] font-sans selection:bg-orange-500/30">
       
       {/* 1. HERO SECTION */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-         {/* Инженерная сетка на фоне */}
          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]"></div>
-         
-         {/* Оранжевое свечение */}
          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
          <div className="container mx-auto px-4 relative z-10 text-center">
-            
-            {/* ХЛЕБНЫЕ КРОШКИ (ДОБАВЛЕНО) */}
             <div data-aos="fade-down" className="flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-500 mb-8">
               <Link href="/" className="hover:text-white transition">Главная</Link>
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
@@ -59,19 +114,45 @@ export default function PortfolioPage() {
          </div>
       </section>
 
-      {/* 2. STICKY FILTER (СТЕКЛЯННЫЙ) */}
-      <section className="sticky top-4 z-40 mb-12">
-         <div className="container mx-auto px-4">
-            <div className="bg-[#0B1221]/70 backdrop-blur-xl border border-white/10 rounded-full p-1.5 max-w-4xl mx-auto shadow-2xl shadow-black/50">
-               <div className="flex gap-1 overflow-x-auto hide-scrollbar">
+      {/* 2. STICKY FILTER (С НАВИГАЦИЕЙ) */}
+      <section className="sticky top-20 z-40 mb-12 px-4">
+         <div className="container mx-auto max-w-4xl relative">
+            
+            {/* Кнопка ВЛЕВО (появляется если есть скролл) */}
+            <button 
+                onClick={() => scrollFilter('left')}
+                className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-[#0B1221] border border-white/10 rounded-full shadow-xl text-white hover:bg-orange-600 hover:border-orange-600 transition-all duration-300 transform ${showLeftArrow ? "opacity-100 scale-100 translate-x-[-50%]" : "opacity-0 scale-0 pointer-events-none"}`}
+            >
+                <ChevronLeft className="w-5 h-5"/>
+            </button>
+
+            {/* Кнопка ВПРАВО */}
+            <button 
+                onClick={() => scrollFilter('right')}
+                className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-[#0B1221] border border-white/10 rounded-full shadow-xl text-white hover:bg-orange-600 hover:border-orange-600 transition-all duration-300 transform ${showRightArrow ? "opacity-100 scale-100 translate-x-[50%]" : "opacity-0 scale-0 pointer-events-none"}`}
+            >
+                <ChevronRight className="w-5 h-5"/>
+            </button>
+
+            {/* Контейнер фильтра */}
+            <div className="bg-[#0B1221]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl shadow-black/50 overflow-hidden relative">
+               
+               {/* Градиентные шторки */}
+               <div className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0B1221] to-transparent z-10 pointer-events-none transition-opacity ${showLeftArrow ? 'opacity-100' : 'opacity-0'}`} />
+               <div className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0B1221] to-transparent z-10 pointer-events-none transition-opacity ${showRightArrow ? 'opacity-100' : 'opacity-0'}`} />
+
+               <div 
+                 ref={scrollContainerRef}
+                 className="flex gap-2 overflow-x-auto hide-scrollbar items-center justify-start w-full scroll-smooth px-2"
+               >
                   {CATEGORIES.map((cat) => (
                      <button
                         key={cat.id}
                         onClick={() => setActiveCategory(cat.id)}
-                        className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
+                        className={`shrink-0 px-5 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all duration-300 border ${
                            activeCategory === cat.id 
-                              ? "bg-white text-black shadow-lg" 
-                              : "text-gray-400 hover:text-white hover:bg-white/5"
+                              ? "bg-white text-black border-white shadow-lg" 
+                              : "bg-transparent text-gray-400 border-transparent hover:bg-white/10 hover:text-white"
                         }`}
                      >
                         {cat.label}
@@ -103,10 +184,8 @@ export default function PortfolioPage() {
                         className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110"
                      />
                      
-                     {/* Градиент снизу */}
                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition duration-500" />
 
-                     {/* Теги ПОВЕРХ картинки */}
                      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                         {project.categories.slice(0, 2).map(catId => {
                            const catLabel = CATEGORIES.find(c => c.id === catId)?.label;
@@ -118,7 +197,6 @@ export default function PortfolioPage() {
                         })}
                      </div>
 
-                     {/* Кнопка-стрелка */}
                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-500">
                         <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transform translate-y-4 group-hover:translate-y-0 transition duration-500">
                            <ArrowUpRight className="w-8 h-8"/>
@@ -144,7 +222,6 @@ export default function PortfolioPage() {
             ))}
          </div>
 
-         {/* Пустое состояние */}
          {sortedProjects.length === 0 && (
             <div className="flex flex-col items-center justify-center py-32 border border-dashed border-white/10 rounded-3xl bg-white/5">
                <div className="text-6xl mb-4 grayscale opacity-50">📂</div>

@@ -5,15 +5,17 @@ import {
   Shield, 
   Ruler, 
   ArrowRight, 
-  ChevronRight, 
+  ArrowLeft,
   Thermometer, 
   PaintBucket, 
   Layers, 
   FileCheck,
-  Snowflake
+  Snowflake,
+  Type,
+  MessageCircle // Добавил иконку для WhatsApp
 } from "lucide-react";
 
-// --- ИМПОРТ НАШИХ КОМПОНЕНТОВ ---
+// --- ИМПОРТ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import CallToAction from "@/components/CallToAction";
@@ -30,8 +32,6 @@ export default function VolumeLettersPage() {
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans">
       
-      {/* УБРАЛИ ЛОКАЛЬНЫЙ HEADER. ТЕПЕРЬ БУДЕТ ПОКАЗЫВАТЬСЯ ОБЩИЙ С МЕНЮ */}
-
       {/* 1. HERO SECTION */}
       <section className="relative py-24 lg:py-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-orange-600/5"></div>
@@ -42,15 +42,15 @@ export default function VolumeLettersPage() {
            {/* ХЛЕБНЫЕ КРОШКИ */}
            <div data-aos="fade-down" className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-8 overflow-x-auto whitespace-nowrap">
               <Link href="/" className="hover:text-white transition">Главная</Link>
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
-              <span className="hover:text-white transition cursor-default">Услуги</span>
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
+              <span className="text-gray-600">/</span>
+              <Link href="/services" className="hover:text-white transition">Услуги</Link>
+              <span className="text-gray-600">/</span>
               <span className="text-orange-500 font-medium">Объемные буквы</span>
            </div>
 
            <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                 <div data-aos="fade-right" className="inline-block px-3 py-1 mb-6 text-xs font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 rounded-full uppercase tracking-wider">
+                 <div data-aos="fade-right" className="inline-block px-4 py-1.5 mb-6 text-xs font-bold text-orange-500 bg-orange-500/10 border border-orange-500/20 rounded-full uppercase tracking-wider">
                     Гарантия 1 год по договору
                  </div>
                  <h1 data-aos="fade-right" data-aos-delay="100" className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
@@ -58,13 +58,18 @@ export default function VolumeLettersPage() {
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">пройдут согласование</span>
                  </h1>
                  <p data-aos="fade-right" data-aos-delay="200" className="text-gray-400 text-lg mb-8 leading-relaxed max-w-xl">
-                    Производим вывески, устойчивые к климату Астаны. Используем плотный акрил (не выцветает), оригинальные пленки Oracal и алюминиевый борт. Морозостойкая электрика.
+                    Производим вывески, устойчивые к климату Астаны. Используем плотный качественный акрил (не выцветает), оригинальные пленки Oracal и алюминиевый борт. Морозостойкая электрика.
                  </p>
                  
+                 {/* КНОПКИ */}
                  <div data-aos="fade-right" data-aos-delay="300" className="flex flex-col sm:flex-row gap-4">
                     <Link href="/calculator" className="flex items-center justify-center gap-2 bg-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 active:scale-95">
                        <Calculator className="w-5 h-5"/> Рассчитать стоимость
                     </Link>
+                    
+                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 hover:border-slate-500 transition active:scale-95">
+                       <MessageCircle className="w-5 h-5 text-green-500"/> Написать в WhatsApp
+                    </a>
                  </div>
               </div>
 
@@ -96,9 +101,9 @@ export default function VolumeLettersPage() {
       <section className="py-24 bg-slate-950">
          <div className="container mx-auto px-4">
              <div className="text-center mb-16">
-                <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-4">Наши стандарты качества</h2>
+                <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-4">Наши технические стандарты</h2>
                 <p data-aos="fade-up" data-aos-delay="100" className="text-gray-400 max-w-2xl mx-auto">
-                   Мы не экономим на материалах. Ваша вывеска будет выглядеть дорого и через 3 года.
+                   Мы не экономим на материалах. Используем только проверенные компоненты для долговечности.
                 </p>
              </div>
 
@@ -109,7 +114,7 @@ export default function VolumeLettersPage() {
                    </div>
                    <h3 className="text-xl font-bold text-white mb-3">Акрил 3 мм</h3>
                    <p className="text-gray-400 text-sm leading-relaxed">
-                      Используем только качественный литой акрил толщиной минимум 3 мм. Он не деформируется от жары и отлично рассеивает свет.
+                      Используем только плотный качественный акрил толщиной минимум 3 мм. Он не деформируется от жары и отлично рассеивает свет.
                    </p>
                 </div>
 
@@ -119,7 +124,7 @@ export default function VolumeLettersPage() {
                    </div>
                    <h3 className="text-xl font-bold text-white mb-3">ПВХ 0.60 плотности</h3>
                    <p className="text-gray-400 text-sm leading-relaxed">
-                      Для задних стенок и бортов берем ПВХ повышенной плотности (0.60). Это гарантирует жесткость конструкции — буквы не поведет на солнце.
+                      Для задних стенок берем ПВХ повышенной плотности (0.60). Это гарантирует жесткость конструкции — буквы не поведет на солнце.
                    </p>
                 </div>
 
@@ -127,9 +132,9 @@ export default function VolumeLettersPage() {
                    <div className="w-14 h-14 bg-orange-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500/20 transition">
                       <PaintBucket className="w-7 h-7 text-orange-500"/>
                    </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Пленки Oracal (Германия)</h3>
+                   <h3 className="text-xl font-bold text-white mb-3">Пленки Oracal</h3>
                    <p className="text-gray-400 text-sm leading-relaxed">
-                      Оклейка только оригинальными пленками Oracal серии 8500 (для света) и 641. Они не выцветают и не отклеиваются по краям.
+                      Оклейка только оригинальными пленками Oracal (Германия). Они не выцветают на солнце и не отклеиваются по краям через год.
                    </p>
                 </div>
 
@@ -139,7 +144,7 @@ export default function VolumeLettersPage() {
                    </div>
                    <h3 className="text-xl font-bold text-white mb-3">Морозостойкость</h3>
                    <p className="text-gray-400 text-sm leading-relaxed">
-                      Вывески не боятся перепадов температур от -40°C до +40°C. Блоки питания IP67 с "холодным стартом".
+                      Вывески не боятся перепадов температур от -40°C до +40°C. Блоки питания IP67 с "холодным стартом" (не замерзают).
                    </p>
                 </div>
 
@@ -157,7 +162,7 @@ export default function VolumeLettersPage() {
                    <div className="w-14 h-14 bg-cyan-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 transition">
                       <PaintBucket className="w-7 h-7 text-cyan-500"/>
                    </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Эстетика и Покраска</h3>
+                   <h3 className="text-xl font-bold text-white mb-3">Покраска в цвет</h3>
                    <p className="text-gray-400 text-sm leading-relaxed">
                       Мы не экономим на краске. Металлокаркас всегда красим в цвет фасада (по RAL), чтобы он не выделялся.
                    </p>
@@ -166,7 +171,7 @@ export default function VolumeLettersPage() {
          </div>
       </section>
 
-      {/* 4. КАТАЛОГ ТИПОВ */}
+      {/* 5. КАТАЛОГ ТИПОВ */}
       <section className="py-24 bg-[#0F172A] border-t border-slate-800">
          <div className="container mx-auto px-4">
             <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">Виды объемных букв</h2>
@@ -180,8 +185,6 @@ export default function VolumeLettersPage() {
                      <p className="text-gray-400 text-base md:text-lg mb-6 leading-relaxed">
                         Светится только лицевая поверхность. Борта выполнены из ПВХ или алюминия (непрозрачные). Отлично читается с большого расстояния.
                      </p>
-                     
-                     {/* Исправленный список для мобилок */}
                      <ul className="space-y-4 mb-8 text-gray-300">
                         <li className="flex items-start gap-3">
                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-1"/> 
@@ -198,7 +201,6 @@ export default function VolumeLettersPage() {
                            </div>
                         </li>
                      </ul>
-
                      <Link href="/calculator" className="inline-flex items-center text-orange-500 font-bold hover:text-orange-400 transition text-lg">
                         Рассчитать этот тип <ArrowRight className="ml-2 w-5 h-5"/>
                      </Link>
@@ -231,7 +233,7 @@ export default function VolumeLettersPage() {
                            <CheckCircle className="w-5 h-5 text-purple-500 flex-shrink-0 mt-1"/> 
                            <div>
                               <span className="block text-white font-bold mb-1">Материал:</span>
-                              Цельный акрил (Plexiglas) + пленка.
+                              Цельный акрил + пленка.
                            </div>
                         </li>
                      </ul>
@@ -261,7 +263,7 @@ export default function VolumeLettersPage() {
                            <CheckCircle className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-1"/> 
                            <div>
                               <span className="block text-white font-bold mb-1">Нюанс:</span>
-                              Требует ровной матовой стены для красивого свечения.
+                              Требует ровной матовой стены.
                            </div>
                         </li>
                      </ul>
@@ -274,7 +276,7 @@ export default function VolumeLettersPage() {
                   </div>
                </div>
 
-               {/* Тип 4: Псевдообъем (Накладные) - ДОБАВЛЕНО */}
+               {/* Тип 4: Псевдообъем (Накладные) */}
                <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                    <div data-aos="fade-right" className="h-[300px] md:h-[400px] rounded-3xl overflow-hidden bg-slate-900 relative group">
                       <img src="/images/calc/acryl.jpg" className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" alt="Псевдообъем"/>
@@ -311,10 +313,10 @@ export default function VolumeLettersPage() {
          </div>
       </section>
 
-      {/* 5. ДИЗАЙН КОД */}
+      {/* 6. ДИЗАЙН КОД */}
       <DesignCodeBlock />
 
-      {/* 6. ЭТАПЫ РАБОТЫ */}
+      {/* 7. ЭТАПЫ РАБОТЫ */}
       <section className="py-24 bg-[#0F172A]">
         <div className="container mx-auto px-4">
            <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Этапы работы над вывеской</h2>
@@ -322,9 +324,9 @@ export default function VolumeLettersPage() {
               {[
                  {step: "01", title: "Заявка", desc: "Вы оставляете заявку. Мы предварительно оцениваем бюджет."},
                  {step: "02", title: "Замер", desc: "Бесплатный выезд на объект для замеров и оценки фасада."},
-                 {step: "03", title: "Дизайн", desc: "Делаем фотопривязку и технический эскиз."},
-                 {step: "04", title: "Цех", desc: "Фрезеровка, гибка борта, сборка и проверка электрики."},
-                 {step: "05", title: "Монтаж", desc: "Установка в любое время года. Подключение и гарантия."}
+                 {step: "03", title: "Дизайн", desc: "Делаем фотопривязку (дневной/ночной вид) и технический эскиз."},
+                 {step: "04", title: "Цех", desc: "Фрезеровка акрила, гибка борта, сборка и проверка электрики."},
+                 {step: "05", title: "Монтаж", desc: "Установка в любое время года. Подключение, документы, гарантия."}
               ].map((item, i) => (
                  <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="relative group">
                     <div className="text-6xl font-black text-slate-800 mb-4 group-hover:text-slate-700 transition">{item.step}</div>
@@ -336,7 +338,7 @@ export default function VolumeLettersPage() {
         </div>
       </section>
 
-      {/* 7. КОМПОНЕНТЫ */}
+      {/* 8. КОМПОНЕНТЫ */}
       <ProjectsBento 
         title="Примеры объемных букв" 
         subtitle="Наши работы в Астане" 
@@ -345,10 +347,10 @@ export default function VolumeLettersPage() {
       <ReviewsCarousel />
       
       <ServicesCarousel 
-         title="Что еще мы производим" 
-         subtitle="Другие виды наружной рекламы" 
-         hiddenLink="/services/volume-letters" // <--- ВОТ ТУТ МАГИЯ
-         />
+        title="Что еще мы производим" 
+        subtitle="Другие виды наружной рекламы" 
+        hiddenLink="/services/volume-letters"
+      />
 
       <CallToAction source="Услуга: Объемные буквы" />
 

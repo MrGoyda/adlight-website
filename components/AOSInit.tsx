@@ -6,25 +6,26 @@ import "aos/dist/aos.css";
 import { usePathname } from "next/navigation";
 
 export default function AOSInit() {
-  const pathname = usePathname(); // Следим за изменением пути (страницы)
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Инициализация один раз при загрузке
+    // 1. Инициализируем AOS (каждый раз при смене пути)
     AOS.init({
-      once: true,
-      disable: "phone",
+      once: true, // Анимация проигрывается 1 раз
+      disable: "phone", // Отключаем на телефонах (чтобы не грузить проц и не ломать скролл)
       duration: 700,
       easing: "ease-out-cubic",
     });
-  }, []);
 
-  useEffect(() => {
-    // ЖЕСТКИЙ ПЕРЕСЧЕТ при каждой смене страницы
-    // Небольшая задержка, чтобы DOM успел обновиться
-    setTimeout(() => {
-      AOS.refresh();
-    }, 100);
-  }, [pathname]);
+    // 2. ЖЕСТКИЙ РЕФРЕШ
+    // Мы используем setTimeout, чтобы дать React время отрисовать новый DOM
+    // перед тем, как AOS начнет искать элементы.
+    const timer = setTimeout(() => {
+      AOS.refreshHard(); // .refreshHard() сильнее, чем просто .refresh()
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [pathname]); // <- Срабатывает при любом изменении URL
 
   return null;
 }

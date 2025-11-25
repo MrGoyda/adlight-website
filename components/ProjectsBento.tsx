@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { PROJECTS, CATEGORIES } from "@/lib/projectsData";
 
 interface ProjectsBentoProps {
   title?: string;
@@ -14,6 +15,18 @@ export default function ProjectsBento({
   subtitle = "То, что мы сдали на прошлой неделе",
   className = ""
 }: ProjectsBentoProps) {
+
+  // 1. Получаем 4 последних проекта (сортировка по дате)
+  const latestProjects = [...PROJECTS]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 4);
+
+  // Хелпер: Получить красивое название категории по ID (например 'letters' -> 'Объемные буквы')
+  const getCategoryLabel = (catId: string) => {
+    const cat = CATEGORIES.find((c) => c.id === catId);
+    return cat ? cat.label : "Проект";
+  };
+
   return (
     <section data-aos="fade-up" className={`py-24 bg-slate-950 border-t border-slate-800/50 relative ${className}`}>
       {/* Декоративная линия сверху */}
@@ -26,54 +39,68 @@ export default function ProjectsBento({
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">{title}</h2>
             <p className="text-gray-400 text-lg">{subtitle}</p>
           </div>
-          <Link href="#" className="inline-flex items-center justify-center px-6 py-3 border border-slate-700 rounded-xl text-white hover:bg-slate-800 hover:border-slate-600 transition group">
-            Все 300+ работ <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition"/>
+          <Link href="/portfolio" className="inline-flex items-center justify-center px-6 py-3 border border-slate-700 rounded-xl text-white hover:bg-slate-800 hover:border-slate-600 transition group">
+            Все работы <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition"/>
           </Link>
         </div>
 
         {/* Сетка Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-auto md:h-[600px]">
           
-          {/* 1. Большая карточка (QazPost) */}
-          <div className="md:col-span-2 md:row-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800">
-            <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/qazpost.jpg')" }}></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition"></div>
-            <div className="absolute bottom-0 left-0 p-8 w-full">
-              <div className="inline-block px-3 py-1 mb-3 text-xs font-bold text-white bg-orange-600 rounded-full">Объемные буквы</div>
-              <h3 className="text-3xl font-bold text-white mb-2">БЦ "Monolith"</h3>
-              <p className="text-gray-300 line-clamp-2">Изготовление и монтаж вывесок для QazPost. Лицевое свечение + контражур.</p>
-            </div>
-          </div>
+          {latestProjects.map((project, index) => {
+            // Определяем размеры ячеек
+            let gridClass = "";
+            if (index === 0) gridClass = "md:col-span-2 md:row-span-2"; // Большая (Слева)
+            else if (index === 1) gridClass = "md:col-span-2";          // Широкая (Справа верх)
+            else gridClass = "md:col-span-1";                           // Маленькие (Справа низ)
 
-          {/* 2. Широкая карточка (1Solution) */}
-          <div className="md:col-span-2 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-            <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/1solution.jpg')" }}></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
-            <div className="absolute bottom-0 left-0 p-6">
-              <div className="text-orange-400 text-xs font-bold mb-1 tracking-wider uppercase">Объемные буквы и лайтбокс</div>
-              <h3 className="text-xl font-bold text-white">Юридическая компания 1Solution</h3>
-            </div>
-          </div>
+            // Получаем название главной категории
+            const mainCategoryLabel = getCategoryLabel(project.categories[0]);
 
-          {/* 3. Малая карточка (Agro/Neon) */}
-          <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-            <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/agro.jpg')" }}></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
-            <div className="absolute bottom-0 left-0 p-6">
-              <div className="text-blue-400 text-xs font-bold mb-1 tracking-wider uppercase">Неон и вывеска</div>
-              <h3 className="text-lg font-bold text-white">Аптека "Агро Семья"</h3>
-            </div>
-          </div>
+            return (
+              <Link 
+                key={project.id}
+                href={`/portfolio/${project.slug}`}
+                className={`group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px] ${gridClass}`}
+              >
+                {/* Картинка */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" 
+                  style={{ backgroundImage: `url(${project.image})` }}
+                ></div>
+                
+                {/* Градиент (на большой карточке он сильнее) */}
+                <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition ${index === 0 ? '' : 'via-transparent'}`}></div>
+                
+                {/* Контент */}
+                <div className={`absolute bottom-0 left-0 w-full ${index === 0 ? 'p-8' : 'p-6'}`}>
+                  
+                  {/* ТЕГ / КАТЕГОРИЯ */}
+                  <div className={`inline-block mb-2 text-xs font-bold uppercase tracking-wider ${
+                      index === 0 
+                        ? "px-3 py-1 text-white bg-orange-600 rounded-full" // Большая кнопка
+                        : index === 1 
+                            ? "text-orange-400" // Цветной текст
+                            : "text-blue-400"   // Цветной текст
+                  }`}>
+                      {mainCategoryLabel}
+                  </div>
 
-          {/* 4. Малая карточка (Fortuna) */}
-          <div className="md:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer border border-slate-800 min-h-[250px]">
-            <div className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-105" style={{ backgroundImage: "url('/fortuna.jpg')" }}></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-80"></div>
-            <div className="absolute bottom-0 left-0 p-6">
-              <div className="text-green-400 text-xs font-bold mb-1 tracking-wider uppercase">Панель-кронштейн</div>
-              <h3 className="text-lg font-bold text-white">Агентство Fortuna</h3>
-            </div>
-          </div>
+                  {/* ЗАГОЛОВОК */}
+                  <h3 className={`${index === 0 ? 'text-3xl' : index === 1 ? 'text-xl' : 'text-lg'} font-bold text-white mb-1 group-hover:text-orange-500 transition-colors line-clamp-1`}>
+                    {project.title}
+                  </h3>
+                  
+                  {/* ОПИСАНИЕ (Только для большой и широкой карточки) */}
+                  {(index === 0 || index === 1) && (
+                      <p className="text-gray-300 text-sm line-clamp-2 mt-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                        {project.description}
+                      </p>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
 
         </div>
       </div>

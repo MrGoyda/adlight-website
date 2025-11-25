@@ -1,10 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calculator, Info, CheckCircle, ArrowRight, Box, Settings, Phone, Ruler, Hammer, Truck } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Calculator, 
+  Info, 
+  CheckCircle, 
+  ArrowRight, 
+  Box, 
+  Settings, 
+  Phone, 
+  Ruler, 
+  Hammer, 
+  Truck 
+} from "lucide-react";
 
-// Импортируем UI компоненты
 import { Slider } from "@/components/ui/slider";
 
 // --- БАЗА ДАННЫХ ---
@@ -32,6 +44,7 @@ type LetterType = keyof typeof PRICING.letters.types;
 type LightboxType = keyof typeof PRICING.lightbox.types;
 
 export default function CalculatorPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('letters');
   const [totalPriceRange, setTotalPriceRange] = useState<{min: number, max: number} | null>(null);
 
@@ -110,33 +123,33 @@ export default function CalculatorPage() {
   };
 
   return (
-    // Добавил pb-32 (padding-bottom), чтобы контент не перекрывался мобильной плашкой
     <div className="min-h-screen bg-[#0F172A] pb-32 lg:pb-20 font-sans">
       
-      {/* HEADER */}
-      <header className="bg-slate-900 border-b border-slate-800 py-4 sticky top-0 z-50">
-        <div className="container mx-auto px-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm font-medium">
-            <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">На Главную</span>
-          </Link>
-          <div className="text-white font-bold text-lg flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-orange-500"/> Калькулятор стоимости
-          </div>
-          <div className="w-10 sm:w-20"></div>
+      <main className="container mx-auto px-4 pt-28 sm:pt-32">
+        
+        {/* КНОПКА НАЗАД */}
+        <div className="mb-8">
+          <button 
+            onClick={() => router.back()} 
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition text-sm font-medium group px-4 py-2 rounded-full bg-white/5 hover:bg-white/10"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
+            <span>Назад</span>
+          </button>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 pt-8 sm:pt-12">
         <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">Рассчитайте стоимость вывески онлайн</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">Рассчитайте стоимость вывески</h1>
           <p className="text-gray-400 text-sm md:text-lg max-w-2xl mx-auto">
-             Введите название и размеры, и получите ориентировачную стоимость.<span className="text-orange-500"> <br></br>Просчет проекта под ключ и финальная стоимость будет только после бесплатного замера</span>
+             Введите текст и размеры. <span className="text-orange-500">Каркас включен в стоимость.</span>
+             <br/>
+             <span className="text-xs text-gray-500 opacity-70">Точная смета — после замера.</span>
           </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto relative">
           
-          {/* ЛЕВАЯ КОЛОНКА (Контроллеры) */}
+          {/* ЛЕВАЯ КОЛОНКА */}
           <div className="lg:col-span-2 space-y-6">
             
             {/* ТАБЫ */}
@@ -150,24 +163,15 @@ export default function CalculatorPage() {
 
             {/* ПРЕВЬЮ */}
             <div className="bg-slate-950 rounded-3xl border border-slate-800 relative overflow-hidden aspect-video sm:aspect-[2/1] group shadow-2xl">
-               {/* 1. Логика для БУКВ */}
                {activeTab === 'letters' && (
                  <>
-                    {/* Картинка как фон (Заливка) */}
                     <img 
                       src={PRICING.letters.types[letterParams.type].image} 
                       alt={PRICING.letters.types[letterParams.type].name}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      onError={(e) => {
-                        // Если картинки нет, показываем серый фон (чтобы не было битой иконки)
-                        e.currentTarget.style.display = 'none';
-                      }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
-                    
-                    {/* Градиент поверх картинки для читаемости текста */}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent opacity-90"></div>
-
-                    {/* Текст поверх картинки */}
                     <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
                         <div className="relative z-10 animate-in slide-in-from-bottom-2 duration-500">
                            <div className="text-xs font-bold text-orange-500 uppercase tracking-widest mb-2">Выбранный тип</div>
@@ -181,8 +185,6 @@ export default function CalculatorPage() {
                     </div>
                  </>
                )}
-
-               {/* 2. Логика для ЛАЙТБОКСОВ */}
                {activeTab === 'lightbox' && (
                  <>
                     <img 
@@ -192,7 +194,6 @@ export default function CalculatorPage() {
                       onError={(e) => {e.currentTarget.style.display = 'none'}}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent opacity-90"></div>
-                    
                     <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
                         <div className="relative z-10 animate-in slide-in-from-bottom-2 duration-500">
                            <div className="text-xs font-bold text-orange-500 uppercase tracking-widest mb-2">Тип лайтбокса</div>
@@ -211,7 +212,6 @@ export default function CalculatorPage() {
               {activeTab === 'letters' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
                   
-                  {/* ТИП */}
                   <div>
                     <h3 className="text-white font-bold text-lg mb-4">1. Тип свечения</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -224,7 +224,6 @@ export default function CalculatorPage() {
                     </div>
                   </div>
 
-                  {/* ПОЛЯ */}
                   <div className="space-y-6">
                     <h3 className="text-white font-bold text-lg">2. Размеры</h3>
                     
@@ -232,18 +231,19 @@ export default function CalculatorPage() {
                         <label className="text-gray-400 text-xs font-bold uppercase mb-2 block">Вывеска</label>
                         <input type="text" placeholder="Например: ADLIGHT" value={letterParams.mainText} onChange={(e) => setLetterParams({...letterParams, mainText: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-orange-500 mb-4 font-medium"/>
                         <div className="flex justify-between mb-2"><span className="text-sm text-gray-300">Высота букв</span><span className="text-orange-500 font-bold">{letterParams.mainHeight} см</span></div>
-                        <Slider value={[letterParams.mainHeight]} onValueChange={(v) => setLetterParams({...letterParams, mainHeight: v[0]})} min={10} max={200} step={5} />
+                        {/* FIX: step={1} для точности */}
+                        <Slider value={[letterParams.mainHeight]} onValueChange={(v) => setLetterParams({...letterParams, mainHeight: v[0]})} min={10} max={200} step={1} />
                     </div>
 
                     <div className="p-4 bg-slate-950/50 rounded-xl border border-slate-800">
                         <label className="text-gray-400 text-xs font-bold uppercase mb-2 block">Подпись (опционально)</label>
                         <input type="text" placeholder="Деятельность" value={letterParams.subText} onChange={(e) => setLetterParams({...letterParams, subText: e.target.value})} className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-orange-500 mb-4 text-sm"/>
                         <div className="flex justify-between mb-2"><span className="text-sm text-gray-300">Высота</span><span className="text-gray-300 font-bold">{letterParams.subHeight} см</span></div>
-                        <Slider value={[letterParams.subHeight]} onValueChange={(v) => setLetterParams({...letterParams, subHeight: v[0]})} min={10} max={100} step={5} />
+                        {/* FIX: step={1} для точности */}
+                        <Slider value={[letterParams.subHeight]} onValueChange={(v) => setLetterParams({...letterParams, subHeight: v[0]})} min={10} max={100} step={1} />
                     </div>
                   </div>
 
-                  {/* МОНТАЖ */}
                   <div>
                     <h3 className="text-white font-bold text-lg mb-4">3. Монтаж</h3>
                     <div className="grid grid-cols-2 gap-3">
@@ -283,41 +283,27 @@ export default function CalculatorPage() {
                 </div>
               )}
 
-              {/* ИНДИВИДУАЛЬНЫЙ РАСЧЕТ */}
               <div className="bg-slate-800 p-6 rounded-3xl border border-slate-700 mt-6 space-y-4 relative overflow-hidden group">
-                  {/* Декоративный фон (еле заметное свечение) */}
                   <div className="absolute -right-10 -top-10 w-40 h-40 bg-yellow-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-yellow-500/20 transition duration-700"></div>
-
                   <div className="flex items-start gap-4 relative z-10">
                     <div className="p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
                         <Settings className="w-6 h-6 text-yellow-500"/>
                     </div>
                     <div>
-                      <h3 className="text-white font-bold text-lg mb-2 leading-tight">
-                        Масштабные проекты и <br className="hidden sm:block"/>Крышные установки
-                      </h3>
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                          Реализуем имиджевые конструкции любой сложности: расчет ветровых нагрузок, проектная документация и монтаж на любой высоте.
-                      </p>
+                      <h3 className="text-white font-bold text-lg mb-2 leading-tight">Масштабные проекты</h3>
+                      <p className="text-gray-400 text-sm leading-relaxed">Реализуем имиджевые конструкции любой сложности: расчет ветровых нагрузок, проектная документация и монтаж.</p>
                     </div>
                   </div>
-                  
-                  <button 
-                    onClick={handleComplexOrder} 
-                    className="w-full py-3.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl transition-all text-sm flex items-center justify-center gap-2 border border-slate-600 hover:border-slate-500 shadow-lg"
-                  >
-                     Обсудить индивидуальный проект
-                  </button>
+                  <button onClick={handleComplexOrder} className="w-full py-3.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl transition-all text-sm flex items-center justify-center gap-2 border border-slate-600 hover:border-slate-500 shadow-lg">Обсудить индивидуальный проект</button>
               </div>
             </div>
           </div>
 
-          {/* ПРАВАЯ КОЛОНКА (ДЕСКТОП) - ВИДНА ТОЛЬКО НА LG */}
+          {/* ПРАВАЯ КОЛОНКА (STICKY) */}
           <div className="hidden lg:col-span-1 lg:block">
             <div className="lg:sticky lg:top-24 bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden self-start">
                 <div className="absolute top-0 right-0 w-2/3 h-full bg-orange-600/10 blur-[80px] rounded-full pointer-events-none"></div>
                 <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-4">Ориентировочная стоимость под ключ</h3>
-                
                 {totalPriceRange ? (
                   <div className="mb-6 relative z-10">
                     <div className="text-5xl font-black text-white leading-none mb-2 tracking-tight">
@@ -328,111 +314,75 @@ export default function CalculatorPage() {
                 ) : (
                    <div className="text-xl font-bold text-white mb-8 relative z-10">Параметры...</div>
                 )}
-
                 <div className="space-y-3 mb-8 relative z-10 pt-6 border-t border-slate-800">
                    <div className="flex items-center gap-3 text-gray-300 text-sm"><CheckCircle className="w-5 h-5 text-green-500"/> Согласование в акимате</div>
                    <div className="flex items-center gap-3 text-gray-300 text-sm"><CheckCircle className="w-5 h-5 text-green-500"/> Блок питания IP67</div>
                    <div className="flex items-center gap-3 text-gray-300 text-sm"><CheckCircle className="w-5 h-5 text-green-500"/> Гарантия 1 год</div>
                 </div>
-
-                <button onClick={handleOrder} className="w-full py-4 bg-orange-600 text-white font-bold text-lg rounded-xl hover:bg-orange-700 transition shadow-lg flex items-center justify-center gap-2 relative z-10">
-                   Заказать <ArrowRight className="w-5 h-5"/>
-                </button>
+                <button onClick={handleOrder} className="w-full py-4 bg-orange-600 text-white font-bold text-lg rounded-xl hover:bg-orange-700 transition shadow-lg flex items-center justify-center gap-2 relative z-10">Заказать <ArrowRight className="w-5 h-5"/></button>
             </div>
           </div>
 
         </div>
-        {/* --- НОВЫЙ БЛОК: ПОЧЕМУ ЭТО СТОИТ СВОИХ ДЕНЕГ --- */}
+        
+        {/* --- ВОССТАНОВЛЕННЫЕ БЛОКИ --- */}
+        
+        {/* ЧТО ВХОДИТ В СТОИМОСТЬ */}
         <div className="mt-20 lg:mt-32 max-w-5xl mx-auto">
            <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Что входит в стоимость?</h2>
               <p className="text-gray-400">Мы не экономим на "начинке". Ваша вывеска будет гореть ярко минимум 3 года.</p>
            </div>
-
            <div className="grid md:grid-cols-3 gap-6">
-              {/* Карточка 1 */}
               <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4">
-                     <Settings className="w-6 h-6 text-blue-500"/>
-                  </div>
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4"><Settings className="w-6 h-6 text-blue-500"/></div>
                   <h3 className="text-white font-bold text-lg mb-2">Светодиоды (Линзованные)</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                     Используем модули с линзой 160°. Это дает равномерную заливку без "пятен". Ресурс — 50 000 часов.
-                  </p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Используем модули с линзой 160°. Это дает равномерную заливку без "пятен". Ресурс — 50 000 часов.</p>
               </div>
-
-              {/* Карточка 2 */}
               <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-                  <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4">
-                     <Box className="w-6 h-6 text-orange-500"/>
-                  </div>
+                  <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mb-4"><Box className="w-6 h-6 text-orange-500"/></div>
                   <h3 className="text-white font-bold text-lg mb-2">Акрил Plexiglas</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                     Лицевая часть из заводского акрила, который не желтеет на солнце (в отличие от дешевого полистирола).
-                  </p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Лицевая часть из заводского акрила, который не желтеет на солнце (в отличие от дешевого полистирола).</p>
               </div>
-
-              {/* Карточка 3 */}
               <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4">
-                     <CheckCircle className="w-6 h-6 text-green-500"/>
-                  </div>
+                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-4"><CheckCircle className="w-6 h-6 text-green-500"/></div>
                   <h3 className="text-white font-bold text-lg mb-2">Блоки питания IP67</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                     Герметичные блоки питания с защитой от короткого замыкания. Не боятся дождя и снега.
-                  </p>
+                  <p className="text-gray-400 text-sm leading-relaxed">Герметичные блоки питания с защитой от короткого замыкания. Не боятся дождя и снега.</p>
               </div>
            </div>
         </div>
 
-        {/* --- НОВЫЙ БЛОК: ВОПРОС-ОТВЕТ (FAQ) --- */}
+        {/* FAQ */}
         <div className="mt-20 max-w-3xl mx-auto pb-20">
            <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 text-center">Частые вопросы</h2>
-           
            <div className="space-y-4">
-              {/* Вопрос 1 */}
               <details className="group bg-slate-900 rounded-xl border border-slate-800 overflow-hidden transition-all duration-300 open:bg-slate-800">
                  <summary className="flex items-center justify-between p-5 cursor-pointer list-none text-white font-medium hover:text-orange-500 transition">
                     <span>Как происходит оплата? Работаете с НДС?</span>
-                    <span className="transition-transform group-open:rotate-180">
-                       <ArrowRight className="w-5 h-5 rotate-90"/>
-                    </span>
+                    <span className="transition-transform group-open:rotate-180"><ArrowRight className="w-5 h-5 rotate-90"/></span>
                  </summary>
-                 <div className="px-5 pb-5 text-gray-400 text-sm leading-relaxed">
-                    Мы работаем официально. Для юрлиц выставляем счет (есть ТОО с НДС и без). Для физлиц — Kaspi QR, Kaspi Red/Kredit или наличные. Предоплата 50-70% перед началом работ.
-                 </div>
+                 <div className="px-5 pb-5 text-gray-400 text-sm leading-relaxed">Мы работаем официально. Для юрлиц выставляем счет (есть ТОО с НДС и без). Для физлиц — Kaspi QR, Kaspi Red/Kredit или наличные. Предоплата 70% перед началом работ.</div>
               </details>
-
-              {/* Вопрос 2 */}
               <details className="group bg-slate-900 rounded-xl border border-slate-800 overflow-hidden transition-all duration-300 open:bg-slate-800">
                  <summary className="flex items-center justify-between p-5 cursor-pointer list-none text-white font-medium hover:text-orange-500 transition">
                     <span>Нужно ли согласовывать вывеску с Акиматом?</span>
-                    <span className="transition-transform group-open:rotate-180">
-                       <ArrowRight className="w-5 h-5 rotate-90"/>
-                    </span>
+                    <span className="transition-transform group-open:rotate-180"><ArrowRight className="w-5 h-5 rotate-90"/></span>
                  </summary>
-                 <div className="px-5 pb-5 text-gray-400 text-sm leading-relaxed">
-                    Да, в Астане действует дизайн-код. Мы помогаем подготовить эскизный проект и подать его на согласование через E-Otinish, чтобы вашу вывеску не демонтировали.
-                 </div>
+                 <div className="px-5 pb-5 text-gray-400 text-sm leading-relaxed">Да, в Астане действует дизайн-код. Мы помогаем подготовить эскизный проект и подать его на согласование через E-Otinish.</div>
               </details>
-
-              {/* Вопрос 3 */}
               <details className="group bg-slate-900 rounded-xl border border-slate-800 overflow-hidden transition-all duration-300 open:bg-slate-800">
                  <summary className="flex items-center justify-between p-5 cursor-pointer list-none text-white font-medium hover:text-orange-500 transition">
                     <span>Какой срок изготовления?</span>
-                    <span className="transition-transform group-open:rotate-180">
-                       <ArrowRight className="w-5 h-5 rotate-90"/>
-                    </span>
+                    <span className="transition-transform group-open:rotate-180"><ArrowRight className="w-5 h-5 rotate-90"/></span>
                  </summary>
-                 <div className="px-5 pb-5 text-gray-400 text-sm leading-relaxed">
-                    Стандартный срок для объемных букв — 3-5 рабочих дней. Для крупных крышных установок сроки рассчитываются индивидуально (обычно 10-15 дней).
-                 </div>
+                 <div className="px-5 pb-5 text-gray-400 text-sm leading-relaxed">Стандартный срок для объемных букв — 3-5 рабочих дней. Для крупных крышных установок — индивидуально.</div>
               </details>
            </div>
         </div>
+
       </main>
 
-      {/* НИЖНЯЯ ПАНЕЛЬ (МОБИЛЬНАЯ) - ВИДНА ТОЛЬКО НА МОБИЛКАХ (< LG) */}
+      {/* НИЖНЯЯ ПАНЕЛЬ (МОБИЛЬНАЯ) */}
       <div className="fixed bottom-0 left-0 w-full bg-[#0F172A] border-t border-slate-800 p-4 z-50 lg:hidden shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
          <div className="container mx-auto flex items-center justify-between gap-4">
             <div className="flex flex-col">
@@ -445,13 +395,7 @@ export default function CalculatorPage() {
                   <div className="text-gray-500 font-bold text-lg">---</div>
                )}
             </div>
-            <button 
-              onClick={handleOrder} 
-              disabled={!totalPriceRange}
-              className="bg-orange-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-orange-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-900/20"
-            >
-               Заказать
-            </button>
+            <button onClick={handleOrder} disabled={!totalPriceRange} className="bg-orange-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-orange-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-900/20">Заказать</button>
          </div>
       </div>
 
