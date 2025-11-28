@@ -6,7 +6,6 @@ import {
   ArrowRight, 
   CheckCircle, 
   XCircle, 
-  FileCheck, 
   Ruler, 
   Building,
   ChevronRight,
@@ -18,15 +17,21 @@ import {
   Megaphone,
   Store,
   Armchair,
+  Download,
   Search,
   Layers,
-  MessageCircle // Иконка для консультации
+  MessageCircle,
+  Languages, // Иконка языка
+  FileText,  // Иконка документа
+  Copyright, // Иконка товарного знака
+  Clock,     // Иконка часов
+  Info       // Иконка инфо
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import CallToAction from "@/components/CallToAction";
 import ServicesCarousel from "@/components/ServicesCarousel";
-import ConsultationModal from "@/components/ConsultationModal"; // <-- ИМПОРТ МОДАЛКИ
+import ConsultationModal from "@/components/ConsultationModal";
 
 // Тип для табов
 type TabType = 'ads' | 'trade' | 'urban';
@@ -34,27 +39,29 @@ type TabType = 'ads' | 'trade' | 'urban';
 // Данные для табов
 const TAB_DATA = {
   ads: [
-    { t: "Билборд", d: "Щит от 2х3 м для улиц.", i: <Megaphone className="w-6 h-6"/> },
-    { t: "Стела", d: "Отдельно стоящая конструкция (не более 2 сторон).", i: <MapPin className="w-6 h-6"/> },
-    { t: "Сити-формат", d: "Световая панель до 2,5 кв.м (Лайт-постер).", i: <Layout className="w-6 h-6"/> },
-    { t: "Крышные установки", d: "Объемные буквы или панно строго на крыше.", i: <Building className="w-6 h-6"/> },
-    { t: "Брендмауэр", d: "Панно на глухой стене здания.", i: <Layers className="w-6 h-6"/> },
+    { t: "Крышные установки", d: "Сложные конструкции (объемные буквы/панно), размещаемые строго на крыше зданий.", i: <Building className="w-6 h-6"/> },
+    { t: "Брандмауэр", d: "Панно на глухой стене здания. Используется винил или баннерная сетка.", i: <Layers className="w-6 h-6"/> },
+    { t: "Стела", d: "Отдельно стоящая конструкция на собственном фундаменте. Не более 2 сторон.", i: <MapPin className="w-6 h-6"/> },
+    { t: "Билборд", d: "Щит размером от 2х3 м. Устанавливается вдоль улиц и дорог.", i: <Megaphone className="w-6 h-6"/> },
+    { t: "Сити-формат", d: "Лайт-постер до 2.5 кв.м с внутренней подсветкой.", i: <Layout className="w-6 h-6"/> },
+    { t: "Панель-кронштейн", d: "Плоская конструкция перпендикулярно фасаду. Допускается подсветка.", i: <Layout className="w-6 h-6"/> }, // Заменил Maximize на Layout, так как Maximize нет в импорте
+    { t: "Штендер", d: "Выносная мобильная конструкция до 2 кв.м. Убирается в нерабочее время.", i: <Store className="w-6 h-6"/> },
   ],
   trade: [
-    { t: "Киоск", d: "Компактное сооружение без торгового зала.", i: <Store className="w-6 h-6"/> },
-    { t: "Павильон", d: "Легкая конструкция с возможностью входа внутрь.", i: <Store className="w-6 h-6"/> },
-    { t: "Автолавка", d: "Мобильная торговля на колесах.", i: <ArrowRight className="w-6 h-6"/> },
+    { t: "Киоск", d: "Сооружение без торгового зала, на 1-2 рабочих места.", i: <Store className="w-6 h-6"/> },
+    { t: "Павильон", d: "Легкая конструкция с входом внутрь для покупателей.", i: <Store className="w-6 h-6"/> },
+    { t: "Автолавка", d: "Специализированный автомобиль с торговым оборудованием.", i: <ArrowRight className="w-6 h-6"/> },
   ],
   urban: [
-    { t: "Остановки", d: "Открытые и теплые павильоны закрытого типа.", i: <Store className="w-6 h-6"/> },
-    { t: "Навигация", d: "Информационные панели и табло с погодой/картой.", i: <MapPin className="w-6 h-6"/> },
-    { t: "Скамьи", d: "Единый стиль уличной мебели.", i: <Armchair className="w-6 h-6"/> },
+    { t: "Остановки", d: "Открытые и теплые павильоны закрытого типа для ожидания транспорта.", i: <Store className="w-6 h-6"/> },
+    { t: "Информационные панели", d: "Электронные табло с навигацией, погодой и трафиком.", i: <MapPin className="w-6 h-6"/> },
+    { t: "Скамьи", d: "Уличная мебель в едином архитектурном стиле.", i: <Armchair className="w-6 h-6"/> },
   ]
 };
 
 export default function DesignCodePage() {
   const [activeTab, setActiveTab] = useState<TabType>('ads');
-  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние модалки
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-orange-500/30">
@@ -85,7 +92,6 @@ export default function DesignCodePage() {
               </p>
               
               <div data-aos="fade-up" data-aos-delay="200" className="flex flex-col sm:flex-row gap-4">
-                 {/* Кнопка открытия модалки */}
                  <button 
                     onClick={() => setIsModalOpen(true)}
                     className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2"
@@ -101,21 +107,96 @@ export default function DesignCodePage() {
         </div>
       </section>
 
-      {/* 2. ПАМЯТКА ДЛЯ БИЗНЕСА (CHECKLIST) */}
-      <section id="check" className="py-24 bg-slate-950 scroll-mt-20">
+      {/* 2. ТРИ ПУТИ СОГЛАСОВАНИЯ (НОВЫЙ БЛОК) */}
+      <section id="check" className="py-24 bg-[#0B1120] scroll-mt-20 border-b border-slate-800">
+         <div className="container mx-auto px-4">
+             <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">3 способа узаконить название</h2>
+                <p className="text-gray-400 max-w-2xl mx-auto">
+                   Есть только три официальных варианта согласования вывески с отделом языков. Выберите свой путь.
+                </p>
+             </div>
+
+             <div className="grid lg:grid-cols-3 gap-8">
+                
+                {/* ВАРИАНТ 1: ПЕРЕВОД */}
+                <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 relative overflow-hidden group hover:border-green-500/30 transition duration-300">
+                   <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center mb-6 text-green-500">
+                      <Languages className="w-7 h-7"/>
+                   </div>
+                   <h3 className="text-xl font-bold text-white mb-4">Перевод на казахский</h3>
+                   <p className="text-gray-400 text-sm leading-relaxed mb-6 min-h-[60px]">
+                      Прямой перевод названия или транслитерация. Самый простой и быстрый способ.
+                      <br/><span className="text-slate-500 text-xs">Пример: "FastHelp" → "Жедел Көмек"</span>
+                   </p>
+                   <div className="pt-6 border-t border-slate-800">
+                      <div className="flex justify-between items-center text-sm">
+                         <span className="text-white font-bold flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500"/> Для ИП и малого бизнеса</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-3 text-xs text-gray-500 font-mono">
+                         <Clock className="w-4 h-4"/> Срок: 3-5 дней
+                      </div>
+                   </div>
+                </div>
+
+                {/* ВАРИАНТ 2: ЮРИДИЧЕСКИЙ */}
+                <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 relative overflow-hidden group hover:border-blue-500/30 transition duration-300">
+                   <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 text-blue-500">
+                      <FileText className="w-7 h-7"/>
+                   </div>
+                   <h3 className="text-xl font-bold text-white mb-4">По документам</h3>
+                   <p className="text-gray-400 text-sm leading-relaxed mb-6 min-h-[60px]">
+                      Использование названия точь-в-точь как в свидетельстве о регистрации ТОО или ИП. Отдел языков не вправе требовать перевод.
+                      <br/><span className="text-slate-500 text-xs">Пример: ТОО "FastHelp Group"</span>
+                   </p>
+                   <div className="pt-6 border-t border-slate-800">
+                      <div className="flex justify-between items-center text-sm">
+                         <span className="text-white font-bold flex items-center gap-2"><CheckCircle className="w-4 h-4 text-blue-500"/> Без товарного знака</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-3 text-xs text-gray-500 font-mono">
+                         <Clock className="w-4 h-4"/> Срок: 3-5 дней
+                      </div>
+                   </div>
+                </div>
+
+                {/* ВАРИАНТ 3: ТОВАРНЫЙ ЗНАК */}
+                <div className="bg-slate-900 p-8 rounded-3xl border border-slate-800 relative overflow-hidden group hover:border-purple-500/30 transition duration-300">
+                   <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 text-purple-500">
+                      <Copyright className="w-7 h-7"/>
+                   </div>
+                   <h3 className="text-xl font-bold text-white mb-4">Товарный знак (ТЗ)</h3>
+                   <p className="text-gray-400 text-sm leading-relaxed mb-6 min-h-[60px]">
+                      Регистрация бренда в Комитете интеллектуальной собственности. Дает право писать на любом языке (хоть на английском).
+                   </p>
+                   <div className="pt-6 border-t border-slate-800">
+                      <div className="flex justify-between items-center text-sm">
+                         <span className="text-white font-bold flex items-center gap-2"><Info className="w-4 h-4 text-purple-500"/> Защита бренда</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-3 text-xs text-gray-500 font-mono">
+                         <Clock className="w-4 h-4"/> Срок: 6-7 месяцев
+                      </div>
+                   </div>
+                </div>
+
+             </div>
+         </div>
+      </section>
+
+      {/* 3. ПАМЯТКА ДЛЯ БИЗНЕСА (CHECKLIST) */}
+      <section className="py-24 bg-slate-950">
          <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Памятка для бизнеса</h2>
-               <p className="text-gray-400">Как оформить вывеску правильно: 3 шага</p>
+               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Технические требования</h2>
+               <p className="text-gray-400">Где и как размещать вывеску</p>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
                {/* Шаг 1: Место */}
-               <div className="bg-[#0B1120] p-8 rounded-3xl border border-slate-800 relative overflow-hidden group">
+               <div className="bg-[#0F172A] p-8 rounded-3xl border border-slate-800 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition">
                      <MapPin className="w-20 h-20 text-blue-500"/>
                   </div>
-                  <div className="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-bold mb-6">ШАГ 1</div>
+                  <div className="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-bold mb-6">ПРАВИЛО 1</div>
                   <h3 className="text-xl font-bold text-white mb-6">Место размещения</h3>
                   <ul className="space-y-4">
                      <li className="flex gap-3">
@@ -134,11 +215,11 @@ export default function DesignCodePage() {
                </div>
 
                {/* Шаг 2: Дизайн */}
-               <div className="bg-[#0B1120] p-8 rounded-3xl border border-slate-800 relative overflow-hidden group">
+               <div className="bg-[#0F172A] p-8 rounded-3xl border border-slate-800 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition">
                      <Layout className="w-20 h-20 text-green-500"/>
                   </div>
-                  <div className="inline-block px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-bold mb-6">ШАГ 2</div>
+                  <div className="inline-block px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-bold mb-6">ПРАВИЛО 2</div>
                   <h3 className="text-xl font-bold text-white mb-6">Дизайн и Технологии</h3>
                   <div className="space-y-6">
                      <div>
@@ -149,18 +230,15 @@ export default function DesignCodePage() {
                         <div className="flex items-center gap-2 text-red-500 font-bold mb-2"><XCircle className="w-5 h-5"/> ЗАПРЕЩЕНО</div>
                         <p className="text-gray-400 text-sm">Баннерная ткань, сплошные световые короба (лайтбоксы) на фасаде.</p>
                      </div>
-                     <div className="pt-4 border-t border-slate-800">
-                        <p className="text-white text-xs font-bold">ВАЖНО: Текст обязательно на государственном языке.</p>
-                     </div>
                   </div>
                </div>
 
                {/* Шаг 3: Размеры */}
-               <div className="bg-[#0B1120] p-8 rounded-3xl border border-slate-800 relative overflow-hidden group">
+               <div className="bg-[#0F172A] p-8 rounded-3xl border border-slate-800 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition">
                      <Ruler className="w-20 h-20 text-orange-500"/>
                   </div>
-                  <div className="inline-block px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-bold mb-6">ШАГ 3</div>
+                  <div className="inline-block px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-bold mb-6">ПРАВИЛО 3</div>
                   <h3 className="text-xl font-bold text-white mb-6">Допустимые габариты</h3>
                   <div className="space-y-0 divide-y divide-slate-800">
                      {[
@@ -184,8 +262,8 @@ export default function DesignCodePage() {
          </div>
       </section>
 
-      {/* 3. СТОП-ЛИСТ (ЗАПРЕТЫ) */}
-      <section className="py-24 bg-[#0F172A]">
+      {/* 4. СТОП-ЛИСТ (ЗАПРЕТЫ) */}
+      <section className="py-24 bg-[#0F172A] border-t border-slate-800">
          <div className="container mx-auto px-4">
             <div className="flex items-center gap-4 mb-12">
                <div className="h-px flex-1 bg-slate-800"></div>
@@ -195,17 +273,20 @@ export default function DesignCodePage() {
 
             <div className="grid md:grid-cols-3 gap-6">
                {[
-                  {t: "Вертикальное размещение", d: "Буквы нельзя писать столбиком или вешать вывеску вертикально."},
-                  {t: "Перекрытие архитектуры", d: "Запрещено закрывать окна, карнизы, колонны и адресные таблички."},
-                  {t: "Балконы и козырьки", d: "Нельзя вешать вывески на ограждениях балконов и лоджий."},
-                  {t: "Выступ за фасад", d: "Конструкции не должны торчать из стены. Исключение — панель-кронштейны."},
-                  {t: "Визуальный шум", d: "Запрещено нагромождение нескольких вывесок одного бренда у одного входа."},
-                  {t: "Этика и цензура", d: "Никаких бранных слов и непристойных образов в рекламе."},
+                  {t: "Вертикальное размещение", d: "Буквы нельзя писать столбиком (сверху вниз) или располагать вывеску вертикально."},
+                  {t: "Перекрытие архитектуры", d: "Запрещено закрывать окна, витражи, декоративные элементы, карнизы и колонны."},
+                  {t: "Балконы и козырьки", d: "Нельзя вешать конструкции на ограждениях балконов, лоджий и эркеров."},
+                  {t: "Адресные таблички", d: "Вывеска не должна перекрывать аншлаги с названием улицы и номером дома."},
+                  {t: "Выступ за фасад", d: "Конструкции не должны выступать за плоскость фасада (консольно). Исключение — панель-кронштейны."},
+                  {t: "Жилые подъезды", d: "Запрещено размещение в пределах входов в жилые подъезды домов."},
+                  {t: "Визуальный шум", d: "Более 1 вывески одного бренда на один вход запрещено."},
+                  {t: "Искажение цвета", d: "Нельзя использовать подложку, цвет которой отличается от архитектурного облика здания."},
+                  {t: "Без разрешения", d: "Размещение без согласия собственника здания категорически запрещено."},
                ].map((item, i) => (
-                  <div key={i} className="flex gap-4 p-4 bg-red-900/10 border border-red-900/30 rounded-xl hover:bg-red-900/20 transition">
-                     <Ban className="w-8 h-8 text-red-500 flex-shrink-0"/>
+                  <div key={i} className="flex gap-4 p-5 bg-red-900/5 border border-red-900/20 rounded-2xl hover:bg-red-900/10 transition">
+                     <Ban className="w-6 h-6 text-red-500 flex-shrink-0 mt-1"/>
                      <div>
-                        <h4 className="text-white font-bold mb-1">{item.t}</h4>
+                        <h4 className="text-white font-bold mb-2">{item.t}</h4>
                         <p className="text-gray-400 text-xs leading-relaxed">{item.d}</p>
                      </div>
                   </div>
@@ -214,54 +295,54 @@ export default function DesignCodePage() {
          </div>
       </section>
 
-      {/* 4. КАТАЛОГ ФОРМАТОВ (TABS) */}
+      {/* 5. КАТАЛОГ ФОРМАТОВ (TABS) */}
       <section className="py-24 bg-slate-950 border-y border-slate-800">
          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-8 text-center">Каталог форматов</h2>
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">Типы рекламных конструкций</h2>
             
             {/* Табы */}
-            <div className="flex justify-center gap-2 mb-12">
-               <button onClick={() => setActiveTab('ads')} className={`px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'ads' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Реклама</button>
-               <button onClick={() => setActiveTab('trade')} className={`px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'trade' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Торговля</button>
-               <button onClick={() => setActiveTab('urban')} className={`px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'urban' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Город</button>
+            <div className="flex justify-center gap-2 mb-12 overflow-x-auto hide-scrollbar">
+               <button onClick={() => setActiveTab('ads')} className={`shrink-0 px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'ads' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Реклама</button>
+               <button onClick={() => setActiveTab('trade')} className={`shrink-0 px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'trade' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Торговля</button>
+               <button onClick={() => setActiveTab('urban')} className={`shrink-0 px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'urban' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Городская среда</button>
             </div>
 
             {/* Контент табов */}
-            <div className="grid md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                {TAB_DATA[activeTab].map((item, i) => (
-                  <div key={i} className="bg-[#0F172A] p-6 rounded-2xl border border-slate-800 flex gap-4 items-start">
-                     <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">{item.i}</div>
-                     <div><h4 className="text-white font-bold">{item.t}</h4><p className="text-gray-400 text-sm mt-1">{item.d}</p></div>
+                  <div key={i} className="bg-[#0F172A] p-6 rounded-2xl border border-slate-800 flex gap-4 items-start hover:border-blue-500/30 transition">
+                     <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500">{item.i}</div>
+                     <div><h4 className="text-white font-bold mb-1">{item.t}</h4><p className="text-gray-400 text-sm leading-relaxed">{item.d}</p></div>
                   </div>
                ))}
             </div>
          </div>
       </section>
 
-      {/* 5. ТИПОЛОГИЯ АРХИТЕКТУРЫ */}
+      {/* 6. ТИПОЛОГИЯ ЗДАНИЙ */}
       <section className="py-24 bg-[#0F172A]">
          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold text-white mb-8">Типология архитектуры</h2>
+            <h2 className="text-2xl font-bold text-white mb-8">Классификация зданий</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                {[
-                  {t: "Малоэтажные", d: "до 3 этажей"},
-                  {t: "Среднеэтажные", d: "4–6 этажей"},
-                  {t: "Высотные", d: "7+ этажей"},
-                  {t: "ЖК с коммерцией", d: "1 этаж - магазины"},
-                  {t: "Торговые центры", d: "ТРЦ и рынки"},
-                  {t: "Бизнес-центры", d: "Офисы"},
+                  {t: "Малоэтажные", d: "Административные до 3 этажей"},
+                  {t: "Среднеэтажные", d: "Административные 4–6 этажей"},
+                  {t: "Высотные", d: "Административные 7+ этажей"},
+                  {t: "Многоквартирные", d: "Жилые дома без коммерции"},
+                  {t: "ЖК с коммерцией", d: "Жилые дома с магазинами на 1 этаже"},
+                  {t: "Торговые дома", d: "Рынки и ТЦ"},
                ].map((item, i) => (
                   <div key={i} className="p-4 bg-slate-900 rounded-xl border border-slate-800 text-center hover:border-blue-500/30 transition">
                      <Building className="w-8 h-8 text-blue-500 mx-auto mb-3"/>
-                     <div className="text-white font-bold text-sm">{item.t}</div>
-                     <div className="text-gray-500 text-xs">{item.d}</div>
+                     <div className="text-white font-bold text-sm mb-1">{item.t}</div>
+                     <div className="text-gray-500 text-[10px] leading-tight">{item.d}</div>
                   </div>
                ))}
             </div>
          </div>
       </section>
 
-      {/* 6. FAQ */}
+      {/* 7. FAQ */}
       <section className="py-24 bg-slate-950 border-t border-slate-800">
          <div className="container mx-auto px-4 max-w-3xl">
             <h2 className="text-3xl font-bold text-white mb-10 text-center">Вопросы и ответы</h2>
@@ -306,18 +387,18 @@ export default function DesignCodePage() {
          </div>
       </section>
 
-      {/* 7. ЛИД-МАГНИТ */}
+      {/* 8. ЛИД-МАГНИТ */}
       <CallToAction 
-        source="Страница: Дизайн-код" 
-        title="Сделаем вывеску в соответствии с Дизайн-кодом"
-        subtitle="Оставьте заявку, мы бесплатно проверим ваш фасад, подготовим правильный эскиз и гарантируем прохождение согласования в Акимате."
-        buttonText="Проверить фасад"
+         source="Страница: Дизайн-код" 
+         title="Сделаем вывеску строго по Дизайн-коду" 
+         subtitle="Мы знаем все требования наизусть. Проверим ваш фасад, подготовим эскиз и гарантируем отсутствие штрафов."
+         buttonText="Проверить вывеску"
       />
-      
-      {/* 8. ДРУГИЕ УСЛУГИ */}
+
+      {/* 9. ДРУГИЕ УСЛУГИ */}
       <ServicesCarousel title="Наши услуги" subtitle="Производство по Дизайн-коду" />
 
-      {/* 9. МОДАЛЬНОЕ ОКНО */}
+      {/* 10. МОДАЛЬНОЕ ОКНО */}
       <ConsultationModal 
          isOpen={isModalOpen} 
          onClose={() => setIsModalOpen(false)} 

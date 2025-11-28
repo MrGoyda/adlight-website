@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "../components/Header"; // <-- Импортируем наш новый компонент
-import Footer from "../components/Footer";
-import AOSInit from "../components/AOSInit";
+// Используем алиас @/ если он настроен, или относительные пути, как у вас
+import Header from "@/components/Header"; 
+import Footer from "@/components/Footer";
+import AOSInit from "@/components/AOSInit";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
 
@@ -18,16 +19,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className="dark">
-      <body className={`${inter.className} bg-slate-900 text-gray-100 antialiased`}>
-        <AOSInit /> {/* <-- ИНИЦИАЛИЗАЦИЯ AOS */}
+    // ДОБАВЛЕНО: scroll-smooth для плавности + data-атрибут для Next.js
+    <html lang="ru" className="dark scroll-smooth" data-scroll-behavior="smooth">
+      <body className={`${inter.className} bg-slate-900 text-gray-100 antialiased overflow-x-clip`}>
         
-        {/* Вставляем умный хедер сюда */}
+        <AOSInit /> {/* Инициализация анимаций */}
+        
+        {/* Глобальный хедер (будет на всех страницах) */}
         <Header />
 
-        <main>{children}</main>
+        {/* Контент страницы (без лишнего <main>, так как он есть внутри страниц) */}
+        {children}
 
         <Footer />
+        
       </body>
     </html>
   );

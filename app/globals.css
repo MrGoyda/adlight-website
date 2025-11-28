@@ -2,27 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-  /* Убираем overflow отсюда */
-}
+/* УДАЛИЛ html { scroll-behavior: smooth; } - это теперь в layout.tsx */
 
 body {
   position: relative;
   width: 100%;
-  /* overflow-x: clip — это магия. Обрезает лишнее по бокам, 
-     но позволяет элементам внутри быть sticky */
+  /* overflow-x: clip — обрезает вылеты по ширине, не ломая sticky */
   overflow-x: clip; 
 }
 
-/* Фоллбэк для старых браузеров (опционально) */
+/* Фоллбэк для старых браузеров */
 @supports not (overflow-x: clip) {
   body {
-    overflow-x: hidden; 
+    overflow-x: hidden;
   }
 }
 
-/* Скроллбар */
+/* Скрываем скроллбар для каруселей */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
