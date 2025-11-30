@@ -229,7 +229,7 @@ export default async function FullLitLettersPage() {
                       
                       {/* Большая карточка: БУТИКИ */}
                       <div className="min-w-[85vw] sm:min-w-[300px] lg:min-w-0 lg:col-span-2 relative h-[280px] lg:h-[360px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-purple-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-2xl">
-                         <Image src="/1solution.jpg" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <Image src="/images/letters-galery/full-lit/5.jpg" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
                          <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
                          
                          <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
@@ -247,7 +247,7 @@ export default async function FullLitLettersPage() {
 
                       {/* Малая карточка: КРЕАТИВ */}
                       <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-blue-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                         <Image src="/bagnaz.jpg" alt="Креативные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <Image src="/images/letters-galery/full-lit/3.jpg" alt="Креативные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
                          <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
                          <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-blue-900/50">
@@ -259,7 +259,7 @@ export default async function FullLitLettersPage() {
 
                       {/* Малая карточка: ОФИСЫ */}
                       <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-green-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                         <Image src="/qazpost.jpg" alt="Офисные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <Image src="/kmg.jpeg" alt="Офисные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
                          <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
                          <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-green-900/50">

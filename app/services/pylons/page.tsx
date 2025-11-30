@@ -1,97 +1,158 @@
 import Link from "next/link";
+import Image from "next/image";
 import { 
   Calculator, 
-  Shield, 
-  Ruler, 
+  CheckCircle, 
   ArrowRight, 
   ChevronRight, 
-  Thermometer, 
-  PaintBucket, 
-  Layers, 
-  FileCheck,
-  MapPin,        // Локация/Навигация
-  Navigation,    // Навигация
-  Construction,  // Стройка/Фундамент
-  Car,           // Автомобильный трафик
+  MapPin,         // Локация
+  Navigation,     // Навигация
+  Construction,   // Стройка
+  Car,            // Трафик
   Zap,
-  CheckCircle,
-  Clock,
-  MessageCircle
+  Fuel,           // АЗС
+  Building,       // ТРЦ
+  Landmark,       // Город
+  MessageCircle,
+  ShieldCheck,
+  Anchor          // Фундамент
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
-import DesignCodeBlock from "@/components/DesignCodeBlock";
 import CallToAction from "@/components/CallToAction";
 import ProjectsBento from "@/components/ProjectsBento";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
+import DesignCodeBlock from "@/components/DesignCodeBlock";
+import ImageGallery from "@/components/ImageGallery";
+import HeroSlideshow from "@/components/HeroSlideshow";
 
-export const metadata = {
-  title: "Рекламные стелы и пилоны в Астане | Изготовление и Монтаж | ADLight",
-  description: "Производство уличных стел, навигационных пилонов и указателей. Заливка фундамента, металлокаркас, обшивка композитом. Гарантия на ветровые нагрузки.",
+// --- СЕРВЕРНАЯ УТИЛИТА ---
+import { getImagesFromFolder } from "@/lib/serverUtils";
+
+// --- ДАННЫЕ СТРАНИЦЫ ---
+const PAGE_DATA = {
+  slug: "pylons", 
+  title: "Рекламные стелы и пилоны",
+  subtitle: "Навигация городского масштаба. От придорожных указателей до монументальных въездных групп.",
+  price: "30 000" // Цена за м2
 };
 
-export default function PylonsPage() {
+export const metadata = {
+  title: "Изготовление рекламных стел и пилонов в Астане | ADLight",
+  description: "Производство уличных стел для АЗС, ТРЦ, автосалонов. Расчет фундамента, ветровых нагрузок. Монтаж под ключ.",
+};
+
+// --- ТИПЫ КОНСТРУКЦИЙ ---
+const PYLON_TYPES = [
+  {
+    title: "Стела для ТРЦ",
+    desc: "Гигантские конструкции (10-30м) с логотипом молла и лайтбоксами арендаторов. Маяк для покупателей.",
+    image: "/images/pylons/type-mall.jpg", 
+    icon: <Building className="w-6 h-6 text-blue-500"/>,
+    tag: "Масштаб"
+  },
+  {
+    title: "Стела АЗС",
+    desc: "Информационное табло с ценами на топливо. Встраиваем яркие LED-модули для смены цен с пульта.",
+    image: "/images/pylons/type-fuel.jpg", 
+    icon: <Fuel className="w-6 h-6 text-orange-500"/>,
+    tag: "Функционал"
+  },
+  {
+    title: "Автосалоны (Бренд-пилон)",
+    desc: "Строгое соответствие брендбуку автодилера. Идеальная геометрия, композитные материалы, статус.",
+    image: "/images/pylons/type-auto.jpg", 
+    icon: <Car className="w-6 h-6 text-red-500"/>,
+    tag: "Статус"
+  },
+  {
+    title: "Пилон Бизнес-Центра",
+    desc: "Навигационная конструкция у входа. Список компаний, схема проезда. Обычно 2-4 метра высотой.",
+    image: "/images/pylons/type-bc.jpg", 
+    icon: <MapPin className="w-6 h-6 text-purple-500"/>,
+    tag: "Навигация"
+  },
+  {
+    title: "Въездная группа (Город)",
+    desc: "Монументальные бетонные или металлические стелы с названием города/поселка и гербом.",
+    image: "/images/pylons/type-city.jpg", 
+    icon: <Landmark className="w-6 h-6 text-yellow-500"/>,
+    tag: "Символ"
+  },
+  {
+    title: "Уличный указатель",
+    desc: "Компактные пилоны-стрелки. Помогают найти заезд на парковку или вход в здание.",
+    image: "/images/pylons/type-nav.jpg", 
+    icon: <Navigation className="w-6 h-6 text-green-500"/>,
+    tag: "Трафик"
+  },
+];
+
+export default async function PylonsPage() {
+  
+  // 1. ПОЛУЧАЕМ ФОТО
+  const galleryImages = getImagesFromFolder(PAGE_DATA.slug);
+
+  // 2. ФОТО ДЛЯ HERO
+  const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
+  // Заглушки
+  const displayHeroImages = heroImages.length > 0 
+    ? heroImages 
+    : ["/kmg.jpeg", "/images/calc/lightbox-1.jpg"];
+
   return (
-    <div className="min-h-screen bg-[#0F172A] font-sans">
+    <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-blue-500/30">
       
-      {/* 1. HERO SECTION */}
-      <section className="relative py-24 lg:py-32 overflow-hidden border-b border-slate-800">
-        <div className="absolute inset-0 bg-blue-600/5"></div>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+      {/* === 1. HERO SECTION === */}
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0F172A]/80 to-[#0F172A]"></div>
+        {/* Синее свечение */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none"></div>
 
         <div className="container mx-auto px-4 relative z-10">
-           
-           {/* ХЛЕБНЫЕ КРОШКИ */}
-           <div data-aos="fade-down" className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-8 overflow-x-auto whitespace-nowrap">
+           {/* Навигация */}
+           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 mb-8">
               <Link href="/" className="hover:text-white transition">Главная</Link>
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
               <Link href="/services" className="hover:text-white transition">Услуги</Link>
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
-              <span className="text-blue-500 font-medium">Рекламные стелы</span>
+              <span className="text-blue-500 font-medium">Стелы и Пилоны</span>
            </div>
 
-           <div className="grid lg:grid-cols-2 gap-12 items-center">
+           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
               <div>
-                 <div data-aos="fade-right" className="inline-block px-4 py-1.5 mb-6 text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full uppercase tracking-wider">
-                    Навигация для водителей и пешеходов
+                 <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full uppercase tracking-wider">
+                    Навигация XL формата
                  </div>
-                 <h1 data-aos="fade-right" data-aos-delay="100" className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                    Стелы и пилоны <br/>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">любой высоты</span>
+                 <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                    Рекламные стелы <br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">и пилоны</span>
                  </h1>
-                 <p data-aos="fade-right" data-aos-delay="200" className="text-gray-400 text-lg mb-8 leading-relaxed max-w-xl">
-                    Отдельно стоящие рекламные конструкции. Работаем «под ключ»: от заливки фундамента до подключения электрики. Надежный каркас, устойчивый к ветрам Астаны.
+                 <p className="text-gray-400 text-lg mb-8 leading-relaxed max-w-xl">
+                    Крупногабаритные конструкции, которые видно за 300 метров. Обозначают въезд, показывают цены и статус компании.
                  </p>
                  
-                 {/* КНОПКИ */}
-                 <div data-aos="fade-right" data-aos-delay="300" className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg shadow-blue-900/20 active:scale-95">
+                 <div className="flex flex-col sm:flex-row gap-4">
+                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-900/20 active:scale-95">
                        <Calculator className="w-5 h-5"/> Рассчитать проект
                     </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 hover:border-slate-500 transition active:scale-95">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Написать в WhatsApp
+                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
+                       <MessageCircle className="w-5 h-5 text-green-500"/> Консультация
                     </a>
                  </div>
               </div>
 
-              {/* Визуал */}
-              <div className="relative" data-aos="zoom-in" data-aos-delay="200">
-                 <div className="aspect-[4/5] md:aspect-square rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden relative group shadow-2xl">
-                    {/* Используем фото стелы АЗС или похожей */}
-                    <img src="/kmg.jpeg" alt="Рекламная стела" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-700"/>
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-                    
-                    <div className="absolute bottom-6 left-6 right-6 bg-slate-900/90 backdrop-blur border border-slate-700 p-4 rounded-xl flex items-center gap-4">
-                       <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500">
-                          <Car className="w-6 h-6"/>
-                       </div>
-                       <div>
-                          <div className="text-white font-bold">Видно с дороги</div>
-                          <div className="text-gray-400 text-xs">Привлекает автомобильный трафик</div>
-                       </div>
-                    </div>
+              {/* Визуал: СЛАЙДЕР */}
+              <div className="relative aspect-[4/5] md:aspect-square rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden group shadow-2xl shadow-blue-900/10">
+                 <HeroSlideshow images={displayHeroImages} />
+                 
+                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent pointer-events-none"></div>
+                 <div className="absolute bottom-6 left-6 right-6 bg-slate-900/90 backdrop-blur border border-slate-700 p-4 rounded-xl flex items-center gap-4 pointer-events-none z-20">
+                    <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500"><MapPin className="w-6 h-6"/></div>
+                    <div><div className="text-white font-bold">Точка на карте</div><div className="text-gray-400 text-xs">Заметность 100%</div></div>
                  </div>
               </div>
            </div>
@@ -101,235 +162,194 @@ export default function PylonsPage() {
       {/* 2. КЛИЕНТЫ */}
       <ClientsMarquee />
 
-      {/* 3. ОСОБЕННОСТИ КОНСТРУКЦИИ */}
+      {/* 3. CONCEPT (ФУНКЦИИ) */}
       <section className="py-24 bg-slate-950">
          <div className="container mx-auto px-4">
-             <div className="text-center mb-16">
-                <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-4">Капитальное строительство</h2>
-                <p data-aos="fade-up" data-aos-delay="100" className="text-gray-400 max-w-2xl mx-auto">
-                   Стела — это не просто вывеска, это инженерное сооружение. Мы гарантируем устойчивость.
-                </p>
-             </div>
-
-             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* Карточка 1 */}
-                <div data-aos="fade-up" data-aos-delay="0" className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
-                   <div className="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-500/20 transition">
-                      <Construction className="w-7 h-7 text-blue-500"/>
-                   </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Фундамент</h3>
-                   <p className="text-gray-400 text-sm leading-relaxed">
-                      В зависимости от грунта и высоты стелы, мы заливаем бетонный фундамент с армированием или используем винтовые сваи.
-                   </p>
-                </div>
-
-                {/* Карточка 2 */}
-                <div data-aos="fade-up" data-aos-delay="100" className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
-                   <div className="w-14 h-14 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-500/20 transition">
-                      <Layers className="w-7 h-7 text-purple-500"/>
-                   </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Металлокаркас</h3>
-                   <p className="text-gray-400 text-sm leading-relaxed">
-                      Силовой каркас из профильной трубы или швеллера. Расчет на ветровые нагрузки III снегового района (Астана). Антикоррозийная обработка.
-                   </p>
-                </div>
-
-                {/* Карточка 3 */}
-                <div data-aos="fade-up" data-aos-delay="200" className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
-                   <div className="w-14 h-14 bg-orange-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500/20 transition">
-                      <PaintBucket className="w-7 h-7 text-orange-500"/>
-                   </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Композитная обшивка</h3>
-                   <p className="text-gray-400 text-sm leading-relaxed">
-                      Облицовка алюминиевым композитом (Алюкобонд). Это вандалостойкий материал, который не выгорает и легко моется.
-                   </p>
-                </div>
-
-                {/* Карточка 4 */}
-                <div data-aos="fade-up" data-aos-delay="300" className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
-                   <div className="w-14 h-14 bg-red-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-red-500/20 transition">
-                      <Thermometer className="w-7 h-7 text-red-500"/>
-                   </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Утепление электрики</h3>
-                   <p className="text-gray-400 text-sm leading-relaxed">
-                      Блоки питания и контроллеры размещаются в герметичных щитках внутри стелы или в специальном люке обслуживания.
-                   </p>
-                </div>
-
-                {/* Карточка 5 */}
-                <div data-aos="fade-up" data-aos-delay="400" className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
-                   <div className="w-14 h-14 bg-green-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-500/20 transition">
-                      <Ruler className="w-7 h-7 text-green-500"/>
-                   </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Проект КМ/КМД</h3>
-                   <p className="text-gray-400 text-sm leading-relaxed">
-                      Разрабатываем полный пакет проектной документации для согласования с Акиматом и ГАСК.
-                   </p>
-                </div>
-
-                {/* Карточка 6 */}
-                <div data-aos="fade-up" data-aos-delay="500" className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
-                   <div className="w-14 h-14 bg-cyan-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 transition">
-                      <Zap className="w-7 h-7 text-cyan-500"/>
-                   </div>
-                   <h3 className="text-xl font-bold text-white mb-3">Световые элементы</h3>
-                   <p className="text-gray-400 text-sm leading-relaxed">
-                      Инкрустация акрилом, объемные буквы или светодиодные экраны. Ваша стела будет видна за сотни метров ночью.
-                   </p>
-                </div>
-             </div>
-         </div>
-      </section>
-
-      {/* 4. ВИДЫ СТЕЛ */}
-      <section className="py-24 bg-[#0F172A] border-t border-slate-800">
-         <div className="container mx-auto px-4">
-            <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-12 text-center">Виды конструкций</h2>
-            
-            <div className="space-y-24">
-               {/* Тип 1: Навигационная стела (Пилон) */}
-               <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                  <div data-aos="fade-right" className="order-2 lg:order-1">
-                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Навигационный пилон</h3>
-                     <div className="inline-block bg-slate-800 px-3 py-1 rounded text-xs md:text-sm text-orange-500 font-bold mb-6">Для ТРЦ и БЦ</div>
-                     <p className="text-gray-400 text-base md:text-lg mb-6 leading-relaxed">
-                        Компактная конструкция (1.5 - 3 метра) для установки возле входа или на парковке. Содержит список арендаторов или схему проезда.
-                     </p>
-                     <ul className="space-y-4 mb-8 text-gray-300">
-                        <li className="flex items-start gap-3">
-                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-1"/> 
-                           <div>
-                              <span className="block text-white font-bold mb-1">Удобство:</span>
-                              Сменные панели позволяют легко менять названия компаний.
-                           </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-1"/> 
-                           <div>
-                              <span className="block text-white font-bold mb-1">Дизайн:</span>
-                              Строгий стиль, часто с внутренней подсветкой.
-                           </div>
-                        </li>
-                     </ul>
-                     <Link href="/calculator" className="inline-flex items-center text-orange-500 font-bold hover:text-orange-400 transition text-lg">
-                        Рассчитать пилон <ArrowRight className="ml-2 w-5 h-5"/>
-                     </Link>
-                  </div>
-                  <div data-aos="fade-left" className="order-1 lg:order-2 h-[300px] md:h-[400px] rounded-3xl overflow-hidden bg-slate-900 relative group">
-                      {/* Можно использовать фото пилона, если есть, или заглушку */}
-                      <img src="/images/calc/lightbox-1.jpg" className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" alt="Навигационный пилон"/>
+            <div className="flex flex-col lg:flex-row gap-16 items-center">
+               <div className="lg:w-1/2">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Зачем нужна стела?</h2>
+                  <p className="text-gray-400 text-lg leading-relaxed mb-8">
+                     Когда вывеска на фасаде не видна с дороги, на помощь приходит стела. Это отдельно стоящий "маяк", который сообщает водителю: <span className="text-white font-medium">"Мы здесь, поворачивай!"</span>.
+                  </p>
+                  
+                  <div className="grid gap-4">
+                     <div className="bg-slate-900/50 border border-blue-500/20 p-4 rounded-xl flex items-center gap-4">
+                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Car className="w-6 h-6"/></div>
+                        <div>
+                           <h4 className="text-white font-bold">Ловит автомобильный трафик</h4>
+                           <p className="text-gray-400 text-sm">Водитель замечает стелу за 10-15 секунд до поворота.</p>
+                        </div>
+                     </div>
+                     <div className="bg-slate-900/50 border border-blue-500/20 p-4 rounded-xl flex items-center gap-4">
+                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Navigation className="w-6 h-6"/></div>
+                        <div>
+                           <h4 className="text-white font-bold">Указывает путь</h4>
+                           <p className="text-gray-400 text-sm">Помогает найти заезд на парковку или вход в ТРЦ.</p>
+                        </div>
+                     </div>
                   </div>
                </div>
-
-               {/* Тип 2: Рекламная стела (АЗС/Автосалон) */}
-               <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                   <div data-aos="fade-right" className="h-[300px] md:h-[400px] rounded-3xl overflow-hidden bg-slate-900 relative group">
-                      <img src="/kmg.jpeg" className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" alt="Стела АЗС"/>
-                   </div>
-                  <div data-aos="fade-left">
-                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Рекламная стела (5-15м)</h3>
-                     <div className="inline-block bg-slate-800 px-3 py-1 rounded text-xs md:text-sm text-blue-500 font-bold mb-6">Масштаб</div>
-                     <p className="text-gray-400 text-base md:text-lg mb-6 leading-relaxed">
-                        Высотная конструкция для обозначения объекта с большого расстояния (трасса, проспект). Обязательна для АЗС и автосалонов.
-                     </p>
-                     <ul className="space-y-4 mb-8 text-gray-300">
-                        <li className="flex items-start gap-3">
-                           <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-1"/> 
-                           <div>
-                              <span className="block text-white font-bold mb-1">LED-экраны:</span>
-                              Часто встраиваем табло обмена валют или бегущие строки.
-                           </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                           <CheckCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-1"/> 
-                           <div>
-                              <span className="block text-white font-bold mb-1">Фундамент:</span>
-                              Требует серьезных бетонных работ (заливка анкерной группы).
-                           </div>
-                        </li>
-                     </ul>
-                     <Link href="/calculator" className="inline-flex items-center text-blue-500 font-bold hover:text-blue-400 transition text-lg">
-                        Рассчитать стелу <ArrowRight className="ml-2 w-5 h-5"/>
-                     </Link>
-                  </div>
-               </div>
-
-               {/* Тип 3: Интерьерный пилон */}
-               <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                  <div data-aos="fade-right" className="order-2 lg:order-1">
-                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Интерьерный пилон</h3>
-                     <div className="inline-block bg-slate-800 px-3 py-1 rounded text-xs md:text-sm text-purple-500 font-bold mb-6">Навигация внутри</div>
-                     <p className="text-gray-400 text-base md:text-lg mb-6 leading-relaxed">
-                        Тонкие, изящные конструкции для холлов, торговых центров и бизнес-центров. Помогают посетителям найти нужный кабинет или магазин.
-                     </p>
-                     <ul className="space-y-4 mb-8 text-gray-300">
-                        <li className="flex items-start gap-3">
-                           <CheckCircle className="w-5 h-5 text-purple-500 flex-shrink-0 mt-1"/> 
-                           <div>
-                              <span className="block text-white font-bold mb-1">Дизайн:</span>
-                              Стекло, акрил, нержавеющая сталь.
-                           </div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                           <CheckCircle className="w-5 h-5 text-purple-500 flex-shrink-0 mt-1"/> 
-                           <div>
-                              <span className="block text-white font-bold mb-1">Мобильность:</span>
-                              Могут быть переносными (без крепления к полу).
-                           </div>
-                        </li>
-                     </ul>
-                     <Link href="/calculator" className="inline-flex items-center text-purple-500 font-bold hover:text-purple-400 transition text-lg">
-                        Рассчитать пилон <ArrowRight className="ml-2 w-5 h-5"/>
-                     </Link>
-                  </div>
-                  <div data-aos="fade-left" className="order-1 lg:order-2 h-[300px] md:h-[400px] rounded-3xl overflow-hidden bg-slate-900 relative group">
-                      <img src="/1solution.jpg" className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" alt="Интерьерный пилон"/>
+               
+               {/* Схема */}
+               <div className="lg:w-1/2 w-full">
+                  <div className="relative aspect-video bg-[#0B1120] rounded-3xl border border-slate-800 p-8 flex items-center justify-center overflow-hidden">
+                     {/* Дорога */}
+                     <div className="absolute bottom-0 w-full h-24 bg-slate-800 transform -skew-x-12 origin-bottom-left"></div>
+                     <div className="absolute bottom-10 w-full h-0 border-t-2 border-dashed border-slate-500/50 transform -skew-x-12 origin-bottom-left"></div>
+                     
+                     {/* Стела */}
+                     <div className="relative z-10 w-16 h-48 bg-blue-600 rounded-t-lg shadow-[0_0_50px_rgba(37,99,235,0.4)] flex flex-col items-center justify-start pt-4">
+                        <div className="w-10 h-10 bg-white rounded-full mb-4"></div>
+                        <div className="w-12 h-2 bg-white/30 rounded mb-1"></div>
+                        <div className="w-12 h-2 bg-white/30 rounded mb-1"></div>
+                        <div className="w-12 h-2 bg-white/30 rounded"></div>
+                     </div>
                   </div>
                </div>
             </div>
          </div>
       </section>
 
-      {/* 5. ДИЗАЙН КОД */}
-      <DesignCodeBlock />
-
-      {/* 6. ЭТАПЫ РАБОТЫ */}
+      {/* 4. КАТАЛОГ РЕШЕНИЙ (С ФОТО) */}
       <section className="py-24 bg-[#0F172A]">
-        <div className="container mx-auto px-4">
-           <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Этапы строительства</h2>
-           <div className="grid md:grid-cols-5 gap-8">
-              {[
-                 {step: "01", title: "Геология", desc: "Изучаем грунт и место установки. Проверяем наличие подземных коммуникаций."},
-                 {step: "02", title: "Проект", desc: "Конструктор рассчитывает нагрузки и готовит чертежи КМД."},
-                 {step: "03", title: "Фундамент", desc: "Копаем котлован, вяжем арматуру, заливаем бетон (срок застывания 3-7 дней)."},
-                 {step: "04", title: "Металл", desc: "Сварка каркаса в цеху, обшивка композитом, установка электрики."},
-                 {step: "05", title: "Монтаж", desc: "Доставка манипулятором, установка на анкеры, подключение."}
-              ].map((item, i) => (
-                 <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="relative group">
-                    <div className="text-6xl font-black text-slate-800 mb-4 group-hover:text-slate-700 transition">{item.step}</div>
-                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-gray-400 text-sm">{item.desc}</p>
-                 </div>
-              ))}
-           </div>
-        </div>
+         <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Типы конструкций</h2>
+               <p className="text-gray-400">От небольшого пилона до гиганта на трассе</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+               {PYLON_TYPES.map((type, i) => (
+                  <div 
+                    key={i} 
+                    className="group relative h-[350px] rounded-3xl overflow-hidden border border-slate-800 bg-slate-900 cursor-default"
+                  >
+                     {/* ФОТОГРАФИЯ ФОНОМ */}
+                     <Image 
+                        src={type.image} 
+                        alt={type.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
+                     />
+                     
+                     {/* ГРАДИЕНТ */}
+                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+
+                     {/* КОНТЕНТ */}
+                     <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                        <div className="mb-auto bg-slate-900/50 backdrop-blur w-12 h-12 rounded-xl flex items-center justify-center border border-white/10 group-hover:bg-blue-500/20 group-hover:border-blue-500/50 transition">
+                           {type.icon}
+                        </div>
+                        
+                        <div className="absolute top-4 right-4 bg-blue-600/90 backdrop-blur text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
+                           {type.tag}
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">{type.title}</h3>
+                        <p className="text-sm text-gray-300 leading-relaxed opacity-90">
+                           {type.desc}
+                        </p>
+                     </div>
+                  </div>
+               ))}
+            </div>
+         </div>
       </section>
 
-      {/* 7. КОМПОНЕНТЫ */}
-      <ProjectsBento 
-        title="Примеры наших стел" 
-        subtitle="Работы в Астане и области" 
-      />
-      
-      <ReviewsCarousel />
-      
-      <ServicesCarousel 
-        title="Что еще мы производим" 
-        subtitle="Другие виды наружной рекламы" 
-        hiddenLink="/services/pylons" // Скрываем ссылку на саму себя
-      />
+      {/* 5. ТЕХНИЧЕСКИЙ БЛОК (СТРОЙКА) */}
+      <section className="py-24 bg-slate-950 border-y border-slate-800">
+         <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-white mb-12 text-center">Серьезная инженерия</h2>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+               <div className="bg-[#0B1120] p-8 rounded-3xl border border-slate-800 hover:border-blue-500/30 transition group">
+                  <div className="w-14 h-14 bg-blue-500/10 flex items-center justify-center mb-6 text-blue-500 rounded-xl"><Anchor className="w-7 h-7"/></div>
+                  <h3 className="text-xl font-bold text-white mb-3">Фундамент</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                     Стела испытывает огромные ветровые нагрузки. Мы заливаем армированный бетонный фундамент на глубину промерзания или используем сваи.
+                  </p>
+               </div>
+               <div className="bg-[#0B1120] p-8 rounded-3xl border border-slate-800 hover:border-orange-500/30 transition group">
+                  <div className="w-14 h-14 bg-orange-500/10 flex items-center justify-center mb-6 text-orange-500 rounded-xl"><Construction className="w-7 h-7"/></div>
+                  <h3 className="text-xl font-bold text-white mb-3">Силовой каркас</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                     В основе — пространственная ферма из швеллера или профильной трубы. Металл грунтуется и красится для защиты от коррозии.
+                  </p>
+               </div>
+               <div className="bg-[#0B1120] p-8 rounded-3xl border border-slate-800 hover:border-green-500/30 transition group">
+                  <div className="w-14 h-14 bg-green-500/10 flex items-center justify-center mb-6 text-green-500 rounded-xl"><ShieldCheck className="w-7 h-7"/></div>
+                  <h3 className="text-xl font-bold text-white mb-3">Обшивка</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                     Используем алюминиевый композит (Алюкобонд). Он не деформируется на солнце, легко моется и имеет идеальную плоскость.
+                  </p>
+               </div>
+            </div>
+         </div>
+      </section>
 
-      <CallToAction source="Услуга: Стелы и Пилоны" />
+      {/* 6. ЦЕНЫ */}
+      <section className="py-24 bg-[#0F172A]">
+         <div className="container mx-auto px-4">
+             <div className="max-w-5xl mx-auto bg-blue-900/10 border border-blue-500/20 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row gap-12 items-center">
+                <div className="md:w-1/2">
+                   <h2 className="text-3xl font-bold text-white mb-4">Стоимость изготовления</h2>
+                   <p className="text-blue-200 mb-6">
+                      Цена зависит от высоты, площади и типа фундамента.
+                   </p>
+                   <ul className="space-y-3">
+                      <li className="flex justify-between text-sm border-b border-blue-500/20 pb-2">
+                         <span className="text-gray-300">Средняя цена за м² (обшивка)</span>
+                         <span className="text-white font-bold">от {PAGE_DATA.price} ₸</span>
+                      </li>
+                      <li className="flex justify-between text-sm border-b border-blue-500/20 pb-2">
+                         <span className="text-gray-300">Навигационный пилон (2м)</span>
+                         <span className="text-white font-bold">от 180 000 ₸</span>
+                      </li>
+                      <li className="flex justify-between text-sm border-b border-blue-500/20 pb-2">
+                         <span className="text-gray-300">Рекламная стела (6м)</span>
+                         <span className="text-white font-bold">от 850 000 ₸</span>
+                      </li>
+                   </ul>
+                </div>
+
+                <div className="md:w-1/2 text-center">
+                   <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/30 animate-pulse">
+                      <Calculator className="w-10 h-10 text-white"/>
+                   </div>
+                   <h3 className="text-xl font-bold text-white mb-2">Точный расчет</h3>
+                   <p className="text-gray-400 text-sm mb-6">Нужен проект фундамента и конструктив. Мы сделаем расчет бесплатно.</p>
+                   <Link href="/calculator" className="inline-flex items-center justify-center px-8 py-3 bg-white text-blue-900 font-bold rounded-xl hover:bg-blue-50 transition">
+                      Рассчитать стелу
+                   </Link>
+                </div>
+             </div>
+         </div>
+      </section>
+
+      {/* 7. ДИЗАЙН КОД */}
+      <DesignCodeBlock />
+
+      {/* 8. ГАЛЕРЕЯ */}
+      <section className="py-24 bg-slate-950">
+          <div className="container mx-auto px-4 mb-12 text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">Фотогалерея</h2>
+              <p className="text-gray-400">Стелы и пилоны в Астане</p>
+          </div>
+          <div className="container mx-auto px-4">
+             {galleryImages.length > 0 ? (
+                <ImageGallery images={galleryImages} /> 
+             ) : (
+                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                   Загрузите фото в папку public/images/pylons
+                </div>
+             )}
+          </div>
+      </section>
+
+      {/* 9. ОТЗЫВЫ И CTA */}
+      <ReviewsCarousel />
+      <ServicesCarousel title="Другие услуги" subtitle="Комплексное оформление" hiddenLink="/services/pylons"/>
+      <CallToAction source="Услуга: Стелы" />
 
     </div>
   );

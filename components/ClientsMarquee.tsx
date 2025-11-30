@@ -2,7 +2,7 @@
 
 import Marquee from "react-fast-marquee";
 
-const clients = [ "KANGO", "COFFEE BOOM", "SMALL", "MAGNUM", "TECHNODOM", "SULPAK", "BI GROUP", "BAZIS-A", "KASPI", "HALYK BANK", "DODO PIZZA" ];
+const clients = [ "SMALL", "COFFEE BOOM", "SMALL", "MAGNUM", "TECHNODOM", "SULPAK", "BI GROUP", "BAZIS-A", "KASPI", "HALYK BANK", "DODO PIZZA" ];
 
 export default function ClientsMarquee() {
   return (

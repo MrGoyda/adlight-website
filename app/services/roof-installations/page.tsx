@@ -1,18 +1,24 @@
 import Link from "next/link";
+import Image from "next/image";
 import { 
   Calculator, 
+  CheckCircle, 
   ArrowRight, 
   ChevronRight, 
-  DraftingCompass,
-  HardHat,
-  Wind,
-  FileText,
+  DraftingCompass, // Чертежи
+  HardHat,         // Каска/Стройка
+  Wind,            // Ветер
+  FileText,        // Документы
   Zap,
   ScanFace,
   Grid3X3,
   MessageCircle,
-  Anchor,
-  Shield // <-- ДОБАВИЛ ЭТОТ ИМПОРТ
+  Anchor,          // Крепеж
+  Shield,
+  Building2,       // Здание
+  Ruler,
+  MonitorPlay,
+  Maximize
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
@@ -21,29 +27,74 @@ import CallToAction from "@/components/CallToAction";
 import ProjectsBento from "@/components/ProjectsBento";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
+import DesignCodeBlock from "@/components/DesignCodeBlock";
+import ImageGallery from "@/components/ImageGallery";
+import HeroSlideshow from "@/components/HeroSlideshow";
 
-export const metadata = {
-  title: "Крышные установки в Астане | Проектирование и Монтаж | ADLight",
-  description: "Изготовление крышных рекламных конструкций. Расчет ветровых нагрузок, проектная документация (КМ, КМД, ЭО), согласование. Собственные монтажные бригады.",
+// --- СЕРВЕРНАЯ УТИЛИТА ---
+import { getImagesFromFolder } from "@/lib/serverUtils";
+
+// --- ДАННЫЕ СТРАНИЦЫ ---
+const PAGE_DATA = {
+  slug: "roof-installations", // Папка public/images/roof-installations
+  title: "Крышные установки",
+  subtitle: "Имиджевые конструкции любого масштаба. Проектирование, расчет нагрузок и монтаж по СНиП РК.",
+  price: "Проектно" 
 };
 
-export default function RoofPage() {
+export const metadata = {
+  title: "Крышные установки в Астане | Изготовление и Монтаж | ADLight",
+  description: "Реклама на крыше здания. Разработка проекта КМ/КМД, экспертиза кровли, согласование. Собственные монтажные бригады.",
+};
+
+// --- ТИПЫ КОНСТРУКЦИЙ ---
+const ROOF_TYPES = [
+  {
+    title: "Объемные буквы на раме",
+    desc: "Классика имиджевой рекламы. Отдельные световые буквы высотой от 1 до 5 метров. Устанавливаются на силовой металлокаркас.",
+    image: "/images/roof/type-letters.jpg", 
+    tag: "Статус"
+  },
+  {
+    title: "Баннерные короба",
+    desc: "Бюджетное решение для огромных площадей. Световой короб с натянутым транслюцентным баннером. Идеально для ТРЦ.",
+    image: "/images/roof/type-box.jpg", 
+    tag: "Масштаб"
+  },
+  {
+    title: "Медиаэкраны",
+    desc: "Динамическая видеореклама. LED-кабинеты, собранные в единый экран. Позволяет менять контент хоть каждый час.",
+    image: "/images/roof/type-screen.jpg", 
+    tag: "Digital"
+  },
+];
+
+export default async function RoofPage() {
+  
+  // 1. ПОЛУЧАЕМ ФОТО
+  const galleryImages = getImagesFromFolder(PAGE_DATA.slug);
+
+  // 2. ФОТО ДЛЯ HERO
+  const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
+  const displayHeroImages = heroImages.length > 0 
+    ? heroImages 
+    : ["/krisha.jpg", "/images/calc/lightbox-2.jpg"];
+
   return (
-    <div className="min-h-screen bg-[#0B1120] font-sans">
+    <div className="min-h-screen bg-[#0B1120] font-sans selection:bg-blue-500/30">
       
-      {/* 1. HERO SECTION (SERIOUS & INDUSTRIAL) */}
+      {/* === 1. HERO SECTION === */}
       <section className="relative py-24 lg:py-36 overflow-hidden border-b border-slate-800">
         {/* Фон - имитация чертежной сетки */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px]"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#0B1120] via-[#0B1120]/80 to-transparent"></div>
         
-        {/* Акцентное свечение (Холодный синий - инженерия) */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+        {/* Акцентное свечение (Инженерный синий) */}
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-900/20 blur-[120px] rounded-full pointer-events-none"></div>
 
         <div className="container mx-auto px-4 relative z-10">
-           
-           {/* ХЛЕБНЫЕ КРОШКИ */}
-           <div data-aos="fade-down" className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 mb-8 overflow-x-auto whitespace-nowrap">
+           {/* Навигация */}
+           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500 mb-8">
               <Link href="/" className="hover:text-white transition">Главная</Link>
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
               <Link href="/services" className="hover:text-white transition">Услуги</Link>
@@ -53,49 +104,46 @@ export default function RoofPage() {
 
            <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                 <div data-aos="fade-right" className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-sm uppercase tracking-wider">
-                    {/* ИСПРАВЛЕНО: заменена стрелка на → */}
-                    <DraftingCompass className="w-4 h-4"/> Полный цикл: Проект → Цех → Монтаж
+                 <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-sm uppercase tracking-wider">
+                    <DraftingCompass className="w-4 h-4"/> Полный цикл: Проект → Монтаж
                  </div>
-                 <h1 data-aos="fade-right" data-aos-delay="100" className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[0.95] tracking-tight">
+                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-[0.95] tracking-tight">
                     Масштаб вашего <br/>
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">бизнеса</span>
                  </h1>
-                 <p data-aos="fade-right" data-aos-delay="200" className="text-gray-400 text-lg mb-8 leading-relaxed max-w-xl border-l-2 border-blue-500/30 pl-6">
+                 <p className="text-gray-400 text-lg mb-8 leading-relaxed max-w-xl border-l-2 border-blue-500/30 pl-6">
                     Самый престижный вид наружной рекламы. Разрабатываем проектную документацию (КМ, КМД, ЭО), рассчитываем ветровые нагрузки для Астаны и монтируем на любой высоте.
                  </p>
                  
-                 {/* КНОПКИ */}
-                 <div data-aos="fade-right" data-aos-delay="300" className="flex flex-col sm:flex-row gap-4">
+                 <div className="flex flex-col sm:flex-row gap-4">
                     <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg shadow-blue-900/20 active:scale-95">
                        <Calculator className="w-5 h-5"/> Рассчитать проект
                     </Link>
                     <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 hover:border-slate-500 transition active:scale-95">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Задать вопрос инженеру
+                       <MessageCircle className="w-5 h-5 text-green-500"/> Консультация инженера
                     </a>
                  </div>
               </div>
 
-              {/* Визуал */}
-              <div className="relative" data-aos="fade-left" data-aos-delay="300">
-                 <div className="aspect-[4/5] md:aspect-square rounded-sm overflow-hidden relative shadow-2xl border border-slate-700">
-                    <img src="/krisha.jpg" alt="Крышная установка" className="absolute inset-0 w-full h-full object-cover opacity-90"/>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent"></div>
-                    
-                    {/* Плашка с характеристиками */}
-                    <div className="absolute bottom-8 left-8 bg-[#0B1120]/90 backdrop-blur border border-slate-700 p-6 rounded-sm max-w-xs">
-                       <div className="flex items-center gap-4 mb-4">
-                          <Wind className="w-8 h-8 text-blue-500"/>
-                          <div>
-                             <div className="text-white font-bold text-lg">Ветровая нагрузка</div>
-                             <div className="text-gray-400 text-xs">III снеговой район</div>
-                          </div>
+              {/* Визуал: СЛАЙДЕР */}
+              <div className="relative aspect-[4/5] md:aspect-square rounded-sm overflow-hidden shadow-2xl border border-slate-700 group">
+                 <HeroSlideshow images={displayHeroImages} />
+                 
+                 <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent pointer-events-none"></div>
+                 
+                 {/* Плашка с характеристиками */}
+                 <div className="absolute bottom-8 left-8 bg-[#0B1120]/90 backdrop-blur border border-slate-700 p-6 rounded-sm max-w-xs pointer-events-none z-20">
+                    <div className="flex items-center gap-4 mb-4">
+                       <Wind className="w-8 h-8 text-blue-500"/>
+                       <div>
+                          <div className="text-white font-bold text-lg">Ветровая нагрузка</div>
+                          <div className="text-gray-400 text-xs">III снеговой район</div>
                        </div>
-                       <div className="h-1 w-full bg-slate-700 rounded-full overflow-hidden">
-                          <div className="h-full w-3/4 bg-blue-500"></div>
-                       </div>
-                       <div className="mt-2 text-right text-xs text-blue-400 font-mono">Запас прочности 1.5x</div>
                     </div>
+                    <div className="h-1 w-full bg-slate-700 rounded-full overflow-hidden">
+                       <div className="h-full w-3/4 bg-blue-500 animate-pulse"></div>
+                    </div>
+                    <div className="mt-2 text-right text-xs text-blue-400 font-mono">Запас прочности 1.5x</div>
                  </div>
               </div>
            </div>
@@ -105,26 +153,26 @@ export default function RoofPage() {
       {/* 2. КЛИЕНТЫ */}
       <ClientsMarquee />
 
-      {/* 3. ИНЖЕНЕРНЫЙ ПОДХОД */}
+      {/* 3. ИНЖЕНЕРНЫЙ ПОДХОД (БЕЗОПАСНОСТЬ) */}
       <section className="py-24 bg-[#0F172A]">
          <div className="container mx-auto px-4">
              <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                 <div>
-                   <h2 data-aos="fade-up" className="text-3xl md:text-5xl font-bold text-white mb-4">Безопасность превыше всего</h2>
-                   <p data-aos="fade-up" data-aos-delay="100" className="text-gray-400 max-w-2xl text-lg">
+                   <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Безопасность превыше всего</h2>
+                   <p className="text-gray-400 max-w-2xl text-lg">
                       Крышная установка — это капитальное строительство. Мы несем юридическую ответственность за надежность конструкции.
                    </p>
                 </div>
-                <div data-aos="fade-left" className="hidden md:block">
-                   <div className="px-6 py-3 bg-blue-900/20 border border-blue-500/30 rounded text-blue-400 font-mono text-sm">
-                      Лицензия на СМР II категории
+                <div className="hidden md:block">
+                   <div className="px-6 py-3 bg-blue-900/20 border border-blue-500/30 rounded text-blue-400 font-mono text-sm flex items-center gap-2">
+                      <Shield className="w-4 h-4"/> Лицензия на СМР II категории
                    </div>
                 </div>
              </div>
 
              <div className="grid md:grid-cols-3 gap-8">
                 {/* 1. Проектирование */}
-                <div data-aos="fade-up" className="bg-[#0B1120] p-8 border border-slate-800 hover:border-blue-500/50 transition group relative overflow-hidden">
+                <div className="bg-[#0B1120] p-8 border border-slate-800 hover:border-blue-500/50 transition group relative overflow-hidden">
                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
                       <DraftingCompass className="w-24 h-24 text-blue-500"/>
                    </div>
@@ -141,7 +189,7 @@ export default function RoofPage() {
                 </div>
 
                 {/* 2. Нагрузки */}
-                <div data-aos="fade-up" data-aos-delay="100" className="bg-[#0B1120] p-8 border border-slate-800 hover:border-blue-500/50 transition group relative overflow-hidden">
+                <div className="bg-[#0B1120] p-8 border border-slate-800 hover:border-blue-500/50 transition group relative overflow-hidden">
                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
                       <Wind className="w-24 h-24 text-blue-500"/>
                    </div>
@@ -153,12 +201,12 @@ export default function RoofPage() {
                       Учитываем ветровую нагрузку Астаны (до 25 м/с), снеговую шапку и вес самой конструкции.
                    </p>
                    <p className="text-gray-400 text-sm border-t border-slate-800 pt-4">
-                      <strong className="text-white">Пригрузы:</strong> используем бетонные блоки, чтобы не дырявить кровлю (если возможно).
+                      <strong className="text-white">Пригрузы:</strong> используем бетонные блоки, чтобы не дырявить мягкую кровлю.
                    </p>
                 </div>
 
                 {/* 3. Электрика */}
-                <div data-aos="fade-up" data-aos-delay="200" className="bg-[#0B1120] p-8 border border-slate-800 hover:border-blue-500/50 transition group relative overflow-hidden">
+                <div className="bg-[#0B1120] p-8 border border-slate-800 hover:border-blue-500/50 transition group relative overflow-hidden">
                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
                       <Zap className="w-24 h-24 text-blue-500"/>
                    </div>
@@ -177,87 +225,68 @@ export default function RoofPage() {
          </div>
       </section>
 
-      {/* 4. ТИПЫ КРЫШНЫХ УСТАНОВОК */}
+      {/* 4. ТИПЫ КРЫШНЫХ УСТАНОВОК (С ФОТО) */}
       <section className="py-24 bg-[#0B1120] border-t border-slate-800">
          <div className="container mx-auto px-4">
-            <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Технологии изготовления букв</h2>
+            <div className="text-center mb-16">
+               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Технологии исполнения</h2>
+               <p className="text-gray-400">Выбор зависит от размера вывески и вашего бюджета</p>
+            </div>
             
-            <div className="space-y-16">
-               {/* Тип 1: Акриловые */}
-               <div className="group grid lg:grid-cols-2 gap-8 items-center border border-slate-800 bg-slate-900/50 p-6 md:p-10 hover:border-blue-500/30 transition duration-500">
-                  <div className="order-2 lg:order-1">
-                     {/* ИСПРАВЛЕНО: заменено > на &gt; */}
-                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Внутренняя подсветка (Акрил/Баннер)</h3>
-                     <p className="text-gray-400 text-lg mb-6 leading-relaxed">
-                        Классический вариант. Лицо буквы выполнено из специального транслюцентного баннера (для букв &gt; 1.5м) или акрила.
-                     </p>
-                     <ul className="space-y-4 mb-8">
-                        <li className="flex items-start gap-3">
-                           <ScanFace className="w-6 h-6 text-blue-500 shrink-0"/>
-                           <div className="text-gray-300 text-sm"><strong>Эстетика:</strong> Идеально ровное свечение, выглядит монолитно и дорого.</div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                           <Shield className="w-6 h-6 text-blue-500 shrink-0"/>
-                           <div className="text-gray-300 text-sm"><strong>Защита:</strong> Диоды спрятаны внутри короба, не боятся осадков.</div>
-                        </li>
-                     </ul>
-                     <Link href="/calculator" className="text-blue-400 font-bold hover:text-white transition flex items-center gap-2">
-                        Рассчитать стоимость <ArrowRight className="w-4 h-4"/>
-                     </Link>
-                  </div>
-                  <div className="order-1 lg:order-2 h-[300px] bg-black relative overflow-hidden">
-                      <img src="/kmg.jpeg" className="absolute inset-0 w-full h-full object-cover opacity-80" alt="Крышная установка акрил"/>
-                  </div>
-               </div>
+            <div className="grid md:grid-cols-3 gap-8">
+               {ROOF_TYPES.map((type, i) => (
+                  <div key={i} className="group relative h-[400px] rounded-sm overflow-hidden border border-slate-800 bg-slate-900 cursor-default">
+                     {/* ФОТО ФОНОМ */}
+                     <Image 
+                        src={type.image} 
+                        alt={type.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-50 group-hover:opacity-40"
+                        // onError removed to fix Server Component serialization error
+                     />
+                     
+                     {/* ГРАДИЕНТ */}
+                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/50 to-transparent"></div>
 
-               {/* Тип 2: Открытые диоды */}
-               <div className="group grid lg:grid-cols-2 gap-8 items-center border border-slate-800 bg-slate-900/50 p-6 md:p-10 hover:border-orange-500/30 transition duration-500">
-                  <div className="h-[300px] bg-black relative overflow-hidden">
-                      <img src="/images/city.png" className="absolute inset-0 w-full h-full object-cover opacity-80" alt="Открытые диоды"/>
-                      <div className="absolute inset-0 bg-orange-500/10 mix-blend-overlay"></div>
+                     {/* КОНТЕНТ */}
+                     <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                        <div className="absolute top-4 right-4 bg-blue-600/90 backdrop-blur text-white text-[10px] font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
+                           {type.tag}
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">{type.title}</h3>
+                        <p className="text-sm text-gray-300 leading-relaxed opacity-90 mb-6">
+                           {type.desc}
+                        </p>
+                        {/* Иконка типа */}
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur">
+                           {i === 0 && <ScanFace className="w-5 h-5 text-white"/>}
+                           {i === 1 && <Maximize className="w-5 h-5 text-white"/>}
+                           {i === 2 && <MonitorPlay className="w-5 h-5 text-white"/>}
+                        </div>
+                     </div>
                   </div>
-                  <div>
-                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Открытые светодиоды (Пиксели)</h3>
-                     <p className="text-gray-400 text-lg mb-6 leading-relaxed">
-                        В лицевую поверхность (алюминий) врезаются отдельные яркие диоды-пиксели. Самый яркий вариант рекламы.
-                     </p>
-                     <ul className="space-y-4 mb-8">
-                        <li className="flex items-start gap-3">
-                           <Zap className="w-6 h-6 text-orange-500 shrink-0"/>
-                           <div className="text-gray-300 text-sm"><strong>Яркость x3:</strong> Видно даже днем. Ночью пробивает туман и дождь.</div>
-                        </li>
-                        <li className="flex items-start gap-3">
-                           <Grid3X3 className="w-6 h-6 text-orange-500 shrink-0"/>
-                           <div className="text-gray-300 text-sm"><strong>Динамика:</strong> Можно настроить анимацию (переливы, мерцание).</div>
-                        </li>
-                     </ul>
-                     <Link href="/calculator" className="text-orange-400 font-bold hover:text-white transition flex items-center gap-2">
-                        Рассчитать стоимость <ArrowRight className="w-4 h-4"/>
-                     </Link>
-                  </div>
-               </div>
+               ))}
             </div>
          </div>
       </section>
 
-      {/* 5. ЭТАПЫ */}
-      <section className="py-24 bg-[#0F172A]">
+      {/* 5. ЭТАПЫ РЕАЛИЗАЦИИ */}
+      <section className="py-24 bg-[#0F172A] border-y border-slate-800">
         <div className="container mx-auto px-4">
-           <h2 data-aos="fade-up" className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Этапы реализации проекта</h2>
+           <h2 className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Этапы реализации под ключ</h2>
            <div className="grid md:grid-cols-5 gap-8 relative">
-              {/* Линия соединения */}
+              {/* Линия */}
               <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 bg-slate-800 -z-10"></div>
-              
               {[
-                 {step: "01", title: "Экспертиза", desc: "Осмотр кровли, проверка закладных, оценка состояния пирога кровли."},
-                 {step: "02", title: "Проект", desc: "Разработка КМ и КМД. Расчет нагрузок инженером-конструктором."},
+                 {step: "01", title: "Экспертиза", desc: "Осмотр кровли, проверка закладных, оценка 'пирога' кровли."},
+                 {step: "02", title: "Проект", desc: "Разработка КМ и КМД. Расчет нагрузок инженером."},
                  {step: "03", title: "Акимат", desc: "Получение разрешения на размещение (паспорт рекламы)."},
-                 {step: "04", title: "Цех", desc: "Сварка ферм, покраска, сборка световых элементов."},
-                 {step: "05", title: "Монтаж", desc: "Подъем краном/альпинистами, монтаж пригрузов, подключение."}
+                 {step: "04", title: "Цех", desc: "Сварка ферм, грунтовка, покраска, сборка букв."},
+                 {step: "05", title: "Монтаж", desc: "Подъем краном/альпинистами, пригрузы, электрика."}
               ].map((item, i) => (
-                 <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="relative bg-[#0F172A]">
-                    <div className="w-16 h-16 bg-slate-900 border-2 border-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-6 mx-auto z-10 shadow-lg shadow-blue-900/20">{item.step}</div>
-                    <h3 className="text-lg font-bold text-white text-center mb-3">{item.title}</h3>
+                 <div key={i} className="relative group bg-[#0F172A] p-4 pt-0">
+                    <div className="w-16 h-16 bg-slate-900 border-2 border-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-6 mx-auto shadow-lg shadow-blue-900/20 z-10 relative">{item.step}</div>
+                    <h3 className="text-lg font-bold text-white text-center mb-2">{item.title}</h3>
                     <p className="text-gray-400 text-center text-xs leading-relaxed">{item.desc}</p>
                  </div>
               ))}
@@ -265,20 +294,29 @@ export default function RoofPage() {
         </div>
       </section>
 
-      {/* 6. КОМПОНЕНТЫ */}
-      <ProjectsBento 
-        title="Наши крышные проекты" 
-        subtitle="Масштабные работы в Астане" 
-      />
-      
-      <ReviewsCarousel />
-      
-      <ServicesCarousel 
-        title="Другие услуги" 
-        subtitle="Комплексное оформление" 
-        hiddenLink="/services/roof-installations" 
-      />
+      {/* 6. ДИЗАЙН КОД */}
+      <DesignCodeBlock />
 
+      {/* 7. ГАЛЕРЕЯ */}
+      <section className="py-24 bg-slate-950">
+          <div className="container mx-auto px-4 mb-12 text-center">
+              <h2 className="text-3xl font-bold text-white mb-4">Примеры масштабных проектов</h2>
+              <p className="text-gray-400">Имиджево, мощно, завораживающе</p>
+          </div>
+          <div className="container mx-auto px-4">
+             {galleryImages.length > 0 ? (
+                <ImageGallery images={galleryImages} /> 
+             ) : (
+                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                   Загрузите фото в папку public/images/roof-installations
+                </div>
+             )}
+          </div>
+      </section>
+
+      {/* 8. ОТЗЫВЫ И CTA */}
+      <ReviewsCarousel />
+      <ServicesCarousel title="Другие услуги" subtitle="Комплексное оформление" hiddenLink="/services/roof-installations"/>
       <CallToAction source="Услуга: Крышные установки" />
 
     </div>

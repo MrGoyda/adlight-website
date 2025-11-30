@@ -30,14 +30,14 @@ const catalog = [
         title: "Объемные буквы",
         price: "от 400 ₸/см",
         link: "/services/volume-letters", // ✅
-        image: "/images/calc/face.jpg",
+        image: "/images/letters-galery/face-lit/2.jpg",
         tags: ["Хит продаж", "Согласование", "Гарантия 1 год"]
       },
       {
         title: "Световые короба",
         price: "от 45 000 ₸/м²",
         link: "/services/lightboxes", // ✅
-        image: "/images/calc/lightbox-1.jpg",
+        image: "/images/lightboxes/8.jpg",
         tags: ["Много текста", "Яркость", "Любая форма"]
       },
       {
@@ -59,21 +59,21 @@ const catalog = [
         title: "Неоновые вывески",
         price: "Индивидуально",
         link: "/services/neon", // ✅
-        image: "/neon.jpg",
+        image: "/images/neon/1.jpg",
         tags: ["Flex Neon 2.0", "Для фотозон", "Безопасно"]
       },
       {
         title: "Интерьерные лого",
         price: "от 25 000 ₸",
         link: "/services/interior", // ✅
-        image: "/1solution.jpg",
+        image: "/kmg.jpeg",
         tags: ["Тонкий акрил", "Ресепшн", "Контражур"]
       },
       {
         title: "Таблички и Навигация",
         price: "от 5 000 ₸",
         link: "/services/navigation", // ✅ (Добавлено)
-        image: "/images/calc/acryl.jpg", // Можно заменить на фото таблички
+        image: "/images/tablichka.jpg", // Можно заменить на фото таблички
         tags: ["Бизнес-центры", "Указатели", "Гравировка"]
       }
     ]
@@ -88,21 +88,21 @@ const catalog = [
         title: "Крышные установки",
         price: "Проектно",
         link: "/services/roof-installations", // ✅
-        image: "/krisha.jpg",
+        image: "/4-1.jpg",
         tags: ["Документация", "Нагрузки", "Масштаб"]
       },
       {
         title: "Входные группы",
         price: "Проектно",
         link: "/services/entrance-groups", // ✅
-        image: "/agro.jpg",
+        image: "/dizayn-vhoda-magazina.jpg",
         tags: ["Композит", "Козырьки", "Облицовка"]
       },
       {
         title: "Стелы и Пилоны",
         price: "Проектно",
         link: "/services/pylons", // ✅ (Добавлено)
-        image: "/kmg.jpeg",
+        image: "/reklamnaya-stela.jpg",
         tags: ["Фундамент", "АЗС", "Навигация"]
       }
     ]
