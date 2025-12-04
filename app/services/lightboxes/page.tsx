@@ -7,7 +7,7 @@ import {
   ChevronRight, 
   Layers, 
   FileCheck,
-  MessageCircle,
+  // MessageCircle убрал, так как он теперь внутри HeroButtons
   Box,            
   Maximize,       
   Zap,            
@@ -28,6 +28,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -117,7 +118,7 @@ export default async function LightboxesPage() {
   // Используем дефолтные, если папка пуста
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
-    : ["/images/lightboxes/type-acrylic.jpg", "/images/lightboxes/type-banner.jpg"]; // Исправил пути на существующие в массиве выше, чтобы наверняка
+    : ["/images/lightboxes/type-acrylic.jpg", "/images/lightboxes/type-banner.jpg"];
 
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-blue-500/30">
@@ -152,14 +153,9 @@ export default async function LightboxesPage() {
                     Самый эффективный способ заявить о себе по соотношению <strong>Цена / Площадь</strong>.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать стоимость
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Написать в WhatsApp
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
+
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -199,8 +195,6 @@ export default async function LightboxesPage() {
                         alt={type.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
-                        // onError удален, так как это Server Component. 
-                        // Если картинки нет, Next.js покажет placeholder или пустое место.
                      />
                      
                      {/* ГРАДИЕНТ (чтобы текст читался) */}
@@ -363,25 +357,25 @@ export default async function LightboxesPage() {
               <p className="text-gray-400">Наши работы по световым коробам</p>
           </div>
           <div className="container mx-auto px-4">
-             {/* Проверяем, нашлись ли картинки. Если нет — показываем заглушку с путем */}
-             {galleryImages.length > 0 ? (
-                <ImageGallery images={galleryImages} /> 
-             ) : (
-                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                   Загрузите фото в папку public/images/lightboxes
-                </div>
-             )}
-             
-             {/* ССЫЛКА НА ПОРТФОЛИО */}
-             <div className="mt-16 flex justify-center">
-                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                   <span className="relative z-10 flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-blue-500"/>
-                      Посмотреть все работы в Портфолио
-                   </span>
-                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                </Link>
-             </div>
+              {/* Проверяем, нашлись ли картинки. Если нет — показываем заглушку с путем */}
+              {galleryImages.length > 0 ? (
+                 <ImageGallery images={galleryImages} /> 
+              ) : (
+                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                    Загрузите фото в папку public/images/lightboxes
+                 </div>
+              )}
+              
+              {/* ССЫЛКА НА ПОРТФОЛИО */}
+              <div className="mt-16 flex justify-center">
+                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                    <span className="relative z-10 flex items-center gap-2">
+                       <Briefcase className="w-5 h-5 text-blue-500"/>
+                       Посмотреть все работы в Портфолио
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                 </Link>
+              </div>
           </div>
       </section>
 

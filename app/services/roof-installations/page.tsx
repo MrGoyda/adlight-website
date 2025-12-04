@@ -12,7 +12,7 @@ import {
   Zap,
   ScanFace,
   Grid3X3,
-  MessageCircle,
+  // MessageCircle убрал, теперь он внутри HeroButtons
   Anchor,          // Крепеж
   Shield,
   Building2,       // Здание
@@ -30,6 +30,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -115,14 +116,9 @@ export default async function RoofPage() {
                     Самый престижный вид наружной рекламы. Разрабатываем проектную документацию (КМ, КМД, ЭО), рассчитываем ветровые нагрузки для Астаны и монтируем на любой высоте.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg shadow-blue-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать проект
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 hover:border-slate-500 transition active:scale-95">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Консультация инженера
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
+
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -242,7 +238,6 @@ export default async function RoofPage() {
                         alt={type.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-50 group-hover:opacity-40"
-                        // onError removed to fix Server Component serialization error
                      />
                      
                      {/* ГРАДИЕНТ */}
@@ -304,13 +299,13 @@ export default async function RoofPage() {
               <p className="text-gray-400">Имиджево, мощно, завораживающе</p>
           </div>
           <div className="container mx-auto px-4">
-             {galleryImages.length > 0 ? (
-                <ImageGallery images={galleryImages} /> 
-             ) : (
-                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                   Загрузите фото в папку public/images/roof-installations
-                </div>
-             )}
+              {galleryImages.length > 0 ? (
+                 <ImageGallery images={galleryImages} /> 
+              ) : (
+                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                    Загрузите фото в папку public/images/roof-installations
+                 </div>
+              )}
           </div>
       </section>
 

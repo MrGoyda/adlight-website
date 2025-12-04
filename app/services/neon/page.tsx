@@ -4,7 +4,6 @@ import {
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  MessageCircle,
   Zap,            // Энергия/Неон
   Scissors,       // Резка
   Plug,           // 12V
@@ -16,6 +15,7 @@ import {
   Coins,          // Экономия
   FileCheck,      // Документы
   AlertTriangle
+  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
@@ -25,6 +25,7 @@ import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -106,6 +107,7 @@ export default async function NeonPage() {
            </div>
 
            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              {/* Текст */}
               <div>
                  <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded-full uppercase tracking-wider">
                     Тренд 2025 года
@@ -118,14 +120,9 @@ export default async function NeonPage() {
                     Создаем "вау-эффект" для вашего бизнеса или дома. Используем премиальный силиконовый неон 2-го поколения: не желтеет, светит ровно, служит 5 лет.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать надпись
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Написать в WhatsApp
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="purple" />
+                 
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -169,14 +166,14 @@ export default async function NeonPage() {
                
                <div className="lg:w-1/2 w-full">
                   <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video group">
-                      {/* Имитация неона */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                          <h3 className="text-6xl md:text-8xl font-script text-white drop-shadow-[0_0_15px_#d946ef] animate-pulse" style={{fontFamily: 'cursive'}}>
-                             Beauty
-                          </h3>
-                      </div>
-                      {/* Отражение на полу */}
-                      <div className="absolute bottom-0 w-full h-1/3 bg-gradient-to-t from-pink-500/20 to-transparent blur-2xl"></div>
+                     {/* Имитация неона */}
+                     <div className="absolute inset-0 flex items-center justify-center">
+                        <h3 className="text-6xl md:text-8xl font-script text-white drop-shadow-[0_0_15px_#d946ef] animate-pulse" style={{fontFamily: 'cursive'}}>
+                           Beauty
+                        </h3>
+                     </div>
+                     {/* Отражение на полу */}
+                     <div className="absolute bottom-0 w-full h-1/3 bg-gradient-to-t from-pink-500/20 to-transparent blur-2xl"></div>
                   </div>
                </div>
             </div>
@@ -205,17 +202,17 @@ export default async function NeonPage() {
                      >
                         {/* Сердцевина (Сам неон) */}
                         <div 
-                            className="w-14 h-14 rounded-full bg-white transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_30px_currentColor] group-active:scale-95 group-active:shadow-[0_0_50px_currentColor]"
-                            style={{ 
-                                backgroundColor: color.hex,
-                                color: color.main // Используем для shadow в inline-style
-                            }}
+                           className="w-14 h-14 rounded-full bg-white transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_30px_currentColor] group-active:scale-95 group-active:shadow-[0_0_50px_currentColor]"
+                           style={{ 
+                              backgroundColor: color.hex,
+                              color: color.main // Используем для shadow в inline-style
+                           }}
                         ></div>
 
                         {/* Сильное размытое пятно (Glow Effect) */}
                         <div 
-                            className="absolute inset-0 rounded-full opacity-40 group-hover:opacity-80 group-active:opacity-100 transition-opacity duration-300 blur-lg"
-                            style={{ backgroundColor: color.main }}
+                           className="absolute inset-0 rounded-full opacity-40 group-hover:opacity-80 group-active:opacity-100 transition-opacity duration-300 blur-lg"
+                           style={{ backgroundColor: color.main }}
                         ></div>
                      </div>
                      
@@ -361,26 +358,26 @@ export default async function NeonPage() {
 
               {/* Визуал (Схематично окно) */}
               <div className="relative h-[400px] rounded-2xl overflow-hidden border border-slate-700 bg-slate-800 shadow-2xl">
-                  {/* Улица */}
-                  <div className="absolute inset-0 bg-[url('/images/22.jpg')] bg-cover bg-center opacity-20"></div>
-                  
-                  {/* Рама окна */}
-                  <div className="absolute inset-4 border-4 border-slate-600 rounded-lg z-10 pointer-events-none"></div>
-                  
-                  {/* Неон за стеклом */}
-                  <div className="absolute inset-0 flex items-center justify-center z-20">
-                     <div className="text-center">
-                         <div className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)] animate-pulse" style={{fontFamily: 'cursive'}}>
-                            OPEN
-                         </div>
-                         <div className="mt-4 inline-block px-4 py-1 bg-green-600/90 text-white text-xs font-bold rounded uppercase">
-                            За стеклом (Интерьер)
-                         </div>
-                     </div>
-                  </div>
+                 {/* Улица */}
+                 <div className="absolute inset-0 bg-[url('/images/22.jpg')] bg-cover bg-center opacity-20"></div>
+                 
+                 {/* Рама окна */}
+                 <div className="absolute inset-4 border-4 border-slate-600 rounded-lg z-10 pointer-events-none"></div>
+                 
+                 {/* Неон за стеклом */}
+                 <div className="absolute inset-0 flex items-center justify-center z-20">
+                    <div className="text-center">
+                        <div className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)] animate-pulse" style={{fontFamily: 'cursive'}}>
+                           OPEN
+                        </div>
+                        <div className="mt-4 inline-block px-4 py-1 bg-green-600/90 text-white text-xs font-bold rounded uppercase">
+                           За стеклом (Интерьер)
+                        </div>
+                    </div>
+                 </div>
 
-                  {/* Блик стекла */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none z-30"></div>
+                 {/* Блик стекла */}
+                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none z-30"></div>
               </div>
            </div>
         </div>
@@ -393,14 +390,14 @@ export default async function NeonPage() {
               <p className="text-gray-400">Неон в интерьерах наших клиентов</p>
           </div>
           <div className="container mx-auto px-4">
-             {/* Если картинки есть - показываем, если нет - заглушка */}
-             {galleryImages.length > 0 ? (
-                <ImageGallery images={galleryImages} /> 
-             ) : (
-                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                   Загрузите фото в папку public/images/neon
-                </div>
-             )}
+              {/* Если картинки есть - показываем, если нет - заглушка */}
+              {galleryImages.length > 0 ? (
+                 <ImageGallery images={galleryImages} /> 
+              ) : (
+                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                    Загрузите фото в папку public/images/neon
+                 </div>
+              )}
           </div>
       </section>
 

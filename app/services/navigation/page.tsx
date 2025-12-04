@@ -13,7 +13,7 @@ import {
   Printer,        // Печать
   Scan,           // Гравировка
   Building,
-  MessageCircle,
+  // MessageCircle убрал, теперь он внутри HeroButtons
   Layout,         // Схема
   ArrowUpRight,   // Направление
   Repeat,         // Сменная информация
@@ -30,6 +30,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -132,14 +133,9 @@ export default async function NavigationPage() {
                     Помогаем вашим клиентам не заблудиться. Разрабатываем и производим стильные системы навигации для БЦ, ТРЦ, отелей и офисов. От таблички на дверь до этажных планов.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-teal-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-teal-700 transition shadow-lg shadow-teal-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать проект
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Консультация
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="teal" />
+
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -331,14 +327,14 @@ export default async function NavigationPage() {
               <p className="text-gray-400">Работы для офисов и клиник</p>
           </div>
           <div className="container mx-auto px-4">
-             {/* Проверяем наличие картинок */}
-             {galleryImages.length > 0 ? (
-                <ImageGallery images={galleryImages} /> 
-             ) : (
-                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                   Загрузите фото в папку public/images/navigation
-                </div>
-             )}
+              {/* Проверяем наличие картинок */}
+              {galleryImages.length > 0 ? (
+                 <ImageGallery images={galleryImages} /> 
+              ) : (
+                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                    Загрузите фото в папку public/images/navigation
+                 </div>
+              )}
           </div>
       </section>
 

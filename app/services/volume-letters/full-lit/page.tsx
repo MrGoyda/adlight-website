@@ -4,23 +4,17 @@ import {
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  FileCheck,
-  MessageCircle,
-  Eye,          
-  Zap,          
-  Shield,       
+  Shield, 
   Layers,
   ChevronDown,
-  Store,        
-  Building,     
-  ShoppingBag,  
+  ShoppingBag, 
   Briefcase,
-  Gem,             // Для "Премиум"
-  Maximize,        // Для "360 обзор"
-  Droplets,        // Для "Влагозащита/Мойка"
+  Gem,            // Для "Премиум"
+  Maximize,       // Для "360 обзор"
+  Droplets,       // Для "Влагозащита/Мойка"
   ArrowRight,
   Sun,
-  Palette
+  // MessageCircle убрал, так как он теперь внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -28,6 +22,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА (Сбор фото) ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -128,14 +123,9 @@ export default async function FullLitLettersPage() {
                     </li>
                  </ul>
 
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать стоимость
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Задать вопрос
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="purple" />
+                 
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -226,48 +216,48 @@ export default async function FullLitLettersPage() {
                {/* Правая колонка: Визуал */}
                <div className="w-full lg:w-7/12">
                   <div className="flex overflow-x-auto pb-8 -mx-4 px-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:overflow-visible lg:pb-0 lg:px-0 hide-scrollbar snap-x snap-mandatory">
-                      
-                      {/* Большая карточка: БУТИКИ */}
-                      <div className="min-w-[85vw] sm:min-w-[300px] lg:min-w-0 lg:col-span-2 relative h-[280px] lg:h-[360px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-purple-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-2xl">
-                         <Image src="/images/letters-galery/full-lit/5.jpg" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
-                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
-                         
-                         <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                            <div className="flex items-center gap-3 mb-3">
-                               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md shadow-lg shadow-purple-900/50">
-                                  <ShoppingBag className="w-3 h-3"/> Boutique
-                               </span>
-                            </div>
-                            <h3 className="text-2xl lg:text-3xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors">Интерьер бутиков</h3>
-                            <p className="text-slate-400 text-sm max-w-md line-clamp-2 group-hover:text-slate-300 transition-colors">
-                               Выбор №1 для торговых центров. Мягкий, рассеянный свет привлекает внимание, но не раздражает глаз.
-                            </p>
-                         </div>
-                      </div>
+                     
+                     {/* Большая карточка: БУТИКИ */}
+                     <div className="min-w-[85vw] sm:min-w-[300px] lg:min-w-0 lg:col-span-2 relative h-[280px] lg:h-[360px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-purple-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-2xl">
+                        <Image src="/images/letters-galery/full-lit/5.jpg" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
+                        
+                        <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                           <div className="flex items-center gap-3 mb-3">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md shadow-lg shadow-purple-900/50">
+                                 <ShoppingBag className="w-3 h-3"/> Boutique
+                              </span>
+                           </div>
+                           <h3 className="text-2xl lg:text-3xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors">Интерьер бутиков</h3>
+                           <p className="text-slate-400 text-sm max-w-md line-clamp-2 group-hover:text-slate-300 transition-colors">
+                              Выбор №1 для торговых центров. Мягкий, рассеянный свет привлекает внимание, но не раздражает глаз.
+                           </p>
+                        </div>
+                     </div>
 
-                      {/* Малая карточка: КРЕАТИВ */}
-                      <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-blue-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                         <Image src="/images/letters-galery/full-lit/3.jpg" alt="Креативные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
-                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
-                         <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-blue-900/50">
-                               <Gem className="w-3 h-3"/> Design
-                            </span>
-                            <h3 className="text-xl font-bold text-white group-hover:text-blue-200 transition-colors">Логотипы</h3>
-                         </div>
-                      </div>
+                     {/* Малая карточка: КРЕАТИВ */}
+                     <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-blue-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
+                        <Image src="/images/letters-galery/full-lit/3.jpg" alt="Креативные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
+                        <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-blue-900/50">
+                              <Gem className="w-3 h-3"/> Design
+                           </span>
+                           <h3 className="text-xl font-bold text-white group-hover:text-blue-200 transition-colors">Логотипы</h3>
+                        </div>
+                     </div>
 
-                      {/* Малая карточка: ОФИСЫ */}
-                      <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-green-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                         <Image src="/kmg.jpeg" alt="Офисные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
-                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
-                         <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-green-900/50">
-                               <Briefcase className="w-3 h-3"/> Office
-                            </span>
-                            <h3 className="text-xl font-bold text-white group-hover:text-green-200 transition-colors">Ресепшн зоны</h3>
-                         </div>
-                      </div>
+                     {/* Малая карточка: ОФИСЫ */}
+                     <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-green-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
+                        <Image src="/kmg.jpeg" alt="Офисные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
+                        <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-green-900/50">
+                              <Briefcase className="w-3 h-3"/> Office
+                           </span>
+                           <h3 className="text-xl font-bold text-white group-hover:text-green-200 transition-colors">Ресепшн зоны</h3>
+                        </div>
+                     </div>
 
                   </div>
                </div>
@@ -298,7 +288,7 @@ export default async function FullLitLettersPage() {
                   <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">Акрил 2-3 мм, изогнутый термометодом. Клеится к лицу химической сваркой.</p>
                </div>
                <div className="group relative bg-slate-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-slate-800 hover:border-orange-500/50 transition-all duration-500 hover:shadow-[0_0_40px_-10px_rgba(249,115,22,0.2)] flex flex-col">
-                  <div className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-all duration-300"><Zap className="w-8 h-8"/></div>
+                  <div className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6 text-orange-500 group-hover:scale-110 transition-all duration-300"><Sun className="w-8 h-8"/></div>
                   <h3 className="text-xl font-bold text-white mb-3">Линзы 170°</h3>
                   <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">Используем специальные линзы с широким углом, чтобы просветить борта.</p>
                </div>
@@ -393,7 +383,7 @@ export default async function FullLitLettersPage() {
                   </div>
                </div>
 
-               {/* Карточка 2: Диммирование (ИСПРАВЛЕНО: удален лишний текст) */}
+               {/* Карточка 2: Диммирование */}
                <div className="bg-[#0B1221] p-8 rounded-3xl border border-slate-800 hover:border-yellow-500/30 transition flex gap-6">
                   <div className="shrink-0">
                      <div className="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500"><Sun className="w-7 h-7"/></div>
@@ -450,17 +440,17 @@ export default async function FullLitLettersPage() {
               <p className="text-gray-400">Галерея проектов с полным свечением</p>
           </div>
           <div className="container mx-auto px-4">
-             {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Загрузите фото в папку public/images/letters-galery/full-lit</div>}
-             
-             <div className="mt-16 flex justify-center">
-                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                   <span className="relative z-10 flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-purple-500"/>
-                      Посмотреть все работы в Портфолио
-                   </span>
-                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                </Link>
-             </div>
+              {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Загрузите фото в папку public/images/letters-galery/full-lit</div>}
+              
+              <div className="mt-16 flex justify-center">
+                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                    <span className="relative z-10 flex items-center gap-2">
+                       <Briefcase className="w-5 h-5 text-purple-500"/>
+                       Посмотреть все работы в Портфолио
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                 </Link>
+              </div>
           </div>
       </section>
 
@@ -502,7 +492,7 @@ export default async function FullLitLettersPage() {
                          <div className="px-2 pb-2 flex flex-col flex-1">
                              <div className="flex items-start justify-between gap-4">
                                 <h4 className="text-white font-bold text-lg leading-snug group-hover:text-purple-400 transition-colors line-clamp-2">
-                                   {type.title}
+                                    {type.title}
                                 </h4>
                                 <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shrink-0 group-hover:rotate-[-45deg]">
                                    <ArrowRight className="w-4 h-4"/>

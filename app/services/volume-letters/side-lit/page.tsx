@@ -4,7 +4,6 @@ import {
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  MessageCircle,
   BoxSelect,      // Контур
   Scan,           // Технологичность
   Layers,         
@@ -16,6 +15,7 @@ import {
   ChevronDown,
   Briefcase,
   Monitor
+  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -23,6 +23,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -122,14 +123,9 @@ export default async function SideLitLettersPage() {
                     </li>
                  </ul>
 
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать проект
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> WhatsApp
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
+                 
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -406,17 +402,17 @@ export default async function SideLitLettersPage() {
               <p className="text-gray-400">Реализованные проекты</p>
           </div>
           <div className="container mx-auto px-4">
-             {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Загрузите фото в папку public/images/letters-galery/side-lit</div>}
-             
-             <div className="mt-16 flex justify-center">
-                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                   <span className="relative z-10 flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-blue-500"/>
-                      Посмотреть все работы в Портфолио
-                   </span>
-                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                </Link>
-             </div>
+              {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Загрузите фото в папку public/images/letters-galery/side-lit</div>}
+              
+              <div className="mt-16 flex justify-center">
+                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                    <span className="relative z-10 flex items-center gap-2">
+                       <Briefcase className="w-5 h-5 text-blue-500"/>
+                       Посмотреть все работы в Портфолио
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                 </Link>
+              </div>
           </div>
       </section>
 
@@ -458,7 +454,7 @@ export default async function SideLitLettersPage() {
                          <div className="px-2 pb-2 flex flex-col flex-1">
                              <div className="flex items-start justify-between gap-4">
                                 <h4 className="text-white font-bold text-lg leading-snug group-hover:text-blue-400 transition-colors line-clamp-2">
-                                   {type.title}
+                                    {type.title}
                                 </h4>
                                 <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shrink-0 group-hover:rotate-[-45deg]">
                                    <ArrowRight className="w-4 h-4"/>

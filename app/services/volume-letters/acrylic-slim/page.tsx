@@ -4,7 +4,6 @@ import {
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  MessageCircle,
   Droplets,       // Жидкость
   Minimize,       // Тонкость
   ShieldCheck,    // Прочность
@@ -18,6 +17,7 @@ import {
   Briefcase,
   Layers,
   Sun
+  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -25,6 +25,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -124,14 +125,9 @@ export default async function LiquidAcrylicPage() {
                     </li>
                  </ul>
 
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-cyan-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-cyan-700 transition shadow-lg shadow-cyan-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать стоимость
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> WhatsApp
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="cyan" />
+                 
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -240,46 +236,46 @@ export default async function LiquidAcrylicPage() {
       {/* === БЛОК 4: USE CASES === */}
       <section className="py-24 bg-[#0F172A] border-y border-slate-800">
          <div className="container mx-auto px-4">
-             <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-16 items-start">
-                 
-                 <div className="md:w-1/2">
-                    <h2 className="text-3xl font-bold text-white mb-8">Идеальное применение</h2>
-                    <div className="space-y-6">
-                       <div className="flex gap-4">
-                          <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-cyan-500 shrink-0"><Scan className="w-6 h-6"/></div>
-                          <div>
-                             <h4 className="text-white font-bold mb-1">Салоны красоты и Клиники</h4>
-                             <p className="text-gray-400 text-sm">Тонкие линии без грубых рамок подчеркивают стерильность и эстетику.</p>
-                          </div>
-                       </div>
-                       <div className="flex gap-4">
-                          <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-cyan-500 shrink-0"><Minimize className="w-6 h-6"/></div>
-                          <div>
-                             <h4 className="text-white font-bold mb-1">Интерьеры ТРЦ</h4>
-                             <p className="text-gray-400 text-sm">С близкого расстояния (1 метр) обычные буквы выглядят грубовато. Жидкий акрил идеален даже под лупой.</p>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
+            <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-16 items-start">
+               
+               <div className="md:w-1/2">
+                  <h2 className="text-3xl font-bold text-white mb-8">Идеальное применение</h2>
+                  <div className="space-y-6">
+                     <div className="flex gap-4">
+                        <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-cyan-500 shrink-0"><Scan className="w-6 h-6"/></div>
+                        <div>
+                           <h4 className="text-white font-bold mb-1">Салоны красоты и Клиники</h4>
+                           <p className="text-gray-400 text-sm">Тонкие линии без грубых рамок подчеркивают стерильность и эстетику.</p>
+                        </div>
+                     </div>
+                     <div className="flex gap-4">
+                        <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-cyan-500 shrink-0"><Minimize className="w-6 h-6"/></div>
+                        <div>
+                           <h4 className="text-white font-bold mb-1">Интерьеры ТРЦ</h4>
+                           <p className="text-gray-400 text-sm">С близкого расстояния (1 метр) обычные буквы выглядят грубовато. Жидкий акрил идеален даже под лупой.</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
 
-                 <div className="md:w-1/2 bg-[#0B1120] p-8 rounded-3xl border border-slate-800">
-                    <h3 className="text-xl font-bold text-white mb-4">Особенности монтажа</h3>
-                    <p className="text-gray-400 text-sm mb-6">
-                       Так как буквы тонкие и изящные, мы не рекомендуем крепить их на грубую металлическую раму.
-                    </p>
-                    <div className="space-y-4">
-                       <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg border border-slate-700">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-white text-sm">Дистанционные держатели (1-2 см от стены)</span>
-                       </div>
-                       <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg border border-slate-700">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span className="text-white text-sm">Скрытые штифты (вплотную)</span>
-                       </div>
-                    </div>
-                 </div>
+               <div className="md:w-1/2 bg-[#0B1120] p-8 rounded-3xl border border-slate-800">
+                  <h3 className="text-xl font-bold text-white mb-4">Особенности монтажа</h3>
+                  <p className="text-gray-400 text-sm mb-6">
+                     Так как буквы тонкие и изящные, мы не рекомендуем крепить их на грубую металлическую раму.
+                  </p>
+                  <div className="space-y-4">
+                     <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg border border-slate-700">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-white text-sm">Дистанционные держатели (1-2 см от стены)</span>
+                     </div>
+                     <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg border border-slate-700">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-white text-sm">Скрытые штифты (вплотную)</span>
+                     </div>
+                  </div>
+               </div>
 
-             </div>
+            </div>
          </div>
       </section>
 
@@ -376,17 +372,17 @@ export default async function LiquidAcrylicPage() {
               <p className="text-gray-400">Идеальная гладкость в каждом проекте</p>
           </div>
           <div className="container mx-auto px-4">
-             {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Загрузите фото в папку public/images/letters-galery/acrylic-slim</div>}
-             
-             <div className="mt-16 flex justify-center">
-                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                   <span className="relative z-10 flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-cyan-500"/>
-                      Посмотреть все работы в Портфолио
-                   </span>
-                   <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                </Link>
-             </div>
+              {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Загрузите фото в папку public/images/letters-galery/acrylic-slim</div>}
+              
+              <div className="mt-16 flex justify-center">
+                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                    <span className="relative z-10 flex items-center gap-2">
+                       <Briefcase className="w-5 h-5 text-cyan-500"/>
+                       Посмотреть все работы в Портфолио
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                 </Link>
+              </div>
           </div>
       </section>
 
@@ -428,7 +424,7 @@ export default async function LiquidAcrylicPage() {
                          <div className="px-2 pb-2 flex flex-col flex-1">
                              <div className="flex items-start justify-between gap-4">
                                 <h4 className="text-white font-bold text-lg leading-snug group-hover:text-cyan-400 transition-colors line-clamp-2">
-                                   {type.title}
+                                    {type.title}
                                 </h4>
                                 <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300 shrink-0 group-hover:rotate-[-45deg]">
                                    <ArrowRight className="w-4 h-4"/>

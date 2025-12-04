@@ -15,8 +15,7 @@ import {
   Hammer,
   Moon,
   Star,
-  MousePointerClick,
-  Briefcase
+  MousePointerClick
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
@@ -27,6 +26,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <-- Новый импорт
 
 // --- УТИЛИТА ДЛЯ СБОРА ФОТО (СЕРВЕРНАЯ) ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -158,7 +158,6 @@ export default async function VolumeLettersPage() {
 
   // 2. HERO SLIDER (Топ-15 рандомных)
   let heroImages = [...allGalleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
-  // Фоллбэк
   if (heroImages.length === 0) {
     heroImages = volumeLettersCatalog.map(item => item.images.night);
   }
@@ -197,14 +196,9 @@ export default async function VolumeLettersPage() {
                     Делаем ярко, надежно и <strong>строго по Дизайн-коду</strong> города.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать стоимость
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 hover:border-slate-500 transition active:scale-95">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Написать в WhatsApp
-                    </a>
-                 </div>
+                 {/* НОВЫЕ КНОПКИ С МОДАЛКОЙ */}
+                 <HeroButtons source="Услуга: Объемные буквы (Общая)" priceColor="orange" />
+
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -221,10 +215,10 @@ export default async function VolumeLettersPage() {
         </div>
       </section>
 
-      {/* 2. КЛИЕНТЫ (MARQUEE) */}
+      {/* 2. КЛИЕНТЫ */}
       <ClientsMarquee />
 
-      {/* 3. ПСИХОЛОГИЯ (ПОЧЕМУ ОБЪЕМ?) */}
+      {/* 3. ПСИХОЛОГИЯ */}
       <section className="py-24 bg-slate-950">
          <div className="container mx-auto px-4">
             <div className="bg-gradient-to-r from-[#0B1120] to-[#1a2035] rounded-3xl p-8 md:p-12 border border-slate-800 relative overflow-hidden">
@@ -262,7 +256,7 @@ export default async function VolumeLettersPage() {
          </div>
       </section>
 
-      {/* 4. КАТАЛОГ ТИПОВ (ОБНОВЛЕННЫЙ СЛАЙДЕР ДЛЯ MOBILE) */}
+      {/* 4. КАТАЛОГ ТИПОВ */}
       <section className="py-24 bg-[#0F172A] border-y border-slate-800 relative">
          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[500px] bg-blue-500/5 blur-[120px] pointer-events-none"></div>
          
@@ -272,10 +266,6 @@ export default async function VolumeLettersPage() {
                <p className="text-gray-400">Нажмите на карточку, чтобы узнать подробности и цены</p>
             </div>
             
-            {/* FLEX для мобильных (слайдер), GRID для десктопа.
-                min-w-[85vw] - делает карточку широкой на телефоне (фокус).
-                snap-center - карточка встает по центру экрана при скролле.
-            */}
             <div className="flex overflow-x-auto pb-8 -mx-4 px-4 gap-4 snap-x snap-mandatory scroll-pl-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:overflow-visible md:pb-0 md:px-0 hide-scrollbar">
                {volumeLettersCatalog.map((type) => (
                   <Link 
@@ -283,7 +273,6 @@ export default async function VolumeLettersPage() {
                      key={type.id}
                      className="group relative flex flex-col min-w-[85vw] sm:min-w-[320px] md:min-w-0 snap-center rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 cursor-pointer h-[420px]"
                   >
-                     {/* Изображение */}
                      <div className="relative h-[220px] w-full overflow-hidden bg-black shrink-0">
                         {type.badge && (
                            <div className="absolute top-3 right-3 z-20 bg-orange-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider shadow-lg">
@@ -291,7 +280,6 @@ export default async function VolumeLettersPage() {
                            </div>
                         )}
 
-                        {/* Ночь */}
                         <div className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-0 z-10">
                            <Image src={type.images.night} alt={`${type.title} ночью`} fill className="object-cover"/>
                            <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] text-white flex items-center gap-1">
@@ -299,7 +287,6 @@ export default async function VolumeLettersPage() {
                            </div>
                         </div>
 
-                        {/* День */}
                         <div className="absolute inset-0">
                            <Image src={type.images.day} alt={`${type.title} днем`} fill className="object-cover"/>
                            <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur px-2 py-1 rounded text-[10px] text-black flex items-center gap-1">
@@ -307,13 +294,11 @@ export default async function VolumeLettersPage() {
                            </div>
                         </div>
                         
-                        {/* Иконка */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 bg-black/50 backdrop-blur rounded-full p-3">
                            <MousePointerClick className="w-6 h-6 text-white"/>
                         </div>
                      </div>
 
-                     {/* Контент */}
                      <div className="p-6 flex flex-col flex-1 justify-between">
                         <div>
                            <h3 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-orange-500 transition-colors">
@@ -430,7 +415,7 @@ export default async function VolumeLettersPage() {
             <div className="mt-16 flex justify-center">
                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
                   <span className="relative z-10 flex items-center gap-2">
-                     <Briefcase className="w-5 h-5 text-orange-500"/>
+                     <BriefcaseIcon className="w-5 h-5 text-orange-500"/>
                      Посмотреть все работы в Портфолио
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
@@ -446,4 +431,25 @@ export default async function VolumeLettersPage() {
 
     </div>
   );
+}
+
+// --- ВСПОМОГАТЕЛЬНАЯ ИКОНКА (Если Briefcase не импортируется корректно) ---
+function BriefcaseIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  )
 }

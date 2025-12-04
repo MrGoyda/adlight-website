@@ -9,7 +9,7 @@ import {
   ScanEye,        
   Zap,
   Clock,
-  MessageCircle,
+  // MessageCircle убрал, теперь он внутри HeroButtons
   Plug,           
   Scissors,       
   Palette,
@@ -27,6 +27,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -128,14 +129,9 @@ export default async function InteriorPage() {
                     Ювелирная работа с материалами. Изготавливаем логотипы, которые выглядят идеально даже с расстояния вытянутой руки. Никаких видимых проводов и клея.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-purple-700 transition shadow-lg shadow-purple-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать проект
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Консультация
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="purple" />
+
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -219,7 +215,6 @@ export default async function InteriorPage() {
                         alt={type.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
-                        // onError removed for Server Component compatibility
                      />
                      
                      {/* ГРАДИЕНТ */}
@@ -325,14 +320,14 @@ export default async function InteriorPage() {
               <p className="text-gray-400">Офисы, магазины и салоны Астаны</p>
           </div>
           <div className="container mx-auto px-4">
-             {/* Проверяем наличие картинок */}
-             {galleryImages.length > 0 ? (
-                <ImageGallery images={galleryImages} /> 
-             ) : (
-                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                   Загрузите фото в папку public/images/interior
-                </div>
-             )}
+              {/* Проверяем наличие картинок */}
+              {galleryImages.length > 0 ? (
+                 <ImageGallery images={galleryImages} /> 
+              ) : (
+                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                    Загрузите фото в папку public/images/interior
+                 </div>
+              )}
           </div>
       </section>
 

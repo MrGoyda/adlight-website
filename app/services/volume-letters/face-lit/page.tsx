@@ -21,7 +21,8 @@ import {
   Moon,         // New
   BatteryCharging, // New
   Clock,
-  ArrowRight         // New
+  ArrowRight,         // New
+Lightbulb
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -30,6 +31,7 @@ import ServicesCarousel from "@/components/ServicesCarousel"; // Если исп
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <-- Новый компонент
 
 // --- СЕРВЕРНАЯ УТИЛИТА (Сбор фото) ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -127,14 +129,8 @@ export default async function FaceLitLettersPage() {
                     </li>
                  </ul>
 
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-orange-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать стоимость
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Задать вопрос
-                    </a>
-                 </div>
+                 {/* НОВЫЕ КНОПКИ */}
+                 <HeroButtons source="Услуга: Световое лицо" priceColor="orange" />
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -468,75 +464,27 @@ export default async function FaceLitLettersPage() {
           </div>
       </section>
 
-     {/* === БЛОК 8: СМОТРИТЕ ТАКЖЕ (REDESIGNED) === */}
+      {/* === БЛОК 8: СМОТРИТЕ ТАКЖЕ (REDESIGNED) === */}
       <section className="py-24 bg-[#0F172A] border-t border-slate-800 relative">
-         {/* Фоновый декоративный элемент */}
-         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/5 blur-[100px] rounded-full pointer-events-none"></div>
-
-         <div className="container mx-auto px-4 relative z-10">
-             <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
-                <div>
-                   <h2 className="text-3xl font-bold text-white mb-2">Другие варианты букв</h2>
-                   <p className="text-gray-400 text-sm">Подберите идеальную технологию под ваш бюджет и задачи</p>
-                </div>
-                <Link href="/services/volume-letters" className="hidden md:flex items-center gap-2 text-sm font-bold text-orange-500 hover:text-orange-400 transition">
-                   Смотреть весь каталог <ArrowRight className="w-4 h-4"/>
-                </Link>
-             </div>
+         <div className="container mx-auto px-4">
+             <h2 className="text-3xl font-bold text-white mb-12">Другие варианты букв</h2>
              
              <div className="flex overflow-x-auto pb-8 -mx-4 px-4 md:grid md:grid-cols-4 gap-6 md:overflow-visible md:pb-0 md:px-0 hide-scrollbar snap-x snap-mandatory">
                 {otherTypes.map((type) => (
                    <Link 
                       key={type.id} 
                       href={`/services/volume-letters/${type.slug}`}
-                      className="group min-w-[280px] md:min-w-0 snap-center relative flex flex-col"
+                      className="group min-w-[260px] md:min-w-0 snap-center bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 hover:border-orange-500/50 transition cursor-pointer flex flex-col h-full"
                    >
-                      {/* Карточка-контейнер */}
-                      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-2 transition-all duration-300 group-hover:border-slate-600 group-hover:shadow-[0_0_30px_-10px_rgba(255,255,255,0.1)] h-full flex flex-col">
-                         
-                         {/* Изображение */}
-                         <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-black mb-4">
-                             <Image 
-                                src={type.images.night} 
-                                alt={type.title} 
-                                fill 
-                                sizes="(max-width: 768px) 100vw, 25vw"
-                                className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-                             />
-                             {/* Бейдж цены поверх фото */}
-                             <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur border border-slate-700 px-3 py-1.5 rounded-lg">
-                                <span className="text-orange-500 font-bold text-xs">{type.price}</span>
-                             </div>
-                         </div>
-
-                         {/* Контент */}
-                         <div className="px-2 pb-2 flex flex-col flex-1">
-                             <div className="flex items-start justify-between gap-4">
-                                <h4 className="text-white font-bold text-lg leading-snug group-hover:text-blue-400 transition-colors line-clamp-2">
-                                   {type.title}
-                                </h4>
-                                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shrink-0 group-hover:rotate-[-45deg]">
-                                   <ArrowRight className="w-4 h-4"/>
-                                </div>
-                             </div>
-                             
-                             {/* Декоративная линия */}
-                             <div className="mt-auto pt-4">
-                                <div className="w-full h-0.5 bg-slate-800 group-hover:bg-slate-700 transition-colors relative overflow-hidden rounded-full">
-                                   <div className="absolute top-0 left-0 h-full w-0 bg-blue-500 group-hover:w-full transition-all duration-700 ease-out"></div>
-                                </div>
-                             </div>
-                         </div>
+                      <div className="h-40 relative bg-black shrink-0">
+                          <Image src={type.images.night} alt={type.title} fill className="object-cover opacity-80 group-hover:opacity-100 transition"/>
+                      </div>
+                      <div className="p-5 flex flex-col flex-1">
+                          <h4 className="text-white font-bold mb-1 group-hover:text-orange-500 transition line-clamp-2">{type.title}</h4>
+                          <p className="text-gray-500 text-xs mt-auto">{type.price}</p>
                       </div>
                    </Link>
                 ))}
-             </div>
-
-             {/* Мобильная кнопка "Смотреть все" (внизу) */}
-             <div className="mt-8 md:hidden text-center">
-                <Link href="/services/volume-letters" className="inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white transition bg-slate-900 border border-slate-800 px-6 py-3 rounded-xl">
-                   Перейти в каталог <ArrowRight className="w-4 h-4"/>
-                </Link>
              </div>
          </div>
       </section>
@@ -546,25 +494,4 @@ export default async function FaceLitLettersPage() {
 
     </div>
   );
-}
-
-function Lightbulb(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
-      <path d="M9 18h6" />
-      <path d="M10 22h4" />
-    </svg>
-  )
 }

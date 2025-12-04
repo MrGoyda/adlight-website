@@ -9,12 +9,36 @@ import {
   Calculator,
   Clock,
   ChevronRight,
-  Info
+  Info,
+  Play,
+  CheckCircle2,
+  Layers,
+  Zap,
+  ShieldCheck,
+  Hammer
 } from "lucide-react";
 
 import { PROJECTS, CATEGORIES } from "@/lib/projectsData";
 import CallToAction from "@/components/CallToAction";
 import ImageGallery from "@/components/ImageGallery";
+import VideoModalWrapper from "@/components/VideoModalWrapper";
+
+// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+
+// Получаем лейблы категорий на русском
+const getCategoryLabels = (catIds: string[]) => {
+  return catIds.map(id => {
+    const category = CATEGORIES.find(c => c.id === id);
+    return category ? category.label : id;
+  });
+};
+
+// Получаем случайные проекты (кроме текущего)
+const getRelatedProjects = (currentId: string) => {
+  const others = PROJECTS.filter(p => p.id !== currentId);
+  // Перемешиваем и берем 3
+  return others.sort(() => 0.5 - Math.random()).slice(0, 3);
+};
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -38,139 +62,215 @@ export default async function ProjectPage({ params }: Props) {
     notFound();
   }
 
-  const currentIndex = PROJECTS.findIndex((p) => p.id === project.id);
-  const nextProject = PROJECTS[currentIndex + 1] || PROJECTS[0]; 
+  const relatedProjects = getRelatedProjects(project.id);
+  const categoryLabels = getCategoryLabels(project.categories);
 
   return (
     <div className="min-h-screen bg-[#020617] font-sans selection:bg-orange-500/30">
       
-      {/* 1. HERO SECTION */}
-      <section className="relative h-[85vh] min-h-[600px] flex flex-col justify-end pb-12 lg:pb-20 overflow-hidden">
-         
-         {/* СЛОЙ 1: ФОНОВАЯ КАРТИНКА (z-0) */}
-         <div className="absolute inset-0 z-0">
-            <img 
-               src={project.image} 
-               alt={project.title} 
-               className="w-full h-full object-cover"
-            />
-         </div>
+      {/* 1. HERO SECTION (Новый дизайн) */}
+      <section className="relative pt-32 pb-12 lg:pt-40 lg:pb-20 overflow-hidden">
+         {/* Фон - легкое свечение */}
+         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-         {/* СЛОЙ 2: ГРАДИЕНТЫ (z-10) */}
-         <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent pointer-events-none"></div>
-         <div className="absolute inset-0 z-10 bg-black/40 pointer-events-none"></div>
+         <div className="container mx-auto px-4 relative z-10">
+            
+            {/* Хлебные крошки */}
+            <div className="flex flex-wrap items-center gap-2 text-gray-500 text-sm mb-8">
+               <Link href="/" className="hover:text-white transition">Главная</Link>
+               <ChevronRight className="w-3 h-3"/>
+               <Link href="/portfolio" className="hover:text-white transition">Портфолио</Link>
+               <ChevronRight className="w-3 h-3"/>
+               <span className="text-orange-500 font-medium truncate max-w-[200px]">{project.title}</span>
+            </div>
 
-         {/* СЛОЙ 3: КОНТЕНТ (z-20) */}
-         <div className="container mx-auto px-4 relative z-20 pt-32">
-            <div className="max-w-5xl">
-               
-               {/* ХЛЕБНЫЕ КРОШКИ */}
-               <div className="flex flex-wrap items-center gap-2 text-white/70 text-sm mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <Link href="/" className="hover:text-white transition hover:underline">Главная</Link>
-                  <ChevronRight className="w-4 h-4 opacity-50"/>
-                  <Link href="/portfolio" className="hover:text-white transition hover:underline">Портфолио</Link>
-                  <ChevronRight className="w-4 h-4 opacity-50"/>
-                  <span className="text-orange-500 font-medium truncate max-w-[200px] sm:max-w-md">{project.title}</span>
-               </div>
-
-               {/* ТЕГИ */}
-               <div className="flex flex-wrap gap-3 mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
-                  {project.categories.map((catId, i) => {
-                     const category = CATEGORIES.find(c => c.id === catId);
-                     const label = category ? category.label : catId;
-                     return (
-                        <span key={i} className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold uppercase tracking-wider shadow-lg">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+               {/* Левая колонка: Текст */}
+               <div className="flex flex-col justify-center h-full pt-4">
+                  <div className="flex flex-wrap gap-3 mb-6">
+                     {categoryLabels.map((label, i) => (
+                        <span key={i} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-bold uppercase tracking-wider">
                            {label}
                         </span>
-                     );
-                  })}
-               </div>
-               
-               {/* ЗАГОЛОВОК */}
-               <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-10 leading-[1.1] tracking-tight animate-in fade-in slide-in-from-bottom-8 duration-1000 drop-shadow-lg">
-                  {project.title}
-               </h1>
-
-               {/* ИНФО */}
-               <div className="flex flex-wrap gap-y-4 gap-x-8 text-gray-200 text-sm md:text-base font-medium animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-100">
-                  {project.location && (
-                     <div className="flex items-center gap-3 bg-black/30 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/5">
-                        <MapPin className="w-5 h-5 text-orange-500"/> {project.location}
-                     </div>
-                  )}
-                  <div className="flex items-center gap-3 bg-black/30 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/5">
-                     <Calendar className="w-5 h-5 text-orange-500"/> {project.date}
+                     ))}
                   </div>
-                  {project.completionTime && (
-                     <div className="flex items-center gap-3 bg-black/30 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/5">
-                        <Clock className="w-5 h-5 text-orange-500"/> Срок: {project.completionTime}
+                  
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-[1.1]">
+                     {project.title}
+                  </h1>
+
+                  <div className="flex flex-wrap gap-y-4 gap-x-8 text-gray-400 text-sm font-medium mb-10">
+                     {project.location && (
+                        <div className="flex items-center gap-2">
+                           <MapPin className="w-4 h-4 text-orange-500"/> {project.location}
+                        </div>
+                     )}
+                     <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-orange-500"/> {project.year} год
+                     </div>
+                     {project.completionTime && (
+                        <div className="flex items-center gap-2">
+                           <Clock className="w-4 h-4 text-orange-500"/> {project.completionTime}
+                        </div>
+                     )}
+                  </div>
+
+                  {/* Кнопка ВИДЕО (Client Component Wrapper) */}
+                  {project.videoUrl && (
+                     <div className="mb-8">
+                        <VideoModalWrapper videoUrl={project.videoUrl} />
                      </div>
                   )}
+
+                  <p className="text-xl text-gray-300 leading-relaxed max-w-lg">
+                     {project.description}
+                  </p>
+               </div>
+
+               {/* Правая колонка: Фото (Большое) */}
+               <div className="relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border border-slate-800 shadow-2xl group">
+                  <Image 
+                     src={project.image} 
+                     alt={project.title} 
+                     fill 
+                     className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                     priority
+                     sizes="(max-width: 1024px) 100vw, 50vw" // <--- ДОБАВЛЕНО
+                  />
+                  {/* Градиент снизу для объема */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent opacity-60"></div>
                </div>
             </div>
          </div>
       </section>
 
-      {/* 2. КОНТЕНТ: ЗАДАЧА И РЕШЕНИЕ */}
-      <section className="py-20 lg:py-32 relative z-20 bg-[#020617]">
-         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[150px] pointer-events-none"></div>
-
-         <div className="container mx-auto px-4 relative">
-            <div className="grid lg:grid-cols-3 gap-12 lg:gap-20">
+      {/* 2. MAIN CONTENT (CASE STUDY) */}
+      <section className="py-12 lg:py-24 bg-[#020617]">
+         <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-12 gap-12">
                
-               <div className="lg:col-span-2 space-y-16">
-                  {project.challenge && (
-                     <div data-aos="fade-up">
-                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 flex items-center gap-4">
-                           <span className="w-10 h-10 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center text-sm font-mono border border-red-500/20 shrink-0">01</span>
-                           Задача
-                        </h2>
-                        <p className="text-gray-400 text-lg leading-relaxed pl-4 border-l-2 border-slate-800 ml-5">
-                           {project.challenge}
+               {/* ЛЕВАЯ КОЛОНКА: ИСТОРИЯ (8 cols) */}
+               <div className="lg:col-span-8 space-y-16">
+                  
+                  {/* Задача */}
+                  <div className="group">
+                     <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center font-bold text-xl border border-red-500/20 group-hover:scale-110 transition-transform">01</div>
+                        <h2 className="text-3xl font-bold text-white">Задача</h2>
+                     </div>
+                     <p className="text-gray-400 text-lg leading-relaxed pl-4 border-l-2 border-slate-800">
+                        {project.challenge}
+                     </p>
+                  </div>
+
+                  {/* Процесс (если есть) */}
+                  {project.process && (
+                     <div className="group">
+                        <div className="flex items-center gap-4 mb-6">
+                           <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-xl border border-blue-500/20 group-hover:scale-110 transition-transform">02</div>
+                           <h2 className="text-3xl font-bold text-white">Процесс</h2>
+                        </div>
+                        <p className="text-gray-400 text-lg leading-relaxed pl-4 border-l-2 border-slate-800">
+                           {project.process}
                         </p>
                      </div>
                   )}
-                  
-                  {project.solution && (
-                     <div data-aos="fade-up" data-aos-delay="100">
-                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 flex items-center gap-4">
-                           <span className="w-10 h-10 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center text-sm font-mono border border-green-500/20 shrink-0">02</span>
-                           Решение
-                        </h2>
-                        <p className="text-gray-400 text-lg leading-relaxed pl-4 border-l-2 border-slate-800 ml-5">
+
+                  {/* Решение */}
+                  <div className="group">
+                     <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center font-bold text-xl border border-green-500/20 group-hover:scale-110 transition-transform">
+                           {project.process ? '03' : '02'}
+                        </div>
+                        <h2 className="text-3xl font-bold text-white">Решение</h2>
+                     </div>
+                     <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8">
+                        <p className="text-gray-300 text-lg leading-relaxed">
                            {project.solution}
                         </p>
                      </div>
-                  )}
+                  </div>
 
-                  {/* CTA */}
-                  <div className="pt-8 pl-5">
-                     <Link href="/calculator" className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition shadow-lg shadow-orange-900/20 active:scale-95">
-                        <Calculator className="w-5 h-5"/>
-                        Рассчитать похожую вывеску
+                  {/* CTA ВНУТРИ ТЕКСТА */}
+                  <div className="py-8">
+                     <Link 
+                        href={project.relatedServiceSlug ? `/services/${project.relatedServiceSlug}` : "/calculator"}
+                        className="group flex items-center justify-between p-6 rounded-2xl bg-gradient-to-r from-orange-900/20 to-transparent border border-orange-500/30 hover:border-orange-500/60 transition-all"
+                     >
+                        <div className="flex items-center gap-4">
+                           <div className="p-3 bg-orange-500 rounded-lg text-white shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
+                              <Calculator className="w-6 h-6"/>
+                           </div>
+                           <div>
+                              <h4 className="text-white font-bold text-lg group-hover:text-orange-400 transition-colors">Понравился результат?</h4>
+                              <p className="text-gray-400 text-sm">Рассчитайте стоимость похожей вывески</p>
+                           </div>
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white group-hover:bg-orange-500 transition-colors">
+                           <ArrowRight className="w-5 h-5"/>
+                        </div>
                      </Link>
                   </div>
+
                </div>
 
-               <div className="lg:col-span-1">
-                  <div className="bg-white/5 border border-white/10 rounded-3xl p-8 sticky top-24 backdrop-blur-sm">
-                     <div className="flex items-center gap-3 mb-6">
-                        <Info className="w-5 h-5 text-blue-500"/>
-                        <h3 className="text-xl font-bold text-white">Детали проекта</h3>
-                     </div>
+               {/* ПРАВАЯ КОЛОНКА: ДЕТАЛИ (4 cols - Sticky) */}
+               <div className="lg:col-span-4">
+                  <div className="sticky top-32 space-y-8">
                      
-                     {project.specs && project.specs.length > 0 ? (
-                        <div className="space-y-0 divide-y divide-white/5">
-                           {project.specs.map((spec, i) => (
-                              <div key={i} className="flex justify-between items-start py-4 gap-4">
-                                 <span className="text-gray-500 text-sm shrink-0">{spec.label}</span>
-                                 <span className="text-white font-medium text-right text-sm leading-tight">{spec.value}</span>
+                     {/* Блок характеристик */}
+                     <div className="bg-[#0B1120] border border-slate-800 rounded-3xl p-8">
+                        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                           <Info className="w-5 h-5 text-blue-500"/> Детали проекта
+                        </h3>
+                        
+                        <div className="space-y-6">
+                           <div className="flex gap-4">
+                              <Layers className="w-5 h-5 text-slate-500 shrink-0 mt-1"/>
+                              <div>
+                                 <p className="text-xs text-slate-500 uppercase font-bold mb-1">Лицевая часть</p>
+                                 <p className="text-white text-sm leading-snug">{project.techSpecs.face}</p>
                               </div>
-                           ))}
+                           </div>
+                           
+                           <div className="flex gap-4">
+                              <Hammer className="w-5 h-5 text-slate-500 shrink-0 mt-1"/>
+                              <div>
+                                 <p className="text-xs text-slate-500 uppercase font-bold mb-1">Борт / Корпус</p>
+                                 <p className="text-white text-sm leading-snug">{project.techSpecs.body}</p>
+                              </div>
+                           </div>
+
+                           <div className="flex gap-4">
+                              <Zap className="w-5 h-5 text-slate-500 shrink-0 mt-1"/>
+                              <div>
+                                 <p className="text-xs text-slate-500 uppercase font-bold mb-1">Светотехника</p>
+                                 <p className="text-white text-sm leading-snug">{project.techSpecs.light}</p>
+                              </div>
+                           </div>
+
+                           <div className="flex gap-4">
+                              <ShieldCheck className="w-5 h-5 text-slate-500 shrink-0 mt-1"/>
+                              <div>
+                                 <p className="text-xs text-slate-500 uppercase font-bold mb-1">Гарантия</p>
+                                 <p className="text-green-400 text-sm font-bold leading-snug">{project.techSpecs.warranty || "12 месяцев"}</p>
+                              </div>
+                           </div>
                         </div>
-                     ) : (
-                        <p className="text-gray-500 text-sm">Характеристики не указаны</p>
-                     )}
+                     </div>
+
+                     {/* Менеджер (Опционально - заглушка для доверия) */}
+                     <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden relative">
+                           {/* Можно вставить фото менеджера */}
+                           <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">AD</div> 
+                        </div>
+                        <div>
+                           <p className="text-white font-bold text-sm">Есть вопросы?</p>
+                           <a href="https://wa.me/77071356701" className="text-green-500 text-xs font-bold hover:underline">Написать в WhatsApp →</a>
+                        </div>
+                     </div>
+
                   </div>
                </div>
 
@@ -178,72 +278,63 @@ export default async function ProjectPage({ params }: Props) {
          </div>
       </section>
 
-      {/* 3. ВИДЕООБЗОР */}
-      {project.videoUrl && (
-        <section className="py-12 bg-[#050b1a] border-y border-white/5 relative z-20">
-           <div className="container mx-auto px-4">
-              <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
-                 <span className="w-2 h-8 bg-red-600 rounded-full"></span>
-                 Видеообзор
-              </h2>
-              <div className="aspect-video w-full max-w-5xl mx-auto rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-black">
-                 <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src={project.videoUrl} 
-                    title="YouTube video player" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowFullScreen
-                 ></iframe>
-              </div>
-           </div>
-        </section>
-      )}
-
-      {/* 4. ГАЛЕРЕЯ */}
+      {/* 3. ГАЛЕРЕЯ */}
       {project.gallery && project.gallery.length > 0 && (
-         <section className="pb-24 bg-[#020617] relative z-20">
+         <section className="pb-24 bg-[#020617]">
             <div className="container mx-auto px-4">
-               <div className="flex items-end justify-between mb-12">
-                  <h2 className="text-3xl font-bold text-white">Фотографии проекта</h2>
-                  <span className="text-gray-500 text-sm">{project.gallery.length} фото</span>
-               </div>
-               
+               <h2 className="text-2xl font-bold text-white mb-8">Фотоотчет</h2>
                <ImageGallery images={project.gallery} />
             </div>
          </section>
       )}
 
-      {/* 5. NEXT PROJECT */}
-      <section className="py-0 bg-black border-t border-slate-800 relative z-20">
-         <Link href={`/portfolio/${nextProject.slug}`} className="group block relative h-[500px] w-full overflow-hidden cursor-pointer">
-            
-            <div className="absolute inset-0">
-               <img 
-                  src={nextProject.image} 
-                  alt={nextProject.title} 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 scale-100 group-hover:scale-105 transition-all duration-1000 ease-out opacity-50 group-hover:opacity-100"
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent opacity-100 group-hover:opacity-60 transition-opacity duration-700"></div>
+      {/* 4. СМОТРИТЕ ТАКЖЕ (3 ПРОЕКТА) */}
+      <section className="py-24 bg-slate-950 border-t border-slate-800">
+         <div className="container mx-auto px-4">
+            <div className="flex justify-between items-end mb-12">
+               <div>
+                  <h2 className="text-3xl font-bold text-white mb-2">Другие проекты</h2>
+                  <p className="text-gray-400">Посмотрите, что еще мы умеем</p>
+               </div>
+               <Link href="/portfolio" className="hidden md:flex items-center gap-2 text-orange-500 font-bold hover:text-orange-400 transition">
+                  В портфолио <ArrowRight className="w-4 h-4"/>
+               </Link>
             </div>
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4">
-               <div className="backdrop-blur-md bg-white/5 border border-white/10 p-8 md:p-12 rounded-3xl text-center transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 max-w-2xl w-full">
-                  <div className="inline-flex items-center gap-3 text-gray-400 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-                     <span className="w-8 h-px bg-orange-500"></span>
-                     Следующий кейс
-                     <span className="w-8 h-px bg-orange-500"></span>
-                  </div>
-                  <h2 className="text-3xl md:text-5xl font-black text-white mb-8 leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400 transition-all">
-                     {nextProject.title}
-                  </h2>
-                  <div className="inline-flex items-center justify-center px-8 py-4 bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 group-hover:bg-orange-500 group-hover:scale-105 transition-all duration-300 gap-2">
-                     Смотреть проект <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform"/>
-                  </div>
-               </div>
+            <div className="grid md:grid-cols-3 gap-6">
+               {relatedProjects.map((p) => (
+                  <Link key={p.id} href={`/portfolio/${p.slug}`} className="group block relative h-[350px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-900">
+                     <Image 
+                        src={p.image} 
+                        alt={p.title} 
+                        fill 
+                        className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
+                        sizes="(max-width: 768px) 100vw, 33vw" // <--- ДОБАВЛЕНО
+                     />
+                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                     <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                        <div className="mb-2">
+                           {getCategoryLabels(p.categories).slice(0, 1).map((cat, i) => (
+                              <span key={i} className="text-[10px] font-bold uppercase tracking-wider text-orange-400 bg-orange-900/30 px-2 py-1 rounded border border-orange-500/20">
+                                 {cat}
+                              </span>
+                           ))}
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-1 line-clamp-2 group-hover:text-orange-400 transition-colors">{p.title}</h3>
+                        <p className="text-xs text-gray-400 flex items-center gap-1">
+                           <MapPin className="w-3 h-3"/> {p.location}
+                        </p>
+                     </div>
+                  </Link>
+               ))}
             </div>
-         </Link>
+            
+            <div className="mt-8 text-center md:hidden">
+               <Link href="/portfolio" className="inline-flex items-center gap-2 text-white font-bold bg-slate-800 px-6 py-3 rounded-xl">
+                  Все проекты <ArrowRight className="w-4 h-4"/>
+               </Link>
+            </div>
+         </div>
       </section>
 
       <CallToAction source={`Кейс: ${project.title}`} />

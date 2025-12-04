@@ -5,13 +5,13 @@ import {
   CheckCircle, 
   ArrowRight, 
   ChevronRight, 
-  Umbrella,      // Козырек
-  Store,         // ВитринаЙ
-  Frame,         // Облицовка
-  Lightbulb,     // Свет
-  Signpost,      // Кронштейн
+  Umbrella,       // Козырек
+  Store,          // ВитринаЙ
+  Frame,          // Облицовка
+  Lightbulb,      // Свет
+  Signpost,       // Кронштейн
   LayoutDashboard, // Комплекс
-  MessageCircle,
+  // MessageCircle убрал, теперь он внутри HeroButtons
   Search,        // Анализ
   PenTool,       // Дизайн
   FileText,      // Смета
@@ -28,6 +28,7 @@ import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -122,21 +123,16 @@ export default async function EntranceGroupsPage() {
                     Архитектура продаж
                  </div>
                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                    Создаем вход, в который <br/>
+                    Оформляем так, что <br/>
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">хочется войти</span>
                  </h1>
                  <p className="text-gray-400 text-lg mb-8 leading-relaxed max-w-xl">
                     Входная группа — это не просто вывеска. Это система визуального контакта, которая работает, даже когда у вас нет другой рекламы. Мы проектируем, строим и подсвечиваем лицо вашего бизнеса.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать проект
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 hover:border-slate-500 transition active:scale-95">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Вызвать инженера
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
+
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -168,6 +164,7 @@ export default async function EntranceGroupsPage() {
                      <p className="text-gray-400 text-lg leading-relaxed mb-6">
                         Иногда одного взгляда на вход достаточно, чтобы понять: "сюда стоит зайти". Или наоборот — пройти мимо.
                      </p>
+
                      <p className="text-gray-300 mb-8 border-l-4 border-blue-500 pl-4 italic">
                         "То, как оформлен вход, решает судьбу первой покупки. Если оформление вызывает доверие — человек заходит. Если нет — уходит к конкуренту."
                      </p>
@@ -287,19 +284,19 @@ export default async function EntranceGroupsPage() {
 
       {/* 7. ГАЛЕРЕЯ */}
       <section className="py-24 bg-[#0F172A] border-t border-slate-800">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Примеры работ</h2>
-              <p className="text-gray-400">Входные группы, которые мы сделали</p>
-          </div>
-          <div className="container mx-auto px-4">
-             {galleryImages.length > 0 ? (
-                <ImageGallery images={galleryImages} /> 
-             ) : (
-                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                   Загрузите фото в папку public/images/entrance-groups
-                </div>
-             )}
-          </div>
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Примеры работ</h2>
+            <p className="text-gray-400">Входные группы, которые мы сделали</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/entrance-groups
+               </div>
+            )}
+         </div>
       </section>
 
       {/* 8. ОТЗЫВЫ И CTA */}

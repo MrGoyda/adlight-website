@@ -7,7 +7,7 @@ import {
   ChevronRight, 
   Layers, 
   FileCheck,
-  MessageCircle,
+  // MessageCircle убрал, теперь он внутри HeroButtons
   Signpost,       
   Rotate3d,       
   ArrowLeftRight, 
@@ -29,6 +29,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -119,6 +120,7 @@ export default async function PanelBracketsPage() {
            </div>
 
            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              {/* Текст */}
               <div>
                  <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full uppercase tracking-wider">
                     Работает на 2 стороны
@@ -131,14 +133,9 @@ export default async function PanelBracketsPage() {
                     Идеальное решение для узких улиц и торговых рядов. Крепится перпендикулярно стене, "ловит" взгляд пешехода как шлагбаум.
                  </p>
                  
-                 <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/calculator" className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-900/20 active:scale-95">
-                       <Calculator className="w-5 h-5"/> Рассчитать стоимость
-                    </Link>
-                    <a href="https://wa.me/77071356701" target="_blank" className="flex items-center justify-center gap-2 border border-slate-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition">
-                       <MessageCircle className="w-5 h-5 text-green-500"/> Написать в WhatsApp
-                    </a>
-                 </div>
+                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
+                 <HeroButtons source={PAGE_DATA.title} priceColor="indigo" />
+                 
               </div>
 
               {/* Визуал: СЛАЙДЕР */}
@@ -223,7 +220,6 @@ export default async function PanelBracketsPage() {
                         alt={type.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
-                        // onError убран для совместимости с Server Component
                      />
                      
                      {/* ГРАДИЕНТ */}
@@ -343,25 +339,25 @@ export default async function PanelBracketsPage() {
               <p className="text-gray-400">Примеры консольных вывесок</p>
           </div>
           <div className="container mx-auto px-4">
-             {/* Проверяем наличие картинок */}
-             {galleryImages.length > 0 ? (
-                <ImageGallery images={galleryImages} /> 
-             ) : (
-                <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                   Загрузите фото в папку public/images/panel-brackets
-                </div>
-             )}
-             
-             {/* ССЫЛКА НА ПОРТФОЛИО */}
-             <div className="mt-16 flex justify-center">
-                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                   <span className="relative z-10 flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-indigo-500"/>
-                      Посмотреть все работы в Портфолио
-                   </span>
-                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                </Link>
-             </div>
+              {/* Проверяем наличие картинок */}
+              {galleryImages.length > 0 ? (
+                 <ImageGallery images={galleryImages} /> 
+              ) : (
+                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                    Загрузите фото в папку public/images/panel-brackets
+                 </div>
+              )}
+              
+              {/* ССЫЛКА НА ПОРТФОЛИО */}
+              <div className="mt-16 flex justify-center">
+                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                    <span className="relative z-10 flex items-center gap-2">
+                       <Briefcase className="w-5 h-5 text-indigo-500"/>
+                       Посмотреть все работы в Портфолио
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                 </Link>
+              </div>
           </div>
       </section>
 
