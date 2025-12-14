@@ -1,33 +1,34 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ArrowRight, 
   ChevronRight, 
-  MapPin,         // Локация
-  Navigation,     // Навигация
-  Construction,   // Стройка
-  Car,            // Трафик
+  MapPin,         
+  Navigation,     
+  Construction,   
+  Car,            
   Zap,
-  Fuel,           // АЗС
-  Building,       // ТРЦ
-  Landmark,       // Город
-  // MessageCircle убрал, теперь он внутри HeroButtons
+  Fuel,           
+  Building,       
+  Landmark,       
   ShieldCheck,
-  Anchor          // Фундамент
+  Anchor,
+  HelpCircle,     // New for FAQ
+  ChevronDown     // New for FAQ
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import CallToAction from "@/components/CallToAction";
-import ProjectsBento from "@/components/ProjectsBento";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -37,12 +38,19 @@ const PAGE_DATA = {
   slug: "pylons", 
   title: "Рекламные стелы и пилоны",
   subtitle: "Навигация городского масштаба. От придорожных указателей до монументальных въездных групп.",
-  price: "30 000" // Цена за м2
+  price: "30 000" // Цена за м2 обшивки или старт за проект
 };
 
-export const metadata = {
-  title: "Изготовление рекламных стел и пилонов в Астане | ADLight",
-  description: "Производство уличных стел для АЗС, ТРЦ, автосалонов. Расчет фундамента, ветровых нагрузок. Монтаж под ключ.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Рекламные стелы и пилоны в Астане | Изготовление и Монтаж",
+  description: "Производство уличных стел для АЗС, ТРЦ, автосалонов. Расчет фундамента и ветровых нагрузок. Согласование с городом. Цена от 30 000 тг/м².",
+  keywords: ["рекламная стела", "пилон уличный", "стела азс цена", "въездная группа", "навигационный пилон", "рекламная конструкция"],
+  openGraph: {
+    title: "Стелы и Пилоны | Навигация XL формата",
+    description: "Монументальные конструкции, которые видно за 300 метров.",
+    images: ["/images/pylons/pylons-05.webp"]
+  }
 };
 
 // --- ТИПЫ КОНСТРУКЦИЙ ---
@@ -50,45 +58,64 @@ const PYLON_TYPES = [
   {
     title: "Стела для ТРЦ",
     desc: "Гигантские конструкции (10-30м) с логотипом молла и лайтбоксами арендаторов. Маяк для покупателей.",
-    image: "/images/pylons/type-mall.jpg", 
+    image: "/images/pylons/pylons-05.webp", 
     icon: <Building className="w-6 h-6 text-blue-500"/>,
     tag: "Масштаб"
   },
   {
     title: "Стела АЗС",
     desc: "Информационное табло с ценами на топливо. Встраиваем яркие LED-модули для смены цен с пульта.",
-    image: "/images/pylons/type-fuel.jpg", 
+    image: "/images/pylons/pylons-04.webp", 
     icon: <Fuel className="w-6 h-6 text-orange-500"/>,
     tag: "Функционал"
   },
   {
     title: "Автосалоны (Бренд-пилон)",
     desc: "Строгое соответствие брендбуку автодилера. Идеальная геометрия, композитные материалы, статус.",
-    image: "/images/pylons/type-auto.jpg", 
+    image: "/images/pylons/pylons-01.webp", 
     icon: <Car className="w-6 h-6 text-red-500"/>,
     tag: "Статус"
   },
   {
     title: "Пилон Бизнес-Центра",
     desc: "Навигационная конструкция у входа. Список компаний, схема проезда. Обычно 2-4 метра высотой.",
-    image: "/images/pylons/type-bc.jpg", 
+    image: "/images/pylons/pylons-02.webp", 
     icon: <MapPin className="w-6 h-6 text-purple-500"/>,
     tag: "Навигация"
   },
   {
     title: "Въездная группа (Город)",
     desc: "Монументальные бетонные или металлические стелы с названием города/поселка и гербом.",
-    image: "/images/pylons/type-city.jpg", 
+    image: "/images/pylons/pylons-03.webp", 
     icon: <Landmark className="w-6 h-6 text-yellow-500"/>,
     tag: "Символ"
   },
   {
     title: "Уличный указатель",
     desc: "Компактные пилоны-стрелки. Помогают найти заезд на парковку или вход в здание.",
-    image: "/images/pylons/type-nav.jpg", 
+    image: "/images/pylons/pylons-06.webp", 
     icon: <Navigation className="w-6 h-6 text-green-500"/>,
     tag: "Трафик"
   },
+];
+
+// --- [NEW] FAQ ДАННЫЕ ---
+const FAQ_ITEMS = [
+  {
+    question: "Нужно ли разрешение?",
+    answer: "Да, стела — это отдельно стоящая рекламная конструкция. Требуется получение АПЗ (Архитектурно-планировочное задание), согласование эскиза и отвод земли (если стоит на городской территории). Мы помогаем с документами.",
+    icon: <ShieldCheck className="w-5 h-5 text-green-500"/>
+  },
+  {
+    question: "Какой нужен фундамент?",
+    answer: "Зависит от высоты и парусности. Для пилонов до 3м достаточно бетонной подушки. Для стел 10м+ мы заливаем армированный фундамент с закладными анкерами на глубину промерзания (обязателен проект КМ/КЖ).",
+    icon: <Anchor className="w-5 h-5 text-blue-500"/>
+  },
+  {
+    question: "Из чего сделан каркас?",
+    answer: "Только толстостенный металл (швеллер, двутавр, профильная труба). Каркас покрывается антикоррозийным грунтом. Обшивка — алюминиевый композит, который не выгорает и держит форму.",
+    icon: <Construction className="w-5 h-5 text-orange-500"/>
+  }
 ];
 
 export default async function PylonsPage() {
@@ -98,14 +125,54 @@ export default async function PylonsPage() {
 
   // 2. ФОТО ДЛЯ HERO
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
-  // Заглушки
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
     : ["/kmg.jpeg", "/images/calc/lightbox-1.jpg"];
 
+  // 3. ГЕНЕРАЦИЯ SCHEMA (Service + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "name": "Изготовление рекламных стел и пилонов",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "ADLight"
+        },
+        "description": "Проектирование и монтаж уличных стел, пилонов для АЗС и ТРЦ.",
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/pylons",
+          "priceCurrency": "KZT",
+          "price": "30000", // Базовая цена за м2 обшивки
+          "priceValidUntil": "2026-12-31",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-blue-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -136,7 +203,6 @@ export default async function PylonsPage() {
                     Крупногабаритные конструкции, которые видно за 300 метров. Обозначают въезд, показывают цены и статус компании.
                  </p>
                  
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
 
               </div>
@@ -325,21 +391,48 @@ export default async function PylonsPage() {
       {/* 7. ДИЗАЙН КОД */}
       <DesignCodeBlock />
 
+      {/* === [NEW] БЛОК 7.5: FAQ === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Вопросы о стелах</h2>
+            </div>
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-blue-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-blue-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-blue-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
+      </section>
+
       {/* 8. ГАЛЕРЕЯ */}
       <section className="py-24 bg-slate-950">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Фотогалерея</h2>
-              <p className="text-gray-400">Стелы и пилоны в Астане</p>
-          </div>
-          <div className="container mx-auto px-4">
-              {galleryImages.length > 0 ? (
-                 <ImageGallery images={galleryImages} /> 
-              ) : (
-                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                    Загрузите фото в папку public/images/pylons
-                 </div>
-              )}
-          </div>
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Фотогалерея</h2>
+            <p className="text-gray-400">Стелы и пилоны в Астане</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/pylons
+               </div>
+            )}
+         </div>
       </section>
 
       {/* 9. ОТЗЫВЫ И CTA */}

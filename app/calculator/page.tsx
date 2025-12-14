@@ -19,48 +19,48 @@ import {
 // --- БАЗОВЫЕ СТАВКИ (Тенге) ---
 const PRICES = {
   letters: {
-    'face-lit': 450,
-    'full-lit': 650,
-    'back-lit': 550,
-    'combo-lit': 850,
-    'side-lit': 600,
+    'face-lit': 550,
+    'full-lit': 850,
+    'back-lit': 650,
+    'combo-lit': 950,
+    'side-lit': 700,
     'perforated': 750,
-    'acrylic-slim': 900,
-    'pixel-led': 800,
+    'acrylic-slim': 1000,
+    'pixel-led': 1000,
     'loft-lamps': 1200,
     'wood-style': 350,
     'day-night-effect': 700,
     'non-lit': 200,
   },
   lightboxes: {
-    'acrylic': 45000,
-    'banner': 35000,
-    'composite': 55000,
-    'figured': 50000,
+    'acrylic': 80000,
+    'banner': 90000,
+    'composite': 120000,
+    'figured': 80000,
   }
 };
 
 // --- КАТАЛОГ ТИПОВ ---
 const LETTER_TYPES = [
-  { id: 'face-lit', name: 'Световое лицо', desc: 'Классика. Самый популярный выбор.', image: '/images/letters/face-lit-night.png' },
-  { id: 'full-lit', name: 'Полное свечение', desc: 'Светятся лицо и борта (360°).', image: '/images/letters/full-lit-night.png' },
-  { id: 'back-lit', name: 'Контражур', desc: 'Эффект парения, ореол на стену.', image: '/images/letters/back-lit-night.png' },
-  { id: 'combo-lit', name: 'Комбо (Лицо+Бэк)', desc: 'Максимальная яркость и премиальность.', image: '/images/letters/combo-lit-night.png' },
-  { id: 'side-lit', name: 'Светятся борта', desc: 'Строгий стиль. Лицо темное.', image: '/images/letters/side-lit-night.png' },
-  { id: 'acrylic-slim', name: 'Жидкий акрил', desc: 'Безрамочные, монолитные, яркие.', image: '/images/letters/acrylic-slim-night.png' },
-  { id: 'perforated', name: 'Перфорация', desc: 'Эффект "бриллиантового" мерцания.', image: '/images/letters/perforated-night.png' },
-  { id: 'day-night-effect', name: 'День / Ночь', desc: 'Черные днем, белые ночью.', image: '/images/letters/day-night-effect-night.png' },
-  { id: 'pixel-led', name: 'Пиксельные', desc: 'Открытые диоды. Очень ярко.', image: '/images/letters/pixel-led-night.png' },
-  { id: 'loft-lamps', name: 'Ретро (Лофт)', desc: 'С лампами накаливания.', image: '/images/letters/loft-lamps-night.png' },
-  { id: 'wood-style', name: 'Эко / Дерево', desc: 'Натуральные материалы.', image: '/images/letters/wood-style-night.png' },
-  { id: 'non-lit', name: 'Без подсветки', desc: 'Бюджетно. ПВХ или Акрил.', image: '/images/letters/non-lit-day.png' },
+  { id: 'face-lit', name: 'Световое лицо', desc: 'Классика. Самый популярный выбор.', image: '/images/letters/face-lit-night.webp' },
+  { id: 'full-lit', name: 'Полное свечение', desc: 'Светятся лицо и борта (360°).', image: '/images/letters/full-lit-night.webp' },
+  { id: 'back-lit', name: 'Контражур', desc: 'Эффект парения, ореол на стену.', image: '/images/letters/back-lit-night.webp' },
+  { id: 'combo-lit', name: 'Комбо (Лицо+Бэк)', desc: 'Максимальная яркость и премиальность.', image: '/images/letters/combo-lit-night.webp' },
+  { id: 'side-lit', name: 'Светятся борта', desc: 'Строгий стиль. Лицо темное.', image: '/images/letters/side-lit-night.webp' },
+  { id: 'acrylic-slim', name: 'Жидкий акрил', desc: 'Безрамочные, монолитные, яркие.', image: '/images/letters/acrylic-slim-night.webp' },
+  { id: 'perforated', name: 'Перфорация', desc: 'Эффект "бриллиантового" мерцания.', image: '/images/letters/perforated-night.webp' },
+  { id: 'day-night-effect', name: 'День / Ночь', desc: 'Черные днем, белые ночью.', image: '/images/letters/day-night-effect-night.webp' },
+  { id: 'pixel-led', name: 'Пиксельные', desc: 'Открытые диоды. Очень ярко.', image: '/images/letters/pixel-led-night.webp' },
+  { id: 'loft-lamps', name: 'Ретро (Лофт)', desc: 'С лампами накаливания.', image: '/images/letters/loft-lamps-night.webp' },
+  { id: 'wood-style', name: 'Эко / Дерево', desc: 'Натуральные материалы.', image: '/images/letters/wood-style-night.webp' },
+  { id: 'non-lit', name: 'Без подсветки', desc: 'Бюджетно. ПВХ или Акрил.', image: '/images/letters/non-lit-day.webp' },
 ];
 
 const BOX_TYPES = [
-  { id: 'acrylic', name: 'Акриловый короб', desc: 'Глянцевый, до 3 метров.', image: '/images/lightboxes/type-acrylic.jpg' },
-  { id: 'banner', name: 'Баннерный короб', desc: 'Любой размер без стыков.', image: '/images/lightboxes/type-banner.jpg' },
-  { id: 'composite', name: 'Композитный', desc: 'Светятся только прорезные буквы.', image: '/images/lightboxes/type-composite.jpg' },
-  { id: 'figured', name: 'Фигурный', desc: 'Логотип любой формы.', image: '/images/lightboxes/type-shaped.jpg' },
+  { id: 'acrylic', name: 'Акриловый короб', desc: 'Глянцевый, до 3 метров.', image: '/images/lightboxes/lightboxes-08.webp' },
+  { id: 'banner', name: 'Баннерный короб', desc: 'Любой размер без стыков.', image: '/images/lightboxes/lightboxes-12.webp' },
+  { id: 'composite', name: 'Композитный', desc: 'Светятся только прорезные буквы.', image: '/images/lightboxes/lightboxes-13.webp' },
+  { id: 'figured', name: 'Фигурный', desc: 'Логотип любой формы.', image: '/images/lightboxes/lightboxes-02.webp' },
 ];
 
 type CalculatorTab = 'letters' | 'lightbox';
@@ -115,9 +115,9 @@ export default function CalculatorPage() {
   const whatsappLink = useMemo(() => {
      let content = "";
      if (activeTab === 'letters') {
-        content = `🔠 *Текст:* ${titleText || '-'}\n📏 *Высота:* ${height} см\n\n📝 *Подпись RU:* ${subTextRu || '-'}\n📝 *Подпись KZ:* ${subTextKz || '-'}\n📏 *Высота подписи:* ${subHeight} см\n\n💡 *Тип:* ${LETTER_TYPES.find(t=>t.id===letterType)?.name}`;
+       content = `🔠 *Текст:* ${titleText || '-'}\n📏 *Высота:* ${height} см\n\n📝 *Подпись RU:* ${subTextRu || '-'}\n📝 *Подпись KZ:* ${subTextKz || '-'}\n📏 *Высота подписи:* ${subHeight} см\n\n💡 *Тип:* ${LETTER_TYPES.find(t=>t.id===letterType)?.name}`;
      } else {
-        content = `📦 *Тип:* ${BOX_TYPES.find(t=>t.id===boxType)?.name}\n📏 *Размер:* ${boxWidth}x${boxHeight} см`;
+       content = `📦 *Тип:* ${BOX_TYPES.find(t=>t.id===boxType)?.name}\n📏 *Размер:* ${boxWidth}x${boxHeight} см`;
      }
      const message = `👋 Здравствуйте! Расчет с сайта:\n\n${content}\n\n💰 *Бюджет:* ${calculation.min.toLocaleString()} - ${calculation.max.toLocaleString()} ₸\n\nИнтересуют точные сроки и замер.`;
      return `https://wa.me/77071356701?text=${encodeURIComponent(message)}`;
@@ -127,9 +127,30 @@ export default function CalculatorPage() {
     ? LETTER_TYPES.find(t => t.id === letterType) 
     : BOX_TYPES.find(t => t.id === boxType);
 
+  // SCHEMA.ORG для WebApplication
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Калькулятор наружной рекламы",
+    "description": "Онлайн инструмент для расчета стоимости вывесок и лайтбоксов.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "KZT"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0B1120] font-sans pb-12">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <header className="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-40">
          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
             <button 
@@ -194,7 +215,7 @@ export default function CalculatorPage() {
                                fill 
                                className="object-cover opacity-50 group-hover:opacity-70 transition"
                                onError={(e) => {e.currentTarget.src = "/images/calc/face.jpg"}}
-                               sizes="(max-width: 640px) 50vw, 33vw" // <--- Added sizes prop
+                               sizes="(max-width: 640px) 50vw, 33vw"
                              />
                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                            </div>
@@ -292,21 +313,21 @@ export default function CalculatorPage() {
                           </div>
 
                           <div>
-                              <div className="flex justify-between mb-2">
-                                 <label htmlFor="calc-sub-height" className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Высота подписи</label>
-                                 <span className="text-xs text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded">{subHeight} см</span>
-                              </div>
-                              <input 
-                                 id="calc-sub-height"
-                                 name="subHeightRange"
-                                 type="range" 
-                                 min="5" 
-                                 max="150" 
-                                 step="1" 
-                                 value={subHeight}
-                                 onChange={(e) => setSubHeight(Number(e.target.value))}
-                                 className="w-full accent-blue-500 h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer"
-                              />
+                             <div className="flex justify-between mb-2">
+                                <label htmlFor="calc-sub-height" className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Высота подписи</label>
+                                <span className="text-xs text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded">{subHeight} см</span>
+                             </div>
+                             <input 
+                                id="calc-sub-height"
+                                name="subHeightRange"
+                                type="range" 
+                                min="5" 
+                                max="150" 
+                                step="1" 
+                                value={subHeight}
+                                onChange={(e) => setSubHeight(Number(e.target.value))}
+                                className="w-full accent-blue-500 h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer"
+                             />
                           </div>
                        </div>
                     </div>

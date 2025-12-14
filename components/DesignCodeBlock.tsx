@@ -79,7 +79,7 @@ export default function DesignCodeBlock() {
                   style={{ 
                       // Если картинки нет, будет просто темный фон. 
                       // Лучше положить скриншот реального эскиза в public/dk.png
-                      backgroundImage: "url('/dk.png')" 
+                      backgroundImage: "url('/images/pages/dk.webp')" 
                   }}
                 >
                     {/* Если картинки нет, показываем заглушку */}

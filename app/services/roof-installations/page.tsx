@@ -1,51 +1,59 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ArrowRight, 
   ChevronRight, 
-  DraftingCompass, // Чертежи
-  HardHat,         // Каска/Стройка
-  Wind,            // Ветер
-  FileText,        // Документы
+  DraftingCompass, 
+  HardHat,         
+  Wind,            
+  FileText,        
   Zap,
   ScanFace,
   Grid3X3,
-  // MessageCircle убрал, теперь он внутри HeroButtons
-  Anchor,          // Крепеж
+  Anchor,          
   Shield,
-  Building2,       // Здание
+  Building2,       
   Ruler,
   MonitorPlay,
-  Maximize
+  Maximize,
+  HelpCircle,      // New for FAQ
+  ChevronDown      // New for FAQ
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import CallToAction from "@/components/CallToAction";
-import ProjectsBento from "@/components/ProjectsBento";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
 // --- ДАННЫЕ СТРАНИЦЫ ---
 const PAGE_DATA = {
-  slug: "roof-installations", // Папка public/images/roof-installations
+  slug: "roof-installations", 
   title: "Крышные установки",
   subtitle: "Имиджевые конструкции любого масштаба. Проектирование, расчет нагрузок и монтаж по СНиП РК.",
   price: "Проектно" 
 };
 
-export const metadata = {
-  title: "Крышные установки в Астане | Изготовление и Монтаж | ADLight",
-  description: "Реклама на крыше здания. Разработка проекта КМ/КМД, экспертиза кровли, согласование. Собственные монтажные бригады.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Крышные установки Астана | Реклама на крыше под ключ | ADLight",
+  description: "Изготовление и монтаж крышных установок. Разработка проектной документации (КМ, КМД, ЭО), расчет ветровых нагрузок, согласование паспорта рекламы.",
+  keywords: ["крышная установка", "реклама на крыше", "объемные буквы на крышу", "монтаж вывески альпинистами", "проект вывески астана"],
+  openGraph: {
+    title: "Крышные установки | Масштаб вашего бизнеса",
+    description: "Полный цикл: от экспертизы кровли до включения рубильника.",
+    images: ["/images/roof-installations/roof-installations-04.webp"]
+  }
 };
 
 // --- ТИПЫ КОНСТРУКЦИЙ ---
@@ -53,21 +61,40 @@ const ROOF_TYPES = [
   {
     title: "Объемные буквы на раме",
     desc: "Классика имиджевой рекламы. Отдельные световые буквы высотой от 1 до 5 метров. Устанавливаются на силовой металлокаркас.",
-    image: "/images/roof/type-letters.jpg", 
+    image: "/images/roof-installations/roof-installations-04.webp", 
     tag: "Статус"
   },
   {
     title: "Баннерные короба",
     desc: "Бюджетное решение для огромных площадей. Световой короб с натянутым транслюцентным баннером. Идеально для ТРЦ.",
-    image: "/images/roof/type-box.jpg", 
+    image: "/images/roof-installations/roof-installations-03.webp", 
     tag: "Масштаб"
   },
   {
     title: "Медиаэкраны",
     desc: "Динамическая видеореклама. LED-кабинеты, собранные в единый экран. Позволяет менять контент хоть каждый час.",
-    image: "/images/roof/type-screen.jpg", 
+    image: "/images/roof-installations/roof-installations-05.webp", 
     tag: "Digital"
   },
+];
+
+// --- [NEW] FAQ ДАННЫЕ (Критично для сложных проектов) ---
+const FAQ_ITEMS = [
+  {
+    question: "Нужно ли разрешение?",
+    answer: "Да, крышная установка — это крупный объект. Требуется разработка эскизного проекта, конструкторской документации (с печатью лицензированного инженера) и получение Паспорта рекламы в Управлении Урбанистики.",
+    icon: <FileText className="w-5 h-5 text-blue-500"/>
+  },
+  {
+    question: "Не протечет ли крыша?",
+    answer: "Мы не дырявим мягкую кровлю. Используется технология пригрузов: на крышу укладываются защитные маты, сверху бетонные блоки, и уже к ним крепится металлокаркас. Герметичность крыши сохраняется на 100%.",
+    icon: <Shield className="w-5 h-5 text-green-500"/>
+  },
+  {
+    question: "Сколько это стоит?",
+    answer: "Стоимость рассчитывается индивидуально и зависит от: высоты букв, сложности шрифта и высоты здания (нужен ли кран или альпинисты). Минимальный бюджет для крышной установки обычно начинается от 800 000 тг.",
+    icon: <Calculator className="w-5 h-5 text-orange-500"/>
+  }
 ];
 
 export default async function RoofPage() {
@@ -81,9 +108,55 @@ export default async function RoofPage() {
     ? heroImages 
     : ["/krisha.jpg", "/images/calc/lightbox-2.jpg"];
 
+  // 3. ГЕНЕРАЦИЯ SCHEMA (Service + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "name": "Изготовление и монтаж крышных установок",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "ADLight"
+        },
+        "description": "Проектирование, производство и монтаж рекламных конструкций на крышах зданий в Астане.",
+        "areaServed": "Астана",
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Типы крышных установок",
+            "itemListElement": ROOF_TYPES.map(item => ({
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "Service",
+                    "name": item.title,
+                    "description": item.desc
+                }
+            }))
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0B1120] font-sans selection:bg-blue-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative py-24 lg:py-36 overflow-hidden border-b border-slate-800">
         {/* Фон - имитация чертежной сетки */}
@@ -116,7 +189,6 @@ export default async function RoofPage() {
                     Самый престижный вид наружной рекламы. Разрабатываем проектную документацию (КМ, КМД, ЭО), рассчитываем ветровые нагрузки для Астаны и монтируем на любой высоте.
                  </p>
                  
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
 
               </div>
@@ -292,21 +364,50 @@ export default async function RoofPage() {
       {/* 6. ДИЗАЙН КОД */}
       <DesignCodeBlock />
 
+      {/* === [NEW] БЛОК 6.5: FAQ === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Частые вопросы</h2>
+               <p className="text-gray-400">О крышных установках</p>
+            </div>
+
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-blue-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-blue-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-blue-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
+      </section>
+
       {/* 7. ГАЛЕРЕЯ */}
       <section className="py-24 bg-slate-950">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Примеры масштабных проектов</h2>
-              <p className="text-gray-400">Имиджево, мощно, завораживающе</p>
-          </div>
-          <div className="container mx-auto px-4">
-              {galleryImages.length > 0 ? (
-                 <ImageGallery images={galleryImages} /> 
-              ) : (
-                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                    Загрузите фото в папку public/images/roof-installations
-                 </div>
-              )}
-          </div>
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Примеры масштабных проектов</h2>
+            <p className="text-gray-400">Имиджево, мощно, завораживающе</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/roof-installations
+               </div>
+            )}
+         </div>
       </section>
 
       {/* 8. ОТЗЫВЫ И CTA */}

@@ -15,7 +15,8 @@ import {
   FileText,
   Home,
   Calculator,
-  ChevronRight
+  ChevronRight,
+  MapPin // Добавил для GEO
 } from "lucide-react";
 
 import ConsultationModal from "@/components/ConsultationModal";
@@ -45,19 +46,46 @@ export default function Header() {
     { name: "Панель-кронштейны", link: "/services/panel-brackets" },
   ];
 
+  // SCHEMA.ORG для Навигации
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SiteNavigationElement",
+    "name": [
+      "Главная", 
+      "Услуги", 
+      "Портфолио", 
+      "Дизайн-код", 
+      "Контакты",
+      "Калькулятор"
+    ],
+    "url": [
+      "https://adlight.kz/",
+      "https://adlight.kz/services",
+      "https://adlight.kz/portfolio",
+      "https://adlight.kz/design-code",
+      "https://adlight.kz/contacts",
+      "https://adlight.kz/calculator"
+    ]
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* HEADER */}
       <header className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/75 transition-all duration-300">
         
         <div className="container mx-auto px-4 h-16 flex items-center justify-between relative">
           
-          {/* Логотип */}
-          <Link href="/" className="relative z-50 flex items-center" onClick={() => setIsOpen(false)}>
+          {/* Логотип (SEO: Alt с ключевиками) */}
+          <Link href="/" className="relative z-50 flex items-center" onClick={() => setIsOpen(false)} aria-label="ADLight - Наружная реклама Астана">
              <div className="relative w-32 h-10 md:w-40 md:h-12">
                 <Image 
-                   src="/images/ADLight-logo-full.png" 
-                   alt="ADLight" 
+                   src="/adlight-logo-full.webp" 
+                   alt="ADLight - Изготовление вывесок в Астане" 
                    fill
                    className="object-contain object-left"
                    sizes="(max-width: 768px) 128px, 160px"
@@ -67,7 +95,7 @@ export default function Header() {
           </Link>
 
           {/* Десктоп Меню (Центр) */}
-          <nav className="hidden xl:flex gap-6 text-sm font-medium text-gray-300 items-center">
+          <nav className="hidden xl:flex gap-6 text-sm font-medium text-gray-300 items-center" aria-label="Главное меню">
             <Link href="/" className="hover:text-orange-500 transition">Главная</Link>
 
             <div className="relative group h-16 flex items-center">
@@ -96,14 +124,21 @@ export default function Header() {
 
           {/* Правая часть (Десктоп) */}
           <div className="hidden lg:flex items-center gap-3 xl:gap-5">
-             {/* Соцсети (скрываем на маленьких десктопах, чтобы влезло остальное) */}
-             <div className="hidden 2xl:flex items-center gap-3 pr-5 border-r border-slate-700">
-                <a href="https://instagram.com" target="_blank" className="text-gray-400 hover:text-pink-500 transition"><Instagram className="w-5 h-5"/></a>
-                <a href="https://t.me/username" target="_blank" className="text-gray-400 hover:text-blue-400 transition"><Send className="w-5 h-5"/></a>
-                <a href="https://wa.me/77071356701" target="_blank" className="text-gray-400 hover:text-green-500 transition"><MessageCircle className="w-5 h-5"/></a>
+             
+             {/* GEO: Локация (Показываем роботам город) */}
+             <div className="hidden xl:flex items-center gap-1 text-gray-500 text-xs border-r border-slate-700 pr-5 mr-2">
+                <MapPin className="w-3 h-3"/>
+                <span>г. Астана</span>
              </div>
 
-             {/* Телефон */}
+             {/* Соцсети */}
+             <div className="hidden 2xl:flex items-center gap-3 pr-5 border-r border-slate-700">
+                <a href="https://instagram.com" target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-pink-500 transition" aria-label="Instagram"><Instagram className="w-5 h-5"/></a>
+                <a href="https://t.me/elisey_goyda" target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-blue-400 transition" aria-label="Telegram"><Send className="w-5 h-5"/></a>
+                <a href="https://wa.me/77071356701" target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-green-500 transition" aria-label="WhatsApp"><MessageCircle className="w-5 h-5"/></a>
+             </div>
+
+             {/* Телефон (кликабельный для мобильных роботов) */}
              <a href="tel:+77071356701" className="font-bold text-white hover:text-orange-500 transition flex items-center gap-2 whitespace-nowrap text-sm xl:text-base">
                 <Phone className="w-4 h-4"/> +7 (707) 135-67-01
              </a>
@@ -111,11 +146,11 @@ export default function Header() {
              {/* Разделитель */}
              <div className="h-6 w-px bg-slate-700"></div>
 
-             {/* Кнопка Калькулятор (Второстепенная) */}
+             {/* Кнопка Калькулятор */}
              <Link 
                 href="/calculator" 
                 className="group flex items-center gap-2 text-gray-400 hover:text-white transition"
-                title="Онлайн калькулятор"
+                title="Онлайн калькулятор вывески"
              >
                 <div className="p-2 bg-slate-800 rounded-lg border border-slate-700 group-hover:border-blue-500/50 group-hover:bg-blue-500/10 group-hover:text-blue-400 transition">
                     <Calculator className="w-5 h-5"/>
@@ -123,15 +158,16 @@ export default function Header() {
                 <span className="hidden xl:inline text-sm font-medium">Расчет</span>
              </Link>
 
-             {/* Кнопка ЛК */}
+             {/* Кнопка ЛК (пока заглушка, но есть в дизайне) */}
              <button 
                 className="p-2.5 rounded-lg bg-slate-800 text-gray-400 hover:text-white hover:bg-slate-700 transition border border-slate-700 group relative"
-                title="Личный кабинет"
+                title="Личный кабинет клиента"
+                aria-label="Личный кабинет"
              >
                 <User className="w-5 h-5 group-hover:scale-110 transition-transform"/>
              </button>
 
-             {/* Кнопка Оставить заявку (Главная) */}
+             {/* Кнопка Оставить заявку */}
              <button 
                 onClick={() => setIsModalOpen(true)}
                 className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-5 rounded-lg transition shadow-lg shadow-orange-900/20 flex items-center gap-2 text-sm xl:text-base whitespace-nowrap"
@@ -145,6 +181,7 @@ export default function Header() {
              <button 
                 className="text-white p-2 relative z-[110] hover:bg-slate-800 rounded-lg transition"
                 onClick={()=> setIsOpen(!isOpen)}
+                aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
              >
                 {isOpen ? <X className="w-7 h-7"/> : <Menu className="w-7 h-7"/>}
              </button>
@@ -152,7 +189,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* МОБИЛЬНОЕ МЕНЮ */}
+      {/* МОБИЛЬНОЕ МЕНЮ (Без изменений логики, только стили и ссылки) */}
       <div 
         className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] transition-opacity duration-300 h-screen w-screen ${isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}
         onClick={() => setIsOpen(false)}
@@ -210,12 +247,11 @@ export default function Header() {
 
          <div className="p-6 bg-slate-950 border-t border-slate-800 space-y-4">
              <div className="flex justify-center gap-6">
-                 <a href="https://instagram.com" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><Instagram className="w-6 h-6"/></a>
-                 <a href="https://t.me/username" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><Send className="w-6 h-6 ml-1"/></a>
+                 <a href="https://www.instagram.com/adlight.kz/" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><Instagram className="w-6 h-6"/></a>
+                 <a href="https://t.me/EliseyGoidenko" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><Send className="w-6 h-6 ml-1"/></a>
                  <a href="https://wa.me/77071356701" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><MessageCircle className="w-6 h-6"/></a>
              </div>
              
-             {/* Сетка кнопок для мобилки */}
              <div className="grid grid-cols-2 gap-3">
                 <button className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition border border-slate-700 text-sm">
                    <User className="w-4 h-4"/> Кабинет

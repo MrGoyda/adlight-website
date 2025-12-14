@@ -1,21 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  Sparkles,       // Блеск
-  Gem,            // Драгоценность
-  Cpu,            // ЧПУ
-  Hammer,         // Прочность
-  PaintBucket,    // Покраска
+  Sparkles,       
+  Gem,            
+  Cpu,            
+  Hammer,         
+  PaintBucket,    
   Sun,
   ArrowRight,
   ChevronDown,
   Briefcase,
   Star,
-  Shield
-  // MessageCircle убрал, теперь он внутри HeroButtons
+  Shield // Используем стандартную иконку из библиотеки
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -23,7 +23,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -36,12 +36,20 @@ const PAGE_DATA = {
   slug: "perforated", 
   title: "Объемные буквы с перфорацией",
   subtitle: "Wow-эффект «Бриллиантовая пыль». Алюминиевый борт с тысячами отверстий создает сияние, которое невозможно не заметить.",
+  // ВАЖНО: Цена 750 согласно прайсу
   price: "750" 
 };
 
-export const metadata = {
-  title: "Перфорированные буквы (Perforated) | Вывески Астана",
-  description: "Изготовление букв из алюминия с перфорацией. Эффект звездного неба и мерцания. Заводская сборка на бортогибе.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Перфорированные буквы (Perforated) | Эффект мерцания | ADLight",
+  description: "Изготовление букв с перфорированным алюминиевым бортом в Астане. Эффект звездного неба и бриллиантового блеска. Цена от 750 тг/см.",
+  keywords: ["перфорированные буквы", "вывеска с блестками", "алюминиевые буквы астана", "perforated channel letters", "буквы с дырочками"],
+  openGraph: {
+    title: "Вывески с перфорацией | Diamond Effect",
+    description: "Сияние бриллиантов на вашем фасаде. Алюминиевый корпус.",
+    images: ["/images/letters/perforated-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -54,7 +62,7 @@ const FAQ_ITEMS = [
   {
     question: "Будет ли она ржаветь?",
     answer: "Нет. Мы используем специальный анодированный алюминий с заводской полимерной покраской. Он не боится ни дождя, ни снега, ни реагентов.",
-    icon: <ShieldIcon className="w-5 h-5 text-blue-500"/>
+    icon: <Shield className="w-5 h-5 text-blue-500"/>
   },
   {
     question: "Можно ли сделать свой цвет?",
@@ -78,9 +86,51 @@ export default async function PerforatedLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы с перфорацией (Perforated)",
+        "image": displayHeroImages[0],
+        "description": "Алюминиевые буквы с перфорированным бортом. Создают эффект мерцания (звездное небо).",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/perforated",
+          "priceCurrency": "KZT",
+          "price": "750",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-pink-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -489,23 +539,4 @@ export default async function PerforatedLettersPage() {
 
     </div>
   );
-}
-
-function ShieldIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-    </svg>
-  )
 }

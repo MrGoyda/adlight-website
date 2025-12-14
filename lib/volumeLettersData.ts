@@ -5,7 +5,7 @@ export const volumeLettersCatalog = [
     title: 'Световое лицо', 
     description: 'Классический выбор. Светится только лицевая часть.',
     price: "от 450 ₸/см",
-    images: { day: '/images/letters/face-lit-day.png', night: '/images/letters/face-lit-night.png' },
+    images: { day: '/images/letters/face-lit-day.webp', night: '/images/letters/face-lit-night.webp' },
     badge: "Хит"
   },
   {
@@ -14,7 +14,7 @@ export const volumeLettersCatalog = [
     title: 'Лицо + Борт',
     description: 'Максимальная яркость. Буква светится целиком.',
     price: "от 650 ₸/см",
-    images: { day: '/images/letters/full-lit-day.png', night: '/images/letters/full-lit-night.png' },
+    images: { day: '/images/letters/full-lit-day.webp', night: '/images/letters/full-lit-night.webp' },
     badge: "Premium"
   },
   {
@@ -23,7 +23,7 @@ export const volumeLettersCatalog = [
     title: 'Контражур',
     description: 'Эффект парения. Свет падает на фасад.',
     price: "от 550 ₸/см",
-    images: { day: '/images/letters/back-lit-day.png', night: '/images/letters/back-lit-night.png' },
+    images: { day: '/images/letters/back-lit-day.webp', night: '/images/letters/back-lit-night.webp' },
     badge: "Стиль"
   },
   {
@@ -32,7 +32,7 @@ export const volumeLettersCatalog = [
     title: 'Лицо + Контражур',
     description: 'Комбинированная подсветка для вау-эффекта.',
     price: "от 850 ₸/см",
-    images: { day: '/images/letters/combo-lit-day.png', night: '/images/letters/combo-lit-night.png' },
+    images: { day: '/images/letters/combo-lit-day.webp', night: '/images/letters/combo-lit-night.webp' },
   },
   {
     id: 5,
@@ -40,7 +40,7 @@ export const volumeLettersCatalog = [
     title: 'Светятся борта',
     description: 'Нестандартно: лицо глухое, светятся грани.',
     price: "от 600 ₸/см",
-    images: { day: '/images/letters/side-lit-day.png', night: '/images/letters/side-lit-night.png' },
+    images: { day: '/images/letters/side-lit-day.webp', night: '/images/letters/side-lit-night.webp' },
   },
   {
     id: 6,
@@ -48,7 +48,7 @@ export const volumeLettersCatalog = [
     title: 'Перфорация',
     description: 'Эффект мерцания и блеска на боковинах.',
     price: "от 750 ₸/см",
-    images: { day: '/images/letters/perforated-day.png', night: '/images/letters/perforated-night.png' },
+    images: { day: '/images/letters/perforated-day.webp', night: '/images/letters/perforated-night.webp' },
   },
   {
     id: 7,
@@ -56,7 +56,7 @@ export const volumeLettersCatalog = [
     title: 'Тонкие (Акрил)',
     description: 'Ультратонкие буквы из массива акрила.',
     price: "от 900 ₸/см",
-    images: { day: '/images/letters/acrylic-slim-day.png', night: '/images/letters/acrylic-slim-night.png' },
+    images: { day: '/images/letters/acrylic-slim-day.webp', night: '/images/letters/acrylic-slim-night.webp' },
   },
   {
     id: 8,
@@ -64,7 +64,7 @@ export const volumeLettersCatalog = [
     title: 'Ретро (Лампы)',
     description: 'Лофт стиль с открытыми лампами.',
     price: "от 1200 ₸/см",
-    images: { day: '/images/letters/loft-lamps-day.png', night: '/images/letters/loft-lamps-night.png' },
+    images: { day: '/images/letters/loft-lamps-day.webp', night: '/images/letters/loft-lamps-night.webp' },
   },
   {
     id: 9,
@@ -72,7 +72,7 @@ export const volumeLettersCatalog = [
     title: 'Пиксельные',
     description: 'Открытые светодиоды. Сверхъяркость.',
     price: "от 800 ₸/см",
-    images: { day: '/images/letters/pixel-led-day.png', night: '/images/letters/pixel-led-night.png' },
+    images: { day: '/images/letters/pixel-led-day.webp', night: '/images/letters/pixel-led-night.webp' },
   },
   {
     id: 10,
@@ -80,7 +80,7 @@ export const volumeLettersCatalog = [
     title: 'Дерево / Эко',
     description: 'Натуральные материалы для уюта.',
     price: "от 350 ₸/см",
-    images: { day: '/images/letters/wood-style-day.png', night: '/images/letters/wood-style-night.png' },
+    images: { day: '/images/letters/wood-style-day.webp', night: '/images/letters/wood-style-night.webp' },
   },
   {
     id: 11,
@@ -88,7 +88,7 @@ export const volumeLettersCatalog = [
     title: 'Без подсветки',
     description: 'Бюджетное решение. ПВХ или акрил.',
     price: "от 200 ₸/см",
-    images: { day: '/images/letters/non-lit-day.png', night: '/images/letters/non-lit-night.png' },
+    images: { day: '/images/letters/non-lit-day.webp', night: '/images/letters/non-lit-night.webp' },
   },
   {
     id: 12,
@@ -96,6 +96,6 @@ export const volumeLettersCatalog = [
     title: 'День / Ночь',
     description: 'Днем черные, ночью светятся белым.',
     price: "от 700 ₸/см",
-    images: { day: '/images/letters/day-night-effect-day.png', night: '/images/letters/day-night-effect-night.png' },
+    images: { day: '/images/letters/day-night-effect-day.webp', night: '/images/letters/day-night-effect-night.webp' },
   },
 ];

@@ -1,34 +1,35 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ArrowRight, 
   ChevronRight, 
-  Umbrella,       // Козырек
-  Store,          // ВитринаЙ
-  Frame,          // Облицовка
-  Lightbulb,      // Свет
-  Signpost,       // Кронштейн
-  LayoutDashboard, // Комплекс
-  // MessageCircle убрал, теперь он внутри HeroButtons
-  Search,        // Анализ
-  PenTool,       // Дизайн
-  FileText,      // Смета
-  Hammer,        // Монтаж
-  Flag           // Сдача
+  Umbrella,       
+  Store,          
+  Frame,          
+  Lightbulb,      
+  Signpost,       
+  LayoutDashboard, 
+  Search,        
+  PenTool,       
+  FileText,      
+  Hammer,        
+  Flag,
+  HelpCircle,    // New for FAQ
+  ChevronDown    // New for FAQ
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import CallToAction from "@/components/CallToAction";
-import ProjectsBento from "@/components/ProjectsBento";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -41,49 +42,75 @@ const PAGE_DATA = {
   price: "Проектно" 
 };
 
-export const metadata = {
-  title: "Оформление входных групп в Астане | Фасады под ключ | ADLight",
-  description: "Комплексное оформление входа: вывеска, обшивка композитом, козырьки, витрины. Дизайн-проект, согласование, монтаж.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Входные группы в Астане | Оформление фасадов под ключ | ADLight",
+  description: "Комплексное оформление входной группы: обшивка композитом (алюкобонд), козырьки, вывески, архитектурная подсветка. Дизайн-проект и согласование в Акимате.",
+  keywords: ["входная группа астана", "оформление фасада", "обшивка алюкобондом", "козырек над входом", "рекламное оформление магазина"],
+  openGraph: {
+    title: "Входные группы под ключ | ADLight",
+    description: "Проектирование, производство и монтаж имиджевых входных групп.",
+    images: ["/images/entrance-groups/entrance-groups-06.webp"]
+  }
 };
 
-// --- СОСТАВ ВХОДНОЙ ГРУППЫ ---
+// --- СОСТАВ ВХОДНОЙ ГРУППЫ (Service Catalog) ---
 const ENTRANCE_COMPONENTS = [
   {
     title: "Фасадная вывеска",
     desc: "Основной элемент идентификации. Объемные буквы или световой короб, который сообщает 'кто вы'.",
-    image: "/images/entrance-groups/comp-sign.jpg", 
+    image: "/images/entrance-groups/entrance-groups-06.webp", 
     icon: <LayoutDashboard className="w-6 h-6 text-blue-400"/>
   },
   {
     title: "Облицовка фасада",
     desc: "Композит, дерево или металлокассеты. Скрывает дефекты стены и создает фирменный фон.",
-    image: "/images/entrance-groups/comp-cladding.jpg", 
+    image: "/images/entrance-groups/entrance-groups-04.webp", 
     icon: <Frame className="w-6 h-6 text-slate-400"/>
   },
   {
     title: "Козырек / Навес",
     desc: "Защита от снега и дождя + место для рекламы. Часто встраиваем в него точечное освещение.",
-    image: "/images/entrance-groups/comp-canopy.jpg", 
+    image: "/images/entrance-groups/entrance-groups-03.webp", 
     icon: <Umbrella className="w-6 h-6 text-orange-400"/>
   },
   {
     title: "Оформление витрин",
     desc: "Пленки, постеры или инсталляции за стеклом. Работают на уровне глаз пешехода.",
-    image: "/images/entrance-groups/comp-window.jpg", 
+    image: "/images/entrance-groups/entrance-groups-07.webp", 
     icon: <Store className="w-6 h-6 text-green-400"/>
   },
   {
     title: "Панель-кронштейн",
     desc: "Торцевой флажок, который ловит поток людей, идущих вдоль здания. Виден издалека.",
-    image: "/images/entrance-groups/comp-bracket.jpg", 
+    image: "/images/entrance-groups/entrance-groups-02.webp", 
     icon: <Signpost className="w-6 h-6 text-purple-400"/>
   },
   {
     title: "Архитектурная подсветка",
     desc: "Контурный неон или прожекторы. Делает вход заметным и безопасным в темное время суток.",
-    image: "/images/entrance-groups/comp-light.jpg", 
+    image: "/images/entrance-groups/entrance-groups-05.webp", 
     icon: <Lightbulb className="w-6 h-6 text-yellow-400"/>
   },
+];
+
+// --- [NEW] FAQ ДАННЫЕ (Для сложных услуг это критично) ---
+const FAQ_ITEMS = [
+  {
+    question: "Нужно ли разрешение на входную группу?",
+    answer: "Обязательно. Любое изменение фасада (обшивка, козырек) требует согласования эскизного проекта в Управлении Урбанистики. Мы разрабатываем проект и помогаем пройти процедуру согласования.",
+    icon: <FileText className="w-5 h-5 text-red-500"/>
+  },
+  {
+    question: "Чем лучше обшить фасад?",
+    answer: "Самый популярный материал — алюминиевый композит (АКП / Алюкобонд). Он долговечен, не выцветает и имеет идеально ровную поверхность. Для эконом-вариантов используем профлист, для премиум — HPL панели или дерево.",
+    icon: <Frame className="w-5 h-5 text-blue-500"/>
+  },
+  {
+    question: "Делаете ли вы металлоконструкции?",
+    answer: "Да, у нас свой сварочный цех. Мы варим каркасы для козырьков, входных порталов, лестниц и пандусов. Все рассчитывается с учетом ветровых и снеговых нагрузок Астаны.",
+    icon: <Hammer className="w-5 h-5 text-orange-500"/>
+  }
 ];
 
 export default async function EntranceGroupsPage() {
@@ -95,11 +122,57 @@ export default async function EntranceGroupsPage() {
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
-    : ["/images/calc/lightbox-1.jpg", "/images/calc/face.jpg"]; // Фоллбэки
+    : ["/images/calc/lightbox-1.jpg", "/images/calc/face.jpg"]; 
+
+  // 3. ГЕНЕРАЦИЯ SCHEMA (Service + OfferCatalog + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "name": "Оформление входных групп под ключ",
+        "provider": {
+            "@type": "LocalBusiness",
+            "name": "ADLight"
+        },
+        "areaServed": "Астана",
+        "description": "Проектирование, производство и монтаж входных групп: вывески, композит, козырьки.",
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Элементы входной группы",
+            "itemListElement": ENTRANCE_COMPONENTS.map(item => ({
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "Service",
+                    "name": item.title,
+                    "description": item.desc
+                }
+            }))
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
 
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-blue-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -130,7 +203,6 @@ export default async function EntranceGroupsPage() {
                     Входная группа — это не просто вывеска. Это система визуального контакта, которая работает, даже когда у вас нет другой рекламы. Мы проектируем, строим и подсвечиваем лицо вашего бизнеса.
                  </p>
                  
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
 
               </div>
@@ -182,11 +254,11 @@ export default async function EntranceGroupsPage() {
                      </div>
                   </div>
                   
-                  {/* Схематичное изображение "Доверия" */}
+                  {/* Схематичное изображение */}
                   <div className="relative h-[300px] bg-black rounded-2xl overflow-hidden border border-slate-700">
                      <Image 
                         src="/images/entrance-groups/3.webp" 
-                        alt="Красивый вход" 
+                        alt="Красивый вход в магазин" 
                         fill 
                         className="object-cover opacity-60"
                      />
@@ -222,8 +294,6 @@ export default async function EntranceGroupsPage() {
                         alt={item.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-50 group-hover:opacity-30"
-                        // Фоллбэк на случай отсутствия фото
-                        // onError удален для серверного компонента
                      />
                      
                      {/* ГРАДИЕНТ */}
@@ -281,6 +351,35 @@ export default async function EntranceGroupsPage() {
 
       {/* 6. ДИЗАЙН КОД */}
       <DesignCodeBlock />
+
+      {/* === [NEW] БЛОК FAQ === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Частые вопросы</h2>
+               <p className="text-gray-400">Что важно знать о входных группах</p>
+            </div>
+
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-blue-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-blue-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-blue-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
+      </section>
 
       {/* 7. ГАЛЕРЕЯ */}
       <section className="py-24 bg-[#0F172A] border-t border-slate-800">

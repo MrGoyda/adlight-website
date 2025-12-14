@@ -1,21 +1,23 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  Zap,            // Энергия/Неон
-  Scissors,       // Резка
-  Plug,           // 12V
-  Camera,         // Фотозона
+  Zap,            
+  Scissors,       
+  Plug,           
+  Camera,         
   Eye,
-  Heart,          // Эмоции
-  ShieldCheck,    // Защита/Закон
-  Store,          // Магазин
-  Coins,          // Экономия
-  FileCheck,      // Документы
-  AlertTriangle
-  // MessageCircle убрал, теперь он внутри HeroButtons
+  Heart,          
+  ShieldCheck,    
+  Store,          
+  Coins,          
+  FileCheck,      
+  AlertTriangle,
+  Lightbulb,      // New for Palette icon placeholder if needed
+  ChevronDown     // For FAQ
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
@@ -25,22 +27,30 @@ import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
 // --- ДАННЫЕ СТРАНИЦЫ ---
 const PAGE_DATA = {
-  slug: "neon", // Папка public/images/neon
+  slug: "neon", 
   title: "Неоновые вывески (Flex)",
   subtitle: "Сочный свет, который притягивает взгляды. Идеально для кофеен, баров и домашних фотозон.",
-  price: "15 000" // Старт за простую надпись
+  // ВАЖНО: Цена 15 000
+  price: "15 000" 
 };
 
-export const metadata = {
-  title: "Гибкий неон в Астане | Изготовление неоновых вывесок ADLight",
-  description: "Неоновые надписи на заказ. 100% силиконовый неон (не желтеет). Прозрачная подложка, аккуратная пайка. Гарантия 1 год.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Гибкий неон на заказ Астана | Вывески от 15 000 тг | ADLight",
+  description: "Изготовление неоновых надписей и логотипов из гибкого неона (Flex). Безопасно (12V), ярко, стильно. Для дома, бара, кофейни. Без согласования в витрину.",
+  keywords: ["гибкий неон", "неоновая надпись астана", "заказать неон", "неон для комнаты", "вывеска из неона цена", "neon sign astana"],
+  openGraph: {
+    title: "Неоновые вывески | Атмосфера и стиль",
+    description: "Яркий акцент для вашего интерьера. Безопасный LED неон.",
+    images: ["/images/calc/neon-1.jpg"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -62,7 +72,7 @@ const FAQ_ITEMS = [
   }
 ];
 
-// --- ЦВЕТОВАЯ ПАЛИТРА (ОБНОВЛЕННАЯ) ---
+// --- ЦВЕТОВАЯ ПАЛИТРА ---
 const NEON_COLORS = [
   { name: "Cold White", hex: "#E0F2FE", main: "#38bdf8" },
   { name: "Warm White", hex: "#FEF3C7", main: "#fbbf24" },
@@ -74,6 +84,7 @@ const NEON_COLORS = [
   { name: "Orange",     hex: "#FFEDD5", main: "#f97316" },
 ];
 
+// --- ОСНОВНОЙ КОМПОНЕНТ (SERVER SIDE) ---
 export default async function NeonPage() {
   
   // 1. ПОЛУЧАЕМ ФОТО
@@ -81,14 +92,55 @@ export default async function NeonPage() {
 
   // 2. ФОТО ДЛЯ HERO
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
-  // Заглушки, если папка пуста
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
     : ["/images/calc/neon-1.jpg", "/images/calc/neon-2.jpg"];
 
+  // 3. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Неоновая вывеска из гибкого неона (Flex)",
+        "image": displayHeroImages[0],
+        "description": "Интерьерная вывеска из безопасного силиконового неона на акриловой подложке.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/neon",
+          "priceCurrency": "KZT",
+          "price": "15000",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-purple-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -168,7 +220,7 @@ export default async function NeonPage() {
                   <div className="relative rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video group">
                      {/* Имитация неона */}
                      <div className="absolute inset-0 flex items-center justify-center">
-                        <h3 className="text-6xl md:text-8xl font-script text-white drop-shadow-[0_0_15px_#d946ef] animate-pulse" style={{fontFamily: 'cursive'}}>
+                        <h3 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 drop-shadow-[0_0_15px_#d946ef] animate-pulse" style={{fontFamily: 'cursive'}}>
                            Beauty
                         </h3>
                      </div>
@@ -359,7 +411,7 @@ export default async function NeonPage() {
               {/* Визуал (Схематично окно) */}
               <div className="relative h-[400px] rounded-2xl overflow-hidden border border-slate-700 bg-slate-800 shadow-2xl">
                  {/* Улица */}
-                 <div className="absolute inset-0 bg-[url('/images/22.jpg')] bg-cover bg-center opacity-20"></div>
+                 <div className="absolute inset-0 bg-[url('/images/pages/1.webp')] bg-cover bg-center opacity-20"></div>
                  
                  {/* Рама окна */}
                  <div className="absolute inset-4 border-4 border-slate-600 rounded-lg z-10 pointer-events-none"></div>
@@ -383,22 +435,49 @@ export default async function NeonPage() {
         </div>
       </section>
 
+      {/* === БЛОК FAQ (ДЛЯ SCHEMA) === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Частые вопросы</h2>
+            </div>
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-purple-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-purple-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-purple-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
+      </section>
+
       {/* 8. ГАЛЕРЕЯ */}
       <section className="py-24 bg-slate-950">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Живые примеры</h2>
-              <p className="text-gray-400">Неон в интерьерах наших клиентов</p>
-          </div>
-          <div className="container mx-auto px-4">
-              {/* Если картинки есть - показываем, если нет - заглушка */}
-              {galleryImages.length > 0 ? (
-                 <ImageGallery images={galleryImages} /> 
-              ) : (
-                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                    Загрузите фото в папку public/images/neon
-                 </div>
-              )}
-          </div>
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Живые примеры</h2>
+            <p className="text-gray-400">Неон в интерьерах наших клиентов</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {/* Если картинки есть - показываем, если нет - заглушка */}
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/neon
+               </div>
+            )}
+         </div>
       </section>
 
       {/* 9. ОТЗЫВЫ И CTA */}

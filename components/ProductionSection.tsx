@@ -70,10 +70,10 @@ export default function ProductionSection() {
              <div className="grid sm:grid-cols-2 gap-4">
                 {FEATURES.map((item, i) => (
                    <div 
-                     key={i} 
-                     data-aos="fade-up" 
-                     data-aos-delay={i * 100}
-                     className="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-600 transition group"
+                      key={i} 
+                      data-aos="fade-up" 
+                      data-aos-delay={i * 100}
+                      className="p-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-600 transition group"
                    >
                       <div className={`w-12 h-12 ${item.bg} ${item.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                          {item.icon}
@@ -101,11 +101,11 @@ export default function ProductionSection() {
              <div className="relative h-[600px] rounded-3xl overflow-hidden border border-slate-700 bg-slate-800 shadow-2xl group">
                 {/* Основное фото */}
                 <Image 
-                   src="/ceh.jpg" 
-                   alt="Цех наружной рекламы ADLight"
+                   src="/images/pages/ceh.webp" 
+                   alt="Цех наружной рекламы ADLight Астана"
                    fill
                    className="object-cover transition duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                   sizes="(max-width: 1024px) 100vw, 50vw" // <--- ИСПРАВЛЕНИЕ ОШИБКИ
+                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
                 
                 {/* Градиент снизу */}
@@ -125,7 +125,7 @@ export default function ProductionSection() {
                       </div>
                       <div>
                          <div className="text-white font-bold text-lg">Цех в Астане</div>
-                         <div className="text-slate-400 text-sm">ул. Акжол 110 (Район Байконур)</div>
+                         <div className="text-slate-400 text-sm">ул. Аспара 7</div>
                       </div>
                    </div>
                    <div className="mt-4 flex justify-between items-center border-t border-slate-700 pt-3">

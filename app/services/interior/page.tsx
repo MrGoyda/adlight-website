@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
@@ -9,17 +10,18 @@ import {
   ScanEye,        
   Zap,
   Clock,
-  // MessageCircle убрал, теперь он внутри HeroButtons
   Plug,           
   Scissors,       
   Palette,
   Briefcase,      
   MapPin,         
   Building2,      
-  Drill           
+  Drill,
+  HelpCircle,     // New
+  ChevronDown     // New
 } from "lucide-react";
 
-// --- ИМПОРТ КОМПОНЕНТОВ ---
+// --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import CallToAction from "@/components/CallToAction";
 import ServicesCarousel from "@/components/ServicesCarousel";
@@ -27,62 +29,89 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
 // --- ДАННЫЕ СТРАНИЦЫ ---
 const PAGE_DATA = {
-  slug: "interior", // Папка public/images/interior
+  slug: "interior", 
   title: "Интерьерные вывески",
   subtitle: "Логотипы для зоны ресепшн и офиса. Безупречное качество сборки для взгляда с расстояния вытянутой руки.",
+  // ВАЖНО: Цена 45 000
   price: "45 000" 
 };
 
-export const metadata = {
-  title: "Интерьерные вывески и Логотипы в офис | ADLight Астана",
-  description: "Изготовление вывесок для зоны ресепшн. Световые логотипы, акриловые буквы, нержавеющая сталь. Скрытый монтаж.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Интерьерные вывески Астана | Логотип в офис от 45 000 тг",
+  description: "Изготовление вывесок для зоны ресепшн и офисов. Объемные логотипы, акрил, нержавеющая сталь. Скрытый монтаж без проводов.",
+  keywords: ["интерьерная вывеска", "логотип в офис", "вывеска на ресепшн", "офисная навигация", "брендирование офиса астана"],
+  openGraph: {
+    title: "Логотипы для офиса | Премиум качество",
+    description: "Безупречная детализация для вашего бренда.",
+    images: ["/images/interior/interior-09.webp"]
+  }
 };
 
-// --- ТИПЫ ИНТЕРЬЕРНЫХ РЕШЕНИЙ (С ФОТО) ---
+// --- ТИПЫ ИНТЕРЬЕРНЫХ РЕШЕНИЙ ---
 const INTERIOR_TYPES = [
   {
     title: "Логотип на Ресепшн",
     desc: "Визитная карточка офиса. Обычно это световые буквы или контражур на стене за стойкой администратора.",
-    image: "/images/interior/type-reception.jpg", // Файл 1
+    image: "/images/interior/interior-09.webp",
     tag: "Must Have"
   },
   {
     title: "Тонкие буквы (Акрил)",
     desc: "Изящные плоские буквы из цветного акрила (3-10 мм). Крепятся вплотную к стене. Бюджетно и стильно.",
-    image: "/images/interior/type-slim.jpg", // Файл 2
+    image: "/images/interior/interior-10.webp",
     tag: "Минимализм"
   },
   {
     title: "Металлические буквы",
     desc: "Нержавеющая сталь (золото/серебро). Подчеркивают статус и надежность компании. Часто используют юристы и банки.",
-    image: "/images/interior/type-metal.jpg", // Файл 3
+    image: "/images/interior/interior-05.webp",
     tag: "Премиум"
   },
   {
     title: "Офисная навигация",
     desc: "Таблички кабинетов, указатели зон, поэтажные планы. Единый стиль для всего бизнес-центра.",
-    image: "/images/interior/type-nav.jpg", // Файл 4
+    image: "/images/interior/interior-08.webp",
     tag: "Удобство"
   },
   {
     title: "Неоновый декор",
     desc: "Мотивирующие надписи или абстракции для зон отдыха, кофе-поинтов и креативных пространств.",
-    image: "/images/interior/type-neon.jpg", // Файл 5
+    image: "/images/interior/interior-07.webp",
     tag: "Атмосфера"
   },
   {
     title: "Панель-кронштейны",
     desc: "Маленькие двухсторонние флажки в коридорах. Помогают найти нужную дверь, идя вдоль длинного холла.",
-    image: "/images/interior/type-panel.jpg", // Файл 6
+    image: "/images/interior/interior-06.webp",
     tag: "Трафик"
   },
+];
+
+// --- [NEW] FAQ ДАННЫЕ (Добавил, так как в исходнике не было) ---
+const FAQ_ITEMS = [
+  {
+    question: "Как спрятать провода?",
+    answer: "Это самое важное в интерьере. Мы используем три метода: 1) Монтаж на стадии ремонта (закладка кабеля в стену), 2) Использование фальш-стены или подложки, 3) Микро-кабель-каналы в цвет стены или прозрачные провода.",
+    icon: <Plug className="w-5 h-5 text-purple-500"/>
+  },
+  {
+    question: "Можно ли клеить на обои или стекло?",
+    answer: "Да. Для стекла мы используем специальный УФ-клей (невидим) или двусторонний скотч 3M. Для обоев и окрашенных стен — монтаж на дистанционные держатели или клей-герметик, который не портит поверхность.",
+    icon: <Drill className="w-5 h-5 text-blue-500"/>
+  },
+  {
+    question: "Какой срок изготовления?",
+    answer: "Интерьерные вывески требуют ювелирной точности, поэтому срок — от 4 до 7 рабочих дней. Срочные заказы (например, к открытию офиса) обсуждаются индивидуально.",
+    icon: <Clock className="w-5 h-5 text-pink-500"/>
+  }
 ];
 
 export default async function InteriorPage() {
@@ -94,11 +123,52 @@ export default async function InteriorPage() {
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
-    : ["/1solution.jpg", "/images/calc/acryl.jpg"]; 
+    : ["/images/calc/lightbox-1.jpg", "/images/calc/acryl.jpg"]; 
+
+  // 3. ГЕНЕРАЦИЯ SCHEMA
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Интерьерная вывеска / Логотип в офис",
+        "image": displayHeroImages[0],
+        "description": "Изготовление логотипов для зоны ресепшн. Акрил, металл, световые буквы.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/interior",
+          "priceCurrency": "KZT",
+          "price": "45000",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
 
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-purple-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -129,7 +199,6 @@ export default async function InteriorPage() {
                     Ювелирная работа с материалами. Изготавливаем логотипы, которые выглядят идеально даже с расстояния вытянутой руки. Никаких видимых проводов и клея.
                  </p>
                  
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="purple" />
 
               </div>
@@ -313,22 +382,51 @@ export default async function InteriorPage() {
          </div>
       </section>
 
+      {/* === [NEW] БЛОК 6.5: FAQ === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Важные вопросы</h2>
+               <p className="text-gray-400">Что нужно знать перед заказом</p>
+            </div>
+
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-purple-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-purple-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-purple-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
+      </section>
+
       {/* 7. ГАЛЕРЕЯ */}
       <section className="py-24 bg-slate-950">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Примеры в интерьере</h2>
-              <p className="text-gray-400">Офисы, магазины и салоны Астаны</p>
-          </div>
-          <div className="container mx-auto px-4">
-              {/* Проверяем наличие картинок */}
-              {galleryImages.length > 0 ? (
-                 <ImageGallery images={galleryImages} /> 
-              ) : (
-                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                    Загрузите фото в папку public/images/interior
-                 </div>
-              )}
-          </div>
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Примеры в интерьере</h2>
+            <p className="text-gray-400">Офисы, магазины и салоны Астаны</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {/* Проверяем наличие картинок */}
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/interior
+               </div>
+            )}
+         </div>
       </section>
 
       {/* 8. ОТЗЫВЫ И CTA */}

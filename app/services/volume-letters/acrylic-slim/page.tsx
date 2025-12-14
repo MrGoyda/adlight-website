@@ -1,23 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  Droplets,       // Жидкость
-  Minimize,       // Тонкость
-  ShieldCheck,    // Прочность
+  Droplets,       
+  Minimize,       
+  ShieldCheck,    
   Zap,            
-  Smartphone,     // Сравнение с iPhone
+  Smartphone,     
   Scan,           
-  XCircle,        // Для сравнения (плохо)
-  Check,          // Для сравнения (хорошо)
+  XCircle,        
+  Check,          
   ArrowRight,
   ChevronDown,
   Briefcase,
-  Layers,
   Sun
-  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -25,7 +24,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -38,12 +37,20 @@ const PAGE_DATA = {
   slug: "acrylic-slim", 
   title: "Буквы из жидкого акрила",
   subtitle: "Технология 2025 года. Монолитная заливка, отсутствие рамок и максимальная яркость.",
-  price: "900" 
+  // ВАЖНО: Обновил цену до 1000, чтобы совпадало с общим каталогом
+  price: "1000" 
 };
 
-export const metadata = {
-  title: "Жидкий акрил (Liquid Acrylic) | Безрамочные буквы Астана",
-  description: "Изготовление букв по технологии жидкого акрила. Монолитный корпус, алюминиевый борт, супер-яркость. Гарантия 3 года.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Жидкий акрил (Liquid Acrylic) | Самые яркие вывески Астаны | ADLight",
+  description: "Изготовление букв по технологии жидкого акрила в Астане. На 30% ярче обычных, алюминиевый борт, гарантия 3 года. Цена от 1000 тг/см.",
+  keywords: ["жидкий акрил вывеска", "liquid acrylic sign", "безрамочные буквы", "акриловые буквы астана", "яркая реклама"],
+  openGraph: {
+    title: "Жидкий акрил | Технология 2025 года",
+    description: "Монолитная заливка и максимальная яркость. Узнайте цену.",
+    images: ["/images/letters/acrylic-slim-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -80,9 +87,52 @@ export default async function LiquidAcrylicPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы из Жидкого Акрила",
+        "image": displayHeroImages[0],
+        "description": "Монолитные световые буквы без рамок. Технология Liquid Acrylic. Алюминиевый борт.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/acrylic-slim",
+          "priceCurrency": "KZT",
+          "price": "1000",
+          "priceValidUntil": "2026-12-31",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-cyan-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -125,7 +175,6 @@ export default async function LiquidAcrylicPage() {
                     </li>
                  </ul>
 
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="cyan" />
                  
               </div>
@@ -169,7 +218,7 @@ export default async function LiquidAcrylicPage() {
                      <XCircle className="w-5 h-5 text-red-500"/> Обычная буква
                   </h3>
                   <div className="aspect-video relative rounded-xl overflow-hidden mb-6 grayscale bg-black">
-                     <Image src="/images/letters/face-lit-day.png" alt="Обычная буква" fill className="object-cover"/>
+                     <Image src="/images/letters/face-lit-day.webp" alt="Обычная буква" fill className="object-cover"/>
                   </div>
                   <ul className="space-y-3 text-sm text-gray-500">
                      <li className="flex gap-2"><XCircle className="w-4 h-4 shrink-0"/> Пластиковый кант по периметру</li>
@@ -185,7 +234,7 @@ export default async function LiquidAcrylicPage() {
                      <CheckCircle className="w-5 h-5 text-cyan-500"/> Жидкий акрил
                   </h3>
                   <div className="aspect-video relative rounded-xl overflow-hidden mb-6 border border-cyan-500/20 bg-black">
-                     <Image src="/images/letters/acrylic-slim-day.png" alt="Жидкий акрил" fill className="object-cover"/>
+                     <Image src="/images/letters/acrylic-slim-day.webp" alt="Жидкий акрил" fill className="object-cover"/>
                   </div>
                   <ul className="space-y-3 text-sm text-gray-300">
                      <li className="flex gap-2"><Check className="w-4 h-4 text-cyan-500 shrink-0"/> Лицо вровень с бортом (без рамки)</li>
@@ -325,7 +374,7 @@ export default async function LiquidAcrylicPage() {
                     <div className="mt-8 pt-6 border-t border-slate-700">
                        <div className="flex justify-between items-end mb-6">
                           <span className="text-gray-400 text-sm">Итоговая стоимость:</span>
-                          <span className="text-3xl font-black text-white tracking-tight">162 000 ₸</span>
+                          <span className="text-3xl font-black text-white tracking-tight">180 000 ₸</span>
                        </div>
                        <Link href="/calculator" className="group block w-full py-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-cyan-900/20 flex items-center justify-center gap-3 active:scale-95">
                            <Calculator className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"/> Точный расчет
@@ -386,7 +435,7 @@ export default async function LiquidAcrylicPage() {
           </div>
       </section>
 
-      {/* === БЛОК 8: СМОТРИТЕ ТАКЖЕ (REDESIGNED) === */}
+      {/* === БЛОК 8: СМОТРИТЕ ТАКЖЕ === */}
       <section className="py-24 bg-[#0F172A] border-t border-slate-800 relative">
          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 blur-[100px] rounded-full pointer-events-none"></div>
 

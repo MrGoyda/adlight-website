@@ -1,22 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  Trees,          // Дерево
-  Leaf,           // Эко
-  Brush,          // Покраска/Масло
-  Scissors,       // Резка
+  Trees,          
+  Leaf,           
+  Brush,          
+  Scissors,       
   Sun, 
-  CloudRain,      // Влага
+  CloudRain,      
   ArrowRight,
   ChevronDown,
   Briefcase,
-  Coffee,         // Кофейня
+  Coffee,         
   Palette,
   Flower2
-  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -24,7 +24,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -37,12 +37,20 @@ const PAGE_DATA = {
   slug: "wood-style", 
   title: "Объемные буквы из дерева",
   subtitle: "Живая фактура в мире пластика. Эко-стиль, который вызывает доверие и создает уют.",
+  // ВАЖНО: Цена 350
   price: "350" 
 };
 
-export const metadata = {
-  title: "Деревянные буквы (Eco Style) | Вывески из фанеры и массива",
-  description: "Изготовление вывесок из дерева в Астане. Лазерная резка фанеры, дуба, сосны. Покрытие маслом и лаком. Эко-дизайн.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Деревянные буквы (Eco Style) | Вывески из фанеры Астана",
+  description: "Изготовление вывесок из дерева и фанеры. Лазерная резка, покрытие маслом Osmo. Идеально для кофеен и студий. Цена от 350 тг/см.",
+  keywords: ["деревянные буквы", "вывеска из дерева", "буквы из фанеры", "эко вывеска астана", "лазерная резка дерева"],
+  openGraph: {
+    title: "Эко-вывески из дерева | Живая фактура",
+    description: "Натуральные материалы для уютного бизнеса.",
+    images: ["/images/letters/wood-style-day.png"] // Для дерева лучше дневное фото
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -79,9 +87,51 @@ export default async function WoodLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы из дерева (Eco Style)",
+        "image": displayHeroImages[0],
+        "description": "Интерьерные и фасадные вывески из натурального дерева, фанеры и массива.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/wood-style",
+          "priceCurrency": "KZT",
+          "price": "350",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-green-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-5"></div>
@@ -252,53 +302,9 @@ export default async function WoodLettersPage() {
          </div>
       </section>
 
-      {/* === [NEW] БЛОК 5: PRO TIPS (ВАЖНЫЕ ДЕТАЛИ) === */}
-      <section className="py-20 bg-slate-950 border-b border-slate-800">
-         <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-               
-               {/* Карточка 1: УЛИЦА */}
-               <div className="bg-[#0B1221] p-8 rounded-3xl border border-red-900/20 hover:border-red-500/30 transition flex gap-6">
-                  <div className="shrink-0">
-                     <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500"><CloudRain className="w-7 h-7"/></div>
-                  </div>
-                  <div>
-                     <h3 className="text-xl font-bold text-white mb-3">Дерево на улице</h3>
-                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                        Будем честны: дерево — капризный материал. В Астане (мороз -40°C, жара +40°C) оно расширяется и сжимается. Лак со временем трескается.
-                     </p>
-                     <div className="p-3 bg-red-900/10 border border-red-500/20 rounded-xl">
-                        <p className="text-xs text-red-200 font-medium">
-                           <span className="text-red-400 font-bold">Совет:</span> Вывеску придется обновлять (шкурить и лачить) раз в 1-2 года. Либо вешать под козырек.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Карточка 2: ИМИТАЦИЯ */}
-               <div className="bg-[#0B1221] p-8 rounded-3xl border border-slate-800 hover:border-green-500/30 transition flex gap-6">
-                  <div className="shrink-0">
-                     <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500"><CheckCircle className="w-7 h-7"/></div>
-                  </div>
-                  <div>
-                     <h3 className="text-xl font-bold text-white mb-3">Вечная альтернатива</h3>
-                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                        Хотите вид дерева, но без проблем с гниением? Мы предлагаем сублимацию под дерево на алюминии.
-                     </p>
-                     <div className="p-3 bg-green-900/20 border border-green-500/20 rounded-xl">
-                        <p className="text-xs text-green-200 font-medium">
-                           <span className="text-green-400 font-bold">Решение:</span> С расстояния 1 метр не отличить от дуба, но простоит 10 лет без ухода.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-            </div>
-         </div>
-      </section>
-
-      {/* === БЛОК 6: ЦЕНА === */}
-      <section className="py-24 bg-[#0F172A]">
+      {/* === БЛОК 4: ЦЕНА === */}
+      <section className="py-24 bg-[#0F172A] border-y border-slate-800 relative overflow-hidden">
+         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-green-500/5 blur-[120px] rounded-full pointer-events-none"></div>
          <div className="container mx-auto px-4 relative z-10">
              <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-16 items-stretch">
                  
@@ -355,6 +361,51 @@ export default async function WoodLettersPage() {
          </div>
       </section>
 
+      {/* === [NEW] БЛОК 5: PRO TIPS (ВАЖНЫЕ ДЕТАЛИ) === */}
+      <section className="py-20 bg-slate-950 border-b border-slate-800">
+         <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+               
+               {/* Карточка 1: УЛИЦА */}
+               <div className="bg-[#0B1221] p-8 rounded-3xl border border-red-900/20 hover:border-red-500/30 transition flex gap-6">
+                  <div className="shrink-0">
+                     <div className="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500"><CloudRain className="w-7 h-7"/></div>
+                  </div>
+                  <div>
+                     <h3 className="text-xl font-bold text-white mb-3">Дерево на улице</h3>
+                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
+                        Будем честны: дерево — капризный материал. В Астане (мороз -40°C, жара +40°C) оно расширяется и сжимается. Лак со временем трескается.
+                     </p>
+                     <div className="p-3 bg-red-900/10 border border-red-500/20 rounded-xl">
+                        <p className="text-xs text-red-200 font-medium">
+                           <span className="text-red-400 font-bold">Совет:</span> Вывеску придется обновлять (шкурить и лачить) раз в 1-2 года. Либо вешать под козырек.
+                        </p>
+                     </div>
+                  </div>
+               </div>
+
+               {/* Карточка 2: ИМИТАЦИЯ */}
+               <div className="bg-[#0B1221] p-8 rounded-3xl border border-slate-800 hover:border-green-500/30 transition flex gap-6">
+                  <div className="shrink-0">
+                     <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500"><CheckCircle className="w-7 h-7"/></div>
+                  </div>
+                  <div>
+                     <h3 className="text-xl font-bold text-white mb-3">Вечная альтернатива</h3>
+                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
+                        Хотите вид дерева, но без проблем с гниением? Мы предлагаем сублимацию под дерево на алюминии.
+                     </p>
+                     <div className="p-3 bg-green-900/20 border border-green-500/20 rounded-xl">
+                        <p className="text-xs text-green-200 font-medium">
+                           <span className="text-green-400 font-bold">Решение:</span> С расстояния 1 метр не отличить от дуба, но простоит 10 лет без ухода.
+                        </p>
+                     </div>
+                  </div>
+               </div>
+
+            </div>
+         </div>
+      </section>
+
       {/* === БЛОК 6: FAQ === */}
       <section className="py-24 bg-[#0B1221]">
          <div className="container mx-auto px-4 max-w-3xl">
@@ -386,7 +437,7 @@ export default async function WoodLettersPage() {
       {/* === БЛОК 7: ГАЛЕРЕЯ === */}
       <section className="py-24 bg-slate-950">
           <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Примеры работ</h2>
+              <h2 className="text-3xl font-bold text-white mb-4">Наши работы</h2>
               <p className="text-gray-400">Натуральные материалы в деле</p>
           </div>
           <div className="container mx-auto px-4">

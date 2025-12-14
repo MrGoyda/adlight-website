@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Добавили типизацию
 import { 
   Calculator, 
   CheckCircle, 
@@ -17,7 +18,6 @@ import {
   Eye,
   ChevronDown,
   Briefcase
-  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -25,7 +25,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА (Сбор фото) ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -38,12 +38,20 @@ const PAGE_DATA = {
   slug: "back-lit", 
   title: "Объемные буквы с контражуром",
   subtitle: "Эффект парения (Halo Lit). Мягкий световой ореол для создания премиальной атмосферы.",
-  price: "550" 
+  // ВАЖНО: Обновил цену до 650, согласно общему каталогу
+  price: "650" 
 };
 
-export const metadata = {
-  title: "Контражурные вывески (Halo Lit) | Изготовление в Астане",
-  description: "Буквы с обратной подсветкой. Эффект парения, мягкий ореол. Идеально для бутиков, ресторанов и офисов.",
+// 1. УЛУЧШЕННЫЕ METADATA (SEO/GEO)
+export const metadata: Metadata = {
+  title: "Контражурные вывески (Halo Lit) | Эффект парения | ADLight",
+  description: "Изготовление букв с обратной подсветкой (контражур) в Астане. Мягкий ореол, премиальный вид, скрытый монтаж. Цена от 650 тг/см.",
+  keywords: ["контражур астана", "вывеска с подсветкой сзади", "halo lit letters", "парящие буквы", "реклама для бутика"],
+  openGraph: {
+    title: "Контражурные вывески | Премиум стиль",
+    description: "Мягкое свечение для дорогих интерьеров и фасадов.",
+    images: ["/images/letters/back-lit-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -80,9 +88,50 @@ export default async function BackLitLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы с Контражуром (Halo Lit)",
+        "image": displayHeroImages[0],
+        "description": "Световые буквы с обратной подсветкой. Создают эффект парения на фасаде.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/back-lit",
+          "priceCurrency": "KZT",
+          "price": "650",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-cyan-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -125,7 +174,6 @@ export default async function BackLitLettersPage() {
                     </li>
                  </ul>
 
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="cyan" />
                  
               </div>
@@ -194,45 +242,45 @@ export default async function BackLitLettersPage() {
                <div className="w-full lg:w-7/12">
                   <div className="mb-6"><h3 className="text-white font-bold text-xl">Выберите атмосферу (Температура света)</h3></div>
                   <div className="grid md:grid-cols-2 gap-4">
-                      
-                      {/* WARM */}
-                      <div className="bg-slate-900/50 rounded-3xl p-6 border border-slate-800 hover:border-orange-500/50 transition duration-500 flex flex-col justify-between h-[280px] relative overflow-hidden group">
-                         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                         <div className="relative z-10">
-                            <span className="text-orange-400 font-bold text-xs uppercase tracking-wider mb-2 block">Warm 3000K</span>
-                            <h4 className="text-white font-bold text-2xl">Теплый уют</h4>
-                            <p className="text-slate-400 text-sm mt-2">Идеально для кирпича, дерева и бетона.</p>
-                         </div>
-                         <div className="relative z-10 mt-auto text-center">
-                            <span className="text-6xl font-black text-slate-800 transition duration-500" style={{ textShadow: "0 0 30px rgba(249,115,22,0.6)" }}>AD</span>
-                         </div>
-                      </div>
+                     
+                     {/* WARM */}
+                     <div className="bg-slate-900/50 rounded-3xl p-6 border border-slate-800 hover:border-orange-500/50 transition duration-500 flex flex-col justify-between h-[280px] relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                        <div className="relative z-10">
+                           <span className="text-orange-400 font-bold text-xs uppercase tracking-wider mb-2 block">Warm 3000K</span>
+                           <h4 className="text-white font-bold text-2xl">Теплый уют</h4>
+                           <p className="text-slate-400 text-sm mt-2">Идеально для кирпича, дерева и бетона.</p>
+                        </div>
+                        <div className="relative z-10 mt-auto text-center">
+                           <span className="text-6xl font-black text-slate-800 transition duration-500" style={{ textShadow: "0 0 30px rgba(249,115,22,0.6)" }}>AD</span>
+                        </div>
+                     </div>
 
-                      {/* COLD */}
-                      <div className="bg-slate-900/50 rounded-3xl p-6 border border-slate-800 hover:border-cyan-500/50 transition duration-500 flex flex-col justify-between h-[280px] relative overflow-hidden group">
-                         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                         <div className="relative z-10">
-                            <span className="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-2 block">Cold 6000K</span>
-                            <h4 className="text-white font-bold text-2xl">Строгий стиль</h4>
-                            <p className="text-slate-400 text-sm mt-2">Для белых стен, офисов и медицины.</p>
-                         </div>
-                         <div className="relative z-10 mt-auto text-center">
-                            <span className="text-6xl font-black text-slate-800 transition duration-500" style={{ textShadow: "0 0 30px rgba(6,182,212,0.6)" }}>AD</span>
-                         </div>
-                      </div>
+                     {/* COLD */}
+                     <div className="bg-slate-900/50 rounded-3xl p-6 border border-slate-800 hover:border-cyan-500/50 transition duration-500 flex flex-col justify-between h-[280px] relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                        <div className="relative z-10">
+                           <span className="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-2 block">Cold 6000K</span>
+                           <h4 className="text-white font-bold text-2xl">Строгий стиль</h4>
+                           <p className="text-slate-400 text-sm mt-2">Для белых стен, офисов и медицины.</p>
+                        </div>
+                        <div className="relative z-10 mt-auto text-center">
+                           <span className="text-6xl font-black text-slate-800 transition duration-500" style={{ textShadow: "0 0 30px rgba(6,182,212,0.6)" }}>AD</span>
+                        </div>
+                     </div>
 
-                      {/* RGB */}
-                      <div className="md:col-span-2 bg-slate-900/50 rounded-3xl p-6 border border-slate-800 hover:border-purple-500/50 transition duration-500 flex items-center justify-between relative overflow-hidden group">
-                         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                         <div className="relative z-10 max-w-[60%]">
-                            <span className="text-purple-400 font-bold text-xs uppercase tracking-wider mb-2 block">RGB Dynamic</span>
-                            <h4 className="text-white font-bold text-2xl">Цветное настроение</h4>
-                            <p className="text-slate-400 text-sm mt-2">Управление цветом с пульта. Для баров и креативных студий.</p>
-                         </div>
-                         <div className="relative z-10 text-center pr-8">
-                            <span className="text-6xl font-black text-slate-800 transition duration-500" style={{ textShadow: "0 0 30px rgba(168,85,247,0.8)" }}>RGB</span>
-                         </div>
-                      </div>
+                     {/* RGB */}
+                     <div className="md:col-span-2 bg-slate-900/50 rounded-3xl p-6 border border-slate-800 hover:border-purple-500/50 transition duration-500 flex items-center justify-between relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                        <div className="relative z-10 max-w-[60%]">
+                           <span className="text-purple-400 font-bold text-xs uppercase tracking-wider mb-2 block">RGB Dynamic</span>
+                           <h4 className="text-white font-bold text-2xl">Цветное настроение</h4>
+                           <p className="text-slate-400 text-sm mt-2">Управление цветом с пульта. Для баров и креативных студий.</p>
+                        </div>
+                        <div className="relative z-10 text-center pr-8">
+                           <span className="text-6xl font-black text-slate-800 transition duration-500" style={{ textShadow: "0 0 30px rgba(168,85,247,0.8)" }}>RGB</span>
+                        </div>
+                     </div>
 
                   </div>
                </div>
@@ -323,7 +371,7 @@ export default async function BackLitLettersPage() {
                     <div className="mt-8 pt-6 border-t border-slate-700">
                        <div className="flex justify-between items-end mb-6">
                           <span className="text-gray-400 text-sm">Итоговая стоимость:</span>
-                          <span className="text-3xl font-black text-white tracking-tight">99 000 ₸</span>
+                          <span className="text-3xl font-black text-white tracking-tight">117 000 ₸</span>
                        </div>
                        <Link href="/calculator" className="group block w-full py-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-cyan-900/20 flex items-center justify-center gap-3 active:scale-95">
                            <Calculator className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"/> Точный расчет
@@ -332,51 +380,6 @@ export default async function BackLitLettersPage() {
                     </div>
                  </div>
              </div>
-         </div>
-      </section>
-
-      {/* === [NEW] БЛОК 5: PRO TIPS (ВАЖНЫЕ ДЕТАЛИ) === */}
-      <section className="py-20 bg-slate-950 border-b border-slate-800">
-         <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-               
-               {/* Карточка 1: ГЛЯНЕЦ */}
-               <div className="bg-[#0B1221] p-8 rounded-3xl border border-slate-800 hover:border-yellow-500/30 transition flex gap-6">
-                  <div className="shrink-0">
-                     <div className="w-14 h-14 bg-yellow-500/10 rounded-2xl flex items-center justify-center text-yellow-500"><AlertTriangle className="w-7 h-7"/></div>
-                  </div>
-                  <div>
-                     <h3 className="text-xl font-bold text-white mb-3">Осторожно: Глянец!</h3>
-                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                        Если стена глянцевая (плитка, стекло), то светодиоды отразятся в ней как в зеркале. Вместо красивого ореола вы увидите "точки".
-                     </p>
-                     <div className="p-3 bg-yellow-900/20 border border-yellow-500/20 rounded-xl">
-                        <p className="text-xs text-yellow-200 font-medium">
-                           <span className="text-yellow-400 font-bold">Решение:</span> Использовать матовую подложку под букву или выбрать матовую часть фасада.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Карточка 2: ДИСТАНЦИОНЫ */}
-               <div className="bg-[#0B1221] p-8 rounded-3xl border border-slate-800 hover:border-cyan-500/30 transition flex gap-6">
-                  <div className="shrink-0">
-                     <div className="w-14 h-14 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-cyan-500"><Layers className="w-7 h-7"/></div>
-                  </div>
-                  <div>
-                     <h3 className="text-xl font-bold text-white mb-3">Монтажные ножки</h3>
-                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                        Буква висит в воздухе на дистанционных держателях (2-4 см). Если смотреть на вывеску строго сбоку, эти ножки будут видны.
-                     </p>
-                     <div className="p-3 bg-cyan-900/20 border border-cyan-500/20 rounded-xl">
-                        <p className="text-xs text-cyan-200 font-medium">
-                           <span className="text-cyan-400 font-bold">Эстетика:</span> Мы красим держатели в цвет фасада, чтобы сделать их невидимыми.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-            </div>
          </div>
       </section>
 

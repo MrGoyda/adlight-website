@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
@@ -8,17 +9,16 @@ import {
   Shield,         
   Sun, 
   Moon, 
-  Palette,        // Палитра
-  Feather,        // Легкость
-  DollarSign,     // Цена
-  Briefcase,      // Офис
-  Factory,        // Завод
-  MapPin,         // Навигация
-  Hammer,         // Монтаж
-  Lightbulb,      // Для совета про прожекторы
+  Palette,        
+  Feather,        
+  DollarSign,     
+  Briefcase,      
+  Factory,        
+  MapPin,         
+  Hammer,         
+  Lightbulb,      
   ArrowRight,
   ChevronDown
-  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -26,7 +26,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -42,9 +42,16 @@ const PAGE_DATA = {
   price: "200" 
 };
 
-export const metadata = {
-  title: "Несветовые буквы (ПВХ) | Изготовление в Астане",
-  description: "Объемные буквы из пластика без подсветки. Бюджетная наружная реклама. Фрезеровка ПВХ, оклейка пленкой Oracal.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Несветовые объемные буквы (ПВХ) | Бюджетная реклама Астана",
+  description: "Изготовление букв из пластика без подсветки. Дешево, надежно, быстро. Идеально для офиса и склада. Цена от 200 тг/см.",
+  keywords: ["несветовые буквы", "буквы из пластика", "вывеска дешево астана", "объемные буквы пвх", "интерьерная вывеска"],
+  openGraph: {
+    title: "Бюджетные вывески | Объем без переплат",
+    description: "Самое доступное решение для вашего бизнеса.",
+    images: ["/images/letters/non-lit-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -81,9 +88,51 @@ export default async function NonLitLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Несветовые объемные буквы (ПВХ)",
+        "image": displayHeroImages[0],
+        "description": "Объемные буквы из пластика без внутренней подсветки. Самый бюджетный вариант наружной рекламы.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/non-lit",
+          "priceCurrency": "KZT",
+          "price": "200",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-slate-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>

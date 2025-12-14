@@ -1,4 +1,3 @@
-// --- ИМПОРТ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import StatsSection from "@/components/StatsSection";
 import ProductionSection from "@/components/ProductionSection";
@@ -17,9 +16,17 @@ import HeroSection from "@/components/HeroSection";
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
+// --- НОВЫЙ ИМПОРТ: Данные для FAQ (чтобы синхронизировать SEO и картинку) ---
+import { FAQS } from "@/lib/faqData";
+
+// --- НАСТРОЙКА КЭШИРОВАНИЯ (ISR) ---
+// Обновляем страницу и перемешиваем картинки раз в час (3600 сек),
+// чтобы сервер не нагружался при каждом заходе пользователя.
+export const revalidate = 3600;
+
 export default function Home() {
   
-  // --- СБОР КОНТЕНТА ---
+  // --- СБОР КОНТЕНТА (Твой старый код перемешивания) ---
   const shuffle = (arr: string[]) => arr.sort(() => 0.5 - Math.random());
 
   const lettersImages = shuffle([
@@ -48,9 +55,30 @@ export default function Home() {
     ...getImagesFromFolder("panel-brackets"),
   ]).slice(0, 8);
 
+  // --- НОВОЕ: ГЕНЕРАЦИЯ SCHEMA.ORG ---
+  // Создаем JSON-LD автоматически из тех же данных, что и в блоке FAQ
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": FAQS.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a
+      }
+    }))
+  };
 
   return (
-    <div className="min-h-screen bg-[#0B1120] font-sans">
+    // Заменили <div> на <main> для лучшего понимания роботами структуры
+    <main className="min-h-screen bg-[#0B1120] font-sans">
+      
+      {/* Вставляем невидимый скрипт для нейросетей */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       
       {/* 1. HERO SECTION (CLIENT) */}
       <HeroSection 
@@ -67,7 +95,10 @@ export default function Home() {
       <StatsSection />
 
       {/* 4. УСЛУГИ */}
-      <ServicesCarousel title="Наши услуги" subtitle="От таблички до крышной установки" />
+      {/* Добавил id="services" чтобы можно было давать ссылку adlight.kz/#services */}
+      <section id="services">
+        <ServicesCarousel title="Наши услуги" subtitle="От таблички до крышной установки" />
+      </section>
 
       {/* 5. ДИЗАЙН-КОД */}
       <DesignCodeBlock />
@@ -76,23 +107,29 @@ export default function Home() {
       <StepsSection />
 
       {/* 7. ПОРТФОЛИО */}
-      <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства" />
+      <section id="portfolio">
+        <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства" />
+      </section>
 
       {/* 8. ПРОИЗВОДСТВО */}
       <ProductionSection />
 
       {/* 9. FAQ */}
-      <FaqSection />
+      <section id="faq">
+        <FaqSection />
+      </section>
 
       {/* 10. ОТЗЫВЫ */}
       <ReviewsCarousel />
 
       {/* 11. КАРТА И КОНТАКТЫ */}
-      <ContactsSection />
+      <section id="contacts">
+        <ContactsSection />
+      </section>
 
       {/* 12. CTA */}
       <CallToAction source="Главная страница" />
       
-    </div>
+    </main>
   );
 }

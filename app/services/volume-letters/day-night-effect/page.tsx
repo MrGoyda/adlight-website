@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
@@ -11,14 +12,13 @@ import {
   Layers,         
   Scissors,       
   Car,            
-  Scale,          // Юристы
+  Scale,          
   ShieldCheck,
   ArrowRight,
   Briefcase,
   ChevronDown,
-  Contrast,       // Контраст
-  Scan            // Текстура
-  // MessageCircle убрал, теперь он внутри HeroButtons
+  Contrast,       
+  Scan            
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -26,7 +26,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -42,9 +42,16 @@ const PAGE_DATA = {
   price: "700" 
 };
 
-export const metadata = {
-  title: "День/Ночь вывески (Oracal 8870) | Черные буквы светятся белым",
-  description: "Изготовление вывесок по технологии День/Ночь в Астане. Перфорированная пленка, смена цвета. Идеально для черных логотипов.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Вывески День/Ночь (Day/Night) | Черные днем, Белые ночью | ADLight",
+  description: "Изготовление вывесок по технологии День/Ночь (Oracal 8870) в Астане. Черные буквы, которые светятся белым. Цена от 700 тг/см.",
+  keywords: ["вывеска день ночь", "день ночь буквы", "oracal 8870", "черная вывеска светится белым", "перфорированная пленка"],
+  openGraph: {
+    title: "Технология День/Ночь | Магия света",
+    description: "Черный логотип днем, ярко-белый ночью. Идеально для строгих брендов.",
+    images: ["/images/letters/day-night-effect-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -81,9 +88,52 @@ export default async function DayNightLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  // 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы День/Ночь (Day/Night Effect)",
+        "image": displayHeroImages[0],
+        "description": "Световые буквы с эффектом смены цвета: черные днем, белые ночью. Технология Oracal 8870.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/day-night-effect",
+          "priceCurrency": "KZT",
+          "price": "700",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-white/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -126,7 +176,6 @@ export default async function DayNightLettersPage() {
                     </li>
                  </ul>
 
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="white" />
                  
               </div>

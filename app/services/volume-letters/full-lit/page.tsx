@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
@@ -9,12 +10,11 @@ import {
   ChevronDown,
   ShoppingBag, 
   Briefcase,
-  Gem,            // Для "Премиум"
-  Maximize,       // Для "360 обзор"
-  Droplets,       // Для "Влагозащита/Мойка"
+  Gem,            
+  Maximize,       
+  Droplets,       
   ArrowRight,
-  Sun,
-  // MessageCircle убрал, так как он теперь внутри HeroButtons
+  Sun
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -22,7 +22,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА (Сбор фото) ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -32,15 +32,23 @@ import { volumeLettersCatalog } from "@/lib/volumeLettersData";
 
 // --- ДАННЫЕ ТЕКУЩЕЙ СТРАНИЦЫ ---
 const PAGE_DATA = {
-  slug: "full-lit", // Папка в public/images/letters-galery/
+  slug: "full-lit", 
   title: "Объемные буквы с полным свечением",
   subtitle: "Технология Full Glow. Светится и лицо, и борта. Максимальная заметность 360° и эффект «световой капсулы».",
-  price: "650" 
+  // ВАЖНО: Обновил цену до 850 (было 650)
+  price: "850" 
 };
 
-export const metadata = {
-  title: "Световые буквы (Full Lit) | Полное свечение в Астане",
-  description: "Изготовление букв со светящимися бортами. Цельноклееный акрил, эффект леденца. Премиальная вывеска под ключ.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Световые буквы (Full Lit) | Светятся борта и лицо | ADLight",
+  description: "Изготовление букв с полным свечением в Астане. Цельноклееный акриловый корпус, обзор 360 градусов. Цена от 850 тг/см.",
+  keywords: ["буквы с полным свечением", "светящиеся борта", "акриловые буквы цена", "full lit letters", "вывеска 360 градусов"],
+  openGraph: {
+    title: "Full Glow Вывески | Светится всё",
+    description: "Максимальная световая отдача. Эффект леденца.",
+    images: ["/images/letters/full-lit-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -70,17 +78,58 @@ export default async function FullLitLettersPage() {
 
   // 2. ФОТО ДЛЯ HERO
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
-  // Фоллбэк, если папка пуста
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
     : ["/images/letters/full-lit-night.png", "/images/letters/full-lit-day.png"];
 
-  // 3. "ДРУГИЕ ВИДЫ" (Фильтруем текущий)
+  // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
+
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы с Полным Свечением (Full Lit)",
+        "image": displayHeroImages[0],
+        "description": "Цельноклееные акриловые буквы. Светится лицевая часть и борта (360 градусов).",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/full-lit",
+          "priceCurrency": "KZT",
+          "price": "850",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
 
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-purple-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -216,48 +265,48 @@ export default async function FullLitLettersPage() {
                {/* Правая колонка: Визуал */}
                <div className="w-full lg:w-7/12">
                   <div className="flex overflow-x-auto pb-8 -mx-4 px-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:overflow-visible lg:pb-0 lg:px-0 hide-scrollbar snap-x snap-mandatory">
-                     
-                     {/* Большая карточка: БУТИКИ */}
-                     <div className="min-w-[85vw] sm:min-w-[300px] lg:min-w-0 lg:col-span-2 relative h-[280px] lg:h-[360px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-purple-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-2xl">
-                        <Image src="/images/letters-galery/full-lit/5.jpg" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
-                        
-                        <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                           <div className="flex items-center gap-3 mb-3">
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md shadow-lg shadow-purple-900/50">
-                                 <ShoppingBag className="w-3 h-3"/> Boutique
-                              </span>
-                           </div>
-                           <h3 className="text-2xl lg:text-3xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors">Интерьер бутиков</h3>
-                           <p className="text-slate-400 text-sm max-w-md line-clamp-2 group-hover:text-slate-300 transition-colors">
-                              Выбор №1 для торговых центров. Мягкий, рассеянный свет привлекает внимание, но не раздражает глаз.
-                           </p>
-                        </div>
-                     </div>
+                      
+                      {/* Большая карточка: БУТИКИ */}
+                      <div className="min-w-[85vw] sm:min-w-[300px] lg:min-w-0 lg:col-span-2 relative h-[280px] lg:h-[360px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-purple-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-2xl">
+                         <Image src="/images/pages/full-lit-05.webp" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
+                         
+                         <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                            <div className="flex items-center gap-3 mb-3">
+                               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md shadow-lg shadow-purple-900/50">
+                                  <ShoppingBag className="w-3 h-3"/> Boutique
+                               </span>
+                            </div>
+                            <h3 className="text-2xl lg:text-3xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors">Интерьер бутиков</h3>
+                            <p className="text-slate-400 text-sm max-w-md line-clamp-2 group-hover:text-slate-300 transition-colors">
+                               Выбор №1 для торговых центров. Мягкий, рассеянный свет привлекает внимание, но не раздражает глаз.
+                            </p>
+                         </div>
+                      </div>
 
-                     {/* Малая карточка: КРЕАТИВ */}
-                     <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-blue-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                        <Image src="/images/letters-galery/full-lit/3.jpg" alt="Креативные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
-                        <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-blue-900/50">
-                              <Gem className="w-3 h-3"/> Design
-                           </span>
-                           <h3 className="text-xl font-bold text-white group-hover:text-blue-200 transition-colors">Логотипы</h3>
-                        </div>
-                     </div>
+                      {/* Малая карточка: КРЕАТИВ */}
+                      <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-blue-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
+                         <Image src="/images/pages/full-lit-03.webp" alt="Креативные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
+                         <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-blue-900/50">
+                               <Gem className="w-3 h-3"/> Design
+                            </span>
+                            <h3 className="text-xl font-bold text-white group-hover:text-blue-200 transition-colors">Логотипы</h3>
+                         </div>
+                      </div>
 
-                     {/* Малая карточка: ОФИСЫ */}
-                     <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-green-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                        <Image src="/kmg.jpeg" alt="Офисные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
-                        <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-green-900/50">
-                              <Briefcase className="w-3 h-3"/> Office
-                           </span>
-                           <h3 className="text-xl font-bold text-white group-hover:text-green-200 transition-colors">Ресепшн зоны</h3>
-                        </div>
-                     </div>
+                      {/* Малая карточка: ОФИСЫ */}
+                      <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-green-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
+                         <Image src="/images/pages/full-lit-06.webp" alt="Офисные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
+                         <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-green-900/50">
+                               <Briefcase className="w-3 h-3"/> Office
+                            </span>
+                            <h3 className="text-xl font-bold text-white group-hover:text-green-200 transition-colors">Ресепшн зоны</h3>
+                         </div>
+                      </div>
 
                   </div>
                </div>
@@ -280,7 +329,7 @@ export default async function FullLitLettersPage() {
                <div className="group relative bg-slate-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-slate-800 hover:border-purple-500/50 transition-all duration-500 hover:shadow-[0_0_40px_-10px_rgba(168,85,247,0.2)] flex flex-col">
                   <div className="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 text-purple-500 group-hover:scale-110 transition-all duration-300"><Layers className="w-8 h-8"/></div>
                   <h3 className="text-xl font-bold text-white mb-3">Лицевая панель</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">Акрил Plexiglas (Германия) 3–4 мм. Идеальное рассеивание без пятен.</p>
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">Акрил Plexiglas (Германия) 3–4 мм. Идеально рассеивает свет.</p>
                </div>
                <div className="group relative bg-slate-900/80 backdrop-blur-sm p-8 rounded-[2rem] border border-slate-800 hover:border-blue-500/50 transition-all duration-500 hover:shadow-[0_0_40px_-10px_rgba(59,130,246,0.2)] flex flex-col">
                   <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 text-blue-500 group-hover:scale-110 transition-all duration-300"><Gem className="w-8 h-8"/></div>
@@ -348,7 +397,7 @@ export default async function FullLitLettersPage() {
                     <div className="mt-8 pt-6 border-t border-slate-700">
                        <div className="flex justify-between items-end mb-6">
                           <span className="text-gray-400 text-sm">Итоговая стоимость:</span>
-                          <span className="text-3xl font-black text-white tracking-tight">130 000 ₸</span>
+                          <span className="text-3xl font-black text-white tracking-tight">170 000 ₸</span>
                        </div>
                        <Link href="/calculator" className="group block w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-purple-900/20 flex items-center justify-center gap-3 active:scale-95">
                            <Calculator className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"/> Точный расчет

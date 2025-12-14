@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
@@ -7,7 +8,6 @@ import {
   ChevronRight, 
   Layers, 
   FileCheck,
-  // MessageCircle убрал, теперь он внутри HeroButtons
   Signpost,       
   Rotate3d,       
   ArrowLeftRight, 
@@ -18,7 +18,9 @@ import {
   Building2,      
   Store,          
   Construction,
-  Briefcase
+  Briefcase,
+  HelpCircle,     // New for FAQ
+  ChevronDown     // New for FAQ
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
@@ -29,7 +31,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -42,49 +44,75 @@ const PAGE_DATA = {
   price: "45 000" 
 };
 
-export const metadata = {
-  title: "Панель-кронштейны и Консольные вывески | ADLight Астана",
-  description: "Изготовление двухсторонних световых коробов на кронштейнах. Аптечные кресты, круглые лайтбоксы, навигационные указатели.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Панель-кронштейны Астана | Консольные вывески от 45 000 тг",
+  description: "Изготовление двухсторонних вывесок (консолей). Круглые лайтбоксы, аптечные кресты, фигурные кронштейны. Монтаж перпендикулярно фасаду.",
+  keywords: ["панель кронштейн", "консольная вывеска", "двухсторонняя вывеска", "аптечный крест", "круглый лайтбокс", "торцевая вывеска"],
+  openGraph: {
+    title: "Панель-кронштейны | Работают на 2 стороны",
+    description: "Идеально для узких улиц и пешеходных зон.",
+    images: ["/images/panel-brackets/panel-brackets-07.webp"]
+  }
 };
 
-// --- ТИПЫ КРОНШТЕЙНОВ (С ФОТО) ---
+// --- ТИПЫ КРОНШТЕЙНОВ ---
 const BRACKET_TYPES = [
   {
     title: "Круглый световой",
     desc: "Классика для кофеен и барбершопов. Идеальная форма, которая вписывается в любую архитектуру.",
-    image: "/images/panel-brackets/type-round.jpg", 
+    image: "/images/panel-brackets/panel-brackets-07.webp", 
     tag: "Хит продаж"
   },
   {
     title: "Прямоугольный",
     desc: "Максимум информации. Подходит для банков, нотариусов и названий улиц. Вертикальный или горизонтальный.",
-    image: "/images/panel-brackets/type-rect.jpg", 
+    image: "/images/panel-brackets/panel-brackets-06.webp", 
     tag: "Информативно"
   },
   {
     title: "Фигурный (Логотип)",
     desc: "Короб в форме вашего логотипа (зуб, ножницы, бургер). Вырезается на фрезере. Запоминается лучше всего.",
-    image: "/images/panel-brackets/type-shaped.jpg", 
+    image: "/images/panel-brackets/type-shaped.webp", 
     tag: "Креатив"
   },
   {
     title: "Аптечный крест",
     desc: "Специфический вид с открытыми зелеными диодами. Часто делаем динамическим (мерцание, бегущая строка).",
-    image: "/images/panel-brackets/type-pharmacy.jpg", 
+    image: "/images/panel-brackets/panel-brackets-02.webp", 
     tag: "Яркость"
   },
   {
     title: "Динамический (Вращение)",
     desc: "Вывеска с мотором, которая вращается вокруг своей оси. Привлекает в 3 раза больше внимания за счет движения.",
-    image: "/images/panel-brackets/type-dynamic.jpg", 
+    image: "/images/panel-brackets/panel-brackets-03.webp", 
     tag: "Wow-эффект"
   },
   {
     title: "Интерьерный указатель",
     desc: "Тонкие таблички для навигации внутри ТРЦ и БЦ. Указывают на туалеты, выходы или офисы.",
-    image: "/images/panel-brackets/type-interior.jpg", 
+    image: "/images/panel-brackets/panel-brackets-04.webp", 
     tag: "Навигация"
   },
+];
+
+// --- [NEW] FAQ ДАННЫЕ ---
+const FAQ_ITEMS = [
+  {
+    question: "Не сдует ли её ветром?",
+    answer: "Это самый частый вопрос. Панель-кронштейн испытывает сильные ветровые нагрузки (парусность). Поэтому внутри каждого нашего изделия стоит усиленный металлокаркас, который крепится к стене анкерными болтами.",
+    icon: <ShieldCheck className="w-5 h-5 text-blue-500"/>
+  },
+  {
+    question: "Нужно ли разрешение?",
+    answer: "Да, как и для любой наружной рекламы. Консольные вывески должны соответствовать Дизайн-коду Астаны (определенная высота размещения, отступ от стены). Мы помогаем с эскизом для согласования.",
+    icon: <FileCheck className="w-5 h-5 text-green-500"/>
+  },
+  {
+    question: "Как подводится электричество?",
+    answer: "Провод выводится из стены в месте крепления ножки кронштейна. Если фасад уже готов и сверлить нельзя, мы аккуратно ведем кабель в цвет фасада до ближайшей точки подключения.",
+    icon: <Zap className="w-5 h-5 text-yellow-500"/>
+  }
 ];
 
 export default async function PanelBracketsPage() {
@@ -94,14 +122,53 @@ export default async function PanelBracketsPage() {
 
   // 2. ФОТО ДЛЯ HERO
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
-  // Заглушки, если папка пуста
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
     : ["/images/panel-brackets/type-round.jpg", "/images/panel-brackets/type-rect.jpg"]; 
 
+  // 3. ГЕНЕРАЦИЯ SCHEMA
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "name": "Изготовление панель-кронштейнов",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "ADLight"
+        },
+        "description": "Производство и монтаж двухсторонних консольных вывесок.",
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/panel-brackets",
+          "priceCurrency": "KZT",
+          "price": "45000",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-indigo-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -133,7 +200,6 @@ export default async function PanelBracketsPage() {
                     Идеальное решение для узких улиц и торговых рядов. Крепится перпендикулярно стене, "ловит" взгляд пешехода как шлагбаум.
                  </p>
                  
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="indigo" />
                  
               </div>
@@ -332,33 +398,59 @@ export default async function PanelBracketsPage() {
       {/* 7. ДИЗАЙН КОД */}
       <DesignCodeBlock />
 
+      {/* === [NEW] БЛОК 7.5: FAQ === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Вопросы о кронштейнах</h2>
+            </div>
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-indigo-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-indigo-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-indigo-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
+      </section>
+
       {/* 8. ГАЛЕРЕЯ */}
       <section className="py-24 bg-slate-950">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Фотогалерея</h2>
-              <p className="text-gray-400">Примеры консольных вывесок</p>
-          </div>
-          <div className="container mx-auto px-4">
-              {/* Проверяем наличие картинок */}
-              {galleryImages.length > 0 ? (
-                 <ImageGallery images={galleryImages} /> 
-              ) : (
-                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                    Загрузите фото в папку public/images/panel-brackets
-                 </div>
-              )}
-              
-              {/* ССЫЛКА НА ПОРТФОЛИО */}
-              <div className="mt-16 flex justify-center">
-                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                    <span className="relative z-10 flex items-center gap-2">
-                       <Briefcase className="w-5 h-5 text-indigo-500"/>
-                       Посмотреть все работы в Портфолио
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                 </Link>
-              </div>
-          </div>
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Фотогалерея</h2>
+            <p className="text-gray-400">Примеры консольных вывесок</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/panel-brackets
+               </div>
+            )}
+            
+            {/* ССЫЛКА НА ПОРТФОЛИО */}
+            <div className="mt-16 flex justify-center">
+               <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                  <span className="relative z-10 flex items-center gap-2">
+                     <Briefcase className="w-5 h-5 text-indigo-500"/>
+                     Посмотреть все работы в Портфолио
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+               </Link>
+            </div>
+         </div>
       </section>
 
       {/* 9. ОТЗЫВЫ И CTA */}

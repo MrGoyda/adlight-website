@@ -1,23 +1,23 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  Grid3X3,        // Пиксели
-  Zap,            // Энергия
-  Cpu,            // Контроллер
-  Smartphone,     // Управление
+  Grid3X3,        
+  Zap,            
+  Cpu,            
+  Smartphone,     
   Settings,       
   Lightbulb,
   Shield,
   Layers,
-  Activity,       // Ритм
+  Activity,       
   ArrowRight,
   ChevronDown,
   Briefcase,
   MousePointerClick
-  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -25,7 +25,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -38,12 +38,20 @@ const PAGE_DATA = {
   slug: "pixel-led", 
   title: "Пиксельные буквы (Smart LED)",
   subtitle: "Рекордная яркость и динамические спецэффекты. Открытые диоды, которые работают как магнит для глаз.",
-  price: "800" 
+  // ВАЖНО: Цена 1000
+  price: "1000" 
 };
 
-export const metadata = {
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
   title: "Пиксельные буквы (Smart LED) | Живая реклама Астана",
-  description: "Изготовление вывесок с открытыми светодиодами. Программируемая динамика, RGB эффекты, контроллеры. Самые яркие буквы.",
+  description: "Изготовление вывесок с открытыми светодиодами. Программируемая динамика, RGB эффекты, контроллеры. Цена от 1000 тг/см.",
+  keywords: ["пиксельные буквы", "smart led вывеска", "открытые диоды", "динамическая реклама", "бегущая строка"],
+  openGraph: {
+    title: "Smart LED Вывески | Анимация и RGB",
+    description: "Управляйте цветом и эффектами с телефона. Самая яркая технология.",
+    images: ["/images/letters/pixel-led-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -80,9 +88,51 @@ export default async function PixelLedPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Пиксельные буквы (Smart LED)",
+        "image": displayHeroImages[0],
+        "description": "Световые буквы с открытыми пиксельными модулями. Возможность программирования анимации и смены цветов.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/pixel-led",
+          "priceCurrency": "KZT",
+          "price": "1000",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-green-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff10_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>

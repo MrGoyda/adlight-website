@@ -1,21 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
-  CheckCircle, 
   ArrowRight, 
   ChevronRight, 
   Layers, 
   FileCheck,
-  MessageCircle,
   Eye,          
-  Sun,          
   Zap,          
   ShieldCheck,  
   Hammer,
   Moon,
-  Star,
-  MousePointerClick
+  Sun,
+  MousePointerClick,
+  Briefcase
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
@@ -26,20 +25,20 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <-- Новый импорт
+import HeroButtons from "@/components/HeroButtons";
 
-// --- УТИЛИТА ДЛЯ СБОРА ФОТО (СЕРВЕРНАЯ) ---
+// --- УТИЛИТА ДЛЯ СБОРА ФОТО ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
-// --- КАТАЛОГ ТИПОВ ---
+// --- КАТАЛОГ ТИПОВ (С ОБНОВЛЕННЫМИ ЦЕНАМИ) ---
 const volumeLettersCatalog = [
   {
     id: 1,
     slug: 'face-lit',
     title: 'Световое лицо', 
     description: 'Классика. Самый популярный выбор. Светится только лицевая часть, борта в цвет фасада.',
-    price: "от 450 ₸/см",
-    images: { day: '/images/letters/face-lit-day.png', night: '/images/letters/face-lit-night.png' },
+    price: "от 550 ₸/см", // Было 450
+    images: { day: '/images/letters/face-lit-day.webp', night: '/images/letters/face-lit-night.webp' },
     badge: "Хит продаж"
   },
   {
@@ -47,8 +46,8 @@ const volumeLettersCatalog = [
     slug: 'full-lit',
     title: 'Полное свечение',
     description: 'Эффект «леденца». Буква светится целиком (лицо + борта). Максимальный угол обзора 360°.',
-    price: "от 650 ₸/см",
-    images: { day: '/images/letters/full-lit-day.png', night: '/images/letters/full-lit-night.png' },
+    price: "от 850 ₸/см", // Было 650
+    images: { day: '/images/letters/full-lit-day.webp', night: '/images/letters/full-lit-night.webp' },
     badge: "Premium"
   },
   {
@@ -56,8 +55,8 @@ const volumeLettersCatalog = [
     slug: 'back-lit',
     title: 'Контражур',
     description: 'Эффект парения. Свет направлен на стену, создавая мягкий ореол вокруг темной буквы.',
-    price: "от 550 ₸/см",
-    images: { day: '/images/letters/back-lit-day.png', night: '/images/letters/back-lit-night.png' },
+    price: "от 650 ₸/см", // Было 550
+    images: { day: '/images/letters/back-lit-day.webp', night: '/images/letters/back-lit-night.webp' },
     badge: "Стиль"
   },
   {
@@ -65,8 +64,8 @@ const volumeLettersCatalog = [
     slug: 'combo-lit',
     title: 'Комбо (Лицо + Бэк)',
     description: 'Двойной удар. Читаемость лицевого свечения + премиальный ореол контражура.',
-    price: "от 850 ₸/см",
-    images: { day: '/images/letters/combo-lit-day.png', night: '/images/letters/combo-lit-night.png' },
+    price: "от 950 ₸/см", // Было 850
+    images: { day: '/images/letters/combo-lit-day.webp', night: '/images/letters/combo-lit-night.webp' },
     badge: "VIP"
   },
   {
@@ -74,8 +73,8 @@ const volumeLettersCatalog = [
     slug: 'side-lit',
     title: 'Светятся борта',
     description: 'Инверсия. Лицо темное, а контур (борт) светится. Строгий, архитектурный стиль.',
-    price: "от 600 ₸/см",
-    images: { day: '/images/letters/side-lit-day.png', night: '/images/letters/side-lit-night.png' },
+    price: "от 700 ₸/см", // Было 600
+    images: { day: '/images/letters/side-lit-day.webp', night: '/images/letters/side-lit-night.webp' },
   },
   {
     id: 6,
@@ -83,7 +82,7 @@ const volumeLettersCatalog = [
     title: 'Перфорация',
     description: 'Wow-эффект. Алюминиевый борт с тысячами отверстий создает эффект мерцания кристаллов.',
     price: "от 750 ₸/см",
-    images: { day: '/images/letters/perforated-day.png', night: '/images/letters/perforated-night.png' },
+    images: { day: '/images/letters/perforated-day.webp', night: '/images/letters/perforated-night.webp' },
     badge: "Тренд"
   },
   {
@@ -91,8 +90,8 @@ const volumeLettersCatalog = [
     slug: 'acrylic-slim',
     title: 'Жидкий акрил',
     description: 'Технология 2025. Монолитная заливка без рамок и кантов. На 30% ярче обычных.',
-    price: "от 900 ₸/см",
-    images: { day: '/images/letters/acrylic-slim-day.png', night: '/images/letters/acrylic-slim-night.png' },
+    price: "от 1000 ₸/см", // Было 900
+    images: { day: '/images/letters/acrylic-slim-day.webp', night: '/images/letters/acrylic-slim-night.webp' },
     badge: "New"
   },
   {
@@ -101,15 +100,15 @@ const volumeLettersCatalog = [
     title: 'Ретро с лампами',
     description: 'Стиль Лофт / Бродвей. Открытые винтажные лампы для создания атмосферы.',
     price: "от 1200 ₸/см",
-    images: { day: '/images/letters/loft-lamps-day.png', night: '/images/letters/loft-lamps-night.png' },
+    images: { day: '/images/letters/loft-lamps-day.webp', night: '/images/letters/loft-lamps-night.webp' },
   },
   {
     id: 9,
     slug: 'pixel-led',
     title: 'Пиксельные LED',
     description: 'Открытые диоды. Рекордная яркость и динамические спецэффекты (анимация).',
-    price: "от 800 ₸/см",
-    images: { day: '/images/letters/pixel-led-day.png', night: '/images/letters/pixel-led-night.png' },
+    price: "от 1000 ₸/см", // Было 800
+    images: { day: '/images/letters/pixel-led-day.webp', night: '/images/letters/pixel-led-night.webp' },
   },
   {
     id: 10,
@@ -117,7 +116,7 @@ const volumeLettersCatalog = [
     title: 'Эко / Дерево',
     description: 'Натуральные материалы. Лазерная резка фанеры или массива с пропиткой маслом.',
     price: "от 350 ₸/см",
-    images: { day: '/images/letters/wood-style-day.png', night: '/images/letters/wood-style-night.png' },
+    images: { day: '/images/letters/wood-style-day.webp', night: '/images/letters/wood-style-night.webp' },
   },
   {
     id: 11,
@@ -125,7 +124,7 @@ const volumeLettersCatalog = [
     title: 'Без подсветки',
     description: 'Бюджетное решение для интерьеров. Объемные буквы из ПВХ или пенопласта.',
     price: "от 200 ₸/см",
-    images: { day: '/images/letters/non-lit-day.png', night: '/images/letters/non-lit-night.png' },
+    images: { day: '/images/letters/non-lit-day.webp', night: '/images/letters/non-lit-night.webp' },
   },
   {
     id: 12,
@@ -133,38 +132,87 @@ const volumeLettersCatalog = [
     title: 'День / Ночь',
     description: 'Магия пленки: днем буквы черные, ночью светятся ярко-белым.',
     price: "от 700 ₸/см",
-    images: { day: '/images/letters/day-night-effect-day.png', night: '/images/letters/day-night-effect-night.png' },
+    images: { day: '/images/letters/day-night-effect-day.webp', night: '/images/letters/day-night-effect-night.webp' },
   },
 ];
 
-export const metadata = {
-  title: "Объемные буквы в Астане | Производство вывесок ADLight",
-  description: "Изготовление всех видов объемных букв: световые, контражур, жидкий акрил, ретро-лампы. Собственный цех, монтаж по Дизайн-коду.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Объемные буквы в Астане | Цены от 200 тг/см | ADLight",
+  description: "Изготовление световых букв всех видов: жидкий акрил, контражур, неон, ретро-лампы. Собственное производство, гарантия 1 год, согласование с Акиматом.",
+  keywords: ["объемные буквы Астана", "световые буквы цена", "жидкий акрил вывески", "ретро буквы с лампами", "изготовление рекламы"],
+  openGraph: {
+    title: "Объемные буквы в Астане | Производство ADLight",
+    description: "Каталог световых букв. 12 технологий свечения. Рассчитайте стоимость онлайн.",
+    images: ['/images/letters/full-lit-night.webp'], 
+  }
 };
 
 export default async function VolumeLettersPage() {
   
-  // 1. СБОР ВСЕХ ФОТО ДЛЯ ОБЩЕЙ ГАЛЕРЕИ
+  // СБОР ФОТО
   const allSlugs = volumeLettersCatalog.map(i => i.slug);
   let allGalleryImages: string[] = [];
   
   allSlugs.forEach(slug => {
     const images = getImagesFromFolder(slug);
     if (images.length > 0) {
-        // Берем по 3 лучших фото из каждой папки
         allGalleryImages = [...allGalleryImages, ...images.slice(0, 3)]; 
     }
   });
 
-  // 2. HERO SLIDER (Топ-15 рандомных)
   let heroImages = [...allGalleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
   if (heroImages.length === 0) {
     heroImages = volumeLettersCatalog.map(item => item.images.night);
   }
 
+  // 2. ГЕНЕРАЦИЯ SCHEMA (OfferCatalog)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Изготовление объемных букв",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "ADLight",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Астана",
+        "addressCountry": "KZ"
+      }
+    },
+    "areaServed": "Астана",
+    "description": "Производство всех видов объемных букв: от несветовых до жидкого акрила.",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Виды объемных букв",
+      "itemListElement": volumeLettersCatalog.map(item => ({
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": item.title,
+          "description": item.description,
+          "url": `https://adlight.kz/services/volume-letters/${item.slug}`
+        },
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          // Роботы увидят тут чистые числа: 550, 850 и т.д.
+          "minPrice": parseInt(item.price.replace(/\D/g, '')) || 0,
+          "priceCurrency": "KZT",
+          "unitCode": "CMT"
+        }
+      }))
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-orange-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -196,7 +244,6 @@ export default async function VolumeLettersPage() {
                     Делаем ярко, надежно и <strong>строго по Дизайн-коду</strong> города.
                  </p>
                  
-                 {/* НОВЫЕ КНОПКИ С МОДАЛКОЙ */}
                  <HeroButtons source="Услуга: Объемные буквы (Общая)" priceColor="orange" />
 
               </div>
@@ -230,6 +277,7 @@ export default async function VolumeLettersPage() {
                      <p className="text-gray-400 text-lg leading-relaxed mb-6">
                         В визуальном шуме города плоская вывеска — невидимка. Объем, свет и тень создают "визуальный якорь".
                      </p>
+
                      <div className="flex items-start gap-4">
                         <div className="p-3 bg-orange-500/20 rounded-xl text-orange-500 shrink-0"><Eye className="w-6 h-6"/></div>
                         <div>
@@ -247,9 +295,6 @@ export default async function VolumeLettersPage() {
                      <p className="text-gray-300 font-medium">
                         К вниманию прохожих по сравнению с плоскими коробами.
                      </p>
-                     <div className="absolute -bottom-4 -right-4 text-slate-800 opacity-20 transform rotate-12">
-                        <Star className="w-32 h-32"/>
-                     </div>
                   </div>
                </div>
             </div>
@@ -281,14 +326,14 @@ export default async function VolumeLettersPage() {
                         )}
 
                         <div className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-0 z-10">
-                           <Image src={type.images.night} alt={`${type.title} ночью`} fill className="object-cover"/>
+                           <Image src={type.images.night} alt={`${type.title} - ночная подсветка`} fill className="object-cover"/>
                            <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] text-white flex items-center gap-1">
                               <Moon className="w-3 h-3 text-blue-400"/> Ночь
                            </div>
                         </div>
 
                         <div className="absolute inset-0">
-                           <Image src={type.images.day} alt={`${type.title} днем`} fill className="object-cover"/>
+                           <Image src={type.images.day} alt={`${type.title} - вид днем`} fill className="object-cover"/>
                            <div className="absolute bottom-2 left-2 bg-white/80 backdrop-blur px-2 py-1 rounded text-[10px] text-black flex items-center gap-1">
                               <Sun className="w-3 h-3 text-orange-500"/> День
                            </div>
@@ -360,7 +405,7 @@ export default async function VolumeLettersPage() {
       <section className="py-24 bg-[#0F172A] border-t border-slate-800">
          <div className="container mx-auto px-4">
              <div className="max-w-5xl mx-auto bg-gradient-to-r from-orange-600 to-red-600 rounded-3xl p-8 md:p-12 relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-orange-900/50">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.webp')] opacity-20"></div>
                 <div className="relative z-10 md:max-w-xl">
                    <h2 className="text-3xl font-bold text-white mb-4">Узнайте точную цену за 1 минуту</h2>
                    <p className="text-white/90 text-lg">
@@ -415,7 +460,7 @@ export default async function VolumeLettersPage() {
             <div className="mt-16 flex justify-center">
                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
                   <span className="relative z-10 flex items-center gap-2">
-                     <BriefcaseIcon className="w-5 h-5 text-orange-500"/>
+                     <Briefcase className="w-5 h-5 text-orange-500"/>
                      Посмотреть все работы в Портфолио
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-red-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
@@ -431,25 +476,4 @@ export default async function VolumeLettersPage() {
 
     </div>
   );
-}
-
-// --- ВСПОМОГАТЕЛЬНАЯ ИКОНКА (Если Briefcase не импортируется корректно) ---
-function BriefcaseIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
-      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-    </svg>
-  )
 }

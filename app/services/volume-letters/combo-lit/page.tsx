@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
@@ -14,7 +15,6 @@ import {
   ArrowRight,
   ChevronDown,
   Briefcase
-  // MessageCircle убрал, так как он теперь внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -22,7 +22,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -35,12 +35,20 @@ const PAGE_DATA = {
   slug: "combo-lit", 
   title: "Комбинированная подсветка",
   subtitle: "Лицо + Контражур. Двойной световой эффект для брендов, которые привыкли доминировать.",
-  price: "850" 
+  // ВАЖНО: Обновил цену до 950 (было 850)
+  price: "950" 
 };
 
-export const metadata = {
-  title: "Комбинированные буквы (Лицо + Контражур) | Премиум вывески Астана",
-  description: "Изготовление букв с двойной подсветкой. Самый дорогой и эффектный вид рекламы. Сложная сборка, максимальная яркость.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Комбинированные буквы (Лицо + Контражур) | VIP Вывески Астана",
+  description: "Изготовление букв с двойной подсветкой (Double Lit) в Астане. Максимальная яркость: лицевое свечение + ореол. Цена от 950 тг/см.",
+  keywords: ["комбинированные буквы", "лицо и контражур", "double lit channel letters", "элитная вывеска астана", "дорогая реклама"],
+  openGraph: {
+    title: "Комбинированные вывески | Premium Segment",
+    description: "Двойной световой эффект для максимального внимания.",
+    images: ["/images/letters/combo-lit-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -77,9 +85,51 @@ export default async function ComboLitLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Комбинированные объемные буквы (Double Lit)",
+        "image": displayHeroImages[0],
+        "description": "Премиальные вывески с двойным свечением: лицевая часть и контражур одновременно.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/combo-lit",
+          "priceCurrency": "KZT",
+          "price": "950",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-yellow-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -122,7 +172,6 @@ export default async function ComboLitLettersPage() {
                     </li>
                  </ul>
 
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="yellow" />
                  
               </div>
@@ -306,7 +355,7 @@ export default async function ComboLitLettersPage() {
                     <div className="mt-8 pt-6 border-t border-slate-700">
                        <div className="flex justify-between items-end mb-6">
                           <span className="text-gray-400 text-sm">Итоговая стоимость:</span>
-                          <span className="text-3xl font-black text-white tracking-tight">204 000 ₸</span>
+                          <span className="text-3xl font-black text-white tracking-tight">228 000 ₸</span>
                        </div>
                        <Link href="/calculator" className="group block w-full py-4 bg-yellow-600 hover:bg-yellow-700 text-black font-bold rounded-xl text-center transition-all shadow-lg shadow-yellow-900/20 flex items-center justify-center gap-3 active:scale-95">
                            <Calculator className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"/> Точный расчет

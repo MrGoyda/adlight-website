@@ -1,51 +1,59 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ArrowRight, 
   ChevronRight, 
-  Map,            // Карта
-  Signpost,       // Указатель
-  User,           // Табличка
-  Layers,         // Материалы
-  PenTool,        // Дизайн
-  Printer,        // Печать
-  Scan,           // Гравировка
+  Map,            
+  Signpost,       
+  User,           
+  Layers,         
+  PenTool,        
+  Printer,        
+  Scan,           
   Building,
-  // MessageCircle убрал, теперь он внутри HeroButtons
-  Layout,         // Схема
-  ArrowUpRight,   // Направление
-  Repeat,         // Сменная информация
+  Layout,         
+  ArrowUpRight,   
+  Repeat,         
   ShieldCheck,
-  MapPin
+  MapPin,
+  HelpCircle,     // New
+  ChevronDown     // New
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import CallToAction from "@/components/CallToAction";
-import ProjectsBento from "@/components/ProjectsBento";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
 // --- ДАННЫЕ СТРАНИЦЫ ---
 const PAGE_DATA = {
-  slug: "navigation", // Папка public/images/navigation
+  slug: "navigation", 
   title: "Системы навигации и таблички",
   subtitle: "Понятная логистика для ваших клиентов. От таблички на дверь до комплексной навигации бизнес-центра.",
-  price: "5 000" // Цена от
+  price: "5 000" 
 };
 
-export const metadata = {
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
   title: "Изготовление табличек и навигации в Астане | ADLight",
-  description: "Офисные таблички, навигационные указатели, стенды. Металл, акрил, гравировка. Wayfinding системы для БЦ и ТРЦ.",
+  description: "Системы визуальной навигации для БЦ, ТРЦ и офисов. Таблички на дверь, поэтажные планы, подвесные указатели. Дизайн и монтаж. Цена от 5000 тг.",
+  keywords: ["таблички на дверь", "навигация в офис", "указатели астана", "wayfinding systems", "стенды навигации", "rowmark таблички"],
+  openGraph: {
+    title: "Навигация для бизнеса | ADLight",
+    description: "Помогаем клиентам находить вас. Стильные указатели и таблички.",
+    images: ["/images/navigation/navigation-06.webp"]
+  }
 };
 
 // --- ТИПЫ НАВИГАЦИИ (С ФОТО) ---
@@ -53,39 +61,58 @@ const NAV_TYPES = [
   {
     title: "Кабинетные таблички",
     desc: "Именные или номерные таблички на дверь. ПВХ, акрил, двухслойный пластик (золото/серебро).",
-    image: "/images/navigation/type-door.jpg", 
+    image: "/images/navigation/navigation-01.webp", 
     tag: "Офис"
   },
   {
     title: "Настенные указатели",
     desc: "Стрелки, списки компаний в холле, поэтажные планы. Помогают найти путь от входа до двери.",
-    image: "/images/navigation/type-wall.jpg", 
+    image: "/images/navigation/navigation-06.webp", 
     tag: "Логистика"
   },
   {
     title: "Подвесные системы",
     desc: "Двухсторонние указатели под потолком. Идеальны для коридоров, супермаркетов и паркингов.",
-    image: "/images/navigation/type-hanging.jpg", 
+    image: "/images/navigation/navigation-02.webp", 
     tag: "Видимость"
   },
   {
     title: "Модульные стенды",
     desc: "Реечные системы из алюминия. Позволяют легко менять названия компаний при смене арендаторов.",
-    image: "/images/navigation/type-wall.jpg", // Можно повторить или свое
+    image: "/images/navigation/navigation-05.webp", 
     tag: "Сменные"
   },
   {
     title: "Интерьерные пилоны",
     desc: "Отдельно стоящие стелы в лобби или холле. Премиальный вид, возможность встроенной подсветки.",
-    image: "/images/navigation/type-pylon.jpg", 
+    image: "/images/navigation/navigation-03.webp", 
     tag: "Премиум"
   },
   {
     title: "Знаки безопасности",
     desc: "Планы эвакуации, пожарные знаки, 'Выход'. Фотолюминесцентная пленка (светится в темноте).",
-    image: "/images/navigation/type-safety.jpg", 
+    image: "/images/navigation/navigation-04.webp", 
     tag: "ГОСТ"
   },
+];
+
+// --- [NEW] FAQ ДАННЫЕ ---
+const FAQ_ITEMS = [
+  {
+    question: "Как крепятся таблички?",
+    answer: "Легкие таблички (ПВХ, Rowmark) крепятся на двусторонний скотч 3M (держит намертво). Акриловые или стеклянные панели устанавливаются на декоративные дистанционные держатели (требуется сверление).",
+    icon: <ShieldCheck className="w-5 h-5 text-green-500"/>
+  },
+  {
+    question: "Можно ли менять информацию?",
+    answer: "Да. Для таких задач мы используем модульные профильные системы (наборные рейки) или акриловые карманы. Вы сможете сами распечатать и заменить вкладыш.",
+    icon: <Repeat className="w-5 h-5 text-blue-500"/>
+  },
+  {
+    question: "Вы разрабатываете дизайн?",
+    answer: "Конечно. Если у вас нет брендбука, мы разработаем систему навигации с нуля: подберем шрифты, иконки и цвета, чтобы они вписывались в интерьер и были читаемыми.",
+    icon: <PenTool className="w-5 h-5 text-teal-500"/>
+  }
 ];
 
 export default async function NavigationPage() {
@@ -95,14 +122,53 @@ export default async function NavigationPage() {
 
   // 2. ФОТО ДЛЯ HERO
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
-  // Заглушки
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
     : ["/images/navigation/type-wall.jpg", "/images/navigation/type-door.jpg"]; 
 
+  // 3. ГЕНЕРАЦИЯ SCHEMA (Service + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "name": "Изготовление систем навигации и табличек",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "ADLight"
+        },
+        "description": "Проектирование и производство офисной навигации, табличек, указателей.",
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/navigation",
+          "priceCurrency": "KZT",
+          "price": "5000",
+          "availability": "https://schema.org/InStock"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-teal-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -133,7 +199,6 @@ export default async function NavigationPage() {
                     Помогаем вашим клиентам не заблудиться. Разрабатываем и производим стильные системы навигации для БЦ, ТРЦ, отелей и офисов. От таблички на дверь до этажных планов.
                  </p>
                  
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="teal" />
 
               </div>
@@ -228,17 +293,23 @@ export default async function NavigationPage() {
                     key={i} 
                     className="group relative h-[300px] rounded-3xl overflow-hidden border border-slate-800 bg-slate-900 cursor-default"
                   >
+                     {/* ФОТОГРАФИЯ ФОНОМ */}
                      <Image 
                         src={type.image} 
                         alt={type.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
                      />
+                     
+                     {/* ГРАДИЕНТ */}
                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+
+                     {/* КОНТЕНТ */}
                      <div className="absolute inset-0 p-8 flex flex-col justify-end">
                         <div className="absolute top-4 right-4 bg-teal-600/90 backdrop-blur text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg">
                            {type.tag}
                         </div>
+                        
                         <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-teal-400 transition-colors">{type.title}</h3>
                         <p className="text-sm text-gray-300 leading-relaxed opacity-90">
                            {type.desc}
@@ -320,25 +391,54 @@ export default async function NavigationPage() {
          </div>
       </section>
 
-      {/* 8. ГАЛЕРЕЯ */}
-      <section className="py-24 bg-slate-950">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Примеры навигации</h2>
-              <p className="text-gray-400">Работы для офисов и клиник</p>
-          </div>
-          <div className="container mx-auto px-4">
-              {/* Проверяем наличие картинок */}
-              {galleryImages.length > 0 ? (
-                 <ImageGallery images={galleryImages} /> 
-              ) : (
-                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                    Загрузите фото в папку public/images/navigation
-                 </div>
-              )}
-          </div>
+      {/* === [NEW] БЛОК 6.5: FAQ === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Частые вопросы</h2>
+               <p className="text-gray-400">Что важно знать о навигации</p>
+            </div>
+
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-teal-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-teal-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-teal-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
       </section>
 
-      {/* 9. ОТЗЫВЫ И CTA */}
+      {/* 7. ГАЛЕРЕЯ */}
+      <section className="py-24 bg-slate-950">
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Примеры навигации</h2>
+            <p className="text-gray-400">Работы для офисов и клиник</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {/* Проверяем наличие картинок */}
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/navigation
+               </div>
+            )}
+         </div>
+      </section>
+
+      {/* 8. ОТЗЫВЫ И CTA */}
       <ReviewsCarousel />
       <ServicesCarousel title="Другие услуги" subtitle="Комплексное оформление" hiddenLink="/services/navigation"/>
       <CallToAction source="Услуга: Навигация" />

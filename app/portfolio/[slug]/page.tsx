@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Metadata } from "next"; // Типизация
 import { 
   ArrowLeft, 
   Calendar, 
@@ -25,7 +26,6 @@ import VideoModalWrapper from "@/components/VideoModalWrapper";
 
 // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
-// Получаем лейблы категорий на русском
 const getCategoryLabels = (catIds: string[]) => {
   return catIds.map(id => {
     const category = CATEGORIES.find(c => c.id === id);
@@ -33,10 +33,8 @@ const getCategoryLabels = (catIds: string[]) => {
   });
 };
 
-// Получаем случайные проекты (кроме текущего)
 const getRelatedProjects = (currentId: string) => {
   const others = PROJECTS.filter(p => p.id !== currentId);
-  // Перемешиваем и берем 3
   return others.sort(() => 0.5 - Math.random()).slice(0, 3);
 };
 
@@ -44,13 +42,22 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
+// 1. ДИНАМИЧЕСКИЕ METADATA
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const project = PROJECTS.find((p) => p.slug === resolvedParams.slug);
+  
   if (!project) return { title: "Проект не найден" };
+  
   return {
-    title: `${project.title} | Портфолио ADLight`,
-    description: project.description,
+    title: `${project.title} | Кейс ADLight Астана`,
+    description: project.description.slice(0, 160), // Обрезаем для SEO
+    openGraph: {
+      title: project.title,
+      description: project.description,
+      images: [project.image],
+      type: "article", // Это статья/кейс
+    },
   };
 }
 
@@ -65,17 +72,39 @@ export default async function ProjectPage({ params }: Props) {
   const relatedProjects = getRelatedProjects(project.id);
   const categoryLabels = getCategoryLabels(project.categories);
 
+  // 2. ГЕНЕРАЦИЯ SCHEMA (CreativeWork / Article)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": project.title,
+    "description": project.description,
+    "image": `https://adlight.kz${project.image}`, // Укажите домен
+    "dateCreated": project.date,
+    "author": {
+      "@type": "Organization",
+      "name": "ADLight"
+    },
+    "locationCreated": {
+      "@type": "Place",
+      "name": project.location || "Астана"
+    },
+    "keywords": categoryLabels.join(", ")
+  };
+
   return (
     <div className="min-h-screen bg-[#020617] font-sans selection:bg-orange-500/30">
       
-      {/* 1. HERO SECTION (Новый дизайн) */}
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* 1. HERO SECTION */}
       <section className="relative pt-32 pb-12 lg:pt-40 lg:pb-20 overflow-hidden">
-         {/* Фон - легкое свечение */}
          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
          <div className="container mx-auto px-4 relative z-10">
-            
-            {/* Хлебные крошки */}
             <div className="flex flex-wrap items-center gap-2 text-gray-500 text-sm mb-8">
                <Link href="/" className="hover:text-white transition">Главная</Link>
                <ChevronRight className="w-3 h-3"/>
@@ -85,7 +114,7 @@ export default async function ProjectPage({ params }: Props) {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-               {/* Левая колонка: Текст */}
+               {/* Левая колонка */}
                <div className="flex flex-col justify-center h-full pt-4">
                   <div className="flex flex-wrap gap-3 mb-6">
                      {categoryLabels.map((label, i) => (
@@ -115,7 +144,6 @@ export default async function ProjectPage({ params }: Props) {
                      )}
                   </div>
 
-                  {/* Кнопка ВИДЕО (Client Component Wrapper) */}
                   {project.videoUrl && (
                      <div className="mb-8">
                         <VideoModalWrapper videoUrl={project.videoUrl} />
@@ -131,28 +159,24 @@ export default async function ProjectPage({ params }: Props) {
                <div className="relative aspect-[4/3] lg:aspect-square rounded-3xl overflow-hidden border border-slate-800 shadow-2xl group">
                   <Image 
                      src={project.image} 
-                     alt={project.title} 
+                     alt={project.seoAlt || project.title} // SEO Alt
                      fill 
                      className="object-cover transition-transform duration-1000 group-hover:scale-105"
                      priority
-                     sizes="(max-width: 1024px) 100vw, 50vw" // <--- ДОБАВЛЕНО
+                     sizes="(max-width: 1024px) 100vw, 50vw" // Оптимизация
                   />
-                  {/* Градиент снизу для объема */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#020617]/80 via-transparent to-transparent opacity-60"></div>
                </div>
             </div>
          </div>
       </section>
 
-      {/* 2. MAIN CONTENT (CASE STUDY) */}
+      {/* 2. MAIN CONTENT */}
       <section className="py-12 lg:py-24 bg-[#020617]">
          <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-12 gap-12">
                
-               {/* ЛЕВАЯ КОЛОНКА: ИСТОРИЯ (8 cols) */}
                <div className="lg:col-span-8 space-y-16">
-                  
-                  {/* Задача */}
                   <div className="group">
                      <div className="flex items-center gap-4 mb-6">
                         <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center font-bold text-xl border border-red-500/20 group-hover:scale-110 transition-transform">01</div>
@@ -163,7 +187,6 @@ export default async function ProjectPage({ params }: Props) {
                      </p>
                   </div>
 
-                  {/* Процесс (если есть) */}
                   {project.process && (
                      <div className="group">
                         <div className="flex items-center gap-4 mb-6">
@@ -176,7 +199,6 @@ export default async function ProjectPage({ params }: Props) {
                      </div>
                   )}
 
-                  {/* Решение */}
                   <div className="group">
                      <div className="flex items-center gap-4 mb-6">
                         <div className="w-12 h-12 rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center font-bold text-xl border border-green-500/20 group-hover:scale-110 transition-transform">
@@ -191,7 +213,6 @@ export default async function ProjectPage({ params }: Props) {
                      </div>
                   </div>
 
-                  {/* CTA ВНУТРИ ТЕКСТА */}
                   <div className="py-8">
                      <Link 
                         href={project.relatedServiceSlug ? `/services/${project.relatedServiceSlug}` : "/calculator"}
@@ -211,14 +232,10 @@ export default async function ProjectPage({ params }: Props) {
                         </div>
                      </Link>
                   </div>
-
                </div>
 
-               {/* ПРАВАЯ КОЛОНКА: ДЕТАЛИ (4 cols - Sticky) */}
                <div className="lg:col-span-4">
                   <div className="sticky top-32 space-y-8">
-                     
-                     {/* Блок характеристик */}
                      <div className="bg-[#0B1120] border border-slate-800 rounded-3xl p-8">
                         <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                            <Info className="w-5 h-5 text-blue-500"/> Детали проекта
@@ -259,10 +276,8 @@ export default async function ProjectPage({ params }: Props) {
                         </div>
                      </div>
 
-                     {/* Менеджер (Опционально - заглушка для доверия) */}
                      <div className="bg-[#0B1120] border border-slate-800 rounded-2xl p-6 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden relative">
-                           {/* Можно вставить фото менеджера */}
                            <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400">AD</div> 
                         </div>
                         <div>
@@ -270,10 +285,8 @@ export default async function ProjectPage({ params }: Props) {
                            <a href="https://wa.me/77071356701" className="text-green-500 text-xs font-bold hover:underline">Написать в WhatsApp →</a>
                         </div>
                      </div>
-
                   </div>
                </div>
-
             </div>
          </div>
       </section>
@@ -288,7 +301,7 @@ export default async function ProjectPage({ params }: Props) {
          </section>
       )}
 
-      {/* 4. СМОТРИТЕ ТАКЖЕ (3 ПРОЕКТА) */}
+      {/* 4. СМОТРИТЕ ТАКЖЕ */}
       <section className="py-24 bg-slate-950 border-t border-slate-800">
          <div className="container mx-auto px-4">
             <div className="flex justify-between items-end mb-12">
@@ -306,10 +319,10 @@ export default async function ProjectPage({ params }: Props) {
                   <Link key={p.id} href={`/portfolio/${p.slug}`} className="group block relative h-[350px] rounded-2xl overflow-hidden border border-slate-800 bg-slate-900">
                      <Image 
                         src={p.image} 
-                        alt={p.title} 
+                        alt={p.seoAlt || p.title} 
                         fill 
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
-                        sizes="(max-width: 768px) 100vw, 33vw" // <--- ДОБАВЛЕНО
+                        sizes="(max-width: 768px) 100vw, 33vw"
                      />
                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                      <div className="absolute inset-0 p-6 flex flex-col justify-end">

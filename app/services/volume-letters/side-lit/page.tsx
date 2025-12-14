@@ -1,21 +1,21 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  BoxSelect,      // Контур
-  Scan,           // Технологичность
+  BoxSelect,      
+  Scan,           
   Layers,         
   Zap,            
   Shield,         
-  Ban,            // Иконка запрета (для крыш)
-  Palette,       
+  Ban,            
+  Palette,        
   ArrowRight,
   ChevronDown,
   Briefcase,
   Monitor
-  // MessageCircle убрал, теперь он внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -23,7 +23,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -36,12 +36,20 @@ const PAGE_DATA = {
   slug: "side-lit", 
   title: "Объемные буквы с боковым свечением",
   subtitle: "Строгая эстетика. Темное лицо и яркий световой контур. Выбор IT-компаний и современных офисов.",
-  price: "600" 
+  // ВАЖНО: Цена 700
+  price: "700" 
 };
 
-export const metadata = {
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
   title: "Буквы с боковым свечением (Side Lit) | Вывески Астана",
-  description: "Изготовление букв со светящимися бортами. Эффектный контур, архитектурный стиль. Идеально для интерьеров и фасадов.",
+  description: "Изготовление букв со светящимися бортами (торцевая подсветка). Стильный контур, неслепящий свет. Цена от 700 тг/см.",
+  keywords: ["боковое свечение буквы", "side lit letters", "контурная подсветка", "вывеска для офиса астана", "стильные вывески"],
+  openGraph: {
+    title: "Side Lit Вывески | Светящийся контур",
+    description: "Строгий стиль для IT-компаний и офисов.",
+    images: ["/images/letters/side-lit-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -78,9 +86,51 @@ export default async function SideLitLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы с боковым свечением (Side Lit)",
+        "image": displayHeroImages[0],
+        "description": "Световые буквы, у которых светятся только боковые грани (торцы). Лицевая часть не световая.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/side-lit",
+          "priceCurrency": "KZT",
+          "price": "700",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-blue-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -310,7 +360,7 @@ export default async function SideLitLettersPage() {
                     <div className="mt-8 pt-6 border-t border-slate-700">
                        <div className="flex justify-between items-end mb-6">
                           <span className="text-gray-400 text-sm">Итоговая стоимость:</span>
-                          <span className="text-3xl font-black text-white tracking-tight">96 000 ₸</span>
+                          <span className="text-3xl font-black text-white tracking-tight">112 000 ₸</span>
                        </div>
                        <Link href="/calculator" className="group block w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-3 active:scale-95">
                            <Calculator className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"/> Точный расчет

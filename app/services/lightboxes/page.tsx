@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
@@ -7,7 +8,6 @@ import {
   ChevronRight, 
   Layers, 
   FileCheck,
-  // MessageCircle убрал, так как он теперь внутри HeroButtons
   Box,            
   Maximize,       
   Zap,            
@@ -17,7 +17,10 @@ import {
   Repeat,         
   MoveHorizontal, 
   Scissors,       
-  Briefcase
+  Briefcase,
+  HelpCircle,     // New
+  ChevronDown,    // New
+  Sun
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
@@ -28,7 +31,7 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -38,50 +41,58 @@ const PAGE_DATA = {
   slug: "lightboxes", 
   title: "Световые короба (Лайтбоксы)",
   subtitle: "От простых вывесок до сверхтонких меню-бордов. Максимальная площадь свечения по лучшей цене.",
-  price: "35 000" 
+  // ВАЖНО: Стартовая цена (Акрил/Фигурный)
+  price: "80 000" 
 };
 
-export const metadata = {
-  title: "Световые короба и Лайтбоксы в Астане | ADLight",
-  description: "Изготовление лайтбоксов: акриловые, баннерные, композитные, фигурные. Тонкие панели Magnet и меню-борды. Собственное производство.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Световые короба Астана | Лайтбоксы от 80 000 тг | ADLight",
+  description: "Изготовление лайтбоксов всех видов: акриловые, баннерные (для больших размеров), композитные с инкрустацией. Собственное производство, гарантия качества.",
+  keywords: ["световой короб астана", "лайтбокс цена", "изготовление лайтбоксов", "баннерный короб", "вывеска для магазина"],
+  openGraph: {
+    title: "Лайтбоксы в Астане | Яркая реклама",
+    description: "Любые размеры и формы. Расчет стоимости за 1 минуту.",
+    images: ["/images/lightboxes/lightboxes-08.webp"]
+  }
 };
 
-// --- КАТАЛОГ ВИДОВ (С ФОТО) ---
+// --- КАТАЛОГ ВИДОВ ---
 const LIGHTBOX_TYPES = [
   {
     title: "Акриловый короб",
     desc: "Лицевая часть из оргстекла. Идеально ровная глянцевая поверхность. Самый популярный вариант для магазинов.",
-    image: "/images/lightboxes/type-acrylic.jpg", 
-    tag: "Стандарт"
+    image: "/images/lightboxes/lightboxes-08.webp", 
+    tag: "Хит продаж"
   },
   {
     title: "Баннерный короб",
     desc: "Для гигантских размеров (более 3м). Лицо — транслюцентный баннер. Никаких стыков.",
-    image: "/images/lightboxes/type-banner.jpg", 
+    image: "/images/lightboxes/lightboxes-12.webp", 
     tag: "XXL Размер"
   },
   {
     title: "Фигурный лайтбокс",
     desc: "Короб в форме логотипа, круга или любой сложной фигуры. Вырезается на фрезерном станке.",
-    image: "/images/lightboxes/type-shaped.jpg", 
+    image: "/images/lightboxes/lightboxes-02.webp", 
     tag: "Логотип"
   },
   {
     title: "Композитный короб",
     desc: "Непрозрачный короб с прорезными буквами (инкрустация). Светится только текст. Премиальный вид.",
-    image: "/images/lightboxes/type-composite.jpg", 
+    image: "/images/lightboxes/lightboxes-13.webp", 
     tag: "Премиум"
   },
   {
     title: "Алюминиевый профиль",
     desc: "Сверхпрочный каркас. Борта из анодированного алюминия. Не боится ударов и вандализма.",
-    image: "/images/lightboxes/type-aluminum.jpg", 
+    image: "/images/lightboxes/lightboxes-06.webp", 
     tag: "Прочность"
   },
   {
     title: "Двухсторонний (Панель)",
     desc: "Торцевой лайтбокс (консоль). Крепится перпендикулярно стене. Работает на пешеходный трафик.",
-    image: "/images/lightboxes/type-panel.jpg", 
+    image: "/images/lightboxes/lightboxes-03.webp", 
     tag: "Трафик"
   },
 ];
@@ -108,6 +119,25 @@ const SMART_SOLUTIONS = [
   }
 ];
 
+// --- [NEW] FAQ ДАННЫЕ ---
+const FAQ_ITEMS = [
+  {
+    question: "Можно ли поменять изображение?",
+    answer: "Зависит от типа. В баннерных коробах — легко (просто перетянуть ткань). В акриловых — сложнее (нужно переклеивать пленку). Для частой смены изображений мы рекомендуем клик-профили или магнитные панели.",
+    icon: <Repeat className="w-5 h-5 text-purple-500"/>
+  },
+  {
+    question: "Боится ли он дождя?",
+    answer: "Уличные лайтбоксы полностью герметичны (IP65/IP67). Мы используем влагозащищенные блоки питания и диоды. Интерьерные короба (сверхтонкие) предназначены только для помещений.",
+    icon: <ShieldCheck className="w-5 h-5 text-blue-500"/>
+  },
+  {
+    question: "Какое максимальное размер без шва?",
+    answer: "Акрил ограничен листом 3х2 метра. Если короб больше — будет стык. Баннерный короб можно сделать до 50 метров в длину без единого шва.",
+    icon: <Maximize className="w-5 h-5 text-orange-500"/>
+  }
+];
+
 export default async function LightboxesPage() {
   
   // 1. ПОЛУЧАЕМ ФОТО
@@ -115,14 +145,69 @@ export default async function LightboxesPage() {
 
   // 2. ФОТО ДЛЯ HERO
   const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
-  // Используем дефолтные, если папка пуста
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
     : ["/images/lightboxes/type-acrylic.jpg", "/images/lightboxes/type-banner.jpg"];
 
+  // 3. ГЕНЕРАЦИЯ SCHEMA (Service + OfferCatalog)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "name": "Изготовление световых коробов",
+        "provider": { "@type": "LocalBusiness", "name": "ADLight" },
+        "description": "Производство лайтбоксов любой сложности: от акриловых до баннерных.",
+        "hasOfferCatalog": {
+           "@type": "OfferCatalog",
+           "name": "Виды коробов",
+           "itemListElement": [
+             {
+               "@type": "Offer",
+               "itemOffered": { "@type": "Service", "name": "Акриловый лайтбокс" },
+               "priceSpecification": { "@type": "PriceSpecification", "price": 80000, "priceCurrency": "KZT", "unitCode": "SMK" } // Square Meter
+             },
+             {
+               "@type": "Offer",
+               "itemOffered": { "@type": "Service", "name": "Баннерный короб" },
+               "priceSpecification": { "@type": "PriceSpecification", "price": 90000, "priceCurrency": "KZT", "unitCode": "SMK" }
+             },
+             {
+               "@type": "Offer",
+               "itemOffered": { "@type": "Service", "name": "Композитный короб" },
+               "priceSpecification": { "@type": "PriceSpecification", "price": 120000, "priceCurrency": "KZT", "unitCode": "SMK" }
+             },
+             {
+               "@type": "Offer",
+               "itemOffered": { "@type": "Service", "name": "Фигурный короб" },
+               "priceSpecification": { "@type": "PriceSpecification", "price": 80000, "priceCurrency": "KZT", "unitCode": "SMK" }
+             }
+           ]
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-blue-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -153,7 +238,6 @@ export default async function LightboxesPage() {
                     Самый эффективный способ заявить о себе по соотношению <strong>Цена / Площадь</strong>.
                  </p>
                  
-                 {/* --- НОВЫЙ ИЗОЛИРОВАННЫЙ КОМПОНЕНТ КНОПОК --- */}
                  <HeroButtons source={PAGE_DATA.title} priceColor="blue" />
 
               </div>
@@ -197,7 +281,7 @@ export default async function LightboxesPage() {
                         className="object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-40"
                      />
                      
-                     {/* ГРАДИЕНТ (чтобы текст читался) */}
+                     {/* ГРАДИЕНТ */}
                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
 
                      {/* КОНТЕНТ */}
@@ -304,8 +388,8 @@ export default async function LightboxesPage() {
                        </p>
                     </div>
                     <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800/50">
-                        <p className="text-gray-500 text-xs uppercase font-bold tracking-wider mb-1">Средняя цена</p>
-                        <div className="flex items-baseline gap-2"><span className="text-white text-sm">от</span><span className="text-5xl font-black text-white">35 000</span><span className="text-blue-500 text-xl font-bold">₸ / кв.м</span></div>
+                        <p className="text-gray-500 text-xs uppercase font-bold tracking-wider mb-1">Акриловый / Фигурный</p>
+                        <div className="flex items-baseline gap-2"><span className="text-white text-sm">от</span><span className="text-5xl font-black text-white">80 000</span><span className="text-blue-500 text-xl font-bold">₸ / м²</span></div>
                         <div className="h-1 w-full bg-slate-800 rounded-full mt-4 overflow-hidden"><div className="h-full w-1/2 bg-blue-500 rounded-full"></div></div>
                     </div>
                  </div>
@@ -335,7 +419,7 @@ export default async function LightboxesPage() {
                     <div className="mt-8 pt-6 border-t border-slate-700">
                        <div className="flex justify-between items-end mb-6">
                           <span className="text-gray-400 text-sm">Итоговая стоимость:</span>
-                          <span className="text-3xl font-black text-white tracking-tight">35 000 ₸</span>
+                          <span className="text-3xl font-black text-white tracking-tight">80 000 ₸</span>
                        </div>
                        <Link href="/calculator" className="group block w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-blue-900/20 flex items-center justify-center gap-3 active:scale-95">
                            <Calculator className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"/> Точный расчет
@@ -350,33 +434,60 @@ export default async function LightboxesPage() {
       {/* 7. ДИЗАЙН КОД */}
       <DesignCodeBlock />
 
+      {/* === [NEW] БЛОК 7.5: FAQ === */}
+      <section className="py-24 bg-[#0B1221]">
+         <div className="container mx-auto px-4 max-w-3xl">
+            <div className="text-center mb-12">
+               <h2 className="text-3xl font-bold text-white mb-4">Вопросы о лайтбоксах</h2>
+            </div>
+
+            <div className="space-y-4">
+               {FAQ_ITEMS.map((item, index) => (
+                  <details key={index} className="group bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 open:border-blue-500/30 open:bg-slate-900/80">
+                     <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-800/50 transition">
+                        <div className="flex items-center gap-4">
+                           <div className="p-2 bg-slate-800 rounded-lg group-open:bg-blue-500/10 transition">
+                              {item.icon}
+                           </div>
+                           <span className="font-bold text-white text-base md:text-lg group-open:text-blue-500 transition">{item.question}</span>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gray-400 group-open:rotate-180 transition ml-4 shrink-0"><ChevronDown className="w-4 h-4"/></div>
+                     </summary>
+                     <div className="px-6 pb-6 pl-[4.5rem] text-gray-400 text-sm leading-relaxed border-t border-slate-800/50 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                        {item.answer}
+                     </div>
+                  </details>
+               ))}
+            </div>
+         </div>
+      </section>
+
       {/* 8. ГАЛЕРЕЯ */}
       <section className="py-24 bg-slate-950">
-          <div className="container mx-auto px-4 mb-12 text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Фотогалерея</h2>
-              <p className="text-gray-400">Наши работы по световым коробам</p>
-          </div>
-          <div className="container mx-auto px-4">
-              {/* Проверяем, нашлись ли картинки. Если нет — показываем заглушку с путем */}
-              {galleryImages.length > 0 ? (
-                 <ImageGallery images={galleryImages} /> 
-              ) : (
-                 <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
-                    Загрузите фото в папку public/images/lightboxes
-                 </div>
-              )}
-              
-              {/* ССЫЛКА НА ПОРТФОЛИО */}
-              <div className="mt-16 flex justify-center">
-                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                    <span className="relative z-10 flex items-center gap-2">
-                       <Briefcase className="w-5 h-5 text-blue-500"/>
-                       Посмотреть все работы в Портфолио
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                 </Link>
-              </div>
-          </div>
+         <div className="container mx-auto px-4 mb-12 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Фотогалерея</h2>
+            <p className="text-gray-400">Наши работы по световым коробам</p>
+         </div>
+         <div className="container mx-auto px-4">
+            {galleryImages.length > 0 ? (
+               <ImageGallery images={galleryImages} /> 
+            ) : (
+               <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">
+                  Загрузите фото в папку public/images/lightboxes
+               </div>
+            )}
+            
+            {/* ССЫЛКА НА ПОРТФОЛИО */}
+            <div className="mt-16 flex justify-center">
+               <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                  <span className="relative z-10 flex items-center gap-2">
+                     <Briefcase className="w-5 h-5 text-blue-500"/>
+                     Посмотреть все работы в Портфолио
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+               </Link>
+            </div>
+         </div>
       </section>
 
       {/* 9. ОТЗЫВЫ И CTA */}

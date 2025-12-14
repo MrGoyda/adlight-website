@@ -11,56 +11,56 @@ const services = [
     desc: "Лицевая, боковая и контражурная подсветка. Комбинирование техник.", 
     price: "от 450 тг/см", 
     link: "/services/volume-letters", 
-    image: "/images/letters-galery/face-lit/4.jpg" 
+    image: "/images/pages/services-letters.webp" 
   },
   { 
     title: "Световые короба", 
     desc: "Лайтбоксы сложных форм, инкрустация.", 
     price: "от 35 000 тг/кв.м", 
     link: "/services/lightboxes", 
-    image: "/images/lightboxes/8.jpg" 
+    image: "/images/pages/services-lightboxes.webp" 
   },
   { 
     title: "Неоновые вывески", 
     desc: "Гибкий неон для интерьера и фотозон.", 
     price: "Индивидуально", 
     link: "/services/neon", 
-    image: "/images/neon/1.jpg" 
+    image: "/images/pages/services-neon.webp" 
   },
   { 
     title: "Крышные установки", 
     desc: "Громадные буквы на крышу. Расчет нагрузок.", 
     price: "Проектно", 
     link: "/services/roof-installations", 
-    image: "/4-1.jpg" 
+    image: "/images/pages/services-roof-installations.webp" 
   },
   { 
     title: "Панель-кронштейны", 
     desc: "Двусторонние торцевые вывески.", 
     price: "от 45 000 тг", 
     link: "/services/panel-brackets", 
-    image: "/panel.jpg" 
+    image: "/images/pages/services-panel-brackets.webp" 
   },
   { 
     title: "Входные группы", 
     desc: "Козырьки, композит, полная обшивка.", 
     price: "Проектно", 
     link: "/services/entrance-groups", 
-    image: "/dizayn-vhoda-magazina.jpg" 
+    image: "/images/pages/services-entrance-groups.webp" 
   },
   { 
     title: "Рекламные стелы", 
     desc: "Отдельно стоящие конструкции, пилоны для АЗС и навигации.", 
     price: "Проектно", 
     link: "/services/pylons", 
-    image: "/reklamnaya-stela.jpg" 
+    image: "/images/pages/services-pylons.webp" 
   },
   { 
     title: "Таблички и Навигация", 
     desc: "Офисные таблички, указатели и системы навигации внутри зданий.", 
     price: "от 5 000 ₸", 
     link: "/services/navigation", 
-    image: "/images/tablichka.jpg"
+    image: "/images/pages/services-navigation.webp"
   }
 ];
 

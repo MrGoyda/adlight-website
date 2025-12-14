@@ -2,18 +2,20 @@ import { MetadataRoute } from 'next';
 import { PROJECTS } from '@/lib/projectsData';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://adlight.kz'; // Убедись, что здесь твой реальный домен
+  const baseUrl = 'https://adlight.kz'; // Твой реальный домен
 
-  // 1. Статические маршруты (Все страницы, которые ты перечислил)
-  const routes = [
-    '', // Главная
+  // 1. Статические страницы (Общие)
+  const staticPages = [
+    '',           // Главная (Priority 1.0)
+    '/contacts',  // Важно для бизнеса (Priority 0.9)
+    '/portfolio', // Важно для доверия (Priority 0.9)
+    '/services',  // Разводящая (Priority 0.9)
     '/calculator',
-    '/contacts',
     '/design-code',
-    '/portfolio',
-    '/services',
-    
-    // Основные услуги
+  ];
+
+  // 2. Основные категории услуг (Высокий приоритет 0.9 - это твой хлеб)
+  const mainServices = [
     '/services/entrance-groups',
     '/services/interior',
     '/services/lightboxes',
@@ -23,8 +25,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/services/pylons',
     '/services/roof-installations',
     '/services/volume-letters',
+  ];
 
-    // Подуслуги (Виды объемных букв)
+  // 3. Узкие специализации (Приоритет 0.8 - "Long tail" запросы)
+  // AI очень любят эти страницы за конкретику
+  const subServices = [
     '/services/volume-letters/acrylic-slim',
     '/services/volume-letters/back-lit',
     '/services/volume-letters/combo-lit',
@@ -37,21 +42,39 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/services/volume-letters/pixel-led',
     '/services/volume-letters/side-lit',
     '/services/volume-letters/wood-style',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    // Главная - 1.0, Разделы услуг - 0.9, Подуслуги - 0.8
-    priority: route === '' ? 1 : route.split('/').length > 2 ? 0.8 : 0.9,
-  }));
+  ];
 
-  // 2. Динамические маршруты (Кейсы портфолио)
-  const projects = PROJECTS.map((project) => ({
+  // Формируем массив статики
+  const routes = [
+    ...staticPages.map((route) => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(), // Тут можно оставить new Date(), если сайт пересобирается редко
+      changeFrequency: 'monthly' as const,
+      priority: route === '' ? 1 : 0.9,
+    })),
+    ...mainServices.map((route) => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const, // Услуги обновляются чаще (цены, описание)
+      priority: 0.9, // Подняли приоритет!
+    })),
+    ...subServices.map((route) => ({
+      url: `${baseUrl}${route}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    })),
+  ];
+
+  // 4. Динамические маршруты (Кейсы портфолио)
+  // Проверка на случай, если PROJECTS пустой или undefined
+  const projectRoutes = (PROJECTS || []).map((project) => ({
     url: `${baseUrl}/portfolio/${project.slug}`,
-    lastModified: new Date(project.date), // Дата публикации проекта
-    changeFrequency: 'weekly' as const,   // Проекты могут обновляться
+    // Важно: Если у проекта есть дата, используем её. Если нет — текущую.
+    lastModified: project.date ? new Date(project.date) : new Date(),
+    changeFrequency: 'monthly' as const, // Кейсы меняются редко после публикации
     priority: 0.7,
   }));
 
-  return [...routes, ...projects];
+  return [...routes, ...projectRoutes];
 }

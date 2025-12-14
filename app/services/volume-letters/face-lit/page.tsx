@@ -1,39 +1,34 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
   FileCheck,
-  MessageCircle,
-  Eye,          
-  Zap,          
-  Shield,       
+  Eye,            
+  Zap,            
+  Shield,         
   Layers,
-  Info,
-  ChevronDown,
-  Store,        
-  Building,     
-  ShoppingBag,  
+  Store,          
+  Building,       
+  ShoppingBag,    
   Briefcase,
-  Palette,      // New
-  Sun,          // New
-  Moon,         // New
-  BatteryCharging, // New
+  Lightbulb,
+  BatteryCharging, 
   Clock,
-  ArrowRight,         // New
-Lightbulb
+  ArrowRight,
+  ChevronDown
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
 import CallToAction from "@/components/CallToAction";
-import ServicesCarousel from "@/components/ServicesCarousel"; // Если используется в layout, тут можно убрать, но оставим для структуры
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <-- Новый компонент
+import HeroButtons from "@/components/HeroButtons";
 
-// --- СЕРВЕРНАЯ УТИЛИТА (Сбор фото) ---
+// --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
 // --- ДАННЫЕ КАТАЛОГА ---
@@ -44,12 +39,20 @@ const PAGE_DATA = {
   slug: "face-lit", 
   title: "Объемные буквы со световым лицом",
   subtitle: "Классика наружной рекламы. Самый яркий и читаемый вид вывесок в Астане.",
-  price: "450" 
+  // ВАЖНО: Обновил цену до 550 (было 450)
+  price: "550" 
 };
 
-export const metadata = {
-  title: "Объемные буквы со световым лицом | Изготовление в Астане",
-  description: "Световые буквы с лицевой подсветкой. Акрил Plexiglas, герметичные модули. Расчет стоимости.",
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
+  title: "Световые буквы (Face Lit) | Изготовление вывесок Астана",
+  description: "Заказать объемные буквы с лицевой подсветкой. Акрил Plexiglas, гарантия 2 года, монтаж по дизайн-коду Астаны. Цена от 550 тг/см.",
+  keywords: ["световые буквы астана", "объемные буквы цена", "вывеска для магазина", "face lit channel letters", "наружная реклама изготовление"],
+  openGraph: {
+    title: "Объемные буквы со световым лицом | Хит продаж",
+    description: "Самый популярный вид вывесок. Ярко, надежно, по ГОСТу.",
+    images: ["/images/letters/face-lit-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -86,9 +89,51 @@ export default async function FaceLitLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Объемные буквы со световым лицом (Face Lit)",
+        "image": displayHeroImages[0],
+        "description": "Классические световые буквы: лицевая часть из акрила, борта из ПВХ или алюминия. Герметичность IP67.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/face-lit",
+          "priceCurrency": "KZT",
+          "price": "550",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-orange-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -224,7 +269,7 @@ export default async function FaceLitLettersPage() {
                       
                       {/* Большая карточка: ФАСАДЫ */}
                       <div className="min-w-[85vw] sm:min-w-[300px] lg:min-w-0 lg:col-span-2 relative h-[280px] lg:h-[360px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-blue-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-2xl">
-                         <Image src="/images/letters-galery/face-lit/4.jpg" alt="Фасадные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <Image src="/images/pages/face-lit-04.webp" alt="Фасадные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
                          {/* Градиент */}
                          <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
                          
@@ -247,7 +292,7 @@ export default async function FaceLitLettersPage() {
 
                       {/* Малая карточка: КРЫШИ */}
                       <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-orange-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                         <Image src="/krisha.jpg" alt="Крышные установки" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <Image src="/images/pages/roof-installations-04.webp" alt="Крышные установки" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
                          <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
                          <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-orange-900/50">
@@ -259,7 +304,7 @@ export default async function FaceLitLettersPage() {
 
                       {/* Малая карточка: ИНТЕРЬЕР */}
                       <div className="min-w-[70vw] sm:min-w-[250px] lg:min-w-0 relative h-[240px] lg:h-[260px] rounded-3xl overflow-hidden group border border-slate-800 hover:border-purple-500/50 transition-colors duration-500 snap-center bg-slate-900 shadow-xl">
-                         <Image src="/kmg.jpeg" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
+                         <Image src="/images/pages/5.webp" alt="Интерьерные вывески" fill className="object-cover transition duration-700 group-hover:scale-105 group-hover:brightness-110"/>
                          <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-90"></div>
                          <div className="absolute bottom-0 left-0 p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-600 text-white text-[10px] uppercase font-bold tracking-wider rounded-md mb-3 shadow-lg shadow-purple-900/50">
@@ -355,7 +400,7 @@ export default async function FaceLitLettersPage() {
                     <div className="mt-8 pt-6 border-t border-slate-700">
                        <div className="flex justify-between items-end mb-6">
                           <span className="text-gray-400 text-sm">Итоговая стоимость:</span>
-                          <span className="text-3xl font-black text-white tracking-tight">90 000 ₸</span>
+                          <span className="text-3xl font-black text-white tracking-tight">110 000 ₸</span>
                        </div>
                        <Link href="/calculator" className="group block w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-center transition-all shadow-lg shadow-orange-900/20 flex items-center justify-center gap-3 active:scale-95">
                            <Calculator className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform"/> Точный расчет
@@ -367,54 +412,7 @@ export default async function FaceLitLettersPage() {
          </div>
       </section>
 
-      {/* === [NEW] БЛОК 5: PRO TIPS (ВАЖНЫЕ ДЕТАЛИ) === */}
-      <section className="py-20 bg-slate-950 border-b border-slate-800">
-         <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-               
-               {/* Карточка 1: Цвета */}
-               
-               <div className="bg-[#0B1221] p-8 rounded-3xl border border-slate-800 hover:border-blue-500/30 transition flex gap-6">
-                  <div className="shrink-0">
-                     <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500"><Palette className="w-7 h-7"/></div>
-                  </div>
-                  <div>
-                     <h3 className="text-xl font-bold text-white mb-3">Какие цвета лучше светятся?</h3>
-                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                        Белый акрил пропускает 100% света и является самым ярким. Цветные пленки (красный, синий, зеленый) «съедают» часть яркости (до 20-30%).
-                     </p>
-                     <div className="p-3 bg-blue-900/20 border border-blue-500/20 rounded-xl">
-                        <p className="text-xs text-blue-200 font-medium">
-                           <span className="text-blue-400 font-bold">Совет:</span> Если нужна максимальная яркость — используйте цветной акрил, а не пленку (дороже на 15%, но ярче).
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Карточка 2: Черные буквы */}
-               
-               <div className="bg-[#0B1221] p-8 rounded-3xl border border-slate-800 hover:border-purple-500/30 transition flex gap-6">
-                  <div className="shrink-0">
-                     <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-500"><Moon className="w-7 h-7"/></div>
-                  </div>
-                  <div>
-                     <h3 className="text-xl font-bold text-white mb-3">Что насчет черных букв?</h3>
-                     <p className="text-sm text-gray-400 leading-relaxed mb-4">
-                        Обычный черный цвет не пропускает свет. Если у вас черный логотип, но вы хотите свечение ночью — есть решение.
-                     </p>
-                     <div className="p-3 bg-purple-900/20 border border-purple-500/20 rounded-xl">
-                        <p className="text-xs text-purple-200 font-medium">
-                           <span className="text-purple-400 font-bold">Технология «День/Ночь»:</span> Днем буквы выглядят черными (спец. акрил), а ночью при подсветке становятся белыми.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-            </div>
-         </div>
-      </section>
-
-      {/* === БЛОК 6: FAQ (УЛУЧШЕННЫЙ) === */}
+      {/* === БЛОК 5: FAQ === */}
       <section className="py-24 bg-[#0B1221]">
          <div className="container mx-auto px-4 max-w-3xl">
             <div className="text-center mb-12">
@@ -443,28 +441,28 @@ export default async function FaceLitLettersPage() {
          </div>
       </section>
 
-      {/* === БЛОК 7: ГАЛЕРЕЯ === */}
+      {/* === БЛОК 6: ГАЛЕРЕЯ === */}
       <section className="py-24 bg-slate-950">
           <div className="container mx-auto px-4 mb-12 text-center">
               <h2 className="text-3xl font-bold text-white mb-4">Примеры работ</h2>
               <p className="text-gray-400">Реализованные проекты этого типа</p>
           </div>
           <div className="container mx-auto px-4">
-             {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Фотографии скоро появятся...</div>}
-             
-             <div className="mt-16 flex justify-center">
-                <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
-                   <span className="relative z-10 flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-blue-500"/>
-                      Посмотреть все работы в Портфолио
-                   </span>
-                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                </Link>
-             </div>
+              {galleryImages.length > 0 ? <ImageGallery images={galleryImages} /> : <div className="text-center text-gray-500 py-12 border border-dashed border-slate-800 rounded-2xl">Фотографии скоро появятся...</div>}
+              
+              <div className="mt-16 flex justify-center">
+                 <Link href="/portfolio" className="group relative inline-flex items-center gap-3 px-8 py-4 bg-[#0B1221] border border-slate-700 rounded-full text-white font-bold hover:bg-slate-800 transition overflow-hidden">
+                    <span className="relative z-10 flex items-center gap-2">
+                       <Briefcase className="w-5 h-5 text-blue-500"/>
+                       Посмотреть все работы в Портфолио
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                 </Link>
+              </div>
           </div>
       </section>
 
-      {/* === БЛОК 8: СМОТРИТЕ ТАКЖЕ (REDESIGNED) === */}
+      {/* === БЛОК 7: СМОТРИТЕ ТАКЖЕ === */}
       <section className="py-24 bg-[#0F172A] border-t border-slate-800 relative">
          <div className="container mx-auto px-4">
              <h2 className="text-3xl font-bold text-white mb-12">Другие варианты букв</h2>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Metadata } from "next";
 import { 
   ArrowRight, 
   CheckCircle, 
@@ -18,27 +19,72 @@ import {
   FileText,  
   Copyright, 
   Clock,     
-  Info       
+  Info,
+  ShieldAlert
 } from "lucide-react";
 
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import CallToAction from "@/components/CallToAction";
 import ServicesCarousel from "@/components/ServicesCarousel";
-import DesignCodeHeroButtons from "@/components/DesignCodeHeroButtons"; // <-- Новый компонент
+import DesignCodeHeroButtons from "@/components/DesignCodeHeroButtons"; 
+import DesignCodeTabs from "@/components/DesignCodeTabs"; 
 
-// Тип для табов (оставим данные тут, так как они статичны)
-// Но саму интерактивность табов тоже лучше вынести, если она есть. 
-// В данном коде табы (TAB_DATA) требуют интерактивности.
-// !!! ВАЖНО: Так как ниже есть переключение табов (setActiveTab), 
-// нам придется либо вынести секцию табов в отдельный компонент, 
-// либо оставить 'use client' на всей странице. 
-// Чтобы сделать "по уму", давай вынесем блок Табов в отдельный компонент.
-
-import DesignCodeTabs from "@/components/DesignCodeTabs"; // <-- Создадим этот компонент ниже
+// 1. УЛУЧШЕННЫЕ METADATA (SEO/GEO)
+export const metadata: Metadata = {
+  title: "Дизайн-код Астаны 2025 | Требования к вывескам и рекламе",
+  description: "Правила размещения наружной рекламы в Астане. Как избежать штрафов и демонтажа? Согласование эскизов, получение паспорта рекламы, языковые нормы.",
+  keywords: ["дизайн код астана", "паспорт рекламы", "согласование вывески", "штраф за рекламу", "закон о языках", "урбанистика астана"],
+  openGraph: {
+    title: "Гид по Дизайн-коду Астаны",
+    description: "Единые правила оформления фасадов. Узнайте, соответствует ли ваша вывеска закону.",
+    images: ["/images/design-code/hero.webp"]
+  }
+};
 
 export default function DesignCodePage() {
+
+  // 2. SCHEMA.ORG (FAQ + Article)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "headline": "Правила Дизайн-кода Астаны для вывесок",
+        "description": "Руководство по размещению наружной рекламы: разрешенные размеры, места и типы конструкций.",
+        "author": { "@type": "Organization", "name": "ADLight" },
+        "publisher": { "@type": "Organization", "name": "ADLight", "logo": { "@type": "ImageObject", "url": "https://adlight.kz/logo.png" } }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Как узаконить вывеску на иностранном языке?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Есть 3 способа: 1) Сделать транслитерацию на казахский. 2) Использовать название, совпадающее с юридическим (по документам). 3) Зарегистрировать товарный знак." }
+          },
+          {
+            "@type": "Question",
+            "name": "Где можно вешать вывеску?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Строго в пределах, определенных паспортом фасада здания. Обычно это фриз над входом или простенок между окнами 1 и 2 этажа." }
+          },
+          {
+            "@type": "Question",
+            "name": "Разрешены ли баннеры на фасаде?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Нет. Использование баннерной ткани, натянутой на каркас, на фасадах зданий в Астане запрещено Дизайн-кодом." }
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-orange-500/30">
+      
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       
       {/* 1. HERO SECTION */}
       <section className="relative py-24 lg:py-32 overflow-hidden border-b border-slate-800">
@@ -80,6 +126,8 @@ export default function DesignCodePage() {
                    Есть только три официальных варианта согласования вывески с отделом языков. Выберите свой путь.
                 </p>
              </div>
+
+             
 
              <div className="grid lg:grid-cols-3 gap-8">
                 {/* ВАРИАНТ 1 */}
@@ -151,6 +199,8 @@ export default function DesignCodePage() {
                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Технические требования</h2>
                <p className="text-gray-400">Где и как размещать вывеску</p>
             </div>
+            
+            
 
             <div className="grid lg:grid-cols-3 gap-8">
                {/* Правило 1 */}
@@ -221,9 +271,14 @@ export default function DesignCodePage() {
          <div className="container mx-auto px-4">
             <div className="flex items-center gap-4 mb-12">
                <div className="h-px flex-1 bg-slate-800"></div>
-               <h2 className="text-3xl font-bold text-white text-center"><span className="text-red-500">СТОП-ЛИСТ:</span> Как делать нельзя</h2>
+               <h2 className="text-3xl font-bold text-white text-center flex items-center gap-3">
+                  <ShieldAlert className="w-8 h-8 text-red-500"/>
+                  <span>СТОП-ЛИСТ: Как делать нельзя</span>
+               </h2>
                <div className="h-px flex-1 bg-slate-800"></div>
             </div>
+
+            
 
             <div className="grid md:grid-cols-3 gap-6">
                {[
@@ -247,7 +302,6 @@ export default function DesignCodePage() {
       </section>
 
       {/* 5. КАТАЛОГ ФОРМАТОВ (ИНТЕРАКТИВНЫЙ КОМПОНЕНТ) */}
-      {/* Мы вынесли табы в отдельный компонент, чтобы страница осталась серверной */}
       <DesignCodeTabs />
 
       {/* 6. ЛИД-МАГНИТ */}

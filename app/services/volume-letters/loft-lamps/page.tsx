@@ -1,22 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Metadata } from "next"; // Типизация
 import { 
   Calculator, 
   CheckCircle, 
   ChevronRight, 
-  Lightbulb,      // Лампа
-  Flame,          // Тепло/Ржавчина
-  Trees,          // Дерево
+  Lightbulb,      
+  Flame,          
+  Trees,          
   Zap,            
-  Sliders,        // Диммер
-  Umbrella,       // Влагозащита
+  Sliders,        
+  Umbrella,       
   ArrowRight,
   ChevronDown,
   Briefcase,
-  Coffee,         // Для кофеен
-  Music,          // Для баров
+  Coffee,         
+  Music,          
   Settings
-  // MessageCircle убрал, так как он теперь внутри HeroButtons
 } from "lucide-react";
 
 // --- ИМПОРТ КЛИЕНТСКИХ КОМПОНЕНТОВ ---
@@ -24,7 +24,7 @@ import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
 import HeroSlideshow from "@/components/HeroSlideshow";
-import HeroButtons from "@/components/HeroButtons"; // <--- НАШ НОВЫЙ КОМПОНЕНТ
+import HeroButtons from "@/components/HeroButtons";
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -37,12 +37,20 @@ const PAGE_DATA = {
   slug: "loft-lamps", 
   title: "Ретро-буквы с лампами",
   subtitle: "Стиль Loft & Vintage. Атмосфера Бродвея 50-х годов в вашем интерьере. Вывески, которые создают настроение.",
-  price: "1 200" 
+  // ВАЖНО: Цена 1200
+  price: "1200" 
 };
 
-export const metadata = {
+// 1. УЛУЧШЕННЫЕ METADATA
+export const metadata: Metadata = {
   title: "Ретро буквы с лампами (Loft) | Marquee Letters Астана",
-  description: "Изготовление букв в стиле лофт с открытыми лампами. Корпус из металла, дерева или с эффектом ржавчины. Диммируемые вывески.",
+  description: "Изготовление винтажных букв с лампами Эдисона. Корпус из металла или дерева, эффект ржавчины. Идеально для баров и лофтов. Цена от 1200 тг/см.",
+  keywords: ["ретро буквы астана", "буквы с лампочками", "лофт вывеска", "marquee letters", "вывеска для бара"],
+  openGraph: {
+    title: "Винтажные вывески | Стиль Бродвея",
+    description: "Теплый ламповый свет для создания уникальной атмосферы.",
+    images: ["/images/letters/loft-lamps-night.webp"]
+  }
 };
 
 // --- FAQ ДАННЫЕ ---
@@ -79,9 +87,51 @@ export default async function LoftLettersPage() {
   // 3. "ДРУГИЕ ВИДЫ"
   const otherTypes = volumeLettersCatalog.filter(item => item.slug !== PAGE_DATA.slug);
 
+  // 4. ГЕНЕРАЦИЯ SCHEMA (Product + FAQ)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "Ретро-буквы с лампами (Marquee Letters)",
+        "image": displayHeroImages[0],
+        "description": "Винтажные буквы с открытыми лампами в стиле Лофт. Металлический или деревянный корпус.",
+        "brand": {
+          "@type": "Brand",
+          "name": "ADLight"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://adlight.kz/services/volume-letters/loft-lamps",
+          "priceCurrency": "KZT",
+          "price": "1200",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQ_ITEMS.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-[#0F172A] font-sans selection:bg-orange-500/30">
       
+      {/* Вставляем Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* === 1. HERO SECTION === */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-800">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-5"></div>
@@ -255,10 +305,10 @@ export default async function LoftLettersPage() {
                   <div className="relative aspect-video rounded-3xl overflow-hidden border border-slate-700 shadow-2xl bg-black group">
                      {/* Имитация сравнения */}
                      <div className="absolute inset-0 flex">
-                        <div className="w-1/2 h-full bg-[url('/images/letters/loft-lamps-night.png')] bg-cover bg-center border-r border-white/20 relative">
+                        <div className="w-1/2 h-full bg-[url('/images/letters/loft-lamps-night.webp')] bg-cover bg-center border-r border-white/20 relative">
                            <div className="absolute bottom-4 left-4 bg-black/60 text-white text-xs px-2 py-1 rounded">100% Яркость</div>
                         </div>
-                        <div className="w-1/2 h-full bg-[url('/images/letters/loft-lamps-night.png')] bg-cover bg-center relative">
+                        <div className="w-1/2 h-full bg-[url('/images/letters/loft-lamps-night.webp')] bg-cover bg-center relative">
                            <div className="absolute inset-0 bg-black/40"></div> {/* Затемнение */}
                            <div className="absolute bottom-4 left-4 bg-black/60 text-orange-300 text-xs px-2 py-1 rounded">30% Яркость</div>
                         </div>
