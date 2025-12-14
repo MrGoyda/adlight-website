@@ -2,30 +2,43 @@
 
 import { useEffect } from "react";
 import AOS from "aos";
-import "aos/dist/aos.css";
+// УБИРАЕМ импорт отсюда: import "aos/dist/aos.css"; 
 import { usePathname } from "next/navigation";
 
 export default function AOSInit() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // 1. Инициализируем AOS (каждый раз при смене пути)
-    AOS.init({
-      once: true, // Анимация проигрывается 1 раз
-      disable: "phone", // Отключаем на телефонах (чтобы не грузить проц и не ломать скролл)
-      duration: 700,
-      easing: "ease-out-cubic",
-    });
+    // Проверка на ширину экрана (чтобы не грузить CSS на мобилках, раз у тебя disable: phone)
+    // 768px - стандартная граница планшета/мобилки
+    const isMobile = window.innerWidth < 768; 
 
-    // 2. ЖЕСТКИЙ РЕФРЕШ
-    // Мы используем setTimeout, чтобы дать React время отрисовать новый DOM
-    // перед тем, как AOS начнет искать элементы.
+    const initAOS = async () => {
+      // Динамически импортируем CSS только если это НЕ мобилка
+      // или если ты решишь включить анимацию везде — убери if (!isMobile)
+      if (!isMobile) {
+        await import("aos/dist/aos.css"); // <--- ВОТ МАГИЯ (Lazy Load)
+        
+        AOS.init({
+          once: true,
+          disable: "phone",
+          duration: 700,
+          easing: "ease-out-cubic",
+        });
+      }
+    };
+
+    initAOS();
+
+    // Жесткий рефреш при смене страниц
     const timer = setTimeout(() => {
-      AOS.refreshHard(); // .refreshHard() сильнее, чем просто .refresh()
+      if (!isMobile) {
+         AOS.refreshHard();
+      }
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [pathname]); // <- Срабатывает при любом изменении URL
+  }, [pathname]);
 
   return null;
 }
