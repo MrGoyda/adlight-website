@@ -24,16 +24,17 @@ import {
 import CallToAction from "@/components/CallToAction";
 
 export default function ContactsPage() {
-  const [copied, setCopied] = useState(false);
+  // Используем ID скопированного элемента, чтобы анимация срабатывала только на нужной кнопке
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   // Полные реквизиты для копирования
   const requisitesText = `Исполнитель: ИП Гойденко Е.И.\nИИН: 940222351384\nИИК: KZ29601A871003316341 (АО «Народный Банк Казахстана»)\nБИК: HSBKKZKX\nЮр. адрес: г. Астана, ул. Сыганак, д. 10, кв. 177`;
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function ContactsPage() {
   const currentHour = isClient ? new Date().getHours() : 12;
   const isOpen = currentHour >= 9 && currentHour < 18;
 
-  // SEO: Schema.org для локального бизнеса (Гео-оптимизация)
+  // SEO: Schema.org для локального бизнеса
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -59,7 +60,7 @@ export default function ContactsPage() {
     },
     "geo": {
       "@type": "GeoCoordinates",
-      "latitude": 51.185, // Примерные координаты Аспара 7
+      "latitude": 51.185,
       "longitude": 71.495 
     },
     "openingHoursSpecification": {
@@ -164,8 +165,13 @@ export default function ContactsPage() {
                   <div>
                      <p className="text-gray-400 text-sm mb-1">Для макетов и счетов</p>
                      <a href="mailto:elisey.goyda@gmail.com" className="text-lg font-bold text-white hover:text-pink-500 transition block mb-4 break-words">elisey.goyda@gmail.com</a>
-                     <button onClick={() => {navigator.clipboard.writeText('elisey.goyda@gmail.com'); alert('Email скопирован!')}} className="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition">
-                        <Copy className="w-4 h-4"/> Скопировать
+                     
+                     <button 
+                        onClick={() => copyToClipboard('elisey.goyda@gmail.com', 'email')} 
+                        className={`text-sm flex items-center gap-2 transition ${copiedId === 'email' ? 'text-green-500' : 'text-slate-400 hover:text-white'}`}
+                     >
+                        {copiedId === 'email' ? <Check className="w-4 h-4"/> : <Copy className="w-4 h-4"/>} 
+                        {copiedId === 'email' ? 'Скопировано!' : 'Скопировать'}
                      </button>
                   </div>
                </div>
@@ -215,8 +221,17 @@ export default function ContactsPage() {
       {/* 4. КАРТА (АДРЕС ЦЕХА) */}
       <section className="py-0 bg-slate-950 border-t border-slate-800 relative h-[600px]">
         <div className="absolute inset-0 bg-slate-800">
-           {/* КАРТА */}
-           <iframe  src="https://yandex.ru/map-widget/v1/?text=Астана+Аспара+7&z=16" width="100%" height="100%" frameBorder="0" style={{ filter: 'grayscale(100%) invert(90%) hue-rotate(180deg)' }} className="opacity-80"></iframe>
+           {/* КАРТА С ИСПРАВЛЕННЫМ TITLE */}
+           <iframe 
+             src="https://yandex.ru/map-widget/v1/?text=Астана+Аспара+7&z=16" 
+             width="100%" 
+             height="100%" 
+             frameBorder="0" 
+             title="Интерактивная карта проезда к цеху ADLight" 
+             style={{ filter: 'grayscale(100%) invert(90%) hue-rotate(180deg)' }} 
+             className="opacity-80"
+             loading="lazy"
+           ></iframe>
         </div>
         <div className="container mx-auto px-4 h-full flex items-center relative pointer-events-none">
            <div className="bg-[#0B1120]/95 backdrop-blur-md p-8 rounded-3xl border border-slate-700 shadow-2xl max-w-md w-full pointer-events-auto">
@@ -250,7 +265,7 @@ export default function ContactsPage() {
         </div>
       </section>
 
-      {/* 5. РЕКВИЗИТЫ (ОБНОВЛЕННЫЕ) */}
+      {/* 5. РЕКВИЗИТЫ */}
       <section className="py-16 bg-[#0B1120] border-t border-slate-800">
          <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col md:flex-row justify-between items-start gap-8">
@@ -278,10 +293,10 @@ export default function ContactsPage() {
                </div>
                
                <button 
-                  onClick={() => copyToClipboard(requisitesText)}
-                  className={`shrink-0 px-6 py-3 rounded-xl border flex items-center gap-2 transition font-medium w-full md:w-auto justify-center ${copied ? 'bg-green-500 text-white border-green-500' : 'bg-slate-800 text-white border-slate-700 hover:bg-slate-700'}`}
+                  onClick={() => copyToClipboard(requisitesText, 'requisites')}
+                  className={`shrink-0 px-6 py-3 rounded-xl border flex items-center gap-2 transition font-medium w-full md:w-auto justify-center ${copiedId === 'requisites' ? 'bg-green-500 text-white border-green-500' : 'bg-slate-800 text-white border-slate-700 hover:bg-slate-700'}`}
                >
-                  {copied ? <><Check className="w-4 h-4"/> Скопировано</> : <><Copy className="w-4 h-4"/> Копировать реквизиты</>}
+                  {copiedId === 'requisites' ? <><Check className="w-4 h-4"/> Скопировано</> : <><Copy className="w-4 h-4"/> Копировать реквизиты</>}
                </button>
             </div>
          </div>

@@ -9,10 +9,13 @@ export default function ContactsSection() {
       {/* Карта (Слой 1) */}
       <div className="absolute inset-0 bg-slate-800">
         <iframe 
-            src="https://yandex.ru/map-widget/v1/?text=Астана+Аспара+7&z=16" // Обновленный поиск по адресу
+            src="https://yandex.ru/map-widget/v1/?text=Астана+Аспара+7&z=16" 
             width="100%" 
             height="100%" 
             frameBorder="0" 
+            // ▼ ДОБАВЛЕН АТРИБУТ TITLE ▼
+            title="Карта проезда к офису ADLight"
+            // ▲ ----------------------- ▲
             style={{ filter: 'grayscale(100%) invert(90%) hue-rotate(180deg)' }} 
             className="opacity-80 w-full h-full"
             loading="lazy"
