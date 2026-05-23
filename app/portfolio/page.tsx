@@ -8,6 +8,7 @@ import AOS from "aos";
 
 import { PROJECTS, CATEGORIES, ProjectCategory } from "@/lib/projectsData";
 import CallToAction from "@/components/CallToAction";
+import { getFeatureFlags } from "@/lib/featureFlags";
 
 // Выносим утилиту наружу, чтобы не создавать её при каждом рендере
 const formatDate = (dateString: string) => {
@@ -18,11 +19,20 @@ const formatDate = (dateString: string) => {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<ProjectCategory | 'all'>('all');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
 
-  // --- 1. ОПТИМИЗИРОВАННАЯ ФИЛЬТРАЦИЯ (useMemo) ---
+  // --- 1. ЛЕНИВАЯ ПОДГРУЗКА (ВИРТУАЛИЗАЦИЯ) ---
+  const [visibleCount, setVisibleCount] = useState(9);
+
+  // Сброс видимого количества при смене категории
+  useEffect(() => {
+    setVisibleCount(9);
+  }, [activeCategory]);
+
+  // --- 2. ОПТИМИЗИРОВАННАЯ ФИЛЬТРАЦИЯ (useMemo) ---
   const sortedProjects = useMemo(() => {
     const filtered = activeCategory === 'all' 
       ? PROJECTS 
@@ -31,15 +41,50 @@ export default function PortfolioPage() {
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [activeCategory]);
 
-  // --- 2. ОБНОВЛЕНИЕ AOS ПРИ СМЕНЕ ФИЛЬТРА ---
+  // Видимые проекты на основе флага виртуализации
+  const visibleProjects = useMemo(() => {
+    const flags = getFeatureFlags();
+    if (flags.enablePortfolioVirtualization) {
+      return sortedProjects.slice(0, visibleCount);
+    }
+    return sortedProjects;
+  }, [sortedProjects, visibleCount]);
+
+  // Наблюдение за триггером внизу страницы
+  useEffect(() => {
+    const flags = getFeatureFlags();
+    if (!flags.enablePortfolioVirtualization) return;
+
+    const currentTrigger = triggerRef.current;
+    if (!currentTrigger) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && visibleCount < sortedProjects.length) {
+          // Имитируем плавный LCP-подгруз
+          setVisibleCount((prev) => Math.min(prev + 9, sortedProjects.length));
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" } // Начинаем подгрузку заранее за 100px
+    );
+
+    observer.observe(currentTrigger);
+
+    return () => {
+      observer.unobserve(currentTrigger);
+    };
+  }, [sortedProjects.length, visibleCount]);
+
+  // --- 3. ОБНОВЛЕНИЕ AOS ПРИ СМЕНЕ ФИЛЬТРА ИЛИ ПОДГРУЗКЕ ---
   useEffect(() => {
     const timeout = setTimeout(() => {
       AOS.refresh();
-    }, 100);
+    }, 150);
     return () => clearTimeout(timeout);
-  }, [activeCategory]);
+  }, [activeCategory, visibleCount]);
 
-  // --- 3. ЛОГИКА СКРОЛЛА КАТЕГОРИЙ ---
+  // --- 4. ЛОГИКА СКРОЛЛА КАТЕГОРИЙ ---
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (el) {
@@ -81,8 +126,8 @@ export default function PortfolioPage() {
     }
   };
 
-  // --- 4. SCHEMA.ORG (JSON-LD) ---
-  // Генерируем разметку для текущего списка проектов
+  // --- 5. SCHEMA.ORG (JSON-LD) ---
+  // Генерируем разметку для полного списка проектов, чтобы поисковые роботы видели все работы сразу!
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -97,7 +142,7 @@ export default function PortfolioPage() {
           "@type": "CreativeWork",
           "name": project.title,
           "description": project.description,
-          "image": `https://adlight.kz${project.image}`, // Укажи свой домен
+          "image": `https://adlight.kz${project.image}`,
           "dateCreated": project.date,
           "url": `https://adlight.kz/portfolio/${project.slug}`
         }
@@ -149,6 +194,7 @@ export default function PortfolioPage() {
             <button 
                onClick={() => scrollFilter('left')}
                className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-[#0B1221] border border-white/10 rounded-full shadow-xl text-white hover:bg-orange-600 hover:border-orange-600 transition-all duration-300 transform ${showLeftArrow ? "opacity-100 scale-100 translate-x-[-50%]" : "opacity-0 scale-0 pointer-events-none"}`}
+               aria-label="Скролл фильтра влево"
             >
                <ChevronLeft className="w-5 h-5"/>
             </button>
@@ -157,6 +203,7 @@ export default function PortfolioPage() {
             <button 
                onClick={() => scrollFilter('right')}
                className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 flex items-center justify-center bg-[#0B1221] border border-white/10 rounded-full shadow-xl text-white hover:bg-orange-600 hover:border-orange-600 transition-all duration-300 transform ${showRightArrow ? "opacity-100 scale-100 translate-x-[50%]" : "opacity-0 scale-0 pointer-events-none"}`}
+               aria-label="Скролл фильтра вправо"
             >
                <ChevronRight className="w-5 h-5"/>
             </button>
@@ -193,7 +240,7 @@ export default function PortfolioPage() {
       {/* 3. СЕТКА ПРОЕКТОВ */}
       <section className="container mx-auto px-4 pb-32">
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {sortedProjects.map((project, i) => (
+            {visibleProjects.map((project, i) => (
                <Link 
                   href={`/portfolio/${project.slug}`} 
                   key={project.id}
@@ -208,7 +255,6 @@ export default function PortfolioPage() {
                      
                      <Image 
                         src={project.image} 
-                        // Используем SEO Alt
                         alt={project.seoAlt || project.title} 
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -251,6 +297,13 @@ export default function PortfolioPage() {
                   </div>
                </Link>
             ))}
+
+            {/* Триггер скролла для подгрузки */}
+            {getFeatureFlags().enablePortfolioVirtualization && visibleCount < sortedProjects.length && (
+               <div ref={triggerRef} className="col-span-full h-24 flex items-center justify-center mt-6">
+                  <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+               </div>
+            )}
          </div>
 
          {sortedProjects.length === 0 && (
