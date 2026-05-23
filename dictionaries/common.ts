@@ -3,16 +3,27 @@
 export const COMPANY_NAP = {
   name: "ADLight",
   owner: "ИП Гойденко Е.И.",
-  phone: "+7 (707) 123-45-67", // Будет обновляться на реальный
-  phoneRaw: "+77071234567",
+  iin: "940222351384",
+  phone: "+7 (707) 135-67-01",
+  phoneRaw: "+77071356701",
   email: "info@adlight.kz",
+  emailPersonal: "elisey.goyda@gmail.com",
   address: "г. Астана, ул. Аспара 7",
+  legalAddress: "Республика Казахстан, г. Астана, ул. Сыганак, д. 10, кв. 177",
+  bankName: "АО «Народный Банк Казахстана»",
+  iik: "KZ29601A871003316341",
+  bik: "HSBKKZKX",
   locality: "Астана",
   country: "KZ",
   workingHours: "Пн-Сб: 9:00 - 18:00, Вс: выходной",
   coordinates: {
-    latitude: 51.1605, // Примерные координаты
-    longitude: 71.4704
+    latitude: 51.185,
+    longitude: 71.495
+  },
+  socials: {
+    instagram: "https://www.instagram.com/adlight.kz/",
+    telegram: "https://t.me/EliseyGoidenko",
+    whatsapp: "https://wa.me/77071356701"
   }
 };
 

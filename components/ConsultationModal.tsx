@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, Phone, User, ArrowRight, MessageCircle, Loader2, CheckCircle, ShieldCheck } from "lucide-react";
+import { X, Phone, User, ArrowRight, MessageCircle, CheckCircle, ShieldCheck } from "lucide-react";
+
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Typography from "@/components/ui/Typography";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -64,7 +69,7 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
         setIsSuccess(true);
         setName("");
         setPhone("");
-        // Авто-закрытие через 3 секунды
+        // Авто-закрытие через 4 секунды
         setTimeout(() => {
            if (isOpen) onClose(); 
         }, 4000);
@@ -96,108 +101,122 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
             onClick={onClose}
         ></div>
 
-        {/* Modal */}
-        <div 
-            className={`relative w-full max-w-md bg-[#0F172A] border border-slate-700 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden transition-all duration-300 ease-out transform ${
-              isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
-            }`}
-        >
-            {/* Декор */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-[60px] rounded-full pointer-events-none"></div>
+        {/* Modal Window using design system components */}
+        <div className="w-full max-w-md relative">
+          <Card 
+              glass
+              intensity="heavy"
+              rounded="3xl"
+              className={`w-full shadow-apple-modal border border-slate-700/80 overflow-hidden transition-all duration-300 ease-out transform ${
+                isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
+              }`}
+          >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-[60px] rounded-full pointer-events-none"></div>
 
-            <button 
-                onClick={onClose}
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition z-50"
-            >
-                <X className="w-6 h-6"/>
-            </button>
+              <button 
+                  onClick={onClose}
+                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition z-50"
+                  aria-label="Закрыть"
+              >
+                  <X className="w-6 h-6"/>
+              </button>
 
-            <div className="p-8 relative z-10">
-                
-                {isSuccess ? (
-                    // ЭКРАН УСПЕХА
-                    <div className="text-center py-6 animate-in fade-in zoom-in duration-300">
-                        <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 mx-auto mb-6">
-                            <CheckCircle className="w-10 h-10"/>
-                        </div>
-                        <h3 className="text-2xl font-bold text-white mb-2">Заявка принята!</h3>
-                        <p className="text-gray-400 text-sm mb-6">
-                            Менеджер уже получил уведомление в Telegram и перезвонит вам в ближайшее время.
-                        </p>
-                        <button 
-                            onClick={onClose}
-                            className="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition font-bold text-sm w-full"
-                        >
-                            Отлично
-                        </button>
-                    </div>
-                ) : (
-                    // ЭКРАН ФОРМЫ
-                    <>
-                        <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 border border-orange-500/20">
-                            <Phone className="w-6 h-6"/>
-                        </div>
+              <div className="p-8 relative z-10">
+                  
+                  {isSuccess ? (
+                      // ЭКРАН УСПЕХА
+                      <div className="text-center py-6 animate-in fade-in zoom-in duration-300">
+                          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 mx-auto mb-6">
+                              <CheckCircle className="w-10 h-10"/>
+                          </div>
+                          <Typography variant="h3" className="mb-2">Заявка принята!</Typography>
+                          <Typography variant="body" className="mb-6">
+                              Менеджер уже получил уведомление в Telegram и перезвонит вам в ближайшее время.
+                          </Typography>
+                          
+                          <Button 
+                              onClick={onClose}
+                              variant="secondary"
+                              className="w-full"
+                          >
+                              Отлично
+                          </Button>
+                      </div>
+                  ) : (
+                      // ЭКРАН ФОРМЫ
+                      <>
+                          <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 mb-6 border border-orange-500/20">
+                              <Phone className="w-6 h-6"/>
+                          </div>
 
-                        <h3 className="text-2xl font-bold text-white mb-2">Нужна консультация?</h3>
-                        <p className="text-gray-400 text-sm mb-8">
-                            Оставьте номер телефона. Мы перезвоним в течение 15 минут.
-                        </p>
+                          <Typography variant="h3" className="mb-2">Нужна консультация?</Typography>
+                          <Typography variant="body" className="mb-8">
+                              Оставьте номер телефона. Мы перезвоним в течение 15 минут.
+                          </Typography>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"/>
-                                <input 
-                                    type="text" 
-                                    placeholder="Ваше имя"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-700 text-white pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition placeholder:text-gray-600"
-                                    required
-                                />
-                            </div>
-                            <div className="relative">
-                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"/>
-                                <input 
-                                    type="tel" 
-                                    placeholder="+7 (___) ___-__-__"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-700 text-white pl-12 pr-4 py-4 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition placeholder:text-gray-600"
-                                    required
-                                />
-                            </div>
+                          <form onSubmit={handleSubmit} className="space-y-4">
+                              <Input 
+                                  label="Ваше имя"
+                                  hideLabel
+                                  id="modal-name"
+                                  name="name"
+                                  autoComplete="name"
+                                  placeholder="Ваше имя"
+                                  value={name}
+                                  onChange={(e) => setName(e.target.value)}
+                                  icon={<User className="w-5 h-5 text-slate-500" />}
+                                  required
+                                  disabled={isLoading}
+                              />
+                              <Input 
+                                  label="Номер телефона"
+                                  hideLabel
+                                  id="modal-phone"
+                                  name="phone"
+                                  autoComplete="tel"
+                                  type="tel"
+                                  placeholder="+7 (___) ___-__-__"
+                                  value={phone}
+                                  onChange={(e) => setPhone(e.target.value)}
+                                  icon={<Phone className="w-5 h-5 text-slate-500" />}
+                                  required
+                                  disabled={isLoading}
+                              />
 
-                            <button 
-                                type="submit" 
-                                disabled={isLoading}
-                                className="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition shadow-lg shadow-orange-900/20 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {isLoading ? (
-                                    <><Loader2 className="w-5 h-5 animate-spin"/> Отправка...</>
-                                ) : (
-                                    <>Жду звонка <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform"/></>
-                                )}
-                            </button>
-                        </form>
-                        
-                        {/* КНОПКА WHATSAPP */}
-                        <div className="mt-6 pt-6 border-t border-slate-800 text-center">
-                            <p className="text-gray-500 text-xs mb-3">Не хотите ждать?</p>
-                            <button 
-                                onClick={handleDirectWhatsApp}
-                                className="inline-flex items-center justify-center gap-2 text-green-500 hover:text-green-400 font-bold transition text-sm py-2 px-4 rounded-lg hover:bg-green-500/10 w-full sm:w-auto"
-                            >
-                                <MessageCircle className="w-4 h-4"/> Написать в WhatsApp
-                            </button>
-                        </div>
+                              <Button 
+                                  type="submit" 
+                                  variant="solid"
+                                  size="lg"
+                                  isLoading={isLoading}
+                                  className="w-full h-[58px]"
+                                  rightIcon={<ArrowRight className="w-5 h-5" />}
+                              >
+                                  Жду звонка
+                              </Button>
+                          </form>
+                          
+                          {/* КНОПКА WHATSAPP */}
+                          <div className="mt-6 pt-6 border-t border-slate-800 text-center">
+                              <p className="text-gray-500 text-xs mb-3">Не хотите ждать?</p>
+                              
+                              <Button 
+                                  onClick={handleDirectWhatsApp}
+                                  variant="outline"
+                                  className="w-full text-green-500 hover:text-green-400 hover:bg-green-500/10 border-green-500/20 hover:border-green-500/50"
+                                  leftIcon={<MessageCircle className="w-4 h-4" />}
+                              >
+                                  Написать в WhatsApp
+                              </Button>
+                          </div>
 
-                        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-600 font-medium">
-                            <ShieldCheck className="w-3 h-3"/> Ваши данные в безопасности
-                        </div>
-                    </>
-                )}
+                          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-600 font-medium">
+                              <ShieldCheck className="w-3 h-3"/> Ваши данные в безопасности
+                          </div>
+                      </>
+                  )}
 
-            </div>
+              </div>
+          </Card>
         </div>
     </div>,
     document.body

@@ -14,6 +14,11 @@ import {
   FileText
 } from "lucide-react";
 
+// --- ИМПОРТ СЛОВАРЕЙ ---
+import { COMPANY_NAP } from "@/dictionaries/common";
+import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
+import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -44,18 +49,18 @@ export default function Footer() {
             {/* Блок реквизитов для доверия (Trust Rank) */}
             <div className="text-xs text-slate-500 bg-slate-900/50 p-3 rounded-lg border border-slate-800">
                <p className="font-bold text-slate-400 mb-1">Юридическая информация:</p>
-               <p>ИП Гойденко Е.И.</p>
+               <p>{COMPANY_NAP.owner}</p>
                <p>ИИН: 940222351384</p>
             </div>
 
             <div className="flex gap-4">
-              <a href="https://www.instagram.com/adlight.kz/" target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition duration-300" aria-label="Instagram">
+              <a href={COMPANY_NAP.socials.instagram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition duration-300" aria-label="Instagram">
                 <Instagram className="w-5 h-5"/>
               </a>
-              <a href="https://t.me/EliseyGoidenko" target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-500 hover:text-white transition duration-300" aria-label="Telegram">
+              <a href={COMPANY_NAP.socials.telegram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-500 hover:text-white transition duration-300" aria-label="Telegram">
                 <Send className="w-5 h-5 ml-0.5"/>
               </a>
-              <a href="https://wa.me/77071356701" target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition duration-300" aria-label="WhatsApp">
+              <a href={COMPANY_NAP.socials.whatsapp} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition duration-300" aria-label="WhatsApp">
                 <MessageCircle className="w-5 h-5"/>
               </a>
             </div>
@@ -65,13 +70,13 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-bold mb-6">Объемные буквы</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/services/volume-letters/face-lit" className="hover:text-orange-500 transition">Световое лицо</Link></li>
-              <li><Link href="/services/volume-letters/full-lit" className="hover:text-orange-500 transition">Полное свечение (Full Lit)</Link></li>
-              <li><Link href="/services/volume-letters/back-lit" className="hover:text-orange-500 transition">Контражурная подсветка</Link></li>
-              <li><Link href="/services/volume-letters/acrylic-slim" className="hover:text-orange-500 transition">Жидкий акрил (Slim)</Link></li>
-              <li><Link href="/services/volume-letters/pixel-led" className="hover:text-orange-500 transition">Пиксельные (Smart LED)</Link></li>
-              <li><Link href="/services/volume-letters/loft-lamps" className="hover:text-orange-500 transition">Ретро с лампами</Link></li>
-              <li><Link href="/services/volume-letters/day-night-effect" className="hover:text-orange-500 transition">День / Ночь</Link></li>
+              {VOLUME_LETTERS_CATALOG.slice(0, 7).map((tech) => (
+                <li key={tech.id}>
+                  <Link href={`/services/volume-letters/${tech.slug}`} className="hover:text-orange-500 transition">
+                    {tech.title}
+                  </Link>
+                </li>
+              ))}
               <li className="pt-2">
                  <Link href="/services/volume-letters" className="text-white font-medium flex items-center gap-1 hover:gap-2 transition-all">
                     Все виды букв <ArrowUpRight className="w-3 h-3 text-orange-500"/>
@@ -80,21 +85,28 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* КОЛОНКА 3: НАРУЖНАЯ РЕКЛАМА */}
+          {/* КОЛОНКА 3: НАРУЖНАЯ РЕКЛАМА И ИНТЕРЬЕР */}
           <div>
             <h3 className="text-white font-bold mb-6">Наружная реклама</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/services/roof-installations" className="hover:text-blue-500 transition">Крышные установки</Link></li>
-              <li><Link href="/services/entrance-groups" className="hover:text-blue-500 transition">Входные группы</Link></li>
-              <li><Link href="/services/lightboxes" className="hover:text-blue-500 transition">Световые короба</Link></li>
-              <li><Link href="/services/pylons" className="hover:text-blue-500 transition">Стелы и Пилоны</Link></li>
-              <li><Link href="/services/panel-brackets" className="hover:text-blue-500 transition">Панель-кронштейны</Link></li>
+              {CATALOG_SERVICES.find(c => c.id === "scale")?.items.map(item => (
+                <li key={item.link}>
+                  <Link href={item.link} className="hover:text-orange-500 transition">{item.title}</Link>
+                </li>
+              ))}
+              {CATALOG_SERVICES.find(c => c.id === "facade")?.items.filter(item => item.link !== "/services/volume-letters").map(item => (
+                <li key={item.link}>
+                  <Link href={item.link} className="hover:text-orange-500 transition">{item.title}</Link>
+                </li>
+              ))}
               <li className="pt-4 border-t border-slate-800/50">
                  <h4 className="text-white font-bold mb-3">Интерьер</h4>
               </li>
-              <li><Link href="/services/neon" className="hover:text-purple-500 transition">Гибкий неон</Link></li>
-              <li><Link href="/services/interior" className="hover:text-purple-500 transition">Логотипы в офис</Link></li>
-              <li><Link href="/services/navigation" className="hover:text-purple-500 transition">Навигация и Таблички</Link></li>
+              {CATALOG_SERVICES.find(c => c.id === "interior")?.items.map(item => (
+                <li key={item.link}>
+                  <Link href={item.link} className="hover:text-orange-500 transition">{item.title}</Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -106,23 +118,23 @@ export default function Footer() {
               <div className="flex gap-3 items-start">
                 <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5"/>
                 <span itemScope itemType="http://schema.org/PostalAddress">
-                   <span itemProp="addressLocality">г. Астана</span>, <br/>
-                   <span itemProp="streetAddress">ул. Аспара 7</span> <br/>
+                   <span itemProp="addressLocality">г. {COMPANY_NAP.locality}</span>, <br/>
+                   <span itemProp="streetAddress">{COMPANY_NAP.address.replace("г. Астана, ", "")}</span> <br/>
                    <span className="text-xs text-slate-500">(Цех / Производство)</span>
                 </span>
               </div>
               <div className="flex gap-3 items-center">
                 <Phone className="w-5 h-5 text-orange-500 shrink-0"/>
-                <a href="tel:+77071356701" className="text-white font-bold hover:text-orange-500 transition" itemProp="telephone">+7 707 135 67 01</a>
+                <a href={`tel:${COMPANY_NAP.phoneRaw}`} className="text-white font-bold hover:text-orange-500 transition" itemProp="telephone">{COMPANY_NAP.phone}</a>
               </div>
               <div className="flex gap-3 items-center">
                 <Mail className="w-5 h-5 text-orange-500 shrink-0"/>
-                <a href="mailto:elisey.goyda@gmail.com" className="hover:text-white transition" itemProp="email">elisey.goyda@gmail.com</a>
+                <a href={`mailto:${COMPANY_NAP.email}`} className="hover:text-white transition" itemProp="email">{COMPANY_NAP.email}</a>
               </div>
               <div className="flex gap-3 items-center">
                 <Clock className="w-5 h-5 text-orange-500 shrink-0"/>
                 <div>
-                   <span>Пн-Пт: 09:00 - 18:00</span>
+                   <span>{COMPANY_NAP.workingHours.split(", ")[0]}</span>
                    <p className="text-xs text-slate-500 mt-0.5">Мессенджеры: 24/7</p>
                 </div>
               </div>

@@ -21,6 +21,10 @@ import {
 
 import ConsultationModal from "@/components/ConsultationModal";
 
+// --- ИМПОРТ СЛОВАРЕЙ ---
+import { COMPANY_NAP, COMMON_NAV_LINKS } from "@/dictionaries/common";
+import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
+
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
@@ -34,38 +38,17 @@ export default function Header() {
     }
   }, [isOpen]);
 
-  const servicesList = [
-    { name: "Объемные буквы", link: "/services/volume-letters" },
-    { name: "Световые короба", link: "/services/lightboxes" },
-    { name: "Неоновые вывески", link: "/services/neon" },
-    { name: "Интерьерные логотипы", link: "/services/interior" },
-    { name: "Таблички и Навигация", link: "/services/navigation" },
-    { name: "Крышные установки", link: "/services/roof-installations" },
-    { name: "Входные группы", link: "/services/entrance-groups" },
-    { name: "Стелы и Пилоны", link: "/services/pylons" },
-    { name: "Панель-кронштейны", link: "/services/panel-brackets" },
-  ];
+  const servicesList = CATALOG_SERVICES.flatMap(cat => cat.items.map(item => ({
+    name: item.title,
+    link: item.link
+  })));
 
-  // SCHEMA.ORG для Навигации
+  // SCHEMA.ORG для Навигации (Динамический)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SiteNavigationElement",
-    "name": [
-      "Главная", 
-      "Услуги", 
-      "Портфолио", 
-      "Дизайн-код", 
-      "Контакты",
-      "Калькулятор"
-    ],
-    "url": [
-      "https://adlight.kz/",
-      "https://adlight.kz/services",
-      "https://adlight.kz/portfolio",
-      "https://adlight.kz/design-code",
-      "https://adlight.kz/contacts",
-      "https://adlight.kz/calculator"
-    ]
+    "name": COMMON_NAV_LINKS.map(link => link.label),
+    "url": COMMON_NAV_LINKS.map(link => `https://adlight.kz${link.href === "/" ? "" : link.href}`)
   };
 
   return (
@@ -128,19 +111,19 @@ export default function Header() {
              {/* GEO: Локация (Показываем роботам город) */}
              <div className="hidden xl:flex items-center gap-1 text-gray-500 text-xs border-r border-slate-700 pr-5 mr-2">
                 <MapPin className="w-3 h-3"/>
-                <span>г. Астана</span>
+                <span>г. {COMPANY_NAP.locality}</span>
              </div>
 
              {/* Соцсети */}
              <div className="hidden 2xl:flex items-center gap-3 pr-5 border-r border-slate-700">
-                <a href="https://instagram.com" target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-pink-500 transition" aria-label="Instagram"><Instagram className="w-5 h-5"/></a>
-                <a href="https://t.me/elisey_goyda" target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-blue-400 transition" aria-label="Telegram"><Send className="w-5 h-5"/></a>
-                <a href="https://wa.me/77071356701" target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-green-500 transition" aria-label="WhatsApp"><MessageCircle className="w-5 h-5"/></a>
+                <a href={COMPANY_NAP.socials.instagram} target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-pink-500 transition" aria-label="Instagram"><Instagram className="w-5 h-5"/></a>
+                <a href={COMPANY_NAP.socials.telegram} target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-blue-400 transition" aria-label="Telegram"><Send className="w-5 h-5"/></a>
+                <a href={COMPANY_NAP.socials.whatsapp} target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-green-500 transition" aria-label="WhatsApp"><MessageCircle className="w-5 h-5"/></a>
              </div>
 
              {/* Телефон (кликабельный для мобильных роботов) */}
-             <a href="tel:+77071356701" className="font-bold text-white hover:text-orange-500 transition flex items-center gap-2 whitespace-nowrap text-sm xl:text-base">
-                <Phone className="w-4 h-4"/> +7 (707) 135-67-01
+             <a href={`tel:${COMPANY_NAP.phoneRaw}`} className="font-bold text-white hover:text-orange-500 transition flex items-center gap-2 whitespace-nowrap text-sm xl:text-base">
+                <Phone className="w-4 h-4"/> {COMPANY_NAP.phone}
              </a>
 
              {/* Разделитель */}
@@ -247,9 +230,9 @@ export default function Header() {
 
          <div className="p-6 bg-slate-950 border-t border-slate-800 space-y-4">
              <div className="flex justify-center gap-6">
-                 <a href="https://www.instagram.com/adlight.kz/" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><Instagram className="w-6 h-6"/></a>
-                 <a href="https://t.me/EliseyGoidenko" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><Send className="w-6 h-6 ml-1"/></a>
-                 <a href="https://wa.me/77071356701" target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition"><MessageCircle className="w-6 h-6"/></a>
+                 <a href={COMPANY_NAP.socials.instagram} target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition" aria-label="Instagram"><Instagram className="w-6 h-6"/></a>
+                 <a href={COMPANY_NAP.socials.telegram} target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition" aria-label="Telegram"><Send className="w-6 h-6 ml-1"/></a>
+                 <a href={COMPANY_NAP.socials.whatsapp} target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition" aria-label="WhatsApp"><MessageCircle className="w-6 h-6"/></a>
              </div>
              
              <div className="grid grid-cols-2 gap-3">

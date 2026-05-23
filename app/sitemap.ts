@@ -1,5 +1,7 @@
 import { MetadataRoute } from 'next';
 import { PROJECTS } from '@/lib/projectsData';
+import { SERVICES_DETAILS } from '@/dictionaries/services/service-details';
+import { VOLUME_LETTERS_CATALOG } from '@/dictionaries/services/volume-letters';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://adlight.kz'; // Твой реальный домен
@@ -16,33 +18,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // 2. Основные категории услуг (Высокий приоритет 0.9 - это твой хлеб)
   const mainServices = [
-    '/services/entrance-groups',
-    '/services/interior',
-    '/services/lightboxes',
-    '/services/navigation',
-    '/services/neon',
-    '/services/panel-brackets',
-    '/services/pylons',
-    '/services/roof-installations',
     '/services/volume-letters',
+    ...Object.keys(SERVICES_DETAILS).map((slug) => `/services/${slug}`),
   ];
 
   // 3. Узкие специализации (Приоритет 0.8 - "Long tail" запросы)
   // AI очень любят эти страницы за конкретику
-  const subServices = [
-    '/services/volume-letters/acrylic-slim',
-    '/services/volume-letters/back-lit',
-    '/services/volume-letters/combo-lit',
-    '/services/volume-letters/day-night-effect',
-    '/services/volume-letters/face-lit',
-    '/services/volume-letters/full-lit',
-    '/services/volume-letters/loft-lamps',
-    '/services/volume-letters/non-lit',
-    '/services/volume-letters/perforated',
-    '/services/volume-letters/pixel-led',
-    '/services/volume-letters/side-lit',
-    '/services/volume-letters/wood-style',
-  ];
+  const subServices = VOLUME_LETTERS_CATALOG.map(
+    (item) => `/services/volume-letters/${item.slug}`
+  );
 
   // Формируем массив статики
   const routes = [

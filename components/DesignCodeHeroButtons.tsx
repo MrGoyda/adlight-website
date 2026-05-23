@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { MessageCircle, Search } from "lucide-react";
+import Button from "@/components/ui/Button";
 import ConsultationModal from "@/components/ConsultationModal";
 
 export default function DesignCodeHeroButtons() {
@@ -11,19 +11,24 @@ export default function DesignCodeHeroButtons() {
   return (
     <>
       <div data-aos="fade-up" data-aos-delay="200" className="flex flex-col sm:flex-row gap-4">
-         <button 
+         <Button 
            onClick={() => setIsModalOpen(true)}
-           className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2 active:scale-95"
+           variant="solid"
+           size="xl"
+           className="bg-blue-600 hover:bg-blue-700 text-white border-blue-500/20 shadow-blue-900/20"
+           leftIcon={<MessageCircle className="w-5 h-5"/>}
          >
-            <MessageCircle className="w-5 h-5"/> Бесплатная консультация
-         </button>
+            Бесплатная консультация
+         </Button>
          
-         <Link 
+         <Button 
             href="#check" 
-            className="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-lg transition border border-slate-700 flex items-center justify-center gap-2 active:scale-95"
+            variant="secondary"
+            size="xl"
+            leftIcon={<Search className="w-5 h-5"/>}
          >
-            <Search className="w-5 h-5"/> Проверить вывеску
-         </Link>
+            Проверить вывеску
+         </Button>
       </div>
 
       <ConsultationModal 

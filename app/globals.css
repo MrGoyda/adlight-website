@@ -26,3 +26,42 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Базовый фикс для мобилок: заставляем GPU обрабатывать сложные слои (Apple Aesthetics) */
+.gpu-layer {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  perspective: 1000;
+  will-change: transform, opacity;
+}
+
+/* Оптимизация для доступности: отключение блюра при системном снижении прозрачности */
+@media (prefers-reduced-transparency: reduce) {
+  .apple-glass-heavy {
+    backdrop-filter: none !important;
+    background-color: theme('colors.slate.950') !important;
+  }
+}
+
+/* Утилита наследования скругления для абсолютно спозиционированных слоев */
+.rounded-inherit {
+  border-radius: inherit;
+}
+
+/* Глобальная стилизация кастомных скроллбаров */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}

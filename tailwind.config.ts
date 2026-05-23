@@ -18,6 +18,16 @@ module.exports = {
           700: '#C2410C',
         }
       },
+      backdropBlur: {
+        apple: '20px',
+      },
+      backdropSaturate: {
+        apple: '180%',
+      },
+      boxShadow: {
+        'apple-card': '0 20px 50px rgba(0, 0, 0, 0.1)',
+        'apple-modal': '0 30px 70px rgba(0, 0, 0, 0.3)',
+      },
       // --- ВОТ ЭТО МЫ ДОБАВЛЯЕМ ---
       animation: {
         marquee: 'marquee 25s linear infinite',

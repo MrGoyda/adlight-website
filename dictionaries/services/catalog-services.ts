@@ -30,15 +30,15 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         link: "/services/volume-letters",
         image: "/images/pages/services-letters.webp",
         tags: ["Хит продаж", "Согласование", "Гарантия 1 год"],
-        description: "Изготовление световых и несветовых объемных букв любой сложности."
+        description: "Изготовление объемных букв любой сложности по единому Дизайн-коду Астаны."
       },
       {
         title: "Световые короба",
-        price: "от 45 000 ₸/м²",
+        price: "от 45 000 ₸/m²",
         link: "/services/lightboxes",
         image: "/images/pages/services-lightboxes.webp",
         tags: ["Много текста", "Яркость", "Любая форма"],
-        description: "Лайтбоксы сложной формы, композитные короба с инкрустацией."
+        description: "Лайтбоксы сложной формы и композитные короба с инкрустацией в Астане и Алматы."
       },
       {
         title: "Панель-кронштейны",

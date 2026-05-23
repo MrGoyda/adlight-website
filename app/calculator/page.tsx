@@ -16,6 +16,12 @@ import {
   ImageIcon
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Typography from "@/components/ui/Typography";
+
 // --- БАЗОВЫЕ СТАВКИ (Тенге) ---
 const PRICES = {
   letters: {
@@ -131,8 +137,8 @@ export default function CalculatorPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Калькулятор наружной рекламы",
-    "description": "Онлайн инструмент для расчета стоимости вывесок и лайтбоксов.",
+    "name": "Калькулятор наружной рекламы ADLight",
+    "description": "Интерактивный онлайн калькулятор для расчета ориентировочной стоимости световых вывесок, объемных букв и лайтбоксов в Астане.",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "All",
     "offers": {
@@ -156,12 +162,13 @@ export default function CalculatorPage() {
             <button 
                onClick={() => router.back()} 
                className="flex items-center gap-2 text-slate-400 hover:text-white transition group"
+               aria-label="Вернуться назад"
             >
                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform"/> 
                <span className="hidden sm:inline font-medium">Назад</span>
             </button>
             
-            <h1 className="text-white font-bold text-lg">Калькулятор вывески</h1>
+            <Typography variant="h4" className="font-bold text-lg">Калькулятор вывески</Typography>
             
             <div className="w-20 flex justify-end"></div>
          </div>
@@ -172,93 +179,110 @@ export default function CalculatorPage() {
             
             <div className="lg:col-span-7 space-y-6">
                {/* 1. ВЫБОР РЕЖИМА */}
-               <div className="bg-slate-900 p-1.5 rounded-xl border border-slate-800 flex">
-                  <button 
+               <Card rounded="xl" className="p-1.5 border border-slate-800 flex gap-2">
+                  <Button 
                     type="button"
                     onClick={() => setActiveTab('letters')} 
-                    className={`flex-1 py-3 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 ${activeTab === 'letters' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                    variant={activeTab === 'letters' ? 'solid' : 'ghost'}
+                    className={cn(
+                      "flex-1 py-3 h-12 text-sm font-bold flex items-center justify-center gap-2 border-transparent focus:ring-0 active:scale-100",
+                      activeTab === 'letters' ? 'bg-orange-600 text-white shadow-lg shadow-orange-950/20' : 'text-slate-400 hover:text-white hover:bg-slate-800/30'
+                    )}
+                    leftIcon={<Type className="w-4 h-4"/>}
                   >
-                    <Type className="w-4 h-4"/> Объемные буквы
-                  </button>
-                  <button 
+                    Объемные буквы
+                  </Button>
+                  <Button 
                     type="button"
                     onClick={() => setActiveTab('lightbox')} 
-                    className={`flex-1 py-3 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 ${activeTab === 'lightbox' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                    variant={activeTab === 'lightbox' ? 'solid' : 'ghost'}
+                    className={cn(
+                      "flex-1 py-3 h-12 text-sm font-bold flex items-center justify-center gap-2 border-transparent focus:ring-0 active:scale-100",
+                      activeTab === 'lightbox' ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-950/20' : 'text-slate-400 hover:text-white hover:bg-slate-800/30'
+                    )}
+                    leftIcon={<Box className="w-4 h-4"/>}
                   >
-                    <Box className="w-4 h-4"/> Лайтбокс
-                  </button>
-               </div>
+                    Лайтбокс
+                  </Button>
+               </Card>
 
                {/* 2. ВЫБОР ТИПА */}
-               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-                  <div className="flex justify-between items-center mb-4">
-                     <h3 className="text-white font-bold flex items-center gap-2"><Settings className="w-5 h-5 text-slate-500"/> Выберите технологию</h3>
-                     <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1 rounded">Скролл →</span>
+               <Card rounded="2xl" className="p-6 border border-slate-800/80 bg-slate-900/40">
+                  <div className="flex justify-between items-center mb-6">
+                     <Typography variant="h4" className="flex items-center gap-2 text-lg">
+                        <Settings className="w-5 h-5 text-slate-500"/> Выберите технологию
+                     </Typography>
+                     <span className="text-xs text-slate-500 bg-slate-800/50 px-2.5 py-1 rounded-md border border-slate-800/50">Скролл →</span>
                   </div>
                   
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-slate-950/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-600 transition-colors">
-                     {(activeTab === 'letters' ? LETTER_TYPES : BOX_TYPES).map(t => (
-                        <button 
-                           key={t.id} 
-                           type="button"
-                           onClick={() => activeTab === 'letters' ? setLetterType(t.id) : setBoxType(t.id)}
-                           className={`relative group flex flex-col text-left rounded-xl overflow-hidden border transition-all h-28 shrink-0 ${
-                             (activeTab === 'letters' ? letterType : boxType) === t.id 
-                               ? 'border-orange-500 ring-1 ring-orange-500' 
-                               : 'border-slate-700 hover:border-slate-500'
-                           }`}
-                        >
-                           <div className="absolute inset-0 bg-slate-800">
-                             <Image 
-                               src={t.image} 
-                               alt={t.name} 
-                               fill 
-                               className="object-cover opacity-50 group-hover:opacity-70 transition"
-                               onError={(e) => {e.currentTarget.src = "/images/calc/face.jpg"}}
-                               sizes="(max-width: 640px) 50vw, 33vw"
-                             />
-                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                           </div>
-                           
-                           <div className="relative z-10 mt-auto p-3 w-full">
-                             <div className="text-xs font-bold text-white leading-tight mb-0.5">{t.name}</div>
-                             <div className="text-[10px] text-gray-400 leading-tight line-clamp-1">{t.desc}</div>
-                           </div>
-                           
-                           {(activeTab === 'letters' ? letterType : boxType) === t.id && (
-                              <div className="absolute top-2 right-2 z-20 bg-orange-500 rounded-full p-0.5 shadow-lg">
-                                <CheckCircle className="w-3 h-3 text-white"/>
-                              </div>
-                           )}
-                        </button>
-                     ))}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-950/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-700 transition-colors">
+                     {(activeTab === 'letters' ? LETTER_TYPES : BOX_TYPES).map(t => {
+                        const isSelected = (activeTab === 'letters' ? letterType : boxType) === t.id;
+                        return (
+                          <button 
+                             key={t.id} 
+                             type="button"
+                             onClick={() => activeTab === 'letters' ? setLetterType(t.id) : setBoxType(t.id)}
+                             className={cn(
+                               "relative group flex flex-col text-left rounded-xl overflow-hidden border transition-all h-28 shrink-0 active:scale-[0.98]",
+                               isSelected 
+                                 ? 'border-orange-500 ring-2 ring-orange-500/30' 
+                                 : 'border-slate-800 hover:border-slate-600 bg-slate-950/60'
+                             )}
+                          >
+                             <div className="absolute inset-0 bg-slate-900">
+                               <Image 
+                                 src={t.image} 
+                                 alt={t.name} 
+                                 fill 
+                                 className="object-cover opacity-40 group-hover:opacity-60 transition duration-500"
+                                 onError={(e) => {e.currentTarget.src = "/images/calc/face.jpg"}}
+                                 sizes="(max-width: 640px) 50vw, 33vw"
+                               />
+                               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                             </div>
+                             
+                             <div className="relative z-10 mt-auto p-3 w-full">
+                               <div className="text-xs font-bold text-white leading-tight mb-0.5">{t.name}</div>
+                               <div className="text-[10px] text-gray-400 leading-tight line-clamp-1">{t.desc}</div>
+                             </div>
+                             
+                             {isSelected && (
+                                <div className="absolute top-2 right-2 z-20 bg-orange-500 rounded-full p-0.5 shadow-lg shadow-orange-950/50">
+                                  <CheckCircle className="w-3 h-3 text-white"/>
+                                </div>
+                             )}
+                          </button>
+                        );
+                     })}
                   </div>
-               </div>
+               </Card>
 
                {/* 3. ПАРАМЕТРЫ */}
-               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-                  <h3 className="text-white font-bold mb-5 flex items-center gap-2"><Calculator className="w-5 h-5 text-slate-500"/> Размеры и Текст</h3>
+               <Card rounded="2xl" className="p-6 border border-slate-800/80 bg-slate-900/40">
+                  <Typography variant="h4" className="mb-6 flex items-center gap-2 text-lg">
+                     <Calculator className="w-5 h-5 text-slate-500"/> Размеры и Текст
+                  </Typography>
                   
                   {activeTab === 'letters' ? (
                     <div className="space-y-6">
                        <div>
-                          <label htmlFor="calc-main-text" className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2 block">Главная надпись</label>
-                          <input 
+                          <Input 
+                             label="Главная надпись"
                              id="calc-main-text"
                              name="mainText"
-                             type="text" 
                              autoComplete="off"
                              value={titleText} 
                              onChange={(e) => setTitleText(e.target.value)}
-                             className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition placeholder:text-slate-600"
                              placeholder="Например: ADLight"
+                             required
                           />
                        </div>
 
                        <div>
                           <div className="flex justify-between mb-2">
-                             <label htmlFor="calc-height-range" className="text-xs text-slate-400 font-bold uppercase tracking-wider">Высота букв</label>
-                             <span className="text-sm text-orange-500 font-bold bg-orange-500/10 px-2 py-0.5 rounded">{height} см</span>
+                             <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Высота букв</span>
+                             <span className="text-sm text-orange-500 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/10">{height} см</span>
                           </div>
                           <input 
                              id="calc-height-range"
@@ -269,7 +293,7 @@ export default function CalculatorPage() {
                              step="1" 
                              value={height}
                              onChange={(e) => setHeight(Number(e.target.value))}
-                             className="w-full accent-orange-500 h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer"
+                             className="w-full accent-orange-500 h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer border border-slate-850"
                           />
                           <div className="flex justify-between text-[10px] text-slate-600 mt-1 font-mono">
                              <span>10 см</span>
@@ -277,7 +301,7 @@ export default function CalculatorPage() {
                           </div>
                        </div>
 
-                       <div className="pt-4 border-t border-slate-800">
+                       <div className="pt-6 border-t border-slate-800">
                           <div className="flex items-center gap-2 mb-4">
                              <Languages className="w-4 h-4 text-slate-500"/>
                              <span className="text-xs font-bold text-white uppercase tracking-wider">Подписи (RU / KZ)</span>
@@ -285,28 +309,24 @@ export default function CalculatorPage() {
                           
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                              <div>
-                                <label htmlFor="calc-sub-ru" className="sr-only">Подпись RU</label>
-                                <input 
+                                <Input 
+                                   label="Подпись RU"
                                    id="calc-sub-ru"
                                    name="subRu"
-                                   type="text" 
                                    autoComplete="off"
                                    value={subTextRu} 
                                    onChange={(e) => setSubTextRu(e.target.value)}
-                                   className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none"
                                    placeholder="Магазин"
                                 />
                              </div>
                              <div>
-                                <label htmlFor="calc-sub-kz" className="sr-only">Подпись KZ</label>
-                                <input 
+                                <Input 
+                                   label="Подпись KZ"
                                    id="calc-sub-kz"
                                    name="subKz"
-                                   type="text" 
                                    autoComplete="off"
                                    value={subTextKz} 
                                    onChange={(e) => setSubTextKz(e.target.value)}
-                                   className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none"
                                    placeholder="Дүкені"
                                 />
                              </div>
@@ -314,8 +334,8 @@ export default function CalculatorPage() {
 
                           <div>
                              <div className="flex justify-between mb-2">
-                                <label htmlFor="calc-sub-height" className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Высота подписи</label>
-                                <span className="text-xs text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded">{subHeight} см</span>
+                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Высота подписи</span>
+                                <span className="text-xs text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/10">{subHeight} см</span>
                              </div>
                              <input 
                                 id="calc-sub-height"
@@ -326,7 +346,7 @@ export default function CalculatorPage() {
                                 step="1" 
                                 value={subHeight}
                                 onChange={(e) => setSubHeight(Number(e.target.value))}
-                                className="w-full accent-blue-500 h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer"
+                                className="w-full accent-blue-500 h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer border border-slate-850"
                              />
                           </div>
                        </div>
@@ -335,8 +355,8 @@ export default function CalculatorPage() {
                      <div className="space-y-6">
                         <div>
                            <div className="flex justify-between mb-2">
-                              <label htmlFor="calc-box-width" className="text-xs text-slate-400 font-bold uppercase tracking-wider">Ширина (см)</label>
-                              <span className="text-sm text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded">{boxWidth} см</span>
+                              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Ширина (см)</span>
+                              <span className="text-sm text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/10">{boxWidth} см</span>
                            </div>
                            <input 
                               id="calc-box-width"
@@ -344,13 +364,13 @@ export default function CalculatorPage() {
                               type="range" 
                               min="50" max="600" step="5"
                               value={boxWidth} onChange={(e) => setBoxWidth(Number(e.target.value))}
-                              className="w-full accent-blue-500 h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer"
+                              className="w-full accent-blue-500 h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer border border-slate-850"
                            />
                         </div>
                         <div>
                            <div className="flex justify-between mb-2">
-                              <label htmlFor="calc-box-height" className="text-xs text-slate-400 font-bold uppercase tracking-wider">Высота (см)</label>
-                              <span className="text-sm text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded">{boxHeight} см</span>
+                              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Высота (см)</span>
+                              <span className="text-sm text-blue-500 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/10">{boxHeight} см</span>
                            </div>
                            <input 
                               id="calc-box-height"
@@ -358,50 +378,56 @@ export default function CalculatorPage() {
                               type="range" 
                               min="30" max="200" step="5"
                               value={boxHeight} onChange={(e) => setBoxHeight(Number(e.target.value))}
-                              className="w-full accent-blue-500 h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer"
+                              className="w-full accent-blue-500 h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer border border-slate-850"
                            />
                         </div>
                      </div>
                   )}
-               </div>
-
+               </Card>
             </div>
 
             {/* ПРАВАЯ КОЛОНКА */}
             <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-6">
-               
-               <div className="bg-black rounded-2xl overflow-hidden border border-slate-700 shadow-2xl relative aspect-video group">
+               <Card rounded="2xl" className="border border-slate-700 shadow-2xl relative aspect-video group bg-black">
                   {selectedType && (
                      <Image 
                         src={selectedType.image}
                         alt={selectedType.name}
                         fill
-                        className="object-cover opacity-80 transition-opacity duration-500"
+                        className="object-cover opacity-80 group-hover:opacity-90 transition duration-500"
                         onError={(e) => {e.currentTarget.src = "/images/calc/face.jpg"}}
                         sizes="(max-width: 768px) 100vw, 50vw"
                      />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
                   
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                     <div className="text-xs text-orange-400 font-bold uppercase tracking-widest mb-1">Выбрано:</div>
-                     <div className="text-2xl font-bold text-white mb-2">{selectedType?.name}</div>
-                     <div className="text-sm text-gray-400 line-clamp-2">{selectedType?.desc}</div>
+                     <Typography variant="caption" className="text-orange-400 font-bold mb-1">
+                        Выбрано:
+                     </Typography>
+                     <Typography variant="h3" className="text-xl md:text-2xl font-bold mb-2">
+                        {selectedType?.name}
+                     </Typography>
+                     <Typography variant="body" className="text-sm text-gray-400 line-clamp-2">
+                        {selectedType?.desc}
+                     </Typography>
                   </div>
 
                   <div className="absolute top-4 right-4 bg-black/60 backdrop-blur px-3 py-1 rounded-lg border border-white/10 flex items-center gap-2">
                      <ImageIcon className="w-4 h-4 text-white"/>
                      <span className="text-xs text-white font-medium">Пример</span>
                   </div>
-               </div>
+               </Card>
 
-               <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
+               <Card glass intensity="heavy" rounded="2xl" className="p-6 border border-slate-700 shadow-xl bg-slate-900/80">
                   <div className="flex items-start gap-4 mb-6">
                      <div className="p-3 bg-green-500/10 rounded-full text-green-500 border border-green-500/20 mt-1">
                         <CheckCircle className="w-6 h-6"/>
                      </div>
                      <div>
-                        <p className="text-slate-400 text-xs uppercase font-bold tracking-wider mb-1">Предварительный расчет</p>
+                        <Typography variant="caption" className="text-slate-400 font-bold mb-1">
+                           Предварительный расчет
+                        </Typography>
                         <div className="flex items-baseline gap-2">
                            <span className="text-3xl font-black text-white tracking-tight">
                               {calculation.min.toLocaleString()} 
@@ -413,7 +439,7 @@ export default function CalculatorPage() {
                            <span className="text-xl text-slate-500 font-bold">₸</span>
                         </div>
                         <p className="text-xs text-slate-500 mt-2 flex items-center gap-1.5">
-                           <AlertCircle className="w-3 h-3"/> Цена может измениться после замера
+                           <AlertCircle className="w-3 h-3 text-orange-500"/> Цена может измениться после замера
                         </p>
                      </div>
                   </div>
@@ -429,17 +455,19 @@ export default function CalculatorPage() {
                      </div>
                   </div>
 
-                  <a 
+                  <Button 
                      href={whatsappLink} 
-                     target="_blank"
-                     className="mt-8 w-full py-4 bg-[#25D366] hover:bg-[#20b858] text-white font-bold rounded-xl transition shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95"
+                     variant="solid"
+                     size="lg"
+                     className="mt-8 w-full py-4 bg-[#25D366] hover:bg-[#20b858] border-transparent text-white font-bold rounded-xl transition shadow-lg flex items-center justify-center gap-2"
+                     leftIcon={<MessageCircle className="w-5 h-5"/>}
                   >
-                     <MessageCircle className="w-5 h-5"/> Заказать этот расчет
-                  </a>
-                  <p className="text-center text-[10px] text-slate-600 mt-3">
+                     Заказать этот расчет
+                  </Button>
+                  <p className="text-center text-[10px] text-slate-500 mt-3">
                      Менеджер ответит в WhatsApp и уточнит детали
                   </p>
-               </div>
+               </Card>
             </div>
 
          </div>
