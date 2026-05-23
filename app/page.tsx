@@ -17,7 +17,7 @@ import HeroSection from "@/components/HeroSection";
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
 // --- НОВЫЙ ИМПОРТ: Данные для FAQ (чтобы синхронизировать SEO и картинку) ---
-import { FAQS } from "@/lib/faqData";
+import { HOME_FAQ } from "@/dictionaries/home";
 
 // --- НАСТРОЙКА КЭШИРОВАНИЯ (ISR) ---
 // Обновляем страницу и перемешиваем картинки раз в час (3600 сек),
@@ -60,7 +60,7 @@ export default function Home() {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": FAQS.map(item => ({
+    "mainEntity": HOME_FAQ.map(item => ({
       "@type": "Question",
       "name": item.q,
       "acceptedAnswer": {

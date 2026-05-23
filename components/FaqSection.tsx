@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 // Импортируем данные
-import { FAQS } from "@/lib/faqData"; 
+import { HOME_FAQ } from "@/dictionaries/home"; 
 
 export default function FaqSection() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -24,7 +24,7 @@ export default function FaqSection() {
         </div>
 
         <div className="space-y-4">
-          {FAQS.map((item, index) => (
+          {HOME_FAQ.map((item, index) => (
             <div 
               key={index} 
               className={`group rounded-2xl transition-all duration-300 ${openFaq === index ? 'bg-slate-900 ring-1 ring-orange-500/30 shadow-2xl shadow-orange-900/10' : 'bg-slate-900/50 hover:bg-slate-900 border border-slate-800'}`}

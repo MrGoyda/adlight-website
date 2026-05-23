@@ -30,111 +30,13 @@ import HeroButtons from "@/components/HeroButtons";
 // --- УТИЛИТА ДЛЯ СБОРА ФОТО ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
 
-// --- КАТАЛОГ ТИПОВ (С ОБНОВЛЕННЫМИ ЦЕНАМИ) ---
-const volumeLettersCatalog = [
-  {
-    id: 1,
-    slug: 'face-lit',
-    title: 'Световое лицо', 
-    description: 'Классика. Самый популярный выбор. Светится только лицевая часть, борта в цвет фасада.',
-    price: "от 550 ₸/см", // Было 450
-    images: { day: '/images/letters/face-lit-day.webp', night: '/images/letters/face-lit-night.webp' },
-    badge: "Хит продаж"
-  },
-  {
-    id: 2,
-    slug: 'full-lit',
-    title: 'Полное свечение',
-    description: 'Эффект «леденца». Буква светится целиком (лицо + борта). Максимальный угол обзора 360°.',
-    price: "от 850 ₸/см", // Было 650
-    images: { day: '/images/letters/full-lit-day.webp', night: '/images/letters/full-lit-night.webp' },
-    badge: "Premium"
-  },
-  {
-    id: 3,
-    slug: 'back-lit',
-    title: 'Контражур',
-    description: 'Эффект парения. Свет направлен на стену, создавая мягкий ореол вокруг темной буквы.',
-    price: "от 650 ₸/см", // Было 550
-    images: { day: '/images/letters/back-lit-day.webp', night: '/images/letters/back-lit-night.webp' },
-    badge: "Стиль"
-  },
-  {
-    id: 4,
-    slug: 'combo-lit',
-    title: 'Комбо (Лицо + Бэк)',
-    description: 'Двойной удар. Читаемость лицевого свечения + премиальный ореол контражура.',
-    price: "от 950 ₸/см", // Было 850
-    images: { day: '/images/letters/combo-lit-day.webp', night: '/images/letters/combo-lit-night.webp' },
-    badge: "VIP"
-  },
-  {
-    id: 5,
-    slug: 'side-lit',
-    title: 'Светятся борта',
-    description: 'Инверсия. Лицо темное, а контур (борт) светится. Строгий, архитектурный стиль.',
-    price: "от 700 ₸/см", // Было 600
-    images: { day: '/images/letters/side-lit-day.webp', night: '/images/letters/side-lit-night.webp' },
-  },
-  {
-    id: 6,
-    slug: 'perforated',
-    title: 'Перфорация',
-    description: 'Wow-эффект. Алюминиевый борт с тысячами отверстий создает эффект мерцания кристаллов.',
-    price: "от 750 ₸/см",
-    images: { day: '/images/letters/perforated-day.webp', night: '/images/letters/perforated-night.webp' },
-    badge: "Тренд"
-  },
-  {
-    id: 7,
-    slug: 'acrylic-slim',
-    title: 'Жидкий акрил',
-    description: 'Технология 2025. Монолитная заливка без рамок и кантов. На 30% ярче обычных.',
-    price: "от 1000 ₸/см", // Было 900
-    images: { day: '/images/letters/acrylic-slim-day.webp', night: '/images/letters/acrylic-slim-night.webp' },
-    badge: "New"
-  },
-  {
-    id: 8,
-    slug: 'loft-lamps',
-    title: 'Ретро с лампами',
-    description: 'Стиль Лофт / Бродвей. Открытые винтажные лампы для создания атмосферы.',
-    price: "от 1200 ₸/см",
-    images: { day: '/images/letters/loft-lamps-day.webp', night: '/images/letters/loft-lamps-night.webp' },
-  },
-  {
-    id: 9,
-    slug: 'pixel-led',
-    title: 'Пиксельные LED',
-    description: 'Открытые диоды. Рекордная яркость и динамические спецэффекты (анимация).',
-    price: "от 1000 ₸/см", // Было 800
-    images: { day: '/images/letters/pixel-led-day.webp', night: '/images/letters/pixel-led-night.webp' },
-  },
-  {
-    id: 10,
-    slug: 'wood-style',
-    title: 'Эко / Дерево',
-    description: 'Натуральные материалы. Лазерная резка фанеры или массива с пропиткой маслом.',
-    price: "от 350 ₸/см",
-    images: { day: '/images/letters/wood-style-day.webp', night: '/images/letters/wood-style-night.webp' },
-  },
-  {
-    id: 11,
-    slug: 'non-lit',
-    title: 'Без подсветки',
-    description: 'Бюджетное решение для интерьеров. Объемные буквы из ПВХ или пенопласта.',
-    price: "от 200 ₸/см",
-    images: { day: '/images/letters/non-lit-day.webp', night: '/images/letters/non-lit-night.webp' },
-  },
-  {
-    id: 12,
-    slug: 'day-night-effect',
-    title: 'День / Ночь',
-    description: 'Магия пленки: днем буквы черные, ночью светятся ярко-белым.',
-    price: "от 700 ₸/см",
-    images: { day: '/images/letters/day-night-effect-day.webp', night: '/images/letters/day-night-effect-night.webp' },
-  },
-];
+// --- ИМПОРТ СЛОВАРЕЙ ---
+import {
+  VOLUME_LETTERS_CATALOG,
+  VOLUME_LETTERS_ADVANTAGES,
+  VOLUME_LETTERS_TECH_CARDS,
+  VOLUME_LETTERS_STEPS
+} from "@/dictionaries/services/volume-letters";
 
 // 1. УЛУЧШЕННЫЕ METADATA
 export const metadata: Metadata = {
@@ -151,7 +53,7 @@ export const metadata: Metadata = {
 export default async function VolumeLettersPage() {
   
   // СБОР ФОТО
-  const allSlugs = volumeLettersCatalog.map(i => i.slug);
+  const allSlugs = VOLUME_LETTERS_CATALOG.map(i => i.slug);
   let allGalleryImages: string[] = [];
   
   allSlugs.forEach(slug => {
@@ -163,7 +65,7 @@ export default async function VolumeLettersPage() {
 
   let heroImages = [...allGalleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
   if (heroImages.length === 0) {
-    heroImages = volumeLettersCatalog.map(item => item.images.night);
+    heroImages = VOLUME_LETTERS_CATALOG.map(item => item.images.night);
   }
 
   // 2. ГЕНЕРАЦИЯ SCHEMA (OfferCatalog)
@@ -185,7 +87,7 @@ export default async function VolumeLettersPage() {
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Виды объемных букв",
-      "itemListElement": volumeLettersCatalog.map(item => ({
+      "itemListElement": VOLUME_LETTERS_CATALOG.map(item => ({
         "@type": "Offer",
         "itemOffered": {
           "@type": "Service",
@@ -273,16 +175,16 @@ export default async function VolumeLettersPage() {
                
                <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
                   <div>
-                     <h2 className="text-3xl font-bold text-white mb-6">Почему объемные буквы работают лучше?</h2>
+                     <h2 className="text-3xl font-bold text-white mb-6">{VOLUME_LETTERS_ADVANTAGES.title}</h2>
                      <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                        В визуальном шуме города плоская вывеска — невидимка. Объем, свет и тень создают "визуальный якорь".
+                        {VOLUME_LETTERS_ADVANTAGES.subtitle}
                      </p>
 
                      <div className="flex items-start gap-4">
                         <div className="p-3 bg-orange-500/20 rounded-xl text-orange-500 shrink-0"><Eye className="w-6 h-6"/></div>
                         <div>
-                           <h4 className="text-white font-bold mb-1">Магнит для глаз</h4>
-                           <p className="text-gray-400 text-sm">Человеческий мозг эволюционно заточен замечать 3D-объекты. Объемная буква воспринимается как "реальный предмет", вызывая больше доверия.</p>
+                           <h4 className="text-white font-bold mb-1">{VOLUME_LETTERS_ADVANTAGES.eyeMagnet.title}</h4>
+                           <p className="text-gray-400 text-sm">{VOLUME_LETTERS_ADVANTAGES.eyeMagnet.desc}</p>
                         </div>
                      </div>
                   </div>
@@ -293,7 +195,7 @@ export default async function VolumeLettersPage() {
                         +42<span className="text-orange-500 text-5xl">%</span>
                      </div>
                      <p className="text-gray-300 font-medium">
-                        К вниманию прохожих по сравнению с плоскими коробами.
+                        {VOLUME_LETTERS_ADVANTAGES.efficiencyText}
                      </p>
                   </div>
                </div>
@@ -311,8 +213,8 @@ export default async function VolumeLettersPage() {
                <p className="text-gray-400">Нажмите на карточку, чтобы узнать подробности и цены</p>
             </div>
             
-            <div className="flex overflow-x-auto pb-8 -mx-4 px-4 gap-4 snap-x snap-mandatory scroll-pl-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-6 md:overflow-visible md:pb-0 md:px-0 hide-scrollbar">
-               {volumeLettersCatalog.map((type) => (
+            <div className="flex overflow-x-auto pb-8 -mx-4 px-4 md:grid md:grid-cols-4 gap-6 md:overflow-visible md:pb-0 md:px-0 hide-scrollbar snap-x snap-mandatory">
+               {VOLUME_LETTERS_CATALOG.filter(item => item.slug !== "face-lit").slice(0, 4).map((type) => (
                   <Link 
                      href={`/services/volume-letters/${type.slug}`} 
                      key={type.id}
@@ -377,26 +279,18 @@ export default async function VolumeLettersPage() {
             </div>
 
             <div className="grid md:grid-cols-4 gap-6">
-               <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
-                  <div className="w-12 h-12 bg-blue-500/10 flex items-center justify-center mb-4 text-blue-500 rounded-xl group-hover:scale-110 transition"><Layers className="w-6 h-6"/></div>
-                  <h3 className="text-white font-bold mb-2">Акрил Plexiglas</h3>
-                  <p className="text-gray-400 text-sm">Немецкое оргстекло. Не желтеет 10 лет, пропускает 92% света.</p>
-               </div>
-               <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-orange-500/30 transition group">
-                  <div className="w-12 h-12 bg-orange-500/10 flex items-center justify-center mb-4 text-orange-500 rounded-xl group-hover:scale-110 transition"><Zap className="w-6 h-6"/></div>
-                  <h3 className="text-white font-bold mb-2">Диоды с линзой</h3>
-                  <p className="text-gray-400 text-sm">Широкий угол рассеивания 170°. Никаких "пятен" на лицевой части.</p>
-               </div>
-               <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-green-500/30 transition group">
-                  <div className="w-12 h-12 bg-green-500/10 flex items-center justify-center mb-4 text-green-500 rounded-xl group-hover:scale-110 transition"><ShieldCheck className="w-6 h-6"/></div>
-                  <h3 className="text-white font-bold mb-2">Защита IP67</h3>
-                  <p className="text-gray-400 text-sm">Герметичные блоки питания и модули. Работают в дождь и мороз -40°C.</p>
-               </div>
-               <div className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-purple-500/30 transition group">
-                  <div className="w-12 h-12 bg-purple-500/10 flex items-center justify-center mb-4 text-purple-500 rounded-xl group-hover:scale-110 transition"><Hammer className="w-6 h-6"/></div>
-                  <h3 className="text-white font-bold mb-2">Свой цех</h3>
-                  <p className="text-gray-400 text-sm">ЧПУ станки, лазерная сварка и бортогибы. Контроль каждого этапа.</p>
-               </div>
+               {VOLUME_LETTERS_TECH_CARDS.map((card, idx) => (
+                  <div key={idx} className="bg-[#0B1120] p-6 rounded-2xl border border-slate-800 hover:border-blue-500/30 transition group">
+                     <div className="w-12 h-12 bg-blue-500/10 flex items-center justify-center mb-4 text-blue-500 rounded-xl group-hover:scale-110 transition">
+                        {idx === 0 && <Layers className="w-6 h-6"/>}
+                        {idx === 1 && <Zap className="w-6 h-6"/>}
+                        {idx === 2 && <ShieldCheck className="w-6 h-6"/>}
+                        {idx === 3 && <Hammer className="w-6 h-6"/>}
+                     </div>
+                     <h3 className="text-white font-bold mb-2">{card.title}</h3>
+                     <p className="text-gray-400 text-sm">{card.desc}</p>
+                  </div>
+               ))}
             </div>
          </div>
       </section>
@@ -430,13 +324,7 @@ export default async function VolumeLettersPage() {
            <h2 className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Как мы работаем</h2>
            <div className="grid md:grid-cols-5 gap-8 relative">
               <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 bg-slate-800 -z-10"></div>
-              {[
-                 {step: "01", title: "Заявка", desc: "Фото места и размеры"},
-                 {step: "02", title: "Макет", desc: "Визуализация на фасаде"},
-                 {step: "03", title: "Смета", desc: "Прозрачный расчет"},
-                 {step: "04", title: "Производство", desc: "3-7 дней в цехе"},
-                 {step: "05", title: "Монтаж", desc: "Установка и подключение"}
-              ].map((item, i) => (
+              {VOLUME_LETTERS_STEPS.map((item, i) => (
                  <div key={i} className="relative group bg-slate-950 p-4 pt-0">
                     <div className="w-16 h-16 bg-slate-900 border-2 border-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xl mb-6 mx-auto shadow-lg shadow-orange-900/20 group-hover:scale-110 transition-transform">{item.step}</div>
                     <h3 className="text-lg font-bold text-white text-center mb-2">{item.title}</h3>

@@ -11,6 +11,9 @@ import {
 // --- ИМПОРТ КОМПОНЕНТОВ ---
 import ComplexCTA from "@/components/ComplexCTA"; 
 
+// --- ИМПОРТ СЛОВАРЕЙ ---
+import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
+
 // 1. УЛУЧШЕННЫЕ МЕТАДАННЫЕ (GEO/SEO)
 export const metadata: Metadata = {
   title: "Услуги наружной рекламы в Астане | Каталог ADLight",
@@ -24,111 +27,11 @@ export const metadata: Metadata = {
   }
 };
 
-// Данные для каталога
-const catalog = [
-  {
-    id: "facade",
-    category: "Фасадная реклама",
-    icon: <Store className="w-5 h-5"/>,
-    color: "text-orange-500",
-    items: [
-      {
-        title: "Объемные буквы",
-        price: "от 400 ₸/см",
-        link: "/services/volume-letters",
-        image: "/images/pages/services-letters.webp",
-        tags: ["Хит продаж", "Согласование", "Гарантия 1 год"],
-        description: "Изготовление световых и несветовых объемных букв любой сложности."
-      },
-      {
-        title: "Световые короба",
-        price: "от 45 000 ₸/м²",
-        link: "/services/lightboxes",
-        image: "/images/pages/services-lightboxes.webp",
-        tags: ["Много текста", "Яркость", "Любая форма"],
-        description: "Лайтбоксы сложной формы, композитные короба с инкрустацией."
-      },
-      {
-        title: "Панель-кронштейны",
-        price: "от 35 000 ₸",
-        link: "/services/panel-brackets",
-        image: "/images/pages/services-panel-brackets.webp",
-        tags: ["Двусторонние", "Для пешеходов", "Компактно"],
-        description: "Двусторонние торцевые вывески для максимального обзора."
-      }
-    ]
-  },
-  {
-    id: "interior",
-    category: "Интерьер и Атмосфера",
-    icon: <Zap className="w-5 h-5"/>,
-    color: "text-purple-500",
-    items: [
-      {
-        title: "Неоновые вывески",
-        price: "Индивидуально",
-        link: "/services/neon",
-        image: "/images/pages/services-neon.webp",
-        tags: ["Flex Neon 2.0", "Для фотозон", "Безопасно"],
-        description: "Яркий гибкий неон для интерьера, баров и фотозон."
-      },
-      {
-        title: "Интерьерные лого",
-        price: "от 25 000 ₸",
-        link: "/services/interior",
-        image: "/images/pages/services-interior.webp",
-        tags: ["Тонкий акрил", "Ресепшн", "Контражур"],
-        description: "Стильные логотипы для зоны ресепшн и офиса."
-      },
-      {
-        title: "Таблички и Навигация",
-        price: "от 5 000 ₸",
-        link: "/services/navigation",
-        image: "/images/pages/services-navigation.webp",
-        tags: ["Бизнес-центры", "Указатели", "Гравировка"],
-        description: "Системы навигации для бизнес-центров и торговых залов."
-      }
-    ]
-  },
-  {
-    id: "scale",
-    category: "Инженерные проекты",
-    icon: <Building className="w-5 h-5"/>,
-    color: "text-blue-500",
-    items: [
-      {
-        title: "Крышные установки",
-        price: "Проектно",
-        link: "/services/roof-installations",
-        image: "/images/pages/services-roof-installations.webp",
-        tags: ["Документация", "Нагрузки", "Масштаб"],
-        description: "Грандиозные рекламные конструкции на крышах зданий."
-      },
-      {
-        title: "Входные группы",
-        price: "Проектно",
-        link: "/services/entrance-groups",
-        image: "/images/pages/services-entrance-groups.webp",
-        tags: ["Композит", "Козырьки", "Облицовка"],
-        description: "Комплексное оформление входа: козырьки, колонны, обшивка."
-      },
-      {
-        title: "Стелы и Пилоны",
-        price: "Проектно",
-        link: "/services/pylons",
-        image: "/images/pages/services-pylons.webp",
-        tags: ["Фундамент", "АЗС", "Навигация"],
-        description: "Отдельно стоящие рекламные конструкции и навигационные стелы."
-      }
-    ]
-  }
-];
-
 export default function ServicesPage() {
   
   // 2. ГЕНЕРАЦИЯ SCHEMA (ItemList)
   // Мы собираем все услуги в один плоский список для роботов
-  const allServices = catalog.flatMap(cat => cat.items);
+  const allServices = CATALOG_SERVICES.flatMap(cat => cat.items);
   
   const jsonLd = {
     "@context": "https://schema.org",
@@ -225,13 +128,15 @@ export default function ServicesPage() {
 
       {/* 2. КАТАЛОГ (GRID) */}
       <div className="container mx-auto px-4 pb-24">
-         {catalog.map((group, idx) => (
+         {CATALOG_SERVICES.map((group, idx) => (
             <div key={idx} id={group.id} className="mb-16 last:mb-0 scroll-mt-24">
                
                {/* Заголовок группы */}
                <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4" data-aos="fade-up">
                   <div className={`p-2 rounded-lg bg-white/5 ${group.color}`}>
-                     {group.icon}
+                     {group.iconName === "Store" && <Store className="w-5 h-5"/>}
+                     {group.iconName === "Zap" && <Zap className="w-5 h-5"/>}
+                     {group.iconName === "Building" && <Building className="w-5 h-5"/>}
                   </div>
                   <h2 className="text-2xl font-bold text-white">{group.category}</h2>
                </div>
