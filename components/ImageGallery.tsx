@@ -5,6 +5,8 @@ import Image from "next/image";
 import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
 
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+
 interface ImageGalleryProps {
   images?: string[];
 }
@@ -50,12 +52,12 @@ export default function ImageGallery({ images = [] }: ImageGalleryProps) {
   // Блокировка скролла при открытом модальном окне
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      lockScroll("image-gallery");
     } else {
-      document.body.style.overflow = "";
+      unlockScroll("image-gallery");
     }
     return () => {
-      document.body.style.overflow = "";
+      unlockScroll("image-gallery");
     };
   }, [isOpen]);
 

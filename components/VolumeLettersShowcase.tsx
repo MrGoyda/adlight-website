@@ -16,6 +16,7 @@ export default function VolumeLettersShowcase() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
+  const [isMobile, setIsMobile] = useState(false);
 
   // MotionValue для плавных пружинных перемещений карусели
   const x = useMotionValue(0);
@@ -36,6 +37,7 @@ export default function VolumeLettersShowcase() {
   // Измерение ограничений драга при изменении размеров
   useEffect(() => {
     const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
       if (!viewportRef.current || !innerRef.current) return;
       const viewportWidth = viewportRef.current.offsetWidth;
       const innerWidth = innerRef.current.scrollWidth;
@@ -63,6 +65,15 @@ export default function VolumeLettersShowcase() {
   const scroll = (direction: "left" | "right") => {
     if (!viewportRef.current) return;
     triggerHaptic("light");
+    
+    if (isMobile) {
+      const scrollAmount = viewportRef.current.offsetWidth * 0.75;
+      viewportRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth"
+      });
+      return;
+    }
     
     const viewportWidth = viewportRef.current.offsetWidth;
     const currentX = x.get();
@@ -157,24 +168,24 @@ export default function VolumeLettersShowcase() {
           </div>
         </div>
 
-        {/* ГОРИЗОНТАЛЬНАЯ КАРУСЕЛЬ С КАРТОЧКАМИ ЧЕРЕЗ FRAMER MOTION DRAG */}
+        {/* ГОРИЗОНТАЛЬНАЯ КАРУСЕЛЬ: нативный скролл на мобиле, Framer Motion drag на десктопе */}
         <div 
           ref={viewportRef}
-          className="w-full overflow-hidden pb-8 cursor-grab active:cursor-grabbing select-none"
+          className="w-full overflow-x-auto md:overflow-hidden pb-8 cursor-grab active:cursor-grabbing select-none scroll-smooth snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0"
         >
           <motion.div
             ref={innerRef}
-            drag="x"
+            drag={isMobile ? false : "x"}
             dragConstraints={dragConstraints}
             dragElastic={0.08}
-            style={{ x }}
+            style={isMobile ? undefined : { x }}
             className="flex gap-6 md:gap-8 w-max px-4 md:px-8"
           >
             {VOLUME_LETTERS_CATALOG.map((tech) => {
               return (
                 <div 
                   key={tech.id}
-                  className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/25 p-5 md:p-6 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[290px] sm:w-[350px]"
+                  className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/25 p-5 md:p-6 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[82vw] sm:w-[350px] snap-start"
                 >
                   {/* Картинка с днем и ночью */}
                   <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100 pointer-events-none">

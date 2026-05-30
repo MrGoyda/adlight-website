@@ -25,6 +25,7 @@ export default function ProjectsBento({
   
   const [dragWidth, setDragWidth] = useState(0);
   const [positionX, setPositionX] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Сортируем и дублируем проекты для бесконечной наполненности
   const sortedProjects = [...PROJECTS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -33,6 +34,7 @@ export default function ProjectsBento({
   // Вычисляем ширину контейнера для ограничений перетаскивания (bounds)
   useEffect(() => {
     const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
       if (carouselRef.current && containerRef.current) {
         setDragWidth(Math.max(0, carouselRef.current.scrollWidth - containerRef.current.offsetWidth));
       }
@@ -57,8 +59,18 @@ export default function ProjectsBento({
   // Клик по кнопкам навигации с чтением текущей матрицы трансформации (работает синхронно с ручным драгом!)
   const handleScrollClick = (direction: 'left' | 'right') => {
     triggerHaptic();
-    if (!carouselRef.current || !containerRef.current) return;
+    if (!containerRef.current) return;
     
+    if (isMobile) {
+      const scrollAmount = 300;
+      containerRef.current.scrollBy({
+        left: direction === 'right' ? scrollAmount : -scrollAmount,
+        behavior: 'smooth'
+      });
+      return;
+    }
+
+    if (!carouselRef.current) return;
     const step = 400;
     
     // Считываем текущее положение x из матрицы трансформации
@@ -141,15 +153,15 @@ export default function ProjectsBento({
         {/* Framer Motion Draggable Slider Container with Inertia Physics */}
         <div 
           ref={containerRef}
-          className="overflow-hidden -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing"
+          className="overflow-x-auto md:overflow-hidden -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing scroll-smooth snap-x snap-mandatory hide-scrollbar"
         >
            <motion.div
               ref={carouselRef}
-              drag="x"
+              drag={isMobile ? false : "x"}
               dragConstraints={{ right: 0, left: -dragWidth }}
               dragElastic={0.15}
               dragTransition={{ power: 0.2, timeConstant: 300 }} // Мягкая инерция (momentum скролл)
-              animate={{ x: positionX }}
+              animate={isMobile ? undefined : { x: positionX }}
               transition={{ type: "spring", stiffness: 220, damping: 28 }}
               className="flex gap-6 pb-8 w-max"
            >

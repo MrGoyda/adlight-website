@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+
 interface VideoModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,12 +22,12 @@ export default function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProp
   // Блокировка скролла при открытом модальном окне
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      lockScroll("video-modal");
     } else {
-      document.body.style.overflow = '';
+      unlockScroll("video-modal");
     }
     return () => {
-      document.body.style.overflow = '';
+      unlockScroll("video-modal");
     };
   }, [isOpen]);
 

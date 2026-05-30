@@ -8,6 +8,8 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Typography from "@/components/ui/Typography";
 
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+
 interface QuizModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -85,16 +87,27 @@ export default function QuizModal({ isOpen, onClose }: QuizModalProps) {
       setPhone("");
       setHoneypot("");
       setPhoneError("");
-      document.body.style.overflow = "hidden";
+      lockScroll("quiz-modal");
       const timer = setTimeout(() => setIsVisible(true), 50);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     } else {
       setIsVisible(false);
-      document.body.style.overflow = "";
+      unlockScroll("quiz-modal");
       const timer = setTimeout(() => setShouldRender(false), 300);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [isOpen]);
+
+  // Cleanup scroll lock on unmount
+  useEffect(() => {
+    return () => {
+      unlockScroll("quiz-modal");
+    };
+  }, []);
 
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);

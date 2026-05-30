@@ -9,6 +9,8 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Typography from "@/components/ui/Typography";
 
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+
 interface ConsultationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -89,16 +91,27 @@ export default function ConsultationModal({
       setName("");
       setPhone("");
       setHoneypot("");
-      document.body.style.overflow = "hidden";
+      lockScroll("consultation-modal");
       const timer = setTimeout(() => setIsVisible(true), 50);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     } else {
       setIsVisible(false);
-      document.body.style.overflow = "";
+      unlockScroll("consultation-modal");
       const timer = setTimeout(() => setShouldRender(false), 300);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [isOpen]);
+
+  // Cleanup scroll lock on unmount
+  useEffect(() => {
+    return () => {
+      unlockScroll("consultation-modal");
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

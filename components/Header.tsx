@@ -23,6 +23,8 @@ import { COMPANY_NAP } from "@/dictionaries/common";
 import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { SITE_URL } from "@/config/site";
 
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,10 +44,13 @@ export default function Header() {
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      lockScroll('mobile-menu');
     } else {
-      document.body.style.overflow = '';
+      unlockScroll('mobile-menu');
     }
+    return () => {
+      unlockScroll('mobile-menu');
+    };
   }, [isOpen]);
 
   // SCHEMA.ORG для Навигации (Динамический с использованием SITE_URL)
