@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ShieldCheck, XCircle, Ruler, CheckCircle, User, Phone } from "lucide-react";
 import Button from "@/components/ui/Button";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 interface CallToActionProps {
   source: string;
@@ -124,6 +125,9 @@ export default function CallToAction({
   return (
     <section className="py-20 lg:py-28 bg-white overflow-hidden relative border-t border-slate-200/50">
       
+      {/* Чертежная сетка на фоне секции */}
+      <BlueprintGrid showGradients={false} className="opacity-80" />
+
       {/* Decorative ambient glass glows */}
       <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-orange-500/[0.02] rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-orange-500/[0.012] rounded-full blur-[100px] pointer-events-none" />

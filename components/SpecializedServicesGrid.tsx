@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, ArrowUpRight } from "lucide-react";
 import { HOME_SPEC_SERVICES } from "@/dictionaries/home";
 import { cn } from "@/lib/utils";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 export default function SpecializedServicesGrid() {
   
@@ -17,6 +18,9 @@ export default function SpecializedServicesGrid() {
 
   return (
     <section className="relative py-16 md:py-24 bg-slate-50 text-slate-900 overflow-hidden border-b border-slate-200">
+      {/* Чертежная сетка на фоне (Blueprint Grid) */}
+      <BlueprintGrid showGradients={false} className="opacity-80" />
+
       {/* Декоративные световые пятна */}
       <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.02)_0%,transparent_70%)] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.015)_0%,transparent_70%)] rounded-full pointer-events-none" />

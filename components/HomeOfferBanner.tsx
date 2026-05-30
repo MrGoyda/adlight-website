@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BadgePercent, MapPin, CheckCircle2, ShieldCheck } from "lucide-react";
 import Button from "@/components/ui/Button";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import QuizModal from "@/components/QuizModal";
 import ConsultationModal from "@/components/ConsultationModal";
 
@@ -14,18 +15,7 @@ export default function HomeOfferBanner() {
     <section className="relative py-20 lg:py-28 overflow-hidden border-b border-slate-200 bg-[#F8FAFB]">
       
       {/* --- Чертежная сетка на фоне (Blueprint Grid) --- */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-80"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
-            linear-gradient(to right, rgba(15, 23, 42, 0.004) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(15, 23, 42, 0.004) 1px, transparent 1px)
-          `,
-          backgroundSize: '100px 100px, 100px 100px, 20px 20px, 20px 20px'
-        }}
-      />
+      <BlueprintGrid showGradients={false} className="opacity-80" />
       
       {/* Свечения за стеклом */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-orange-500/[0.04] to-red-500/[0.04] blur-[120px] rounded-full pointer-events-none"></div>

@@ -3,17 +3,7 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, MessageSquare, Star } from "lucide-react";
 import FadeIn from "@/components/ui/FadeIn";
-
-const allReviews = [
-  { name: "Айгерим С.", role: "Кофейня Coffee Boom", text: "Заказывали светящиеся объемные буквы для нашей кофейни. Сделали очень быстро, за 3 дня уже всё привезли и установили. Парни-монтажники вообще молодцы, всё аккуратно повесили, мусор за собой убрали, подключили. Сама вывеска горит ярко и ровно, клиенты постоянно фоткаются на фоне!"},
-  { name: "Ерлан М.", role: 'ТОО "StroyInvest"', text: "Большое спасибо команде ADLight за помощь с Акиматом! Мы вообще не знали, как эти вывески согласовывать, куча бумаг. Ребята сами сделали все эскизы по дизайн-коду и отправили через e-Otinish. Одобрение получили быстро и без нервов. Очень профессиональный подход."},
-  { name: "Дмитрий К.", role: 'Магазин "Техно"', text: "Искали надежного производителя вывесок в Астане без посредников. Решил съездить к ним в цех на Аспара, посмотреть производство. Там реально стоят ЧПУ станки, лазеры, всё серьезно. Заказали вывеску из композита, качество швов отличное, диоды яркие. Цена честная, без накруток."},
-  { name: "Аслан К.", role: 'Торговый центр "Керуен"', text: "Сотрудничаем по сложным конструкциям. Заказывали большую вывеску на крышу торгового центра. ADLight полностью взяли на себя все расчеты нагрузок на ветер, чертежи и бумажную волокиту с паспортом рекламы. Изготовили и смонтировали в срок, конструкция держится намертво."},
-  { name: "Виктория Т.", role: 'Фитнес-клуб "World Class"', text: "Очень круто сделали нам неоновый логотип на ресепшн и металлическую вывеску на входе! Всё выглядит безумно аккуратно, никаких следов клея или стыков не видно, даже если близко подойти. В интерьере смотрится дорого и современно, спасибо!"},
-  { name: "Рашид Б.", role: 'Сеть АЗС "GasPoint"', text: "Уже не первый раз заказываем у ребят оклейку наших брендовых машин. Пленка Oracal с ламинацией реально качественная, машины ездят по трассе и в мороз, и в жару, ничего не отклеивается и цвета не тускнеют. Отличный печатный цех, рисунки четкие."},
-  { name: "Тимур Н.", role: 'Бар "Loft"', text: "Заказывали у них стильный короб из композита с подсветкой и большие объемные буквы с лампочками в стиле лофт. Сделали именно так, как мы на макете согласовали. Свет мягкий, приятный, в баре теперь очень крутая атмосфера. Блоки питания работают стабильно."},
-  { name: "Елена С.", role: 'Студия "Nails"', text: "Огромное спасибо за панель-кронштейн! Сделали круглый, светится с двух сторон, теперь нашу студию маникюра видно издалека даже с левого берега. Отдельное спасибо дизайнеру, которая бесплатно нарисовала нам классный эскиз вывески."}
-];
+import { ALL_REVIEWS } from "@/dictionaries/reviews";
 
 export default function ReviewsCarousel() {
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -37,6 +27,7 @@ export default function ReviewsCarousel() {
       isDown.current = true; 
       sliderRef.current.style.cursor = 'grabbing'; 
       sliderRef.current.style.scrollBehavior = 'auto'; 
+      sliderRef.current.style.scrollSnapType = 'none'; // Отключаем привязку скролла для плавного драга
       startX.current = e.pageX - sliderRef.current.offsetLeft; 
       scrollLeft.current = sliderRef.current.scrollLeft; 
   };
@@ -46,6 +37,7 @@ export default function ReviewsCarousel() {
       if (sliderRef.current) { 
         sliderRef.current.style.cursor = 'grab'; 
         sliderRef.current.style.scrollBehavior = 'smooth'; 
+        sliderRef.current.style.scrollSnapType = 'x mandatory'; // Возвращаем привязку скролла
       } 
   };
   
@@ -54,6 +46,7 @@ export default function ReviewsCarousel() {
       if (sliderRef.current) { 
         sliderRef.current.style.cursor = 'grab'; 
         sliderRef.current.style.scrollBehavior = 'smooth'; 
+        sliderRef.current.style.scrollSnapType = 'x mandatory'; // Возвращаем привязку скролла
       } 
   };
   
@@ -61,7 +54,7 @@ export default function ReviewsCarousel() {
       if (!isDown.current || !sliderRef.current) return; 
       e.preventDefault(); 
       const x = e.pageX - sliderRef.current.offsetLeft; 
-      const walk = (x - startX.current) * 1.5; 
+      const walk = (x - startX.current) * 1.6; // Увеличен коэффициент чувствительности
       sliderRef.current.scrollLeft = scrollLeft.current - walk; 
   };
 
@@ -110,14 +103,14 @@ export default function ReviewsCarousel() {
           <div className="flex gap-2.5 self-start md:self-end">
              <button 
                 onClick={() => handleScrollClick('left')} 
-                className="p-3.5 rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition active:scale-95 shadow-sm"
+                className="p-3.5 rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition active:scale-95 shadow-sm cursor-pointer"
                 aria-label="Предыдущий отзыв"
              >
                 <ChevronLeft className="w-5 h-5"/>
              </button>
              <button 
                 onClick={() => handleScrollClick('right')} 
-                className="p-3.5 rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition shadow-md shadow-orange-600/10 active:scale-95"
+                className="p-3.5 rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition shadow-md shadow-orange-600/10 active:scale-95 cursor-pointer"
                 aria-label="Следующий отзыв"
              >
                 <ChevronRight className="w-5 h-5"/>
@@ -132,14 +125,14 @@ export default function ReviewsCarousel() {
           onMouseLeave={handleMouseLeave} 
           onMouseUp={handleMouseUp} 
           onMouseMove={handleMouseMove}
-          className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing"
+          className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory"
         >
-           {allReviews.map((rev, i) => (
+           {ALL_REVIEWS.map((rev, i) => (
              <FadeIn
                key={i}
                delay={i * 50}
                threshold={0.1}
-               className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between"
+               className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between snap-start animate-in fade-in"
              >
                 <div>
                    {/* Golden rating stars */}

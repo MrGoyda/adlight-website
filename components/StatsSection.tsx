@@ -1,11 +1,12 @@
 import FadeIn from "@/components/ui/FadeIn";
 import { HOME_STATS } from "@/dictionaries/home";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 export default function StatsSection() {
   return (
-    <section className="py-20 bg-[#F8FAFB] border-y border-slate-200 relative">
-      {/* Техническая сетка на фоне (еле заметная) */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000005_1px,transparent_1px),linear-gradient(to_bottom,#00000005_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none select-none"></div>
+    <section className="py-20 bg-[#F8FAFB] border-y border-slate-200 relative overflow-hidden">
+      {/* Чертежная сетка на фоне (Blueprint Grid) */}
+      <BlueprintGrid showGradients={false} className="opacity-80" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Grid Container с тонкими границами (gap-px создает эффект тонких линий) */}

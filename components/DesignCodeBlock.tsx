@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CheckCircle, FileCheck, BookOpen, ShieldCheck } from "lucide-react";
 import ConsultationModal from "./ConsultationModal";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 interface DesignCodeBlockProps {
   title?: string;
@@ -32,6 +33,9 @@ export default function DesignCodeBlock({
 
   return (
     <section className="py-20 lg:py-28 bg-slate-50/50 relative overflow-hidden border-y border-slate-200/60">
+      {/* Чертежная сетка на фоне (Blueprint Grid) */}
+      <BlueprintGrid showGradients={false} className="opacity-80" />
+
       {/* Soft warm ambient background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-orange-500/[0.01] rounded-full pointer-events-none -z-10" />
       

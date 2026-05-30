@@ -6,19 +6,6 @@ import HomePainsCard from "@/components/HomePainsCard";
 export default function HomePainsSection() {
   return (
     <section className="relative py-16 md:py-24 lg:py-32 overflow-hidden border-b border-slate-200 bg-slate-50">
-      {/* --- Чертежная сетка на фоне (Blueprint Grid) --- */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-80"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
-            linear-gradient(to right, rgba(15, 23, 42, 0.005) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(15, 23, 42, 0.005) 1px, transparent 1px)
-          `,
-          backgroundSize: '100px 100px, 100px 100px, 20px 20px, 20px 20px'
-        }}
-      />
       
       {/* Декоративное свечение */}
       <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.025)_0%,transparent_70%)] rounded-full pointer-events-none" />

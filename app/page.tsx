@@ -19,6 +19,7 @@ import VolumeLettersShowcase from "@/components/VolumeLettersShowcase";
 import DynamicServicesHub from "@/components/DynamicServicesHub";
 import SpecializedServicesGrid from "@/components/SpecializedServicesGrid";
 import FadeIn from "@/components/ui/FadeIn";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---

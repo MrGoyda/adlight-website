@@ -53,7 +53,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Оформление фасадов",
         price: "от 18 000 ₸/m²",
         link: SITE_LINKS.services.facadeDecoration || "/services/facade-decoration",
-        image: "/images/pages/services-facade.webp",
+        image: "/images/pages/services-facade.png",
         tags: ["Композит", "Алюкобонд", "Под ключ"],
         description: "Облицовка фасадов композитными панелями и керамогранитом под рекламу."
       }
@@ -93,7 +93,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Баннеры и таблички",
         price: "от 2 500 ₸/m²",
         link: "/services/banners-plates",
-        image: "/images/pages/services-banners.webp",
+        image: "/images/pages/services-banners.png",
         tags: ["Широкоформат", "Инфо-стенды", "Срочно"],
         description: "Печать баннеров, пресс-стены, информационные стенды и дверные таблички."
       }
@@ -133,7 +133,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Вывески на выставку",
         price: "от 120 000 ₸",
         link: SITE_LINKS.services.exhibitionStands,
-        image: "/images/pages/services-exhibition.webp",
+        image: "/images/pages/services-exhibition.png",
         tags: ["Выставки", "Промо-зоны", "Быстрая сборка"],
         description: "Изготовление выставочных стендов, световых конструкций и промо-зон."
       }
@@ -149,7 +149,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Брендирование авто",
         price: SITE_PRICES.brandingCars,
         link: SITE_LINKS.services.brandingCars,
-        image: "/images/pages/services-branding-cars.webp",
+        image: "/images/pages/services-branding-cars.png",
         tags: ["Оклейка авто", "Винил", "Реклама на колесах"],
         description: "Оклейка коммерческого транспорта виниловой пленкой с рекламой компании."
       },
@@ -157,7 +157,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Ремонт вывесок",
         price: SITE_PRICES.signboardRepair,
         link: SITE_LINKS.services.signboardRepair,
-        image: "/images/pages/services-repair.webp",
+        image: "/images/pages/services-repair.png",
         tags: ["Диагностика", "Светодиоды", "Срочный выезд"],
         description: "Ремонт, модернизация на диоды, чистка и техническое обслуживание вывесок."
       }

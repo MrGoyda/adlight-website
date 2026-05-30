@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, MessageSquare } from "lucide-react";
 import { HOME_FAQ } from "@/dictionaries/home"; 
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 interface FaqItem {
   q: string;
@@ -28,6 +29,9 @@ export default function FaqSection({
 
   return (
     <section className="py-20 lg:py-28 bg-slate-50 relative overflow-hidden border-t border-slate-200/60">
+      {/* Чертежная сетка на фоне (Blueprint Grid) */}
+      <BlueprintGrid showGradients={false} className="opacity-80" />
+
       {/* Subtle decorative warm ambient light glow */}
       <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/[0.01] rounded-full pointer-events-none -z-10" />
       

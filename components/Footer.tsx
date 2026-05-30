@@ -15,6 +15,7 @@ import {
 import { COMPANY_NAP } from "@/dictionaries/common";
 import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
 import { SITE_CONTACTS } from "@/config/site";
+import Button from "@/components/ui/Button";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -184,7 +185,7 @@ export default function Footer() {
                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Проложить маршрут:</span>
                <div className="grid grid-cols-3 gap-2">
                   <a 
-                     href="https://2gis.kz/astana/search/%D1%83%D0%BB.%20%D0%90%D1%81%D0%BF%D0%B0%D1%80%D0%B0%2C%207" 
+                     href={SITE_CONTACTS.maps.gisSearch} 
                      target="_blank" 
                      rel="nofollow noreferrer" 
                      className="px-2 py-2 bg-white border border-slate-200 text-[10px] font-bold text-center rounded-lg text-slate-500 hover:text-slate-900 hover:border-slate-350 shadow-sm transition"
@@ -211,9 +212,13 @@ export default function Footer() {
             </div>
             
             <div className="pt-2">
-               <Link href="/calculator" className="block w-full py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white text-center font-extrabold text-sm rounded-xl transition duration-300 shadow-lg shadow-orange-950/10 active:scale-[0.98]">
+               <Button 
+                  href="/calculator"
+                  variant="solid"
+                  className="w-full text-center py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-[0.98]"
+               >
                   Рассчитать стоимость
-               </Link>
+               </Button>
                <Link href="/design-code" className="flex items-center justify-center gap-2 w-full py-2.5 mt-2.5 text-center text-xs font-semibold text-slate-400 hover:text-slate-600 transition group">
                   <FileText className="w-4 h-4 group-hover:text-orange-500 transition-colors"/>
                   <span className="underline decoration-slate-200 hover:decoration-slate-300">Дизайн-код Астаны (СНиП)</span>

@@ -7,6 +7,7 @@ import { Moon, Sun, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react
 import { motion, useMotionValue, animate } from "framer-motion";
 import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
 import { cn } from "@/lib/utils";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 export default function VolumeLettersShowcase() {
   const [isNightMode, setIsNightMode] = useState<boolean>(true);
@@ -19,44 +20,39 @@ export default function VolumeLettersShowcase() {
   // MotionValue для плавных пружинных перемещений карусели
   const x = useMotionValue(0);
 
-  // Тактильный отклик (Web Haptics)
-  const triggerHaptic = (type: "light" | "success") => {
+  // Тактильный отклик (iOS)
+  const triggerHaptic = (type: "light" | "medium" = "light") => {
     if (typeof window !== "undefined" && navigator.vibrate) {
-      const patterns = { light: [12], success: [10, 40, 10] };
-      navigator.vibrate(patterns[type]);
+      const duration = type === "light" ? 10 : 20;
+      navigator.vibrate(duration);
     }
   };
 
   const handleToggle = () => {
     setIsNightMode((prev) => !prev);
-    triggerHaptic("success");
+    triggerHaptic("medium");
   };
 
-  // Расчет физических ограничений перетаскивания (dragConstraints) с помощью ResizeObserver
+  // Измерение ограничений драга при изменении размеров
   useEffect(() => {
-    if (!viewportRef.current || !innerRef.current) return;
-
-    const updateConstraints = () => {
-      if (viewportRef.current && innerRef.current) {
-        const viewportWidth = viewportRef.current.offsetWidth;
-        const innerWidth = innerRef.current.scrollWidth;
-        const maxDrag = innerWidth - viewportWidth;
-        setDragConstraints({
-          left: maxDrag > 0 ? -maxDrag : 0,
-          right: 0,
-        });
-      }
+    const handleResize = () => {
+      if (!viewportRef.current || !innerRef.current) return;
+      const viewportWidth = viewportRef.current.offsetWidth;
+      const innerWidth = innerRef.current.scrollWidth;
+      const limit = viewportWidth - innerWidth;
+      setDragConstraints({ left: limit < 0 ? limit : 0, right: 0 });
     };
 
+    // Слушатель через ResizeObserver для точного отслеживания
     const resizeObserver = new ResizeObserver(() => {
-      updateConstraints();
+      handleResize();
     });
 
-    resizeObserver.observe(viewportRef.current);
-    resizeObserver.observe(innerRef.current);
+    if (viewportRef.current) resizeObserver.observe(viewportRef.current);
+    if (innerRef.current) resizeObserver.observe(innerRef.current);
 
     // Дополнительный вызов для первоначальной засечки
-    updateConstraints();
+    handleResize();
 
     return () => {
       resizeObserver.disconnect();
@@ -73,10 +69,9 @@ export default function VolumeLettersShowcase() {
     const scrollAmount = viewportWidth * 0.75; // Сдвиг на 75% экрана
     let targetX = direction === "left" ? currentX + scrollAmount : currentX - scrollAmount;
 
-    // Контролируем, чтобы скролл не выходил за рамки
-    const minX = dragConstraints.left;
+    // Ограничение по границам перетаскивания
     if (targetX > 0) targetX = 0;
-    if (targetX < minX) targetX = minX;
+    if (targetX < dragConstraints.left) targetX = dragConstraints.left;
 
     animate(x, targetX, {
       type: "spring",
@@ -88,6 +83,9 @@ export default function VolumeLettersShowcase() {
 
   return (
     <section className="relative py-16 md:py-24 bg-white text-slate-900 overflow-hidden border-b border-slate-200">
+      {/* Чертежная сетка на фоне (Blueprint Grid) */}
+      <BlueprintGrid showGradients={false} className="opacity-80" />
+
       {/* Декоративные мягкие градиенты глубины в светлой теме */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.03)_0%,transparent_70%)] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.02)_0%,transparent_70%)] rounded-full pointer-events-none" />

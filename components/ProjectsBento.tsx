@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Clock, MapPin, ShieldCheck, Folder, ChevronLeft, ChevronRight } from "lucide-react";
 import { PROJECTS, CATEGORIES } from "@/lib/projectsData";
 import FadeIn from "@/components/ui/FadeIn";
+import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 interface ProjectsBentoProps {
   title?: string;
@@ -84,6 +85,9 @@ export default function ProjectsBento({
 
   return (
     <section className={`py-20 lg:py-28 bg-slate-50/50 relative overflow-hidden border-t border-slate-200/60 ${className}`}>
+      {/* Чертежная сетка на фоне (Blueprint Grid) */}
+      <BlueprintGrid showGradients={false} className="opacity-80" />
+
       {/* Decorative ambient light glow */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-orange-500/[0.01] rounded-full pointer-events-none -z-10" />
       

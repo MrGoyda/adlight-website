@@ -1,58 +1,10 @@
-"use client";
-
-import { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  Zap, 
-  ShieldCheck, 
-  Settings, 
-  PaintBucket, 
-  Factory, 
-  ArrowRight,
-  Cpu,
-  Printer,
-  Users,
-  Maximize2
-} from "lucide-react";
-import ConsultationModal from "./ConsultationModal";
-
-const PRODUCTION_DETAILS = [
-  {
-    icon: <Settings className="w-5 h-5"/>,
-    title: "Парк станков ЧПУ",
-    desc: "Высокоточные лазерные раскройщики, профессиональные фрезерные станки ЧПУ и автоматические бортогибы для изготовления безупречных буквенных профилей.",
-    color: "text-orange-600 bg-orange-50 border-orange-100",
-  },
-  {
-    icon: <Printer className="w-5 h-5"/>,
-    title: "Печатный комплекс",
-    desc: "Сольвентная и экосольвентная печать, УФ-планшетный и УФ-рулонный принтеры премиум-класса, а также инновационный комплекс УФ-DTF печати.",
-    color: "text-blue-600 bg-blue-50 border-blue-100",
-  },
-  {
-    icon: <Users className="w-5 h-5"/>,
-    title: "Штат из 15 экспертов",
-    desc: "Квалифицированные архитекторы для согласования, креативные дизайнеры, опытные сборщики-макетчики и сертифицированные монтажные бригады.",
-    color: "text-purple-600 bg-purple-50 border-purple-100",
-  },
-  {
-    icon: <Maximize2 className="w-5 h-5"/>,
-    title: "Масштабная площадь",
-    desc: "Собственная оборудованная производственная площадка с выделенными зонами сборки, сварки, покраски и тестирования светодиодной электрики.",
-    color: "text-emerald-600 bg-emerald-50 border-emerald-100",
-  }
-];
+import * as Icons from "lucide-react";
+import { PRODUCTION_DETAILS } from "@/dictionaries/production";
 
 export default function ProductionSection() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const triggerHaptic = () => {
-    if (typeof window !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(10);
-    }
-  };
-
   return (
     <section className="py-20 lg:py-28 bg-white relative overflow-hidden border-y border-slate-200/60">
       {/* Soft ambient background glow */}
@@ -65,7 +17,7 @@ export default function ProductionSection() {
           <div className="lg:col-span-7 space-y-8 text-left">
              <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-200/40 text-orange-600 text-xs font-black uppercase tracking-wider">
-                   <Factory className="w-4 h-4"/> Собственное производство в Астане
+                   <Icons.Factory className="w-4 h-4"/> Собственное производство в Астане
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
                    Мы не перекупщики. <br/>
@@ -75,45 +27,50 @@ export default function ProductionSection() {
                    Полный производственный цикл в Астане: от высокоточного ЧПУ-раскроя листовых материалов до интерьерной УФ-печати и монтажа. Никаких посредников, строгое соблюдение сроков.
                 </p>
              </div>
- 
+  
              <div className="grid sm:grid-cols-2 gap-4">
-                {PRODUCTION_DETAILS.map((item, i) => (
-                   <div 
-                      key={i}
-                      className="p-6 rounded-2xl bg-white border border-slate-200/70 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-300 transition duration-300 group"
-                   >
-                      <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 group-hover:scale-105 transition-transform ${item.color}`}>
-                         {item.icon}
+                {PRODUCTION_DETAILS.map((item, i) => {
+                   // Динамическое получение иконки Lucide по имени
+                   const IconComponent = (Icons as any)[item.iconName] 
+                     ? React.createElement((Icons as any)[item.iconName], { className: "w-5 h-5" })
+                     : React.createElement(Icons.Settings, { className: "w-5 h-5" });
+
+                   return (
+                      <div 
+                         key={i}
+                         className="p-6 rounded-2xl bg-white border border-slate-200/70 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-300 transition duration-300 group"
+                      >
+                         <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 group-hover:scale-105 transition-transform ${item.color}`}>
+                            {IconComponent}
+                         </div>
+                         <h4 className="text-slate-950 font-extrabold text-sm mb-1.5">{item.title}</h4>
+                         <p className="text-slate-500 text-xs font-semibold leading-relaxed">
+                            {item.desc}
+                         </p>
                       </div>
-                      <h4 className="text-slate-950 font-extrabold text-sm mb-1.5">{item.title}</h4>
-                      <p className="text-slate-500 text-xs font-semibold leading-relaxed">
-                         {item.desc}
-                      </p>
-                   </div>
-                ))}
+                   );
+                })}
              </div>
- 
+  
              {/* DUAL ACTIONS */}
              <div className="flex flex-wrap items-center gap-4 pt-4">
                 <Link 
                    href="/calculator" 
-                   onClick={triggerHaptic}
                    className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-950/15 active:scale-97 transition duration-200"
                 >
                    <span>Рассчитать вывеску</span>
-                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>
+                   <Icons.ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>
                 </Link>
 
                 <Link 
                    href="/production" 
-                   onClick={triggerHaptic}
                    className="group inline-flex items-center justify-center gap-2.5 px-6 py-4 bg-white hover:bg-slate-50 text-slate-800 rounded-xl font-bold text-sm uppercase tracking-wider border border-slate-200 shadow-sm active:scale-97 transition duration-200"
                 >
                    <span>О нашем производстве</span>
                 </Link>
              </div>
           </div>
- 
+  
           {/* RIGHT COLUMN: DETAILED WORKSHOP AND STAFF SPECIMEN CARD */}
           <div className="lg:col-span-5 relative">
              <div className="relative bg-white border border-slate-200 p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] transform lg:-rotate-1 hover:rotate-0 transition duration-500">
@@ -127,7 +84,7 @@ export default function ProductionSection() {
                 {/* Visual Spec Image Container */}
                 <div className="aspect-[4/3] bg-slate-100 rounded-2xl border border-slate-200 overflow-hidden relative group">
                    <Image 
-                      src="/images/pages/ceh.webp" 
+                      src="/images/pages/assembly_workshop.png" 
                       alt="Производственный цех рекламной компании ADLight в Астане"
                       fill
                       className="object-cover transition duration-700 group-hover:scale-[1.02]"
@@ -163,15 +120,9 @@ export default function ProductionSection() {
                 </div>
              </div>
           </div>
- 
+  
         </div>
       </div>
-
-      <ConsultationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        source="Форма: Производственный блок"
-      />
     </section>
   );
 }
