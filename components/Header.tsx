@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -29,6 +29,8 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // Ref на функцию закрытия меню (с анимацией) из дочернего компонента
+  const closeMobileMenuRef = React.useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -190,19 +192,26 @@ export default function Header() {
           </div>
 
           {/* КНОПКА МЕНЮ (БУРГЕР) — Видна на десктопе и мобильном */}
-             <motion.button 
-                {...burgerAnimation}
-                className="flex items-center gap-2.5 py-2 px-3.5 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none"
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
-             >
-                <span className="hidden sm:inline text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">Меню</span>
-                {isOpen ? (
-                   <X className="w-4 h-4 text-orange-500 transition-transform duration-300 group-hover:rotate-90"/>
-                ) : (
-                   <Menu className="w-4 h-4 text-slate-600 group-hover:text-orange-500 transition-colors duration-300"/>
-                )}
-             </motion.button>
+          <motion.button 
+             {...burgerAnimation}
+             className="flex items-center gap-2.5 py-2 px-3.5 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none"
+             onClick={() => {
+               if (isOpen) {
+                 // Закрываем через анимацию меню, не напрямую
+                 closeMobileMenuRef.current?.();
+               } else {
+                 setIsOpen(true);
+               }
+             }}
+             aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+          >
+             <span className="hidden sm:inline text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">Меню</span>
+             {isOpen ? (
+                <X className="w-4 h-4 text-orange-500 transition-transform duration-300 group-hover:rotate-90"/>
+             ) : (
+                <Menu className="w-4 h-4 text-slate-600 group-hover:text-orange-500 transition-colors duration-300"/>
+             )}
+          </motion.button>
         </div>
       </header>
 
@@ -211,6 +220,7 @@ export default function Header() {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onOpenConsultation={() => setIsModalOpen(true)}
+        registerClose={(fn) => { closeMobileMenuRef.current = fn; }}
       />
 
       {/* МОДАЛЬНОЕ ОКНО */}
