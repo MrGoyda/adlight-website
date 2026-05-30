@@ -87,7 +87,7 @@ export default function VolumeLettersShowcase() {
   };
 
   return (
-    <section className="relative py-16 md:py-24 bg-slate-50 text-slate-900 overflow-hidden border-b border-slate-200">
+    <section className="relative py-16 md:py-24 bg-white text-slate-900 overflow-hidden border-b border-slate-200">
       {/* Декоративные мягкие градиенты глубины в светлой теме */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.03)_0%,transparent_70%)] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.02)_0%,transparent_70%)] rounded-full pointer-events-none" />

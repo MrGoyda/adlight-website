@@ -1,4 +1,5 @@
 // dictionaries/home.ts
+import { SITE_PRICES, SITE_LINKS } from "@/config/site";
 
 export const HOME_STATS = [
   { 
@@ -196,10 +197,10 @@ export const HOME_SPEC_SERVICES = [
     title: "Ремонт и обслуживание вывесок",
     seoKey: "ремонт вывесок астана замена диодов в рекламе",
     desc: "Потухла вывеска? Оперативно выезжаем на диагностику в любой район Астаны. Заменим перегоревшие диоды, обновим блоки питания на пыле- и влагозащищенные Samsung Premium с гарантией 12 месяцев.",
-    price: "от 15 000 ₸",
+    price: SITE_PRICES.signboardRepair,
     image: "/images/pages/services-repair.webp",
     imageAlt: "Профессиональный ремонт и замена светодиодов в вывеске в Астане",
-    link: "/services/signboard-repair",
+    link: SITE_LINKS.services.signboardRepair,
     features: ["Выезд за 2 часа", "Диагностика электрики", "Оригинальные запчасти"]
   },
   {
@@ -207,10 +208,10 @@ export const HOME_SPEC_SERVICES = [
     title: "Брендирование автотранспорта",
     seoKey: "брендирование авто астана реклама на машину",
     desc: "Бесплатный рекламный носитель, который работает на вас 24/7 по всему Казахстану. Качественная оклейка легковых машин, фургонов и спецтехники немецкой литой пленкой Oracal с ламинацией от УФ-лучей.",
-    price: "от 30 000 ₸",
+    price: SITE_PRICES.brandingCars,
     image: "/images/pages/services-branding-cars.webp",
     imageAlt: "Оклейка коммерческого автомобиля виниловой рекламой в Астане",
-    link: "/services/branding-cars",
+    link: SITE_LINKS.services.brandingCars,
     features: ["Немецкие пленки Oracal", "Срок службы от 5 лет", "Гарантия на монтаж"]
   },
   {
@@ -221,7 +222,7 @@ export const HOME_SPEC_SERVICES = [
     price: "Рассчитывается индивидуально",
     image: "/images/pages/services-exhibition.webp",
     imageAlt: "Красивое оформление выставки и световой выставочный стенд",
-    link: "/services/exhibition-stands",
+    link: SITE_LINKS.services.exhibitionStands,
     features: ["Сборка за 24 часа", "Аренда конструкций", "Монтаж на площадке"]
   },
   {
@@ -232,7 +233,7 @@ export const HOME_SPEC_SERVICES = [
     price: "Рассчитывается индивидуально",
     image: "/images/pages/services-roof-installations.webp",
     imageAlt: "Инженерное проектирование и расчет прочности крышной установки вывески",
-    link: "/services/roof-installations",
+    link: SITE_LINKS.services.roofInstallations,
     features: ["Расчет нагрузок КМ/КМД", "Согласование под ключ", "Аттестованные инженеры"]
   }
 ];
@@ -260,9 +261,9 @@ export const HOME_B2B_NICHES = [
     priceRange: "от 120 000 ₸",
     badge: "Атмосфера и Стиль",
     optimalSigns: [
-      { type: "Буквы с контражуром", price: "от 650 ₸/см", link: "/services/volume-letters/back-lit", reason: "Эффект парения" },
-      { type: "Гибкий LED неон", price: "от 15 000 ₸", link: "/services/neon", reason: "Для фотозон и витрин" },
-      { type: "Ретро вывеска с лампами", price: "от 1200 ₸/см", link: "/services/volume-letters", reason: "Лофт атмосфера" }
+      { type: "Буквы с контражуром", price: SITE_PRICES.volumeLettersBacklit, link: SITE_LINKS.services.volumeLettersBackLit, reason: "Эффект парения" },
+      { type: "Гибкий LED неон", price: SITE_PRICES.neon, link: SITE_LINKS.services.neon, reason: "Для фотозон и витрин" },
+      { type: "Ретро вывеска с лампами", price: SITE_PRICES.volumeLettersLoft, link: SITE_LINKS.services.volumeLettersLoft, reason: "Лофт атмосфера" }
     ]
   },
   {
@@ -286,9 +287,9 @@ export const HOME_B2B_NICHES = [
     priceRange: "от 95 050 ₸",
     badge: "Премиум Эстетика",
     optimalSigns: [
-      { type: "Цельноклееный акрил", price: "от 1000 ₸/см", link: "/services/volume-letters", reason: "Бесшовное свечение" },
-      { type: "Интерьерное лого", price: "от 25 000 ₸", link: "/services/interior", reason: "Зона ресепшн" },
-      { type: "Торцевой круглый лайтбокс", price: "от 35 000 ₸", link: "/services/panel-brackets", reason: "Боковой обзор" }
+      { type: "Цельноклееный акрил", price: "от 1000 ₸/см", link: SITE_LINKS.services.volumeLetters, reason: "Бесшовное свечение" },
+      { type: "Интерьерное лого", price: SITE_PRICES.interiorLogo, link: SITE_LINKS.services.interior, reason: "Зона ресепшн" },
+      { type: "Торцевой круглый лайтбокс", price: SITE_PRICES.panelBrackets, link: SITE_LINKS.services.panelBrackets, reason: "Боковой обзор" }
     ]
   },
   {
@@ -312,9 +313,9 @@ export const HOME_B2B_NICHES = [
     priceRange: "от 150 000 ₸",
     badge: "Максимальная видимость",
     optimalSigns: [
-      { type: "Двусторонний крест LED", price: "от 45 000 ₸", link: "/services/panel-brackets", reason: "Динамическая анимация" },
-      { type: "Световое лицо (зеленое)", price: "от 550 ₸/см", link: "/services/volume-letters/face-lit", reason: "100% читаемость ночью" },
-      { type: "Композитный короб", price: "от 80 000 ₸/м²", link: "/services/lightboxes", reason: "Прочная основа" }
+      { type: "Двусторонний крест LED", price: "от 45 000 ₸", link: SITE_LINKS.services.panelBrackets, reason: "Динамическая анимация" },
+      { type: "Световое лицо (зеленое)", price: SITE_PRICES.volumeLettersFaceLit, link: SITE_LINKS.services.volumeLettersFaceLit, reason: "100% читаемость ночью" },
+      { type: "Композитный короб", price: SITE_PRICES.lightboxes, link: SITE_LINKS.services.lightboxes, reason: "Прочная основа" }
     ]
   },
   {
@@ -338,9 +339,9 @@ export const HOME_B2B_NICHES = [
     priceRange: "от 180 000 ₸",
     badge: "Прочность и Масштаб",
     optimalSigns: [
-      { type: "Композитный короб с инкрустацией", price: "от 95 000 ₸/м²", link: "/services/lightboxes", reason: "Не выгорает, держит форму" },
-      { type: "Пиксельные открытые LED", price: "от 1000 ₸/см", link: "/services/volume-letters", reason: "Экстремальная яркость" },
-      { type: "Рекламный пилон", price: "от 250 000 ₸", link: "/services/pylons", reason: "Придорожная навигация" }
+      { type: "Композитный короб с инкрустацией", price: SITE_PRICES.lightboxesComposite, link: SITE_LINKS.services.lightboxes, reason: "Не выгорает, держит форму" },
+      { type: "Пиксельные открытые LED", price: "от 1000 ₸/см", link: SITE_LINKS.services.volumeLetters, reason: "Экстремальная яркость" },
+      { type: "Рекламный пилон", price: SITE_PRICES.pylons, link: SITE_LINKS.services.pylons, reason: "Придорожная навигация" }
     ]
   },
   {
@@ -364,9 +365,9 @@ export const HOME_B2B_NICHES = [
     priceRange: "от 110 000 ₸",
     badge: "Поток Клиентов",
     optimalSigns: [
-      { type: "Классическое световое лицо", price: "от 550 ₸/см", link: "/services/volume-letters/face-lit", reason: "Максимальный контраст" },
-      { type: "Двусторонний панель-кронштейн", price: "от 35 000 ₸", link: "/services/panel-brackets", reason: "Боковой трафик" },
-      { type: "Светодиодный тонкий меню-борд", price: "от 80 000 ₸", link: "/services/lightboxes", reason: "Реклама спецпредложений" }
+      { type: "Классическое световое лицо", price: SITE_PRICES.volumeLettersFaceLit, link: SITE_LINKS.services.volumeLettersFaceLit, reason: "Максимальный контраст" },
+      { type: "Двусторонний панель-кронштейн", price: SITE_PRICES.panelBrackets, link: SITE_LINKS.services.panelBrackets, reason: "Боковой трафик" },
+      { type: "Светодиодный тонкий меню-борд", price: "от 80 000 ₸", link: SITE_LINKS.services.lightboxes, reason: "Реклама спецпредложений" }
     ]
   }
 ];

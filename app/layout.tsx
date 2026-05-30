@@ -94,8 +94,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`dark scroll-smooth ${inter.variable}`} data-scroll-behavior="smooth">
-      <body className={`${inter.className} bg-slate-900 text-gray-100 antialiased overflow-x-clip`}>
+    <html lang="ru" className={`scroll-smooth ${inter.variable}`} data-scroll-behavior="smooth">
+      <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`}>
         
         {/* --- GOOGLE ADS TAG (Вставка) --- */}
         {/* Загрузка библиотеки gtag.js */}

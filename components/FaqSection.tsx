@@ -12,7 +12,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="py-20 lg:py-28 bg-white relative overflow-hidden border-t border-slate-200/60">
+    <section className="py-20 lg:py-28 bg-slate-50 relative overflow-hidden border-t border-slate-200/60">
       {/* Subtle decorative warm ambient light glow */}
       <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/[0.01] rounded-full pointer-events-none -z-10" />
       

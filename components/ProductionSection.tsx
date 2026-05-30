@@ -54,7 +54,7 @@ export default function ProductionSection() {
   };
 
   return (
-    <section className="py-20 lg:py-28 bg-slate-50/60 relative overflow-hidden border-y border-slate-200/60">
+    <section className="py-20 lg:py-28 bg-white relative overflow-hidden border-y border-slate-200/60">
       {/* Soft ambient background glow */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/[0.015] rounded-full pointer-events-none -z-10" />
       

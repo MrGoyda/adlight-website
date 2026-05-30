@@ -59,7 +59,7 @@ const STEPS = [
 
 export default function StepsSection() {
   return (
-    <section className="py-20 lg:py-28 bg-slate-50/50 relative overflow-hidden border-t border-slate-200/60">
+    <section className="py-20 lg:py-28 bg-white relative overflow-hidden border-t border-slate-200/60">
       {/* Decorative background ambient light glow */}
       <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/[0.012] rounded-full pointer-events-none -z-10" />
       
@@ -85,13 +85,13 @@ export default function StepsSection() {
           {STEPS.map((item, i) => (
             <div
               key={i} 
-              className="relative flex-none w-[82vw] sm:w-[340px] md:w-auto snap-center bg-white p-8 rounded-3xl border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-350 transition duration-300 group flex flex-col justify-between"
+              className="relative flex-none w-[82vw] sm:w-[340px] md:w-auto snap-center bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 group flex flex-col justify-between"
             >
-              {/* Step indicator and Icon */}
+              {/* Step indicator */}
               <div className="flex items-center justify-between mb-6">
-                 <div className={`w-10 h-10 rounded-xl border flex items-center justify-center group-hover:scale-105 transition-transform ${item.color}`}>
-                    {item.icon}
-                 </div>
+                 <span className={`px-3 py-1 rounded-xl text-xs font-bold border tracking-wider uppercase ${item.color}`}>
+                    Шаг {item.step}
+                 </span>
                  <span className="text-slate-200 group-hover:text-orange-500/20 font-black text-5xl tracking-tighter leading-none transition-colors duration-300">
                     {item.step}
                  </span>

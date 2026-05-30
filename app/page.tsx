@@ -18,6 +18,7 @@ import HomeOfferBanner from "@/components/HomeOfferBanner";
 import VolumeLettersShowcase from "@/components/VolumeLettersShowcase";
 import DynamicServicesHub from "@/components/DynamicServicesHub";
 import SpecializedServicesGrid from "@/components/SpecializedServicesGrid";
+import FadeIn from "@/components/ui/FadeIn";
 
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
@@ -97,61 +98,93 @@ export default function Home() {
       />
 
       {/* 1.5. СЕКЦИЯ БОЛЕЙ И РЕШЕНИЙ (SEO / AI ОПТИМИЗИРОВАННАЯ) */}
-      <HomePainsSection />
+      <FadeIn direction="up">
+        <HomePainsSection />
+      </FadeIn>
 
       {/* 1.5.5. ШОУКЕЙС ТЕХНОЛОГИЙ ОБЪЕМНЫХ БУКВ (ИНТЕРАКТИВНЫЙ ДЕНЬ/НОЧЬ) */}
-      <VolumeLettersShowcase />
+      <FadeIn direction="up">
+        <VolumeLettersShowcase />
+      </FadeIn>
 
       {/* 1.6. СЕКЦИЯ ОФФЕРА (СКИДКА 10% И БЕСПЛАТНЫЙ ЗАМЕР) */}
-      <HomeOfferBanner />
+      <FadeIn direction="up">
+        <HomeOfferBanner />
+      </FadeIn>
 
       {/* 2. БЕГУЩАЯ СТРОКА */}
-      <ClientsMarquee />
+      <FadeIn direction="up">
+        <ClientsMarquee />
+      </FadeIn>
 
       {/* 3. СТАТИСТИКА */}
-      <StatsSection />
+      <FadeIn direction="up">
+        <StatsSection />
+      </FadeIn>
 
       {/* 4. ДИНАМИЧЕСКИЙ ХАБ УСЛУГ (iOS SEGMENTED TABS) */}
       {/* Добавил id="services" чтобы сохранить работоспособность навигационных ссылок adlight.kz/#services */}
       <section id="services">
-        <DynamicServicesHub />
+        <FadeIn direction="up">
+          <DynamicServicesHub />
+        </FadeIn>
       </section>
 
       {/* 4.3. СПЕЦИАЛИЗИРОВАННЫЕ УСЛУГИ (АВТО, РЕМОНТ, EVENT) */}
-      <SpecializedServicesGrid />
+      <FadeIn direction="up">
+        <SpecializedServicesGrid />
+      </FadeIn>
 
       {/* 4.5. РЕШЕНИЯ ПО НИШАМ БИЗНЕСА (SEO / AI ОПТИМИЗИРОВАННЫЙ БЛОК) */}
-      <NicheServices />
+      <FadeIn direction="up">
+        <NicheServices />
+      </FadeIn>
 
       {/* 5. ДИЗАЙН-КОД АСТАНЫ */}
-      <DesignCodeBlock />
+      <FadeIn direction="up">
+        <DesignCodeBlock />
+      </FadeIn>
 
       {/* 6. ЭТАПЫ РАБОТЫ */}
-      <StepsSection />
+      <FadeIn direction="up">
+        <StepsSection />
+      </FadeIn>
 
       {/* 7. ПОРТФОЛИО */}
       <section id="portfolio">
-        <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства в Астане" />
+        <FadeIn direction="up">
+          <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства в Астане" />
+        </FadeIn>
       </section>
 
       {/* 8. ПРОИЗВОДСТВЕННЫЙ БЛОК (E-E-A-T) */}
-      <ProductionSection />
+      <FadeIn direction="up">
+        <ProductionSection />
+      </FadeIn>
 
       {/* 9. FAQ */}
       <section id="faq">
-        <FaqSection />
+        <FadeIn direction="up">
+          <FaqSection />
+        </FadeIn>
       </section>
 
       {/* 10. ОТЗЫВЫ */}
-      <ReviewsCarousel />
+      <FadeIn direction="up">
+        <ReviewsCarousel />
+      </FadeIn>
 
       {/* 11. КАРТА И КОНТАКТЫ */}
       <section id="contacts">
-        <ContactsSection />
+        <FadeIn direction="up">
+          <ContactsSection />
+        </FadeIn>
       </section>
 
       {/* 12. CTA */}
-      <CallToAction source="Главная страница" />
+      <FadeIn direction="up">
+        <CallToAction source="Главная страница" />
+      </FadeIn>
       
     </main>
   );

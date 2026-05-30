@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 import ConsultationModal from "@/components/ConsultationModal";
+import GlassLayer from "@/components/ui/GlassLayer";
 
 // --- ИМПОРТ СЛОВАРЕЙ ---
 import { COMPANY_NAP } from "@/dictionaries/common";
@@ -105,12 +106,12 @@ export default function Header() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* HEADER */}
       <header className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
         scrolled 
-          ? 'border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-xl shadow-slate-200/20' 
-          : 'border-slate-200/40 bg-white/95 backdrop-blur'
+          ? 'border-slate-200/80 shadow-xl shadow-slate-200/20' 
+          : 'border-slate-200/40'
       }`}>
+        <div className="absolute inset-0 z-[-1] bg-white rounded-inherit pointer-events-none" />
         
         <div className="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between relative">
           

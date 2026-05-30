@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MapPin, Clock, Phone, MessageCircle } from "lucide-react";
+import { SITE_CONTACTS } from "@/config/site";
 
 export default function ContactsSection() {
   const [mapInteractive, setMapInteractive] = useState(false);
@@ -26,7 +27,7 @@ export default function ContactsSection() {
         onMouseLeave={() => setMapInteractive(false)}
       >
         <iframe 
-            src="https://yandex.ru/map-widget/v1/?text=Астана+Аспара+7&z=16" 
+            src={SITE_CONTACTS.maps.yandexWidget} 
             width="100%" 
             height="100%" 
             frameBorder="0" 
@@ -39,7 +40,7 @@ export default function ContactsSection() {
             loading="lazy"
         ></iframe>
 
-        {/* Warm Orange Brand Interactivity Overlay */}
+      {/* Warm Orange Brand Interactivity Overlay */}
         {!mapInteractive && (
           <div 
             onClick={handleInteractiveClick}
@@ -72,7 +73,7 @@ export default function ContactsSection() {
                   </div>
                   <div className="text-left">
                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Адрес цеха и офиса:</span>
-                     <p className="text-slate-900 font-extrabold text-base leading-tight">г. Астана, ул. Аспара 7</p>
+                     <p className="text-slate-900 font-extrabold text-base leading-tight">г. {SITE_CONTACTS.locality}, {SITE_CONTACTS.address.replace(", г. Астана", "")}</p>
                   </div>
                </div>
                
@@ -83,7 +84,7 @@ export default function ContactsSection() {
                   </div>
                   <div className="text-left">
                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Режим работы:</span>
-                     <p className="text-slate-900 font-extrabold text-base leading-tight">Пн-Пт: 09:00 - 18:00</p>
+                     <p className="text-slate-900 font-extrabold text-base leading-tight">{SITE_CONTACTS.workingHours.split(", ")[0]}</p>
                      <span className="text-[10px] text-emerald-600 font-black uppercase tracking-wider block mt-1.5">WhatsApp — круглосуточно</span>
                   </div>
                </div>
@@ -96,10 +97,10 @@ export default function ContactsSection() {
                   <div className="text-left">
                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Телефон для связи:</span>
                      <a 
-                       href="tel:+77071356701" 
+                       href={`tel:${SITE_CONTACTS.phoneRaw}`} 
                        className="text-slate-900 font-extrabold text-base hover:text-orange-600 transition block leading-tight"
                      >
-                        +7 (707) 135-67-01
+                        {SITE_CONTACTS.phone}
                      </a>
                   </div>
                </div>
@@ -108,15 +109,15 @@ export default function ContactsSection() {
             {/* Quick Actions Buttons */}
             <div className="grid grid-cols-2 gap-3 pt-2">
                <a 
-                 href="https://2gis.kz/astana/search/Аспара%207" 
+                 href={SITE_CONTACTS.maps.yandexSearch} 
                  target="_blank" 
                  rel="noopener noreferrer"
                  className="inline-flex items-center justify-center py-3.5 border border-slate-200 text-slate-800 bg-white hover:bg-slate-50 rounded-xl transition font-extrabold text-xs uppercase tracking-wider shadow-sm active:scale-97 text-center"
                >
-                  Маршрут 2GIS
+                  Маршрут на карте
                </a>
                <a 
-                 href="https://wa.me/77071356701" 
+                 href={SITE_CONTACTS.socials.whatsapp} 
                  target="_blank" 
                  rel="noopener noreferrer"
                  className="inline-flex items-center justify-center gap-2 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition font-extrabold text-xs uppercase tracking-wider shadow-md shadow-emerald-950/10 active:scale-97 text-center"

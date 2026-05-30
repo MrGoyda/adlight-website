@@ -1,30 +1,25 @@
 // dictionaries/common.ts
 
+import { SITE_CONTACTS } from "@/config/site";
+
 export const COMPANY_NAP = {
-  name: "ADLight",
-  owner: "ИП Гойденко Е.И.",
-  iin: "940222351384",
-  phone: "+7 (707) 135-67-01",
-  phoneRaw: "+77071356701",
-  email: "info@adlight.kz",
-  emailPersonal: "elisey.goyda@gmail.com",
-  address: "г. Астана, ул. Аспара 7",
-  legalAddress: "Республика Казахстан, г. Астана, ул. Сыганак, д. 10, кв. 177",
+  name: SITE_CONTACTS.name,
+  owner: SITE_CONTACTS.owner,
+  iin: SITE_CONTACTS.iin,
+  phone: SITE_CONTACTS.phone,
+  phoneRaw: SITE_CONTACTS.phoneRaw,
+  email: SITE_CONTACTS.email,
+  emailPersonal: SITE_CONTACTS.emailPersonal,
+  address: SITE_CONTACTS.address,
+  legalAddress: SITE_CONTACTS.legalAddress,
   bankName: "АО «Народный Банк Казахстана»",
   iik: "KZ29601A871003316341",
   bik: "HSBKKZKX",
-  locality: "Астана",
+  locality: SITE_CONTACTS.locality,
   country: "KZ",
-  workingHours: "Пн-Сб: 9:00 - 18:00, Вс: выходной",
-  coordinates: {
-    latitude: 51.185,
-    longitude: 71.495
-  },
-  socials: {
-    instagram: "https://www.instagram.com/adlight.kz/",
-    telegram: "https://t.me/EliseyGoidenko",
-    whatsapp: "https://wa.me/77071356701"
-  }
+  workingHours: SITE_CONTACTS.workingHours,
+  coordinates: SITE_CONTACTS.coordinates,
+  socials: SITE_CONTACTS.socials
 };
 
 export const COMMON_NAV_LINKS = [

@@ -5,7 +5,7 @@ import HomePainsCard from "@/components/HomePainsCard";
 
 export default function HomePainsSection() {
   return (
-    <section className="relative py-16 md:py-24 lg:py-32 overflow-hidden border-b border-slate-200 bg-white">
+    <section className="relative py-16 md:py-24 lg:py-32 overflow-hidden border-b border-slate-200 bg-slate-50">
       {/* --- Чертежная сетка на фоне (Blueprint Grid) --- */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-80"

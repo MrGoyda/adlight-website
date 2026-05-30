@@ -77,7 +77,7 @@ export default function ReviewsCarousel() {
   };
 
   return (
-    <section className="py-20 lg:py-28 bg-slate-50/50 relative overflow-hidden border-t border-slate-200/60">
+    <section className="py-20 lg:py-28 bg-white relative overflow-hidden border-t border-slate-200/60">
       {/* Decorative ambient light glow */}
       <div className="absolute right-0 bottom-0 w-[500px] h-[500px] bg-orange-500/[0.01] rounded-full pointer-events-none -z-10" />
       
@@ -139,7 +139,7 @@ export default function ReviewsCarousel() {
                key={i}
                delay={i * 50}
                threshold={0.1}
-               className="relative group flex-none w-[85vw] sm:w-[420px] bg-white p-8 rounded-3xl border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-350 transition duration-300 select-none flex flex-col justify-between"
+               className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between"
              >
                 <div>
                    {/* Golden rating stars */}
