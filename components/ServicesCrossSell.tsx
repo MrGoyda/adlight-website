@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ArrowRight, Layers, Zap } from "lucide-react";
@@ -13,7 +13,7 @@ export default function ServicesCrossSell({
   subtitle = "Комплексное оформление вашего бизнеса" 
 }: ServicesCrossSellProps) {
   return (
-    <section data-aos="fade-up" className="py-24 bg-[#0F172A] border-t border-slate-800">
+    <section className="py-24 bg-[#0F172A] border-t border-slate-800">
        <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
              <div>

@@ -1,4 +1,4 @@
-// components/services/ServicesGrid.tsx
+﻿// components/services/ServicesGrid.tsx
 
 import Link from "next/link";
 import { Store, Zap, Building, ArrowRight } from "lucide-react";
@@ -13,7 +13,7 @@ export default function ServicesGrid() {
           <div key={idx} id={group.id} className="mb-16 last:mb-0 scroll-mt-24">
              
              {/* Заголовок группы */}
-             <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4" data-aos="fade-up">
+             <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
                 <div className={`p-2 rounded-lg bg-white/5 ${group.color}`}>
                    {group.iconName === "Store" && <Store className="w-5 h-5"/>}
                    {group.iconName === "Zap" && <Zap className="w-5 h-5"/>}
@@ -28,8 +28,6 @@ export default function ServicesGrid() {
                    <Link 
                       href={item.link} 
                       key={i}
-                      data-aos="fade-up"
-                      data-aos-delay={i * 100}
                       className="group block relative h-[280px]"
                    >
                       <Card 

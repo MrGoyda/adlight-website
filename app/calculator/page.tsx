@@ -53,7 +53,8 @@ const LETTER_TYPES = [
   { id: 'back-lit', name: 'Контражур', desc: 'Эффект парения, ореол на стену.', image: '/images/letters/back-lit-night.webp' },
   { id: 'combo-lit', name: 'Комбо (Лицо+Бэк)', desc: 'Максимальная яркость и премиальность.', image: '/images/letters/combo-lit-night.webp' },
   { id: 'side-lit', name: 'Светятся борта', desc: 'Строгий стиль. Лицо темное.', image: '/images/letters/side-lit-night.webp' },
-  { id: 'acrylic-slim', name: 'Жидкий акрил', desc: 'Безрамочные, монолитные, яркие.', image: '/images/letters/acrylic-slim-night.webp' },
+  { id: 'acrylic-slim', name: 'Цельноклееный акрил', desc: 'Бесшовный, монолитный и яркий.', image: '/images/letters/acrylic-slim-night.webp' },
+
   { id: 'perforated', name: 'Перфорация', desc: 'Эффект "бриллиантового" мерцания.', image: '/images/letters/perforated-night.webp' },
   { id: 'day-night-effect', name: 'День / Ночь', desc: 'Черные днем, белые ночью.', image: '/images/letters/day-night-effect-night.webp' },
   { id: 'pixel-led', name: 'Пиксельные', desc: 'Открытые диоды. Очень ярко.', image: '/images/letters/pixel-led-night.webp' },

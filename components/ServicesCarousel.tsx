@@ -125,44 +125,8 @@ export default function ServicesCarousel({
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
-  // Колесико мыши (Wheel) - Исправленная логика
-  useEffect(() => {
-    const slider = sliderRef.current;
-    if (!slider) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      // Если это тачпад (горизонтальный скролл) - не вмешиваемся, пусть работает нативно
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        return;
-      }
-
-      // Проверяем, достигли ли мы края
-      const isAtEnd = Math.ceil(slider.scrollLeft + slider.clientWidth) >= slider.scrollWidth - 10;
-      const isAtStart = slider.scrollLeft <= 0;
-
-      // Если крутим вниз и уперлись в конец -> скроллим страницу
-      if (e.deltaY > 0 && isAtEnd) return;
-      // Если крутим вверх и уперлись в начало -> скроллим страницу
-      if (e.deltaY < 0 && isAtStart) return;
-
-      // Иначе перехватываем и скроллим слайдер
-      e.preventDefault();
-      
-      // Отключаем плавность CSS для мгновенной реакции на колесо
-      slider.style.scrollBehavior = 'auto';
-      slider.scrollLeft += e.deltaY;
-    };
-
-    // Добавляем { passive: false } чтобы работал preventDefault
-    slider.addEventListener('wheel', handleWheel, { passive: false });
-    
-    return () => {
-      slider.removeEventListener('wheel', handleWheel);
-    };
-  }, []);
-
   return (
-    <section data-aos="fade-up" className="py-10 lg:py-24 bg-[#0F172A] overflow-hidden border-t border-slate-800">
+    <section className="py-10 lg:py-24 bg-[#0F172A] overflow-hidden border-t border-slate-800">
        <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-6">
             <div>

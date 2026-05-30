@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import { ShieldCheck, XCircle, Ruler, CheckCircle, User, Phone } from "lucide-react";
-
-import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import Typography from "@/components/ui/Typography";
 
 interface CallToActionProps {
   source: string;
@@ -24,11 +20,80 @@ export default function CallToAction({
   
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [nameError, setNameError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const triggerHaptic = () => {
+    if (typeof window !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputVal = e.target.value;
+    
+    // Clear error on type
+    if (phoneError) setPhoneError("");
+
+    // Retain only digits
+    const digits = inputVal.replace(/\D/g, "");
+    
+    if (digits.length === 0) {
+      setPhone("");
+      return;
+    }
+
+    // Format phone to standard Kazakhstani format: +7 (7XX) XXX-XX-XX
+    let formatted = "+7 ";
+    let core = digits;
+    if (digits.startsWith("7") || digits.startsWith("8")) {
+      core = digits.slice(1);
+    }
+
+    if (core.length > 0) {
+      formatted += "(" + core.slice(0, 3);
+    }
+    if (core.length > 3) {
+      formatted += ") " + core.slice(3, 6);
+    }
+    if (core.length > 6) {
+      formatted += "-" + core.slice(6, 8);
+    }
+    if (core.length > 8) {
+      formatted += "-" + core.slice(8, 10);
+    }
+
+    setPhone(formatted);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+    if (nameError) setNameError("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    triggerHaptic();
+
+    let valid = true;
+
+    // Check Name validation
+    if (name.trim().length < 2) {
+      setNameError("Пожалуйста, введите корректное имя");
+      valid = false;
+    }
+
+    // Check Phone validation (should have exactly 11 digits: +7 and 10 digits)
+    const digitsCount = phone.replace(/\D/g, "").length;
+    if (digitsCount < 11) {
+      setPhoneError("Введите корректный номер телефона (10 цифр)");
+      valid = false;
+    }
+
+    if (!valid) return;
+
     setIsLoading(true);
 
     try {
@@ -75,68 +140,74 @@ export default function CallToAction({
   };
 
   return (
-    <section data-aos="fade-up" className="py-24 bg-[#0F172A]">
-      <div className="container mx-auto px-4">
-        <Card 
-          glass 
-          rounded="3xl" 
-          className="p-8 md:p-16 shadow-apple-card border border-slate-800"
-        >
-          <div className="absolute top-0 left-1/2 w-full h-full bg-orange-600/10 blur-[150px] -z-10 rounded-full pointer-events-none"></div>
+    <section className="py-24 bg-gradient-to-br from-orange-500 via-orange-600 to-amber-500 overflow-hidden relative">
+      
+      {/* Decorative organic glass shapes */}
+      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-white/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] bg-amber-400/20 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="bg-white p-8 md:p-16 rounded-[2.5rem] border border-orange-100 shadow-[0_20px_60px_rgba(249,115,22,0.18)] max-w-5xl mx-auto relative overflow-hidden">
           
-          <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="absolute -top-24 -left-24 w-[300px] h-[300px] bg-orange-500/[0.02] rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="max-w-3xl mx-auto text-center relative z-10">
             
-            <Typography variant="h2" className="mb-4 text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
-              {renderTitle()}
-            </Typography>
+            <h2 className="mb-4 text-3xl md:text-5xl font-black tracking-tight text-slate-950 leading-tight">
+              Получите бесплатный <span className="text-orange-500">дизайн-проект</span>
+            </h2>
             
-            <Typography variant="lead" className="mb-10 max-w-2xl mx-auto">
+            <p className="mb-10 text-slate-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
               {subtitle}
-            </Typography>
+            </p>
             
             {isSuccess ? (
-              <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-6 mb-6 animate-in fade-in zoom-in duration-300 max-w-2xl mx-auto">
+              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 mb-6 animate-in fade-in zoom-in duration-300 max-w-xl mx-auto">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-emerald-500/10 text-emerald-600 border border-emerald-100 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-bold text-white">Заявка успешно отправлена!</h3>
-                  <p className="text-slate-300 text-sm">Наш менеджер свяжется с вами в ближайшее время.</p>
+                  <h3 className="text-xl font-bold text-slate-950">Заявка успешно отправлена!</h3>
+                  <p className="text-slate-500 text-sm">Наш специалист свяжется с вами в течение 10 минут.</p>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 w-full max-w-2xl mx-auto mb-6 items-end">
-                <div className="flex-1 w-full">
-                  <Input 
-                    label="Ваше имя"
-                    hideLabel
-                    id="cta-name"
-                    name="name"
-                    autoComplete="name"
-                    placeholder="Ваше имя" 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    icon={<User className="w-5 h-5 text-slate-500" />}
-                    required
-                    disabled={isLoading}
-                  />
+                
+                {/* Input Name */}
+                <div className="flex-1 w-full text-left space-y-2">
+                  <label htmlFor="cta-name" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Ваше имя</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      id="cta-name"
+                      type="text"
+                      placeholder="Имя"
+                      value={name}
+                      onChange={handleNameChange}
+                      className={`w-full bg-slate-50 border ${nameError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-sm`}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {nameError && <p className="text-[10px] text-red-500 font-bold pl-1">{nameError}</p>}
                 </div>
                 
-                <div className="flex-1 w-full">
-                  <Input 
-                    label="Номер телефона"
-                    hideLabel
-                    id="cta-phone"
-                    name="phone"
-                    autoComplete="tel"
-                    type="tel"
-                    placeholder="+7 (___) ___-__-__" 
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    icon={<Phone className="w-5 h-5 text-slate-500" />}
-                    required
-                    disabled={isLoading}
-                  />
+                {/* Input Phone */}
+                <div className="flex-1 w-full text-left space-y-2">
+                  <label htmlFor="cta-phone" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Номер телефона</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      id="cta-phone"
+                      type="tel"
+                      placeholder="+7 (707) 000-00-00"
+                      value={phone}
+                      onChange={handlePhoneChange}
+                      className={`w-full bg-slate-50 border ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-sm`}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {phoneError && <p className="text-[10px] text-red-500 font-bold pl-1">{phoneError}</p>}
                 </div>
 
                 <Button 
@@ -144,20 +215,20 @@ export default function CallToAction({
                   variant="solid" 
                   size="lg"
                   isLoading={isLoading}
-                  className="w-full md:w-auto h-[58px] min-w-[150px]"
+                  className="w-full md:w-auto h-[54px] min-w-[160px] bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg active:scale-97 text-center shrink-0 border border-orange-600"
                 >
                   {buttonText}
                 </Button>
               </form>
             )}
             
-            <div className="flex flex-wrap justify-center gap-6 mt-6 text-sm">
-              <div className="flex items-center gap-2 text-gray-400"><ShieldCheck className="w-5 h-5 text-green-500"/> Гарантия по договору</div>
-              <div className="flex items-center gap-2 text-gray-400"><XCircle className="w-5 h-5 text-red-500"/> Без спама и звонков</div>
-              <div className="flex items-center gap-2 text-gray-400"><Ruler className="w-5 h-5 text-orange-500"/> Замер бесплатно</div>
+            <div className="flex flex-wrap justify-center gap-6 mt-8 text-xs font-bold text-slate-400">
+              <div className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-600"/> Гарантия по договору</div>
+              <div className="flex items-center gap-1.5"><XCircle className="w-4 h-4 text-rose-600"/> Без спама и скрытых наценок</div>
+              <div className="flex items-center gap-1.5"><Ruler className="w-4 h-4 text-orange-500"/> Выезд и замер бесплатно</div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </section>
   );

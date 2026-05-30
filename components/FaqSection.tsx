@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-// Импортируем данные
+import { ChevronDown, MessageSquare } from "lucide-react";
 import { HOME_FAQ } from "@/dictionaries/home"; 
 
 export default function FaqSection() {
@@ -13,43 +12,70 @@ export default function FaqSection() {
   };
 
   return (
-    <section data-aos="fade-up" className="py-24 bg-slate-950 relative overflow-hidden border-t border-slate-800">
-      {/* Фоновый блик */}
-      <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-orange-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <section className="py-20 lg:py-28 bg-white relative overflow-hidden border-t border-slate-200/60">
+      {/* Subtle decorative warm ambient light glow */}
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/[0.01] rounded-full pointer-events-none -z-10" />
       
       <div className="container mx-auto px-4 max-w-4xl relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Частые вопросы</h2>
-          <p className="text-gray-400">Отвечаем на то, что волнует вас больше всего</p>
+        
+        {/* Header section with Outfit premium typography */}
+        <div className="text-center mb-16 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200/60 text-slate-600 text-xs font-black uppercase tracking-wider">
+             <MessageSquare className="w-3.5 h-3.5 text-orange-500"/> Полезно знать
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
+             Отвечаем на <br className="sm:hidden"/>
+             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600">ваши вопросы</span>
+          </h2>
+          <p className="text-slate-500 text-base sm:text-lg font-semibold max-w-xl mx-auto leading-relaxed">
+             Вся правда об изготовлении наружной рекламы, ЧПУ технологиях, гарантиях и законном согласовании в Астане.
+          </p>
         </div>
 
+        {/* Clean Accordion List */}
         <div className="space-y-4">
-          {HOME_FAQ.map((item, index) => (
-            <div 
-              key={index} 
-              className={`group rounded-2xl transition-all duration-300 ${openFaq === index ? 'bg-slate-900 ring-1 ring-orange-500/30 shadow-2xl shadow-orange-900/10' : 'bg-slate-900/50 hover:bg-slate-900 border border-slate-800'}`}
-            >
-              <button 
-                onClick={() => toggleFaq(index)} 
-                className="w-full flex items-center justify-between p-6 md:p-8 text-left focus:outline-none"
+          {HOME_FAQ.map((item, index) => {
+            const isOpen = openFaq === index;
+            return (
+              <div 
+                key={index} 
+                className={`group rounded-2xl border transition-all duration-300 ${
+                  isOpen 
+                    ? 'bg-slate-50/40 border-orange-500/20 shadow-[0_8px_30px_rgb(0,0,0,0.01)]' 
+                    : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.005)]'
+                }`}
               >
-                <span className={`text-lg md:text-xl font-bold transition-colors duration-300 ${openFaq === index ? 'text-orange-500' : 'text-white group-hover:text-orange-400'}`}>
-                  {item.q}
-                </span>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openFaq === index ? 'bg-orange-500 text-white rotate-180' : 'bg-slate-800 text-gray-400 group-hover:bg-slate-700'}`}>
-                  <ChevronDown className="w-6 h-6"/>
-                </div>
-              </button>
-              
-              <div className={`grid transition-all duration-300 ease-in-out ${openFaq === index ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-                <div className="overflow-hidden">
-                  <div className="px-6 md:px-8 pb-8 text-gray-400 leading-relaxed text-base md:text-lg border-t border-slate-800/50 pt-4">
-                    {item.a}
+                <button 
+                  onClick={() => toggleFaq(index)} 
+                  className="w-full flex items-center justify-between p-6 md:p-8 text-left focus:outline-none"
+                >
+                  <span className={`text-base sm:text-lg font-extrabold tracking-tight transition-colors duration-250 pr-4 leading-snug ${
+                    isOpen ? 'text-orange-600' : 'text-slate-900 group-hover:text-orange-500'
+                  }`}>
+                    {item.q}
+                  </span>
+                  
+                  <div className={`w-9 h-9 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300 ${
+                    isOpen 
+                      ? 'bg-orange-600 text-white border-transparent rotate-180 shadow-md shadow-orange-600/10' 
+                      : 'bg-white border-slate-200 text-slate-400 group-hover:border-slate-350 group-hover:text-slate-600'
+                  }`}>
+                    <ChevronDown className="w-4 h-4"/>
+                  </div>
+                </button>
+                
+                <div className={`grid transition-all duration-300 ease-in-out ${
+                  isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                }`}>
+                  <div className="overflow-hidden">
+                    <div className="px-6 md:px-8 pb-8 text-slate-600 leading-relaxed font-semibold text-sm sm:text-base border-t border-slate-100 pt-5">
+                      {item.a}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

@@ -2,7 +2,8 @@ import ClientsMarquee from "@/components/ClientsMarquee";
 import StatsSection from "@/components/StatsSection";
 import ProductionSection from "@/components/ProductionSection";
 import ProjectsBento from "@/components/ProjectsBento";
-import ServicesCarousel from "@/components/ServicesCarousel";
+import NicheServices from "@/components/NicheServices";
+
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import CallToAction from "@/components/CallToAction";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
@@ -12,6 +13,12 @@ import ContactsSection from "@/components/ContactsSection";
 
 // Наш новый Hero (Client Component)
 import HeroSection from "@/components/HeroSection";
+import HomePainsSection from "@/components/HomePainsSection";
+import HomeOfferBanner from "@/components/HomeOfferBanner";
+import VolumeLettersShowcase from "@/components/VolumeLettersShowcase";
+import DynamicServicesHub from "@/components/DynamicServicesHub";
+import SpecializedServicesGrid from "@/components/SpecializedServicesGrid";
+
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
 import { getImagesFromFolder } from "@/lib/serverUtils";
@@ -72,7 +79,8 @@ export default function Home() {
 
   return (
     // Заменили <div> на <main> для лучшего понимания роботами структуры
-    <main className="min-h-screen bg-[#0B1120] font-sans">
+    <main className="min-h-screen bg-white font-sans overflow-x-clip">
+
       
       {/* Вставляем невидимый скрипт для нейросетей */}
       <script
@@ -88,19 +96,34 @@ export default function Home() {
          navImages={navImages}
       />
 
+      {/* 1.5. СЕКЦИЯ БОЛЕЙ И РЕШЕНИЙ (SEO / AI ОПТИМИЗИРОВАННАЯ) */}
+      <HomePainsSection />
+
+      {/* 1.5.5. ШОУКЕЙС ТЕХНОЛОГИЙ ОБЪЕМНЫХ БУКВ (ИНТЕРАКТИВНЫЙ ДЕНЬ/НОЧЬ) */}
+      <VolumeLettersShowcase />
+
+      {/* 1.6. СЕКЦИЯ ОФФЕРА (СКИДКА 10% И БЕСПЛАТНЫЙ ЗАМЕР) */}
+      <HomeOfferBanner />
+
       {/* 2. БЕГУЩАЯ СТРОКА */}
       <ClientsMarquee />
 
       {/* 3. СТАТИСТИКА */}
       <StatsSection />
 
-      {/* 4. УСЛУГИ */}
-      {/* Добавил id="services" чтобы можно было давать ссылку adlight.kz/#services */}
+      {/* 4. ДИНАМИЧЕСКИЙ ХАБ УСЛУГ (iOS SEGMENTED TABS) */}
+      {/* Добавил id="services" чтобы сохранить работоспособность навигационных ссылок adlight.kz/#services */}
       <section id="services">
-        <ServicesCarousel title="Наши услуги" subtitle="От таблички до крышной установки" />
+        <DynamicServicesHub />
       </section>
 
-      {/* 5. ДИЗАЙН-КОД */}
+      {/* 4.3. СПЕЦИАЛИЗИРОВАННЫЕ УСЛУГИ (АВТО, РЕМОНТ, EVENT) */}
+      <SpecializedServicesGrid />
+
+      {/* 4.5. РЕШЕНИЯ ПО НИШАМ БИЗНЕСА (SEO / AI ОПТИМИЗИРОВАННЫЙ БЛОК) */}
+      <NicheServices />
+
+      {/* 5. ДИЗАЙН-КОД АСТАНЫ */}
       <DesignCodeBlock />
 
       {/* 6. ЭТАПЫ РАБОТЫ */}
@@ -108,10 +131,10 @@ export default function Home() {
 
       {/* 7. ПОРТФОЛИО */}
       <section id="portfolio">
-        <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства" />
+        <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства в Астане" />
       </section>
 
-      {/* 8. ПРОИЗВОДСТВО */}
+      {/* 8. ПРОИЗВОДСТВЕННЫЙ БЛОК (E-E-A-T) */}
       <ProductionSection />
 
       {/* 9. FAQ */}

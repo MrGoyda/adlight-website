@@ -37,7 +37,7 @@ export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">любой сложности</span>
                </h1>
                <p className="text-gray-400 text-lg mb-8 leading-relaxed max-w-xl">
-                  От бюджетных решений до премиальных вывесок из жидкого акрила. 
+                  От бюджетных решений до премиальных вывесок из цельноклееного премиум-акрила. 
                   Делаем ярко, надежно и <strong>строго по Дизайн-коду</strong> города.
                </p>
                

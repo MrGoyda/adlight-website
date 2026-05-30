@@ -1,31 +1,120 @@
 "use client";
 
-export default function StepsSection() {
-  const steps = [
-    { n: 1, t: "Заявка", d: "Вы оставляете заявку или звоните. Мы договариваемся о бесплатном замере." },
-    { n: 2, t: "Дизайн", d: "Делаем фотопривязку к вашему фасаду. Вы видите результат до оплаты." },
-    { n: 3, t: "Цех", d: "Изготовление на ЧПУ станках. Сварка, покраска, сборка электрики." },
-    { n: 4, t: "Монтаж", d: "Доставка и установка в любое время суток. Подключение и гарантия." }
-  ];
+import { 
+  FileCheck, 
+  MapPin, 
+  PenTool, 
+  Settings, 
+  CheckSquare, 
+  Sparkles,
+  ArrowRight,
+  ClipboardList
+} from "lucide-react";
+import FadeIn from "@/components/ui/FadeIn";
 
+const STEPS = [
+  {
+    step: "01",
+    title: "Бесплатный замер & Экспертный аудит",
+    desc: "Наш инженер выезжает на ваш объект в Астане со всем необходимым измерительным ЧПУ-оборудованием. Делаем точные замеры, фотографируем фасад здания для фотопривязки и анализируем его архитектурные особенности по паспорту здания.",
+    icon: <MapPin className="w-5 h-5"/>,
+    color: "text-orange-600 bg-orange-50 border-orange-100",
+  },
+  {
+    step: "02",
+    title: "Дизайн-проект & Фотопривязка «до / после»",
+    desc: "Креативные дизайнеры разрабатывают детальный 3D-макет вашей будущей вывески в масштабе. Вы видите фотореалистичную визуализацию объекта еще до оплаты. Подбираем цвета, материалы и рассчитываем точный размер объемных букв.",
+    icon: <PenTool className="w-5 h-5"/>,
+    color: "text-blue-600 bg-blue-50 border-blue-100",
+  },
+  {
+    step: "03",
+    title: "Согласование в e-Otinish под ключ",
+    desc: "Наши штатные архитекторы формируют полный эскизный проект вывески по стандартам Дизайн-кода Астаны. Полностью сопровождаем процесс государственной подачи документов через систему e-Otinish до получения официального одобрения Управления архитектуры.",
+    icon: <FileCheck className="w-5 h-5"/>,
+    color: "text-purple-600 bg-purple-50 border-purple-100",
+  },
+  {
+    step: "04",
+    title: "Высокоточный ЧПУ-раскрой листовых материалов",
+    desc: "Запускаем производство на ул. Аспара 7. Раскрой акрила и композита на лазерных и фрезерных ЧПУ станках с точностью до 0.1 мм. Сгибаем алюминиевые и стальные профили бортов букв на автоматическом бортогибе без щелей и зазоров.",
+    icon: <Settings className="w-5 h-5"/>,
+    color: "text-amber-600 bg-amber-50 border-amber-100",
+  },
+  {
+    step: "05",
+    title: "Сборка & 100% Тестирование светотехники",
+    desc: "Сборщики-макетчики склеивают монолитные акриловые лица букв с бортами. Паяем и устанавливаем оригинальные влагозащищенные светодиоды Samsung IP67. Готовая вывеска проходит обязательный 24-часовой тест под нагрузкой на специальном стенде.",
+    icon: <CheckSquare className="w-5 h-5"/>,
+    color: "text-emerald-600 bg-emerald-50 border-emerald-100",
+  },
+  {
+    step: "06",
+    title: "Чистовой монтаж & Выдача паспорта изделия",
+    desc: "Опытная монтажная бригада аккуратно привозит конструкцию на объект. Производим надежный чистовой монтаж на несущий металлокаркас, подключаем электрику и герметизируем выходы. Сдаем объект с предоставлением официального паспорта вывески.",
+    icon: <Sparkles className="w-5 h-5"/>,
+    color: "text-cyan-600 bg-cyan-50 border-cyan-100",
+  }
+];
+
+export default function StepsSection() {
   return (
-    <section data-aos="fade-up" className="py-24 bg-slate-950 border-t border-slate-800">
+    <section className="py-20 lg:py-28 bg-slate-50/50 relative overflow-hidden border-t border-slate-200/60">
+      {/* Decorative background ambient light glow */}
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/[0.012] rounded-full pointer-events-none -z-10" />
+      
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-16 text-center">Как мы работаем</h2>
         
-        <div className="grid md:grid-cols-4 gap-8 relative">
-          {/* Линия соединения (скрыта на мобильных) */}
-          <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 bg-slate-800 -z-10"></div>
+        {/* Header Block with Outfit premium typography */}
+        <div className="text-center mb-16 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-wider">
+             <ClipboardList className="w-3.5 h-3.5 text-orange-500"/> Наша технология работы
+          </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
+             6 шагов до идеальной <br className="hidden sm:inline"/>
+             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600">световой вывески</span>
+          </h2>
+          <p className="text-slate-500 text-base sm:text-lg font-semibold max-w-xl mx-auto leading-relaxed">
+             Отлаженный до мелочей процесс работы: от первой встречи на замере фасада до чистового монтажа без посредников.
+          </p>
+        </div>
+
+        {/* Responsive Steps Layout: Mobile Swipeable Horizontal Slider, Desktop Bento Grid */}
+        <div className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-3 md:mx-0 md:px-0">
           
-          {steps.map((step, i) => (
-            <div key={i} data-aos="fade-up" data-aos-delay={i * 100} className="relative bg-slate-950 p-4 rounded-2xl border border-transparent hover:border-slate-800 transition duration-300">
-              <div className="w-16 h-16 bg-slate-900 border-2 border-orange-500 rounded-full flex items-center justify-center text-white font-bold text-xl mb-6 mx-auto z-10 shadow-lg shadow-orange-900/20 relative">
-                {step.n}
+          {STEPS.map((item, i) => (
+            <div
+              key={i} 
+              className="relative flex-none w-[82vw] sm:w-[340px] md:w-auto snap-center bg-white p-8 rounded-3xl border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-350 transition duration-300 group flex flex-col justify-between"
+            >
+              {/* Step indicator and Icon */}
+              <div className="flex items-center justify-between mb-6">
+                 <div className={`w-10 h-10 rounded-xl border flex items-center justify-center group-hover:scale-105 transition-transform ${item.color}`}>
+                    {item.icon}
+                 </div>
+                 <span className="text-slate-200 group-hover:text-orange-500/20 font-black text-5xl tracking-tighter leading-none transition-colors duration-300">
+                    {item.step}
+                 </span>
               </div>
-              <h3 className="text-xl font-bold text-white text-center mb-3">{step.t}</h3>
-              <p className="text-gray-400 text-center text-sm leading-relaxed">{step.d}</p>
+
+              {/* Title & Description */}
+              <div className="space-y-3 mb-4">
+                 <h3 className="text-slate-900 font-extrabold text-base sm:text-lg tracking-tight group-hover:text-orange-600 transition-colors leading-snug">
+                    {item.title}
+                 </h3>
+                 <p className="text-slate-500 text-xs sm:text-sm font-semibold leading-relaxed">
+                    {item.desc}
+                 </p>
+              </div>
+
+              {/* Connecting line / arrow indicator for flow direction */}
+              <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-2 border-t border-slate-100">
+                 <span>Шаг {item.step} из 06</span>
+                 {i < 5 && <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-0.5 transition-transform"/>}
+              </div>
             </div>
           ))}
+
         </div>
       </div>
     </section>

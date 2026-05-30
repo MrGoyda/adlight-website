@@ -1,4 +1,4 @@
-// components/services/ServicesHero.tsx
+﻿// components/services/ServicesHero.tsx
 
 import Link from "next/link";
 import { Store, Zap, Building, ChevronRight } from "lucide-react";
@@ -20,16 +20,16 @@ export default function ServicesHero() {
          <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Текст */}
             <div className="max-w-2xl relative z-20">
-                <h1 data-aos="fade-up" className="text-5xl md:text-7xl font-bold text-white mb-8 leading-[0.95] tracking-tight">
+                <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-[0.95] tracking-tight">
                    Комплексное оформление <br/>
                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">бизнеса в Астане</span>
                 </h1>
-                <p data-aos="fade-up" data-aos-delay="100" className="text-gray-400 text-lg md:text-xl mb-12 leading-relaxed border-l-2 border-blue-500/30 pl-6">
+                <p className="text-gray-400 text-lg md:text-xl mb-12 leading-relaxed border-l-2 border-blue-500/30 pl-6">
                    От таблички на дверь до крышной установки. Собственное производство. Делаем рекламу, которая переживет зиму и пройдет согласование в Акимате.
                 </p>
                 
                 {/* Навигация (Якоря) */}
-                <div data-aos="fade-up" data-aos-delay="200" className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3">
                     <a href="#facade" className="group px-5 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/50 transition flex items-center gap-3 text-white text-sm sm:text-base">
                        <div className="p-1.5 bg-orange-500/20 rounded-lg text-orange-500 group-hover:text-white group-hover:bg-orange-500 transition"><Store className="w-4 h-4"/></div>
                        <span className="font-bold">Фасадные</span>
@@ -46,7 +46,7 @@ export default function ServicesHero() {
             </div>
 
             {/* 3D Город (Скрыт на моб) */}
-            <div className="hidden lg:flex relative h-[500px] w-full items-center justify-center" data-aos="fade-left" data-aos-delay="300">
+            <div className="hidden lg:flex relative h-[500px] w-full items-center justify-center">
                 <div className="absolute inset-0 bg-orange-500/10 blur-[100px] rounded-full pointer-events-none"></div>
                 <img 
                   src="/images/pages/services-hero.webp" 

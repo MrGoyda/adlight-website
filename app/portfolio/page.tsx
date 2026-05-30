@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image"; 
 import { ArrowUpRight, Layers, ChevronRight, ChevronLeft } from "lucide-react";
-import AOS from "aos";
 
 import { PROJECTS, CATEGORIES, ProjectCategory } from "@/lib/projectsData";
 import CallToAction from "@/components/CallToAction";
@@ -76,31 +75,17 @@ export default function PortfolioPage() {
     };
   }, [sortedProjects.length, visibleCount]);
 
-  // --- 3. ОБНОВЛЕНИЕ AOS ПРИ СМЕНЕ ФИЛЬТРА ИЛИ ПОДГРУЗКЕ ---
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      AOS.refresh();
-    }, 150);
-    return () => clearTimeout(timeout);
-  }, [activeCategory, visibleCount]);
 
   // --- 4. ЛОГИКА СКРОЛЛА КАТЕГОРИЙ ---
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (el) {
-      const onWheel = (e: WheelEvent) => {
-        if (e.deltaY === 0) return;
-        e.preventDefault();
-        el.scrollBy({ left: e.deltaY, behavior: "smooth" });
-      };
-      
       const checkScroll = () => {
         const { scrollLeft, scrollWidth, clientWidth } = el;
         setShowLeftArrow(scrollLeft > 0);
         setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 1);
       };
 
-      el.addEventListener("wheel", onWheel);
       el.addEventListener("scroll", checkScroll);
       window.addEventListener("resize", checkScroll);
       
@@ -108,7 +93,6 @@ export default function PortfolioPage() {
       checkScroll();
 
       return () => {
-        el.removeEventListener("wheel", onWheel);
         el.removeEventListener("scroll", checkScroll);
         window.removeEventListener("resize", checkScroll);
       };
@@ -166,21 +150,21 @@ export default function PortfolioPage() {
          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
          <div className="container mx-auto px-4 relative z-10 text-center">
-            <div data-aos="fade-down" className="flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-500 mb-8">
+            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-500 mb-8">
                <Link href="/" className="hover:text-white transition">Главная</Link>
                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4"/>
                <span className="text-orange-500 font-medium">Портфолио</span>
             </div>
 
-            <div data-aos="fade-down" data-aos-delay="100" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs font-medium mb-6 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs font-medium mb-6 backdrop-blur-md">
                <Layers className="w-3 h-3 text-orange-500"/> Галерея проектов ADLight
             </div>
             
-            <h1 data-aos="fade-up" data-aos-delay="200" className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tight">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 tracking-tight">
                Наши <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">работы</span>
             </h1>
             
-            <p data-aos="fade-up" data-aos-delay="300" className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
                Более 300 реализованных проектов в Астане. От интерьерных логотипов до крышных установок.
             </p>
          </div>
@@ -244,9 +228,8 @@ export default function PortfolioPage() {
                <Link 
                   href={`/portfolio/${project.slug}`} 
                   key={project.id}
-                  data-aos="fade-up"
-                  // Сбрасываем задержку при фильтрации для UX
-                  data-aos-delay={i % 3 * 100} 
+                 
+                  // Сбрасываем задержку при фильтрации для UX 
                   className="group relative flex flex-col gap-4 cursor-pointer"
                >
                   {/* Картинка */}

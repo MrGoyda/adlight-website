@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { MessageCircle, Search } from "lucide-react";
@@ -10,7 +10,7 @@ export default function DesignCodeHeroButtons() {
 
   return (
     <>
-      <div data-aos="fade-up" data-aos-delay="200" className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
          <Button 
            onClick={() => setIsModalOpen(true)}
            variant="solid"

@@ -6,7 +6,6 @@ import "./globals.css";
 // Ваши компоненты
 import Header from "@/components/Header"; 
 import Footer from "@/components/Footer";
-import AOSInit from "@/components/AOSInit";
 
 // Компоненты для SEO и Аналитики
 import JsonLd from "@/components/JsonLd";
@@ -120,9 +119,6 @@ export default function RootLayout({
         <JsonLd />
         <YandexMetrica />
 
-        {/* Инициализация анимаций */}
-        <AOSInit />
-        
         {/* Глобальный хедер */}
         <Header />
 

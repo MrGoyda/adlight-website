@@ -16,19 +16,51 @@ import {
   Home,
   Calculator,
   ChevronRight,
-  MapPin // Добавил для GEO
+  MapPin,
+  Store,
+  Zap,
+  Building,
+  Wrench,
+  ArrowUpRight
 } from "lucide-react";
 
 import ConsultationModal from "@/components/ConsultationModal";
 
 // --- ИМПОРТ СЛОВАРЕЙ ---
-import { COMPANY_NAP, COMMON_NAV_LINKS } from "@/dictionaries/common";
+import { COMPANY_NAP } from "@/dictionaries/common";
 import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
+import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
+
+const GroupIconMap = {
+  Store,
+  Zap,
+  Building,
+  Wrench
+};
+
+function renderGroupIcon(iconName: keyof typeof GroupIconMap, className = "w-5 h-5") {
+  const IconComponent = GroupIconMap[iconName] || Store;
+  return <IconComponent className={className} />;
+}
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [isLettersOpen, setIsLettersOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,17 +70,32 @@ export default function Header() {
     }
   }, [isOpen]);
 
-  const servicesList = CATALOG_SERVICES.flatMap(cat => cat.items.map(item => ({
-    name: item.title,
-    link: item.link
-  })));
+  const toggleCategory = (catId: string) => {
+    if (activeCategory === catId) {
+      setActiveCategory(null);
+    } else {
+      setActiveCategory(catId);
+    }
+  };
 
   // SCHEMA.ORG для Навигации (Динамический)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SiteNavigationElement",
-    "name": COMMON_NAV_LINKS.map(link => link.label),
-    "url": COMMON_NAV_LINKS.map(link => `https://adlight.kz${link.href === "/" ? "" : link.href}`)
+    "name": [
+      "Главная",
+      ...CATALOG_SERVICES.flatMap(cat => cat.items.map(item => item.title)),
+      "Портфолио",
+      "Дизайн-код",
+      "Контакты"
+    ],
+    "url": [
+      "https://adlight.kz",
+      ...CATALOG_SERVICES.flatMap(cat => `https://adlight.kz${cat.items.map(item => item.link)}`),
+      "https://adlight.kz/portfolio",
+      "https://adlight.kz/design-code",
+      "https://adlight.kz/contacts"
+    ]
   };
 
   return (
@@ -59,197 +106,350 @@ export default function Header() {
       />
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/75 transition-all duration-300">
+      <header className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
+        scrolled 
+          ? 'border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-xl shadow-slate-200/20' 
+          : 'border-slate-200/40 bg-white/95 backdrop-blur'
+      }`}>
         
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between relative">
+        <div className="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between relative">
           
-          {/* Логотип (SEO: Alt с ключевиками) */}
-          <Link href="/" className="relative z-50 flex items-center" onClick={() => setIsOpen(false)} aria-label="ADLight - Наружная реклама Астана">
-             <div className="relative w-32 h-10 md:w-40 md:h-12">
+          {/* Логотип */}
+          <Link href="/" className="relative z-55 flex items-center" onClick={() => setIsOpen(false)} aria-label="ADLight - Наружная реклама Астана">
+             <div className="relative w-36 h-10 md:w-44 md:h-12 active:scale-98 transition-transform">
                 <Image 
                    src="/adlight-logo-full.webp" 
-                   alt="ADLight - Изготовление вывесок в Астане" 
+                   alt="ADLight - Изготовление вывесок и наружной рекламы в Астане" 
                    fill
                    className="object-contain object-left"
-                   sizes="(max-width: 768px) 128px, 160px"
+                   sizes="(max-width: 768px) 144px, 176px"
                    priority
                 />
              </div>
           </Link>
 
-          {/* Десктоп Меню (Центр) */}
-          <nav className="hidden xl:flex gap-6 text-sm font-medium text-gray-300 items-center" aria-label="Главное меню">
-            <Link href="/" className="hover:text-orange-500 transition">Главная</Link>
-
-            <div className="relative group h-16 flex items-center">
-                <Link href="/services" className="flex items-center gap-1 hover:text-orange-500 transition py-4">
-                    Услуги <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300"/>
-                </Link>
-                <div className="absolute top-full left-0 w-64 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 overflow-hidden">
-                    <div className="p-2 grid gap-1">
-                        {servicesList.map((service, i) => (
-                            <Link 
-                                key={i} 
-                                href={service.link}
-                                className="block px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
-                            >
-                                {service.name}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <Link href="/portfolio" className="hover:text-orange-500 transition">Портфолио</Link>
-            <Link href="/design-code" className="hover:text-orange-500 transition">Дизайн-код</Link>
-            <Link href="/contacts" className="hover:text-orange-500 transition">Контакты</Link>
-          </nav>
-
-          {/* Правая часть (Десктоп) */}
-          <div className="hidden lg:flex items-center gap-3 xl:gap-5">
+          {/* ДЕСКТОПНЫЕ ЭЛЕМЕНТЫ (Адрес, Соцсети, Контакты) */}
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8 relative z-55">
              
-             {/* GEO: Локация (Показываем роботам город) */}
-             <div className="hidden xl:flex items-center gap-1 text-gray-500 text-xs border-r border-slate-700 pr-5 mr-2">
-                <MapPin className="w-3 h-3"/>
-                <span>г. {COMPANY_NAP.locality}</span>
+             {/* 1. Адрес с иконкой */}
+             <div className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition duration-250 text-xs font-semibold border-r border-slate-200 pr-5">
+                <div className="p-2 bg-slate-100 rounded-lg border border-slate-200 text-orange-500">
+                   <MapPin className="w-3.5 h-3.5"/>
+                </div>
+                <div className="text-left leading-tight">
+                   <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Наше производство</span>
+                   <span className="text-slate-700">г. {COMPANY_NAP.locality}, {COMPANY_NAP.address}</span>
+                </div>
              </div>
 
-             {/* Соцсети */}
-             <div className="hidden 2xl:flex items-center gap-3 pr-5 border-r border-slate-700">
-                <a href={COMPANY_NAP.socials.instagram} target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-pink-500 transition" aria-label="Instagram"><Instagram className="w-5 h-5"/></a>
-                <a href={COMPANY_NAP.socials.telegram} target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-blue-400 transition" aria-label="Telegram"><Send className="w-5 h-5"/></a>
-                <a href={COMPANY_NAP.socials.whatsapp} target="_blank" rel="nofollow noreferrer" className="text-gray-400 hover:text-green-500 transition" aria-label="WhatsApp"><MessageCircle className="w-5 h-5"/></a>
+             {/* 2. Соцсети с реальными иконками */}
+             <div className="flex items-center gap-2.5 border-r border-slate-200 pr-5">
+                <a 
+                   href={COMPANY_NAP.socials.instagram} 
+                   target="_blank" 
+                   rel="nofollow noreferrer" 
+                   className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-pink-500 hover:bg-pink-500/5 hover:border-pink-500/30 transition duration-300" 
+                   aria-label="Наш Instagram"
+                >
+                   <Instagram className="w-4 h-4"/>
+                </a>
+                <a 
+                   href={COMPANY_NAP.socials.telegram} 
+                   target="_blank" 
+                   rel="nofollow noreferrer" 
+                   className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-400 hover:bg-blue-400/5 hover:border-blue-400/30 transition duration-300" 
+                   aria-label="Наш Telegram"
+                >
+                   <Send className="w-4 h-4 ml-0.5"/>
+                </a>
+                <a 
+                   href={COMPANY_NAP.socials.whatsapp} 
+                   target="_blank" 
+                   rel="nofollow noreferrer" 
+                   className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-green-500 hover:bg-green-500/5 hover:border-green-500/30 transition duration-300" 
+                   aria-label="Наш WhatsApp"
+                >
+                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                      <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.89 5.83L2.03 22l4.31-1.83c1.55.98 3.39 1.54 5.37 1.54 5.52 0 10-4.48 10-10S17.52 2 12.004 2zm5.72 13.91c-.24.68-1.2 1.24-1.93 1.39-.49.1-1.13.17-3.29-.71-2.76-1.12-4.53-3.93-4.67-4.12-.14-.19-1.14-1.51-1.14-2.87a3 3 0 01.91-2.22c.26-.26.56-.33.75-.33h.49c.16 0 .37.01.53.39.17.41.59 1.43.64 1.54.05.11.09.24.01.39-.08.15-.12.24-.24.38-.12.14-.25.31-.36.42-.12.12-.25.25-.11.49.14.24.63 1.03 1.35 1.67.92.82 1.7 1.07 1.94 1.19.24.12.38.1.52-.06.14-.16.59-.69.75-.92.16-.23.32-.19.53-.11.22.08 1.37.65 1.61.76.24.12.4.17.46.28.06.11.06.64-.18 1.32z"/>
+                   </svg>
+                </a>
              </div>
 
-             {/* Телефон (кликабельный для мобильных роботов) */}
-             <a href={`tel:${COMPANY_NAP.phoneRaw}`} className="font-bold text-white hover:text-orange-500 transition flex items-center gap-2 whitespace-nowrap text-sm xl:text-base">
-                <Phone className="w-4 h-4"/> {COMPANY_NAP.phone}
+             {/* 3. Кликабельный номер телефона */}
+             <a 
+                href={`tel:${COMPANY_NAP.phoneRaw}`} 
+                className="flex items-center gap-2.5 font-bold text-slate-800 hover:text-orange-500 transition duration-250 border-r border-slate-200 pr-5 whitespace-nowrap text-sm"
+             >
+                <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-orange-500 animate-pulse">
+                   <Phone className="w-3.5 h-3.5"/>
+                </div>
+                <div className="text-left leading-tight">
+                   <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-bold">Связь круглосуточно</span>
+                   <span className="text-slate-800">{COMPANY_NAP.phone}</span>
+                </div>
              </a>
 
-             {/* Разделитель */}
-             <div className="h-6 w-px bg-slate-700"></div>
-
-             {/* Кнопка Калькулятор */}
-             <Link 
-                href="/calculator" 
-                className="group flex items-center gap-2 text-gray-400 hover:text-white transition"
-                title="Онлайн калькулятор вывески"
-             >
-                <div className="p-2 bg-slate-800 rounded-lg border border-slate-700 group-hover:border-blue-500/50 group-hover:bg-blue-500/10 group-hover:text-blue-400 transition">
-                    <Calculator className="w-5 h-5"/>
-                </div>
-                <span className="hidden xl:inline text-sm font-medium">Расчет</span>
-             </Link>
-
-             {/* Кнопка ЛК (пока заглушка, но есть в дизайне) */}
-             <button 
-                className="p-2.5 rounded-lg bg-slate-800 text-gray-400 hover:text-white hover:bg-slate-700 transition border border-slate-700 group relative"
-                title="Личный кабинет клиента"
-                aria-label="Личный кабинет"
-             >
-                <User className="w-5 h-5 group-hover:scale-110 transition-transform"/>
-             </button>
-
-             {/* Кнопка Оставить заявку */}
+             {/* 4. Кнопка «Получить консультацию» */}
              <button 
                 onClick={() => setIsModalOpen(true)}
-                className="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-5 rounded-lg transition shadow-lg shadow-orange-900/20 flex items-center gap-2 text-sm xl:text-base whitespace-nowrap"
+                className="relative overflow-hidden bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-extrabold py-2.5 px-5 rounded-xl transition duration-300 shadow-md shadow-orange-900/10 hover:scale-[1.02] active:scale-98 text-xs uppercase tracking-wider whitespace-nowrap"
              >
-                Оставить заявку
+                Получить консультацию
+             </button>
+
+             {/* 5. Иконка входа в личный кабинет */}
+             <button 
+                className="w-9 h-9 rounded-xl bg-white text-slate-700 hover:text-orange-500 hover:bg-slate-50 border border-slate-200 hover:border-orange-500/30 flex items-center justify-center group transition duration-300 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-98"
+                title="Личный кабинет клиента"
+                aria-label="Личный кабинет"
+              >
+                <User className="w-4 h-4 group-hover:scale-110 group-hover:text-orange-500 transition-all duration-300"/>
              </button>
           </div>
 
-          {/* Мобильная кнопка Меню */}
-          <div className="flex items-center gap-4 lg:hidden">
+          {/* КНОПКА МЕНЮ (БУРГЕР) — Видна на десктопе и мобильном */}
+          <div className="flex items-center gap-4 relative z-55">
              <button 
-                className="text-white p-2 relative z-[110] hover:bg-slate-800 rounded-lg transition"
-                onClick={()=> setIsOpen(!isOpen)}
+                className="flex items-center gap-2.5 py-2 px-3.5 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-98"
+                onClick={() => setIsOpen(!isOpen)}
                 aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
              >
-                {isOpen ? <X className="w-7 h-7"/> : <Menu className="w-7 h-7"/>}
+                <span className="hidden sm:inline text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">Меню</span>
+                {isOpen ? (
+                   <X className="w-4 h-4 text-orange-500 transition-transform duration-300 group-hover:rotate-90"/>
+                ) : (
+                   <Menu className="w-4 h-4 text-slate-600 group-hover:text-orange-500 transition-colors duration-300"/>
+                )}
              </button>
           </div>
         </div>
       </header>
 
-      {/* МОБИЛЬНОЕ МЕНЮ (Без изменений логики, только стили и ссылки) */}
+      {/* ФОНОВЫЙ OVERLAY ПРИ ОТКРЫТИИ МЕНЮ */}
       <div 
-        className={`fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] transition-opacity duration-300 h-screen w-screen ${isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}
+        className={`fixed inset-0 bg-black/80 backdrop-blur-md z-[90] transition-opacity duration-300 h-screen w-screen ${
+          isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+        }`}
         onClick={() => setIsOpen(false)}
       />
 
-      <div className={`fixed top-0 right-0 h-screen w-[85%] max-w-[320px] bg-slate-900 border-l border-slate-800 z-[100] shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
-         <div className="flex items-center justify-between p-6 border-b border-slate-800">
-            <span className="text-xl font-bold text-white tracking-wider">Меню</span>
-            <button onClick={() => setIsOpen(false)} className="p-2 bg-slate-800 rounded-full text-gray-400 hover:text-white hover:bg-slate-700 transition">
-               <X className="w-6 h-6"/>
+      {/* ПЛАВНО ВЫЕЗЖАЮЩЕЕ СПРАВА НАЛЕВО ДЕКСТОП/МОБИЛЬНОЕ МЕНЮ */}
+      <div className={`fixed top-0 right-0 h-screen w-full sm:w-[480px] md:w-[580px] bg-slate-950 border-l border-slate-900/60 z-[100] shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
+        isOpen ? "translate-x-0 visible pointer-events-auto" : "translate-x-full invisible pointer-events-none"
+      }`}>
+         
+         {/* Шапка меню */}
+         <div className="flex items-center justify-between p-6 border-b border-slate-900 bg-slate-950">
+            <span className="text-sm font-black text-white tracking-widest uppercase flex items-center gap-2">
+               <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+               Навигация по сайту
+            </span>
+            <button 
+               onClick={() => setIsOpen(false)} 
+               className="p-2 bg-slate-900 border border-slate-800 rounded-xl text-gray-400 hover:text-white hover:bg-slate-800 transition"
+               aria-label="Закрыть меню"
+            >
+               <X className="w-5 h-5"/>
             </button>
          </div>
 
-         <div className="flex-1 overflow-y-auto p-6">
-            <nav className="flex flex-col space-y-2">
-               <Link href="/" className="flex items-center justify-between text-lg font-medium text-white p-4 rounded-xl hover:bg-slate-800 transition" onClick={() => setIsOpen(false)}>
-                  Главная <Home className="w-5 h-5 text-slate-500"/>
-               </Link>
-
-               {/* Аккордеон Услуг */}
-               <div>
-                   <button 
-                      onClick={() => setIsServicesOpen(!isServicesOpen)}
-                      className="w-full flex items-center justify-between text-lg font-medium text-white p-4 rounded-xl hover:bg-slate-800 transition"
-                   >
-                      Услуги 
-                      <ChevronDown className={`w-5 h-5 text-orange-500 transition-transform duration-300 ${isServicesOpen ? "rotate-180" : ""}`}/>
-                   </button>
-                   
-                   <div className={`pl-4 overflow-hidden transition-all duration-300 ${isServicesOpen ? "max-h-[600px] opacity-100 mt-2" : "max-h-0 opacity-0"}`}>
-                      {servicesList.map((service, i) => (
-                          <Link 
-                             key={i}
-                             href={service.link}
-                             className="block p-3 text-gray-400 hover:text-orange-500 text-sm border-l border-slate-800 ml-2"
-                             onClick={() => setIsOpen(false)}
-                          >
-                             {service.name}
-                          </Link>
-                      ))}
-                   </div>
+         {/* Содержимое меню (Скролл-зона) */}
+         <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-slate-800">
+            
+            {/* Группа 1: Основные разделы */}
+            <div className="space-y-3">
+               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Основные страницы</h4>
+               <div className="grid grid-cols-2 gap-2">
+                  <Link 
+                     href="/" 
+                     className="flex items-center gap-2.5 text-sm font-bold text-gray-300 p-3 rounded-xl bg-slate-900/40 border border-slate-900 hover:border-slate-800/80 hover:bg-slate-900/80 hover:text-orange-400 transition duration-200" 
+                     onClick={() => setIsOpen(false)}
+                  >
+                     <Home className="w-4 h-4 text-slate-500"/>
+                     <span>Главная</span>
+                  </Link>
+                  <Link 
+                     href="/portfolio" 
+                     className="flex items-center gap-2.5 text-sm font-bold text-gray-300 p-3 rounded-xl bg-slate-900/40 border border-slate-900 hover:border-slate-800/80 hover:bg-slate-900/80 hover:text-orange-400 transition duration-200" 
+                     onClick={() => setIsOpen(false)}
+                  >
+                     <Store className="w-4 h-4 text-slate-500"/>
+                     <span>Портфолио</span>
+                  </Link>
+                  <Link 
+                     href="/design-code" 
+                     className="flex items-center gap-2.5 text-sm font-bold text-gray-300 p-3 rounded-xl bg-slate-900/40 border border-slate-900 hover:border-slate-800/80 hover:bg-slate-900/80 hover:text-orange-400 transition duration-200" 
+                     onClick={() => setIsOpen(false)}
+                  >
+                     <Building className="w-4 h-4 text-slate-500"/>
+                     <span>Дизайн-код</span>
+                  </Link>
+                  <Link 
+                     href="/contacts" 
+                     className="flex items-center gap-2.5 text-sm font-bold text-gray-300 p-3 rounded-xl bg-slate-900/40 border border-slate-900 hover:border-slate-800/80 hover:bg-slate-900/80 hover:text-orange-400 transition duration-200" 
+                     onClick={() => setIsOpen(false)}
+                  >
+                     <MapPin className="w-4 h-4 text-slate-500"/>
+                     <span>Контакты</span>
+                  </Link>
                </div>
+            </div>
 
-               <Link href="/portfolio" className="flex items-center justify-between text-lg font-medium text-gray-300 p-4 rounded-xl hover:bg-slate-800 hover:text-white transition" onClick={() => setIsOpen(false)}>
-                  Портфолио <ChevronRight className="w-5 h-5 text-slate-600"/>
+            {/* Группа 2: Услуги (Интерактивный структурированный аккордеон) */}
+            <div className="space-y-4">
+               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Каталог конструкций</h4>
+               
+               <div className="space-y-2.5">
+                  {CATALOG_SERVICES.map((group) => {
+                     const isGroupActive = activeCategory === group.id;
+                     return (
+                        <div key={group.id} className="border border-slate-900 rounded-2xl bg-slate-900/20 overflow-hidden">
+                           <button 
+                              onClick={() => toggleCategory(group.id)}
+                              className="w-full flex items-center justify-between p-4 hover:bg-slate-900/40 transition duration-200 text-left"
+                           >
+                              <span className="flex items-center gap-3 font-extrabold text-sm text-white">
+                                 <span className={group.color}>
+                                    {renderGroupIcon(group.iconName, "w-5 h-5")}
+                                 </span>
+                                 {group.category}
+                              </span>
+                              <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${
+                                 isGroupActive ? "rotate-180 text-orange-500" : ""
+                              }`}/>
+                           </button>
+                           
+                           <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                              isGroupActive ? "max-h-[500px] opacity-100 border-t border-slate-900" : "max-h-0 opacity-0"
+                           }`}>
+                              <div className="p-3 bg-slate-950/60 grid gap-1">
+                                 {group.items.map((item, idx) => (
+                                    <Link 
+                                       key={idx}
+                                       href={item.link}
+                                       className="flex items-center justify-between p-2.5 rounded-lg text-xs font-bold text-gray-400 hover:text-orange-400 hover:bg-slate-900/40 transition duration-200"
+                                       onClick={() => setIsOpen(false)}
+                                    >
+                                       <span>{item.title}</span>
+                                       <ChevronRight className="w-3.5 h-3.5 text-slate-700"/>
+                                    </Link>
+                                 ))}
+                              </div>
+                           </div>
+                        </div>
+                     );
+                  })}
+               </div>
+            </div>
+
+            {/* Группа 3: Объемные буквы (Изолированные технологии) */}
+            <div className="border border-slate-900 rounded-2xl bg-slate-900/20 overflow-hidden">
+               <button 
+                  onClick={() => setIsLettersOpen(!isLettersOpen)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-900/40 transition duration-200 text-left"
+               >
+                  <span className="flex items-center gap-3 font-extrabold text-sm text-white">
+                     <span className="text-orange-500">
+                        <Zap className="w-5 h-5"/>
+                     </span>
+                     Технологии объемных букв
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${
+                     isLettersOpen ? "rotate-180 text-orange-500" : ""
+                  }`}/>
+               </button>
+               
+               <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                  isLettersOpen ? "max-h-[500px] opacity-100 border-t border-slate-900" : "max-h-0 opacity-0"
+               }`}>
+                  <div className="p-3 bg-slate-950/60 grid gap-1">
+                     <Link 
+                        href="/services/volume-letters"
+                        className="flex items-center justify-between p-2.5 rounded-lg text-xs font-black text-white bg-slate-900/60 hover:text-orange-400 hover:bg-slate-900 transition duration-200"
+                        onClick={() => setIsOpen(false)}
+                     >
+                        <span>Все виды объемных букв</span>
+                        <ArrowUpRight className="w-3.5 h-3.5 text-orange-500"/>
+                     </Link>
+                     
+                     {VOLUME_LETTERS_CATALOG.slice(0, 7).map((tech) => (
+                        <Link 
+                           key={tech.id}
+                           href={`/services/volume-letters/${tech.slug}`}
+                           className="flex items-center justify-between p-2.5 rounded-lg text-xs font-bold text-gray-400 hover:text-orange-400 hover:bg-slate-900/40 transition duration-200"
+                           onClick={() => setIsOpen(false)}
+                        >
+                           <span>{tech.title}</span>
+                           <ChevronRight className="w-3.5 h-3.5 text-slate-700"/>
+                        </Link>
+                     ))}
+                  </div>
+               </div>
+            </div>
+
+            {/* Группа 4: Утилитарные действия */}
+            <div className="space-y-3">
+               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 font-sans">Инструменты</h4>
+               <Link 
+                  href="/calculator" 
+                  className="flex items-center justify-between p-4 rounded-2xl bg-orange-600/10 border border-orange-500/20 text-orange-400 hover:text-orange-300 hover:bg-orange-600/20 transition duration-300"
+                  onClick={() => setIsOpen(false)}
+               >
+                  <span className="flex items-center gap-3 font-extrabold text-sm">
+                     <Calculator className="w-5 h-5"/>
+                     Онлайн-калькулятор вывесок
+                  </span>
+                  <ChevronRight className="w-4 h-4"/>
                </Link>
-               <Link href="/design-code" className="flex items-center justify-between text-lg font-medium text-gray-300 p-4 rounded-xl hover:bg-slate-800 hover:text-white transition" onClick={() => setIsOpen(false)}>
-                  Дизайн-код <ChevronRight className="w-5 h-5 text-slate-600"/>
-               </Link>
-               <Link href="/contacts" className="flex items-center justify-between text-lg font-medium text-gray-300 p-4 rounded-xl hover:bg-slate-800 hover:text-white transition" onClick={() => setIsOpen(false)}>
-                  Контакты <ChevronRight className="w-5 h-5 text-slate-600"/>
-               </Link>
-            </nav>
+            </div>
+
          </div>
 
-         <div className="p-6 bg-slate-950 border-t border-slate-800 space-y-4">
-             <div className="flex justify-center gap-6">
-                 <a href={COMPANY_NAP.socials.instagram} target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition" aria-label="Instagram"><Instagram className="w-6 h-6"/></a>
-                 <a href={COMPANY_NAP.socials.telegram} target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition" aria-label="Telegram"><Send className="w-6 h-6 ml-1"/></a>
-                 <a href={COMPANY_NAP.socials.whatsapp} target="_blank" className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:text-white transition" aria-label="WhatsApp"><MessageCircle className="w-6 h-6"/></a>
+         {/* Подвал меню (Контакты) */}
+         <div className="p-6 bg-slate-950 border-t border-slate-900 space-y-4">
+             <div className="flex justify-center gap-5">
+                 <a 
+                    href={COMPANY_NAP.socials.instagram} 
+                    target="_blank" 
+                    rel="nofollow noreferrer" 
+                    className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:bg-pink-600 hover:text-white hover:border-transparent transition-all duration-300" 
+                    aria-label="Наш Instagram"
+                 >
+                    <Instagram className="w-5 h-5"/>
+                 </a>
+                 <a 
+                    href={COMPANY_NAP.socials.telegram} 
+                    target="_blank" 
+                    rel="nofollow noreferrer" 
+                    className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:bg-blue-500 hover:text-white hover:border-transparent transition-all duration-300" 
+                    aria-label="Наш Telegram"
+                 >
+                    <Send className="w-5 h-5 ml-0.5"/>
+                 </a>
+                 <a 
+                    href={COMPANY_NAP.socials.whatsapp} 
+                    target="_blank" 
+                    rel="nofollow noreferrer" 
+                    className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-gray-400 hover:bg-green-500 hover:text-white hover:border-transparent transition-all duration-300" 
+                    aria-label="Наш WhatsApp"
+                 >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                       <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.89 5.83L2.03 22l4.31-1.83c1.55.98 3.39 1.54 5.37 1.54 5.52 0 10-4.48 10-10S17.52 2 12.004 2zm5.72 13.91c-.24.68-1.2 1.24-1.93 1.39-.49.1-1.13.17-3.29-.71-2.76-1.12-4.53-3.93-4.67-4.12-.14-.19-1.14-1.51-1.14-2.87a3 3 0 01.91-2.22c.26-.26.56-.33.75-.33h.49c.16 0 .37.01.53.39.17.41.59 1.43.64 1.54.05.11.09.24.01.39-.08.15-.12.24-.24.38-.12.14-.25.31-.36.42-.12.12-.25.25-.11.49.14.24.63 1.03 1.35 1.67.92.82 1.7 1.07 1.94 1.19.24.12.38.1.52-.06.14-.16.59-.69.75-.92.16-.23.32-.19.53-.11.22.08 1.37.65 1.61.76.24.12.4.17.46.28.06.11.06.64-.18 1.32z"/>
+                    </svg>
+                 </a>
              </div>
              
              <div className="grid grid-cols-2 gap-3">
-                <button className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition border border-slate-700 text-sm">
+                <button className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-850 text-white font-bold py-3.5 rounded-xl transition border border-slate-800 text-xs">
                    <User className="w-4 h-4"/> Кабинет
                 </button>
-                <Link href="/calculator" className="flex items-center justify-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 border border-blue-500/30 font-bold py-3 rounded-xl transition text-sm" onClick={() => setIsOpen(false)}>
-                   <Calculator className="w-4 h-4"/> Расчет
-                </Link>
+                <button 
+                   onClick={() => { setIsOpen(false); setIsModalOpen(true); }}
+                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white text-center font-bold py-3.5 rounded-xl shadow-lg shadow-orange-950/20 active:scale-95 transition text-xs"
+                >
+                   <FileText className="w-4 h-4"/> Оставить заявку
+                </button>
              </div>
-             
-             <button 
-                onClick={() => { setIsOpen(false); setIsModalOpen(true); }}
-                className="flex items-center justify-center gap-2 w-full bg-orange-600 hover:bg-orange-700 text-white text-center font-bold py-4 rounded-xl shadow-lg shadow-orange-900/20 active:scale-95 transition"
-             >
-                <FileText className="w-5 h-5"/> Оставить заявку
-             </button>
          </div>
       </div>
 
