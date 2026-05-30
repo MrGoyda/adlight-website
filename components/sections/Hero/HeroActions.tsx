@@ -25,7 +25,7 @@ export default function HeroActions() {
           onClick={() => setIsQuizOpen(true)}
           variant="solid"
           size="xl"
-          className="bg-gradient-to-r from-orange-600 via-orange-500 to-red-500 hover:from-orange-500 hover:to-red-400 border border-orange-500/20 shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 h-14 rounded-2xl text-base px-8 text-white font-bold"
+          className="h-14 rounded-2xl text-base px-8 font-extrabold"
         >
           Подобрать услугу
         </Button>
@@ -34,7 +34,7 @@ export default function HeroActions() {
           onClick={() => setIsModalOpen(true)}
           variant="lightOutline"
           size="xl"
-          className="h-14 rounded-2xl text-base px-8 border-slate-250 shadow-md hover:shadow-lg transition-all duration-300"
+          className="h-14 rounded-2xl text-base px-8 border-slate-250 shadow-md hover:shadow-lg transition-colors duration-300"
         >
           Оставить заявку
         </Button>
@@ -43,7 +43,7 @@ export default function HeroActions() {
           onClick={() => setIsVideoOpen(true)}
           variant="lightGlass"
           size="xl"
-          className="h-14 rounded-2xl text-base pl-4 pr-7 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300"
+          className="h-14 rounded-2xl text-base pl-4 pr-7 border-slate-200 shadow-md hover:shadow-lg transition-colors duration-300"
           leftIcon={
             <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center relative">
               <Play className="w-3.5 h-3.5 text-white fill-current ml-0.5" />
@@ -61,6 +61,9 @@ export default function HeroActions() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           source="Главная (Hero Section - Заявка)"
+          title="Заявка на консультацию"
+          subtitle="Оставьте ваши контакты. Наш менеджер свяжется с вами для подбора оптимального решения по наружной рекламе."
+          buttonText="Отправить заявку"
         />
       )}
 

@@ -6,6 +6,7 @@ import { CheckCircle2, ArrowUpRight } from "lucide-react";
 import { HOME_SPEC_SERVICES } from "@/dictionaries/home";
 import { cn } from "@/lib/utils";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
+import PremiumCard from "@/components/ui/PremiumCard";
 
 export default function SpecializedServicesGrid() {
   
@@ -49,9 +50,11 @@ export default function SpecializedServicesGrid() {
         <div className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch snap-x snap-mandatory w-full -mx-4 px-4 lg:mx-0 lg:px-0">
           {HOME_SPEC_SERVICES.map((item) => {
             return (
-              <div
+              <PremiumCard
                 key={item.id}
-                className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/20 p-5 md:p-6 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[285px] sm:w-[325px] lg:w-full lg:shrink snap-start"
+                variant="default"
+                hoverEffect="lift"
+                className="group flex flex-col justify-between p-5 md:p-6 shrink-0 w-[285px] sm:w-[325px] lg:w-full lg:shrink snap-start"
               >
                 <div>
                   {/* Изображение услуги */}
@@ -117,7 +120,7 @@ export default function SpecializedServicesGrid() {
                     <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
                   </Link>
                 </div>
-              </div>
+              </PremiumCard>
             );
           })}
         </div>

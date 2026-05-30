@@ -12,6 +12,7 @@ import {
   User, 
   MapPin
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import ConsultationModal from "@/components/ConsultationModal";
 import Button from "@/components/ui/Button";
@@ -65,6 +66,12 @@ export default function Header() {
       `${SITE_URL}/design-code`,
       `${SITE_URL}/contacts`
     ]
+  };
+
+  const burgerAnimation = {
+    whileTap: { scale: 0.95 },
+    whileHover: { y: -2, scale: 1.03 },
+    transition: { type: "spring" as const, stiffness: 500, damping: 14, mass: 0.8 },
   };
 
   return (
@@ -158,11 +165,10 @@ export default function Header() {
                 </div>
              </a>
 
-             {/* 4. Кнопка «Получить консультацию» */}
              <Button 
                 onClick={() => setIsModalOpen(true)}
                 variant="solid"
-                className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-extrabold py-2.5 px-5 rounded-xl transition duration-300 shadow-md shadow-orange-900/10 active:scale-98 text-xs uppercase tracking-wider whitespace-nowrap"
+                className="py-2.5 px-5 text-xs uppercase tracking-wider whitespace-nowrap font-extrabold"
              >
                 Получить консультацию
              </Button>
@@ -179,9 +185,9 @@ export default function Header() {
           </div>
 
           {/* КНОПКА МЕНЮ (БУРГЕР) — Видна на десктопе и мобильном */}
-          <div className="flex items-center gap-4 relative z-55">
-             <button 
-                className="flex items-center gap-2.5 py-2 px-3.5 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-all duration-300 group shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-98"
+             <motion.button 
+                {...burgerAnimation}
+                className="flex items-center gap-2.5 py-2 px-3.5 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
              >
@@ -191,8 +197,7 @@ export default function Header() {
                 ) : (
                    <Menu className="w-4 h-4 text-slate-600 group-hover:text-orange-500 transition-colors duration-300"/>
                 )}
-             </button>
-          </div>
+             </motion.button>
         </div>
       </header>
 
@@ -208,6 +213,9 @@ export default function Header() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         source="Хедер (Кнопка заявки)"
+        title="Быстрая консультация"
+        subtitle="Оставьте ваши контакты. Наш специалист перезвонит в течение 15 минут для консультации."
+        buttonText="Получить консультацию"
       />
     </>
   );

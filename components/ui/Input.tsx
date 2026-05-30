@@ -8,6 +8,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   hideLabel?: boolean;
   icon?: React.ReactNode;
   error?: string;
+  variant?: "light" | "dark";
 }
 
 export default function Input({
@@ -15,6 +16,7 @@ export default function Input({
   hideLabel = true,
   icon,
   error,
+  variant = "dark",
   className,
   id,
   required,
@@ -22,13 +24,15 @@ export default function Input({
   ...props
 }: InputProps) {
   const uniqueId = id || React.useId();
+  const isLight = variant === "light";
 
   return (
     <div className="w-full space-y-2 text-left">
       <label 
         htmlFor={uniqueId} 
         className={cn(
-          "block text-sm font-medium text-slate-400 mb-1",
+          "block text-sm font-medium mb-1",
+          isLight ? "text-slate-600" : "text-slate-400",
           hideLabel && "sr-only"
         )}
       >
@@ -47,11 +51,16 @@ export default function Input({
           required={required}
           disabled={disabled}
           className={cn(
-            "w-full bg-slate-900 border text-white rounded-xl py-4 transition-all outline-none placeholder:text-slate-600 focus:ring-2 focus:ring-orange-500/50",
+            "w-full border rounded-xl py-4 transition-all outline-none focus:ring-2",
+            isLight 
+              ? "bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:ring-orange-500/20" 
+              : "bg-slate-900 text-white placeholder:text-slate-600 focus:ring-orange-500/50",
             icon ? "pl-12 pr-4" : "px-5",
             error 
               ? "border-red-500 focus:border-red-500" 
-              : "border-slate-800 focus:border-orange-500 focus:bg-slate-900/80",
+              : isLight
+                ? "border-slate-200 focus:border-orange-500 focus:bg-white"
+                : "border-slate-800 focus:border-orange-500 focus:bg-slate-900/80",
             disabled && "opacity-50 cursor-not-allowed",
             className
           )}
@@ -67,3 +76,4 @@ export default function Input({
     </div>
   );
 }
+

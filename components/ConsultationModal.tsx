@@ -13,11 +13,61 @@ interface ConsultationModalProps {
   isOpen: boolean;
   onClose: () => void;
   source: string; 
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
 }
 
-export default function ConsultationModal({ isOpen, onClose, source }: ConsultationModalProps) {
+// Легковесная функция маскирования для номеров Казахстана (+7 (7XX) XXX-XX-XX)
+const formatKazakhstanPhone = (value: string): string => {
+  const digits = value.replace(/\D/g, "");
+  
+  if (digits.length === 0) return "";
+  
+  // Нормализуем, отсекая первую 7 или 8
+  let cleanDigits = digits;
+  if (digits.startsWith("7") || digits.startsWith("8")) {
+    cleanDigits = digits.substring(1);
+  }
+  
+  // Ограничиваем 10 цифрами (7XX XXX XX XX)
+  cleanDigits = cleanDigits.substring(0, 10);
+  
+  let formatted = "+7";
+  if (cleanDigits.length > 0) {
+    const area = cleanDigits.substring(0, 3);
+    formatted += ` (${area}`;
+    if (cleanDigits.length >= 3) {
+      formatted += ") ";
+      const main = cleanDigits.substring(3, 6);
+      formatted += main;
+      if (cleanDigits.length >= 6) {
+        formatted += "-";
+        const part1 = cleanDigits.substring(6, 8);
+        formatted += part1;
+        if (cleanDigits.length >= 8) {
+          formatted += "-";
+          const part2 = cleanDigits.substring(8, 10);
+          formatted += part2;
+        }
+      }
+    }
+  }
+  return formatted;
+};
+
+export default function ConsultationModal({ 
+  isOpen, 
+  onClose, 
+  source,
+  title = "Нужна консультация?",
+  subtitle = "Оставьте номер телефона. Мы перезвоним в течение 15 минут.",
+  buttonText = "Жду звонка"
+}: ConsultationModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -35,6 +85,10 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
     if (isOpen) {
       setShouldRender(true);
       setIsSuccess(false);
+      setPhoneError("");
+      setName("");
+      setPhone("");
+      setHoneypot("");
       document.body.style.overflow = "hidden";
       const timer = setTimeout(() => setIsVisible(true), 50);
       return () => clearTimeout(timer);
@@ -54,15 +108,38 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatKazakhstanPhone(e.target.value);
+    setPhone(formatted);
+    if (phoneError) setPhoneError("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setPhoneError("");
+
+    const digits = phone.replace(/\D/g, "");
+    
+    // Валидация полной длины (+7 + 10 цифр = 11 цифр)
+    if (digits.length !== 11) {
+      setPhoneError("Пожалуйста, введите полный номер телефона");
+      setIsLoading(false);
+      return;
+    }
+
+    // Валидация кода оператора (Казахстанские номера в формате +7 начинаются на 7, например: +7 (707)...)
+    if (digits.charAt(1) !== "7") {
+      setPhoneError("Некорректный код оператора (+7 7XX...)");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source }),
+        body: JSON.stringify({ name, phone, source, website: honeypot }),
       });
 
       if (res.ok) {
@@ -95,7 +172,7 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6">
         {/* Overlay */}
         <div 
-            className={`absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300 ease-out ${
+            className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300 ease-out ${
               isVisible ? "opacity-100" : "opacity-0"
             }`}
             onClick={onClose}
@@ -105,17 +182,17 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
         <div className="w-full max-w-md relative">
           <Card 
               glass
-              intensity="heavy"
+              intensity="light"
               rounded="3xl"
-              className={`w-full shadow-apple-modal border border-slate-700/80 overflow-hidden transition-all duration-300 ease-out transform ${
+              className={`w-full shadow-apple-modal border border-white/40 bg-white/80 backdrop-blur-2xl overflow-hidden transition-all duration-300 ease-out transform ${
                 isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
               }`}
           >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-[60px] rounded-full pointer-events-none"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[60px] rounded-full pointer-events-none"></div>
 
               <button 
                   onClick={onClose}
-                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition z-50"
+                  className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition z-50"
                   aria-label="Закрыть"
               >
                   <X className="w-6 h-6"/>
@@ -126,11 +203,11 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
                   {isSuccess ? (
                       // ЭКРАН УСПЕХА
                       <div className="text-center py-6 animate-in fade-in zoom-in duration-300">
-                          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center text-green-500 mx-auto mb-6">
+                          <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-6 border border-emerald-100">
                               <CheckCircle className="w-10 h-10"/>
                           </div>
-                          <Typography variant="h3" className="mb-2">Заявка принята!</Typography>
-                          <Typography variant="body" className="mb-6">
+                          <Typography variant="h3" className="mb-2 text-slate-900 font-semibold">Заявка принята!</Typography>
+                          <Typography variant="body" className="mb-6 text-slate-500">
                               Менеджер уже получил уведомление в Telegram и перезвонит вам в ближайшее время.
                           </Typography>
                           
@@ -149,36 +226,49 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
                               <Phone className="w-6 h-6"/>
                           </div>
 
-                          <Typography variant="h3" className="mb-2">Нужна консультация?</Typography>
-                          <Typography variant="body" className="mb-8">
-                              Оставьте номер телефона. Мы перезвоним в течение 15 минут.
+                          <Typography variant="h3" className="mb-2 text-slate-900 font-semibold">{title}</Typography>
+                          <Typography variant="body" className="mb-8 text-slate-500">
+                              {subtitle}
                           </Typography>
 
                           <form onSubmit={handleSubmit} className="space-y-4">
+                              {/* Honeypot скрытое поле для защиты от спам-ботов */}
+                              <input 
+                                  type="text" 
+                                  name="website" 
+                                  className="sr-only" 
+                                  tabIndex={-1} 
+                                  autoComplete="off" 
+                                  value={honeypot} 
+                                  onChange={(e) => setHoneypot(e.target.value)} 
+                              />
                               <Input 
                                   label="Ваше имя"
                                   hideLabel
+                                  variant="light"
                                   id="modal-name"
                                   name="name"
                                   autoComplete="name"
                                   placeholder="Ваше имя"
                                   value={name}
                                   onChange={(e) => setName(e.target.value)}
-                                  icon={<User className="w-5 h-5 text-slate-500" />}
+                                  icon={<User className="w-5 h-5 text-slate-400" />}
                                   required
                                   disabled={isLoading}
                               />
                               <Input 
                                   label="Номер телефона"
                                   hideLabel
+                                  variant="light"
                                   id="modal-phone"
                                   name="phone"
                                   autoComplete="tel"
                                   type="tel"
-                                  placeholder="+7 (___) ___-__-__"
+                                  placeholder="+7 (777) 123-45-67"
                                   value={phone}
-                                  onChange={(e) => setPhone(e.target.value)}
-                                  icon={<Phone className="w-5 h-5 text-slate-500" />}
+                                  onChange={handlePhoneChange}
+                                  error={phoneError}
+                                  icon={<Phone className="w-5 h-5 text-slate-400" />}
                                   required
                                   disabled={isLoading}
                               />
@@ -191,26 +281,26 @@ export default function ConsultationModal({ isOpen, onClose, source }: Consultat
                                   className="w-full h-[58px]"
                                   rightIcon={<ArrowRight className="w-5 h-5" />}
                               >
-                                  Жду звонка
+                                  {buttonText}
                               </Button>
                           </form>
                           
                           {/* КНОПКА WHATSAPP */}
-                          <div className="mt-6 pt-6 border-t border-slate-800 text-center">
-                              <p className="text-gray-500 text-xs mb-3">Не хотите ждать?</p>
+                          <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+                              <p className="text-slate-400 text-xs mb-3 font-medium">Не хотите ждать?</p>
                               
                               <Button 
                                   onClick={handleDirectWhatsApp}
                                   variant="outline"
-                                  className="w-full text-green-500 hover:text-green-400 hover:bg-green-500/10 border-green-500/20 hover:border-green-500/50"
+                                  className="w-full text-emerald-600 hover:text-emerald-500 hover:bg-emerald-50 border-emerald-200/80 hover:border-emerald-300"
                                   leftIcon={<MessageCircle className="w-4 h-4" />}
                               >
                                   Написать в WhatsApp
                               </Button>
                           </div>
 
-                          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-600 font-medium">
-                              <ShieldCheck className="w-3 h-3"/> Ваши данные в безопасности
+                          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400 font-medium">
+                              <ShieldCheck className="w-3 h-3 text-slate-500"/> Ваши данные в безопасности
                           </div>
                       </>
                   )}

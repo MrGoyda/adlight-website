@@ -150,6 +150,9 @@ export default function DesignCodeBlock({
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         source={source}
+        title="Согласование вывески"
+        subtitle="Проверим вашу вывеску на соответствие Дизайн-коду Астаны и поможем получить разрешение."
+        buttonText="Проверить вывеску"
       />
     </section>
   );

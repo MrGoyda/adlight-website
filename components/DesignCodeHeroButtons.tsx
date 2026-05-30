@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { MessageCircle, Search } from "lucide-react";
@@ -35,6 +35,9 @@ export default function DesignCodeHeroButtons() {
          isOpen={isModalOpen} 
          onClose={() => setIsModalOpen(false)} 
          source="Страница: Дизайн-код (Hero)"
+         title="Консультация по дизайн-коду"
+         subtitle="Поможем разобраться в новых правилах размещения рекламы в Астане и избежать штрафов."
+         buttonText="Проконсультироваться"
       />
     </>
   );

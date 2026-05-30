@@ -58,6 +58,9 @@ export default function HeroButtons({ source, priceColor = "orange" }: HeroButto
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         source={`Hero Section: ${source}`}
+        title={`Заявка на ${source}`}
+        subtitle={`Оставьте контакты. Рассчитаем стоимость производства конструкции "${source}" за 15 минут.`}
+        buttonText="Получить расчет"
       />
     </>
   );

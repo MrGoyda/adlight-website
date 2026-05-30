@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script"; // <--- 1. Импорт компонента Script
+import { LazyMotion, domAnimation } from "framer-motion";
+import Script from "next/script";
 import "./globals.css";
 
 // Ваши компоненты
@@ -119,14 +120,16 @@ export default function RootLayout({
         <JsonLd />
         <YandexMetrica />
 
-        {/* Глобальный хедер */}
-        <Header />
+        <LazyMotion features={domAnimation} strict={false}>
+          {/* Глобальный хедер */}
+          <Header />
 
-        {/* Контент страницы */}
-        {children}
+          {/* Контент страницы */}
+          {children}
 
-        {/* Глобальный футер */}
-        <Footer />
+          {/* Глобальный футер */}
+          <Footer />
+        </LazyMotion>
         
       </body>
     </html>

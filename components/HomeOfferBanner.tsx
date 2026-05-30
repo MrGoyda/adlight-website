@@ -103,9 +103,9 @@ export default function HomeOfferBanner() {
               
               <Button 
                 onClick={() => setIsModalOpen(true)}
-                variant="outline"
+                variant="lightOutline"
                 size="xl"
-                className="w-full h-[64px] border-slate-200 hover:border-slate-350 rounded-2xl text-base px-8 text-slate-800 font-bold hover:bg-slate-50"
+                className="w-full h-[64px] rounded-2xl text-base px-8 font-bold"
               >
                 Быстрая консультация
               </Button>
@@ -132,6 +132,9 @@ export default function HomeOfferBanner() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         source="Промо-баннер (Скидка 10%)"
+        title="Зафиксировать скидку 10%"
+        subtitle="Оставьте заявку сейчас, и мы закрепим за вашим номером телефона скидку 10% на любое производство наружной рекламы."
+        buttonText="Зафиксировать скидку"
       />
     </section>
   );

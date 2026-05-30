@@ -150,6 +150,9 @@ export default function NicheServices() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         source={modalSource}
+        title={`Вывески для: ${modalSource.replace("Блок решений: ", "")}`}
+        subtitle={`Оставьте контакты. Разработаем индивидуальную концепцию оформления и вывески под ваш бизнес.`}
+        buttonText="Получить предложение"
       />
     </section>
   );

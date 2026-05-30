@@ -1,5 +1,4 @@
-﻿// components/services/ServicesGrid.tsx
-
+import Image from "next/image";
 import Link from "next/link";
 import { Store, Zap, Building, ArrowRight } from "lucide-react";
 import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
@@ -36,11 +35,13 @@ export default function ServicesGrid() {
                          className="w-full h-full border border-white/10 hover:border-orange-500/50 bg-[#0B1221]"
                       >
                          <div className="absolute inset-0">
-                            <img 
-                               src={item.image} 
-                               className="w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" 
-                               alt={`Заказать ${item.title} в Астане - пример работы ADLight`}
-                            />
+                             <Image 
+                                src={item.image} 
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                className="object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" 
+                                alt={`Заказать ${item.title} в Астане - пример работы ADLight`}
+                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/60 to-transparent"></div>
                          </div>
 

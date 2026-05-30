@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import * as Icons from "lucide-react";
 import { PRODUCTION_DETAILS } from "@/dictionaries/production";
+import Button from "@/components/ui/Button";
 
 export default function ProductionSection() {
   return (
@@ -30,10 +31,10 @@ export default function ProductionSection() {
   
              <div className="grid sm:grid-cols-2 gap-4">
                 {PRODUCTION_DETAILS.map((item, i) => {
-                   // Динамическое получение иконки Lucide по имени
-                   const IconComponent = (Icons as any)[item.iconName] 
-                     ? React.createElement((Icons as any)[item.iconName], { className: "w-5 h-5" })
-                     : React.createElement(Icons.Settings, { className: "w-5 h-5" });
+                    const IconName = item.iconName as keyof typeof Icons;
+                    const IconComponent = Icons[IconName]
+                      ? React.createElement(Icons[IconName] as React.ComponentType<{ className?: string }>, { className: "w-5 h-5" })
+                      : React.createElement(Icons.Settings, { className: "w-5 h-5" });
 
                    return (
                       <div 
@@ -54,20 +55,20 @@ export default function ProductionSection() {
   
              {/* DUAL ACTIONS */}
              <div className="flex flex-wrap items-center gap-4 pt-4">
-                <Link 
+                <Button 
                    href="/calculator" 
-                   className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-950/15 active:scale-97 transition duration-200"
+                   variant="solid"
+                   rightIcon={<Icons.ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>}
                 >
-                   <span>Рассчитать вывеску</span>
-                   <Icons.ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>
-                </Link>
+                   Рассчитать вывеску
+                </Button>
 
-                <Link 
+                <Button 
                    href="/production" 
-                   className="group inline-flex items-center justify-center gap-2.5 px-6 py-4 bg-white hover:bg-slate-50 text-slate-800 rounded-xl font-bold text-sm uppercase tracking-wider border border-slate-200 shadow-sm active:scale-97 transition duration-200"
+                   variant="lightOutline"
                 >
-                   <span>О нашем производстве</span>
-                </Link>
+                   О нашем производстве
+                </Button>
              </div>
           </div>
   

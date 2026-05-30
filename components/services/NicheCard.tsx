@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShieldCheck, ChevronRight, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Button from "@/components/ui/Button";
 
 interface NicheCardProps {
   activeNiche: string;
@@ -170,19 +171,24 @@ export default function NicheCard({
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2">
-            <button
+            <Button
               onClick={() => openConsultation(currentNiche.title)}
-              className="h-12 flex items-center justify-center bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-xs uppercase tracking-wider rounded-xl transition border border-slate-200 shadow-sm active:scale-97 cursor-pointer"
+              variant="lightOutline"
+              className="w-full text-xs font-extrabold h-12"
+              title="Получить консультацию"
             >
               Консультация
-            </button>
-            <Link
+            </Button>
+            <Button
               href="/calculator"
               onClick={triggerHaptic}
-              className="h-12 flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-orange-950/10 active:scale-97 transition gap-1.5"
+              variant="solid"
+              className="w-full text-xs font-extrabold h-12"
+              leftIcon={<Calculator className="w-4 h-4" />}
+              title="Рассчитать смету вывески"
             >
-              <Calculator className="w-4 h-4" /> Расчет сметы
-            </Link>
+              Расчет сметы
+            </Button>
           </div>
         </div>
       </div>

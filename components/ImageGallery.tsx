@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -145,11 +146,12 @@ export default function ImageGallery({ images = [] }: ImageGalleryProps) {
                     animationDelay: `${(i % 10) * 50}ms` 
                 }}
             >
-                <img 
+                <Image 
                     src={img} 
                     alt={`Фото ${i + 1}`} 
-                    className="w-full h-full object-cover transition duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
-                    loading="lazy" 
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                    className="object-cover transition duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                 />
                 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center opacity-0 group-hover:opacity-100">

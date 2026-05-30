@@ -38,10 +38,10 @@ export default function Button({
 }: ButtonProps) {
   const isBtnDisabled = disabled || isLoading;
 
-  const baseStyles = "relative overflow-hidden group inline-flex items-center justify-center font-sans transition-all rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]";
+  const baseStyles = "relative overflow-hidden group inline-flex items-center justify-center font-sans transition-colors rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]";
 
   const variants = {
-    solid: "bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-extrabold shadow-lg shadow-orange-950/15 border border-orange-500/20 transition-all duration-300",
+    solid: "bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-extrabold shadow-lg shadow-orange-950/15 border border-orange-500/20 transition-colors duration-300",
     secondary: "bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700 hover:border-slate-600",
     outline: "bg-transparent hover:bg-slate-800 text-slate-300 hover:text-white font-bold border border-slate-700 hover:border-slate-500",
     ghost: "bg-transparent hover:bg-slate-800 text-slate-400 hover:text-white font-bold border border-transparent",

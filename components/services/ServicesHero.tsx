@@ -1,5 +1,4 @@
-﻿// components/services/ServicesHero.tsx
-
+import Image from "next/image";
 import Link from "next/link";
 import { Store, Zap, Building, ChevronRight } from "lucide-react";
 
@@ -48,9 +47,12 @@ export default function ServicesHero() {
             {/* 3D Город (Скрыт на моб) */}
             <div className="hidden lg:flex relative h-[500px] w-full items-center justify-center">
                 <div className="absolute inset-0 bg-orange-500/10 blur-[100px] rounded-full pointer-events-none"></div>
-                <img 
+                <Image 
                   src="/images/pages/services-hero.webp" 
                   alt="Комплексное оформление города наружной рекламой"
+                  width={600}
+                  height={500}
+                  priority
                   className="relative w-full h-full object-contain drop-shadow-2xl z-10"
                 />
             </div>

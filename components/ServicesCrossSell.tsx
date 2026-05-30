@@ -1,5 +1,7 @@
-﻿"use client";
+"use client";
 
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Layers, Zap } from "lucide-react";
 
@@ -12,6 +14,8 @@ export default function ServicesCrossSell({
   title = "Что еще мы производим", 
   subtitle = "Комплексное оформление вашего бизнеса" 
 }: ServicesCrossSellProps) {
+  const [lightboxImg, setLightboxImg] = useState("/images/calc/lightbox-1.jpg");
+
   return (
     <section className="py-24 bg-[#0F172A] border-t border-slate-800">
        <div className="container mx-auto px-4">
@@ -29,11 +33,13 @@ export default function ServicesCrossSell({
               {/* Карточка 1: Лайтбоксы */}
               <Link href="#" className="group relative h-[400px] rounded-3xl overflow-hidden border border-slate-800 hover:border-orange-500/50 transition-all duration-500 shadow-lg">
                  <div className="absolute inset-0 bg-slate-800">
-                    <img 
-                      src="/images/calc/lightbox-1.jpg" 
+                    <Image 
+                      src={lightboxImg} 
                       alt="Световые короба" 
-                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
-                      onError={(e) => e.currentTarget.src = '/1solution.jpg'} // Fallback если картинки нет
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                      onError={() => setLightboxImg('/1solution.jpg')}
                     />
                  </div>
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500"></div>
@@ -55,10 +61,12 @@ export default function ServicesCrossSell({
               {/* Карточка 2: Неон */}
               <Link href="#" className="group relative h-[400px] rounded-3xl overflow-hidden border border-slate-800 hover:border-purple-500/50 transition-all duration-500 shadow-lg">
                  <div className="absolute inset-0 bg-slate-800">
-                    <img 
+                    <Image 
                       src="/neon.jpg" 
                       alt="Неон" 
-                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
                     />
                  </div>
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500"></div>
@@ -80,10 +88,12 @@ export default function ServicesCrossSell({
               {/* Карточка 3: Крышные */}
               <Link href="#" className="group relative h-[400px] rounded-3xl overflow-hidden border border-slate-800 hover:border-orange-500/50 transition-all duration-500 shadow-lg">
                  <div className="absolute inset-0 bg-slate-800">
-                    <img 
+                    <Image 
                       src="/krisha.jpg" 
                       alt="Крышные установки" 
-                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700"
                     />
                  </div>
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500"></div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MapPin, Clock, Phone, MessageCircle } from "lucide-react";
 import { SITE_CONTACTS } from "@/config/site";
+import Button from "@/components/ui/Button";
 
 export default function ContactsSection() {
   const [mapInteractive, setMapInteractive] = useState(false);
@@ -107,25 +108,24 @@ export default function ContactsSection() {
             </div>
             
             {/* Quick Actions Buttons */}
-            <div className="grid grid-cols-2 gap-3 pt-2">
-               <a 
-                 href={SITE_CONTACTS.maps.yandexSearch} 
-                 target="_blank" 
-                 rel="noopener noreferrer"
-                 className="inline-flex items-center justify-center py-3.5 border border-slate-200 text-slate-800 bg-white hover:bg-slate-50 rounded-xl transition font-extrabold text-xs uppercase tracking-wider shadow-sm active:scale-97 text-center"
-               >
-                  Маршрут на карте
-               </a>
-               <a 
-                 href={SITE_CONTACTS.socials.whatsapp} 
-                 target="_blank" 
-                 rel="noopener noreferrer"
-                 className="inline-flex items-center justify-center gap-2 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition font-extrabold text-xs uppercase tracking-wider shadow-md shadow-emerald-950/10 active:scale-97 text-center"
-               >
-                  <MessageCircle className="w-4 h-4"/>
-                  <span>Написать</span>
-               </a>
-            </div>
+             <div className="grid grid-cols-2 gap-3 pt-2">
+                <Button 
+                  href={SITE_CONTACTS.maps.yandexSearch} 
+                  variant="lightOutline"
+                  className="w-full text-xs font-extrabold py-3.5"
+                  title="Открыть маршрут на карте"
+                >
+                   Маршрут на карте
+                </Button>
+                <Button 
+                  href={SITE_CONTACTS.socials.whatsapp} 
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-xs font-extrabold py-3.5 border-emerald-500/20 shadow-emerald-950/10"
+                  leftIcon={<MessageCircle className="w-4 h-4"/>}
+                  title="Написать в WhatsApp"
+                >
+                   Написать
+                </Button>
+             </div>
          </div>
       </div>
     </section>
