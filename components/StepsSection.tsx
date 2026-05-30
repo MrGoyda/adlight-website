@@ -98,13 +98,6 @@ export default function StepsSection({
         <div className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-3 md:mx-0 md:px-0">
           
           {steps.map((item, i) => {
-            // Динамический рендеринг иконок из Lucide
-            const IconComponent = item.icon 
-              ? item.icon 
-              : item.iconName && (Icons as any)[item.iconName] 
-                ? React.createElement((Icons as any)[item.iconName], { className: "w-5 h-5" })
-                : React.createElement(Icons.CheckSquare, { className: "w-5 h-5" });
-
             const itemColor = item.color || "text-orange-600 bg-orange-50 border-orange-100";
 
             return (
@@ -114,8 +107,7 @@ export default function StepsSection({
               >
                 {/* Step indicator */}
                 <div className="flex items-center justify-between mb-6">
-                   <span className={`px-3 py-1 rounded-xl text-xs font-bold border tracking-wider uppercase ${itemColor} flex items-center gap-1.5`}>
-                      {IconComponent}
+                   <span className={`px-3 py-1 rounded-xl text-xs font-bold border tracking-wider uppercase ${itemColor} flex items-center`}>
                       <span>Шаг {item.step}</span>
                    </span>
                    <span className="text-slate-200 group-hover:text-orange-500/20 font-black text-5xl tracking-tighter leading-none transition-colors duration-300">
