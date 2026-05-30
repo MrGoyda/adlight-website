@@ -10,7 +10,7 @@ export const SITE_CONTACTS = {
   iin: "940222351384",
   phone: "+7 (707) 135-67-01",
   phoneRaw: "+77071356701",
-  email: "info@adlight.kz",
+  email: "elisey.goyda@gmail.com",
   emailPersonal: "elisey.goyda@gmail.com",
   address: "ул. Аспара 7, г. Астана",
   legalAddress: "Республика Казахстан, г. Астана, ул. Сыганак, д. 10, кв. 177",

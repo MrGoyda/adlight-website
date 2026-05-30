@@ -1,6 +1,6 @@
 // dictionaries/common.ts
 
-import { SITE_CONTACTS } from "@/config/site";
+import { SITE_CONTACTS, SITE_LINKS } from "@/config/site";
 
 export const COMPANY_NAP = {
   name: SITE_CONTACTS.name,
@@ -23,12 +23,12 @@ export const COMPANY_NAP = {
 };
 
 export const COMMON_NAV_LINKS = [
-  { label: "Главная", href: "/" },
-  { label: "Услуги", href: "/services" },
-  { label: "Портфолио", href: "/portfolio" },
-  { label: "Дизайн-код", href: "/design-code" },
-  { label: "Контакты", href: "/contacts" },
-  { label: "Калькулятор", href: "/calculator" }
+  { label: "Главная", href: SITE_LINKS.home },
+  { label: "Услуги", href: SITE_LINKS.services.root },
+  { label: "Портфолио", href: SITE_LINKS.portfolio },
+  { label: "Дизайн-код", href: SITE_LINKS.designCode },
+  { label: "Контакты", href: SITE_LINKS.contacts },
+  { label: "Калькулятор", href: SITE_LINKS.calculator }
 ];
 
 export const COMMON_BUTTONS = {
@@ -39,3 +39,12 @@ export const COMMON_BUTTONS = {
   moreDetails: "Подробнее",
   allWorks: "Все работы"
 };
+
+// Единый список 5 основных шагов работы с клиентом для всего сайта (Single Source of Truth)
+export const COMMON_STEPS = [
+  { step: "01", title: "Заявка", desc: "Фото места и размеры" },
+  { step: "02", title: "Макет", desc: "Визуализация на фасаде" },
+  { step: "03", title: "Смета", desc: "Прозрачный расчет" },
+  { step: "04", title: "Производство", desc: "3-7 дней в цехе" },
+  { step: "05", title: "Монтаж", desc: "Установка и подключение" }
+];

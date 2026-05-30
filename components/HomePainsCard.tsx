@@ -58,12 +58,13 @@ export default function HomePainsCard({ item, isEven }: HomePainsCardProps) {
         {/* Ключевые преимущества (Bullet Points) */}
         <ul className="space-y-2.5">
           {item.points.map((point, idx) => (
-            <li key={idx} className="flex items-start gap-3 text-slate-800 text-sm sm:text-base font-semibold">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <li key={idx} className="flex items-start gap-2.5 text-slate-800 text-sm sm:text-base font-semibold">
+              <span className="text-orange-500 font-extrabold shrink-0 mt-0.5">•</span>
               <span>{point}</span>
             </li>
           ))}
         </ul>
+
 
         {/* Кнопка действия */}
         <div className="pt-2">

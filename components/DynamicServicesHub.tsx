@@ -9,8 +9,12 @@ import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import * as Icons from "lucide-react";
 
-export default function DynamicServicesHub() {
-  const [activeTab, setActiveTab] = useState<string>("facade");
+interface DynamicServicesHubProps {
+  defaultTab?: string;
+}
+
+export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicServicesHubProps) {
+  const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
   // Тактильный отклик при переключении табов
   const triggerHaptic = () => {

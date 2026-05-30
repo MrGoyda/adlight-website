@@ -221,10 +221,5 @@ export const VOLUME_LETTERS_TECH_CARDS = [
   }
 ];
 
-export const VOLUME_LETTERS_STEPS = [
-  { step: "01", title: "Заявка", desc: "Фото места и размеры" },
-  { step: "02", title: "Макет", desc: "Визуализация на фасаде" },
-  { step: "03", title: "Смета", desc: "Прозрачный расчет" },
-  { step: "04", title: "Производство", desc: "3-7 дней в цехе" },
-  { step: "05", title: "Монтаж", desc: "Установка и подключение" }
-];
+import { COMMON_STEPS } from "../common";
+export const VOLUME_LETTERS_STEPS = COMMON_STEPS;

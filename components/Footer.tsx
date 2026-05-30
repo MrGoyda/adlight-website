@@ -153,28 +153,28 @@ export default function Footer() {
           {/* COLUMN 4: CONTACTS (GEO) */}
           <div className="space-y-6">
             <h3 className="text-slate-900 font-extrabold text-[11px] uppercase tracking-widest mb-6 border-b border-slate-200 pb-3">Контакты</h3>
-            <address className="not-italic space-y-4.5 text-sm font-semibold">
-              <div className="flex gap-3 items-start">
+            <address className="not-italic space-y-6 text-sm font-semibold">
+              <div className="flex gap-4 items-start">
                 <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5"/>
-                <span itemScope itemType="http://schema.org/PostalAddress" className="leading-relaxed">
-                   <span itemProp="addressLocality" className="font-bold text-slate-800">г. {COMPANY_NAP.locality}</span>, <br/>
-                   <span itemProp="streetAddress">{COMPANY_NAP.address.replace("г. Астана, ", "")}</span> <br/>
-                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-0.5">(Цех и Офис)</span>
+                <span itemScope itemType="http://schema.org/PostalAddress" className="leading-relaxed text-slate-700">
+                   <span itemProp="addressLocality" className="font-extrabold text-slate-900 block text-base mb-1">г. {COMPANY_NAP.locality}</span>
+                   <span itemProp="streetAddress" className="block text-slate-600 font-semibold">{COMPANY_NAP.address.replace(", г. Астана", "").replace("г. Астана, ", "")}</span>
+                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block mt-1.5">(Цех и Офис)</span>
                 </span>
               </div>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-4 items-center">
                 <Phone className="w-5 h-5 text-orange-500 shrink-0"/>
-                <a href={`tel:${COMPANY_NAP.phoneRaw}`} className="text-slate-800 font-black hover:text-orange-600 transition-colors" itemProp="telephone">{COMPANY_NAP.phone}</a>
+                <a href={`tel:${COMPANY_NAP.phoneRaw}`} className="text-slate-900 font-extrabold hover:text-orange-600 transition-colors text-base" itemProp="telephone">{COMPANY_NAP.phone}</a>
               </div>
-              <div className="flex gap-3 items-center">
+              <div className="flex gap-4 items-center">
                 <Mail className="w-5 h-5 text-orange-500 shrink-0"/>
-                <a href={`mailto:${COMPANY_NAP.email}`} className="text-slate-650 hover:text-orange-600 transition-colors" itemProp="email">{COMPANY_NAP.email}</a>
+                <a href={`mailto:${COMPANY_NAP.email}`} className="text-slate-650 hover:text-orange-600 transition-colors font-semibold" itemProp="email">{COMPANY_NAP.email}</a>
               </div>
-              <div className="flex gap-3 items-center">
-                <Clock className="w-5 h-5 text-orange-500 shrink-0"/>
+              <div className="flex gap-4 items-start">
+                <Clock className="w-5 h-5 text-orange-500 shrink-0 mt-0.5"/>
                 <div>
-                   <span className="font-semibold text-slate-700">{COMPANY_NAP.workingHours.split(", ")[0]}</span>
-                   <p className="text-[10px] text-slate-450 mt-0.5">Прием заказов онлайн: 24/7</p>
+                   <span className="font-extrabold text-slate-800 block text-sm">{COMPANY_NAP.workingHours.split(", ")[0]}</span>
+                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Прием заказов онлайн: 24/7</p>
                 </div>
               </div>
             </address>

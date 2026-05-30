@@ -129,7 +129,7 @@ export default function CallToAction({
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-orange-500/[0.012] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="bg-slate-50/50 p-8 md:p-16 rounded-[2.5rem] border border-slate-200/80 shadow-[0_15px_40px_rgba(0,0,0,0.01)] max-w-5xl mx-auto relative overflow-hidden">
+        <div className="bg-slate-100/80 p-8 md:p-16 rounded-[2.5rem] border border-slate-200/80 shadow-[0_15px_40px_rgba(0,0,0,0.015)] max-w-5xl mx-auto relative overflow-hidden">
           
           <div className="absolute -top-24 -left-24 w-[300px] h-[300px] bg-orange-500/[0.01] rounded-full blur-3xl pointer-events-none" />
           
