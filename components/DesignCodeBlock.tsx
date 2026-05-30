@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight, CheckCircle, FileCheck, BookOpen, ShieldCheck } from "lucide-react";
 import ConsultationModal from "./ConsultationModal";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
+import Button from "@/components/ui/Button";
 
 interface DesignCodeBlockProps {
   title?: string;
@@ -87,25 +88,25 @@ export default function DesignCodeBlock({
                 </li>
               </ul>
 
-              {/* DUAL ACTIONS INTERFACE */}
               <div className="flex flex-wrap items-center gap-4 pt-4">
-                <button 
+                <Button 
                   onClick={openConsultation}
-                  className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-950/15 active:scale-97 transition duration-200 cursor-pointer"
+                  variant="solid"
+                  className="bg-orange-600 hover:bg-orange-700"
+                  leftIcon={<ShieldCheck className="w-5 h-5"/>}
+                  rightIcon={<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>}
                 >
-                  <ShieldCheck className="w-5 h-5"/>
-                  <span>Получить согласование</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>
-                </button>
+                  Получить согласование
+                </Button>
 
-                <Link 
+                <Button 
                   href="/design-code" 
                   onClick={triggerHaptic}
-                  className="group inline-flex items-center justify-center gap-2.5 px-6 py-4 bg-white hover:bg-slate-50 text-slate-800 rounded-xl font-bold text-sm uppercase tracking-wider border border-slate-200 shadow-sm active:scale-97 transition duration-200"
+                  variant="lightOutline"
+                  leftIcon={<BookOpen className="w-5 h-5 text-slate-400"/>}
                 >
-                  <BookOpen className="w-5 h-5 text-slate-400"/>
-                  <span>Гид по Дизайн-коду</span>
-                </Link>
+                  Гид по Дизайн-коду
+                </Button>
               </div>
           </div>
 
