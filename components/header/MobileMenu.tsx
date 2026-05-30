@@ -47,7 +47,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation }: Mobi
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[90] h-screen w-screen"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[90] h-dvh w-screen"
             onClick={onClose}
           />
 
@@ -57,7 +57,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation }: Mobi
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            className="fixed top-0 right-0 h-screen w-full sm:w-[460px] bg-white border-l border-slate-200 z-[100] shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 h-dvh w-full sm:w-[460px] bg-white border-l border-slate-200 z-[100] shadow-2xl flex flex-col"
           >
              {/* Header */}
              <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-white">
@@ -251,8 +251,8 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation }: Mobi
 
              </div>
 
-             {/* Footer Info Area */}
-             <div className="p-6 bg-slate-50 border-t border-slate-200 space-y-4">
+             {/* Footer Info Area — pb-safe-6 учитывает safe area iOS/Android */}
+             <div className="p-6 pb-safe-6 bg-slate-50 border-t border-slate-200 space-y-4">
                   <div className="flex justify-center gap-5">
                       <a 
                          href={COMPANY_NAP.socials.instagram} 

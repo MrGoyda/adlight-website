@@ -39,6 +39,14 @@ export const metadata: Metadata = {
     "согласование рекламы Астана"
   ],
 
+  // viewport-fit=cover — обязателен для env(safe-area-inset-*) на iOS
+  // Без него safe area не работает вообще
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+  } as never,
+
   authors: [{ name: "ADLight Team", url: "https://adlight.kz" }],
   creator: "ADLight",
   publisher: "ADLight",
