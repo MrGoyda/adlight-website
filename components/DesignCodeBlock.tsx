@@ -4,10 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CheckCircle, FileCheck, BookOpen, ShieldCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
 import ConsultationModal from "./ConsultationModal";
 
-export default function DesignCodeBlock() {
+interface DesignCodeBlockProps {
+  title?: string;
+  description?: string;
+  source?: string;
+}
+
+export default function DesignCodeBlock({
+  title = "Согласование вывески в Акимате — бесплатно!",
+  description = "Вам не нужно изучать СНиПы и ходить по кабинетам. Мы берем на себя весь цикл согласования: от разработки фотопривязки до подачи документов. Вы получаете 100% законную вывеску по Дизайн-коду Астаны.",
+  source = "Форма: Бесплатное согласование вывески"
+}: DesignCodeBlockProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const triggerHaptic = () => {
@@ -36,14 +45,18 @@ export default function DesignCodeBlock() {
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
-                Согласование вывески <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600">
-                  в Акимате — бесплатно!
-                </span>
+                {title.includes(" в Акимате ") ? (
+                  <>
+                    Согласование вывески <br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600">
+                      в Акимате — бесплатно!
+                    </span>
+                  </>
+                ) : title}
               </h2>
               
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium">
-                Вам не нужно изучать СНиПы и ходить по кабинетам. Мы берем на себя весь цикл согласования: от разработки фотопривязки до подачи документов. Вы получаете 100% законную вывеску по Дизайн-коду Астаны.
+                {description}
               </p>
 
               <ul className="space-y-4 pt-2">
@@ -74,7 +87,7 @@ export default function DesignCodeBlock() {
               <div className="flex flex-wrap items-center gap-4 pt-4">
                 <button 
                   onClick={openConsultation}
-                  className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-950/15 active:scale-97 transition duration-200"
+                  className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-orange-950/15 active:scale-97 transition duration-200 cursor-pointer"
                 >
                   <ShieldCheck className="w-5 h-5"/>
                   <span>Получить согласование</span>
@@ -131,7 +144,7 @@ export default function DesignCodeBlock() {
       <ConsultationModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        source="Форма: Бесплатное согласование вывески"
+        source={source}
       />
     </section>
   );

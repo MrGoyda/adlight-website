@@ -4,7 +4,22 @@ import { useState } from "react";
 import { ChevronDown, MessageSquare } from "lucide-react";
 import { HOME_FAQ } from "@/dictionaries/home"; 
 
-export default function FaqSection() {
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
+interface FaqSectionProps {
+  faqs?: FaqItem[];
+  title?: string;
+  subtitle?: string;
+}
+
+export default function FaqSection({
+  faqs = HOME_FAQ,
+  title = "Отвечаем на ваши вопросы",
+  subtitle = "Вся правда об изготовлении наружной рекламы, ЧПУ технологиях, гарантиях и законном согласовании в Астане."
+}: FaqSectionProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const toggleFaq = (index: number) => {
@@ -24,17 +39,16 @@ export default function FaqSection() {
              <MessageSquare className="w-3.5 h-3.5 text-orange-500"/> Полезно знать
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
-             Отвечаем на <br className="sm:hidden"/>
-             <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600">ваши вопросы</span>
+             {title}
           </h2>
           <p className="text-slate-500 text-base sm:text-lg font-semibold max-w-xl mx-auto leading-relaxed">
-             Вся правда об изготовлении наружной рекламы, ЧПУ технологиях, гарантиях и законном согласовании в Астане.
+             {subtitle}
           </p>
         </div>
 
         {/* Clean Accordion List */}
         <div className="space-y-4">
-          {HOME_FAQ.map((item, index) => {
+          {faqs.map((item, index) => {
             const isOpen = openFaq === index;
             return (
               <div 
