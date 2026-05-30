@@ -79,8 +79,9 @@ export default function Button({
   };
 
   if (href) {
+    const isFullWidth = className?.includes("w-full");
     return (
-      <motion.div {...clickAnimation} className="inline-block">
+      <motion.div {...clickAnimation} className={cn(isFullWidth ? "w-full block" : "inline-block")}>
         <Link 
           href={href} 
           className={componentStyles} 
