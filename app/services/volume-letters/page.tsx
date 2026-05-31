@@ -4,13 +4,18 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { constructMetadata } from "@/lib/seo";
 import { getImagesFromFolder } from "@/lib/serverUtils";
-import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
+import { VOLUME_LETTERS_CATALOG, VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
 
 // --- ИМПОРТ ЛОКАЛЬНЫХ ПРЕЗЕНТЕРОВ (COLOCATION POLICY) ---
 import VolumeLettersHero from "./_components/VolumeLettersHero";
 import VolumeLettersPsychology from "./_components/VolumeLettersPsychology";
 import VolumeLettersTechCards from "./_components/VolumeLettersTechCards";
 import VolumeLettersSteps from "./_components/VolumeLettersSteps";
+import VolumeLettersFAQ from "./_components/VolumeLettersFAQ";
+import VolumeLettersComparison from "./_components/VolumeLettersComparison";
+import VolumeLettersRules from "./_components/VolumeLettersRules";
+import VolumeLettersExpertTips from "./_components/VolumeLettersExpertTips";
+import VolumeLettersCareGuide from "./_components/VolumeLettersCareGuide";
 
 // --- ИМПОРТ ГЛОБАЛЬНЫХ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
@@ -20,13 +25,23 @@ import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
 import ImageGallery from "@/components/ImageGallery";
 import TechCatalogGrid from "./_components/TechCatalogGrid";
+import Button from "@/components/ui/Button";
 
 // 1. ДИНАМИЧЕСКИЕ МЕТАДАННЫЕ (GEO/SEO API)
 export const metadata: Metadata = constructMetadata({
-  title: "Объемные буквы в Астане | Цены от 200 тг/см | ADLight",
-  description: "Изготовление световых букв всех видов: цельноклееный акрил, контражур, неон, ретро-лампы. Собственное производство, гарантия 1 год, согласование с Акиматом.",
+  title: "Объемные буквы в Астане | Световые вывески от 200 тг/см | ADLight",
+  description: "Изготовление световых 3D букв всех видов: цельноклееный акрил Plexiglas, контражур, гибкий неон, Loft ретро-лампы. Собственное производство в Астане, гарантия 1 год по договору, полное соответствие Дизайн-коду.",
   canonicalUrl: "https://adlight.kz/services/volume-letters",
-  keywords: ["объемные буквы Астана", "световые буквы цена", "цельноклееные акриловые буквы", "ретро буквы с лампами", "изготовление рекламы"]
+  keywords: [
+    "объемные буквы Астана",
+    "световые буквы цена",
+    "цельноклееные акриловые буквы",
+    "ретро буквы с лампами",
+    "изготовление рекламы астана",
+    "вывеска заказать астана",
+    "наружная реклама астана"
+  ],
+  image: "https://adlight.kz/images/og-volume-letters.jpg"
 });
 
 export default async function VolumeLettersPage() {
@@ -47,48 +62,69 @@ export default async function VolumeLettersPage() {
     heroImages = VOLUME_LETTERS_CATALOG.map(item => item.images.night);
   }
 
-  // 2. ГЕНЕРАЦИЯ SCHEMA (OfferCatalog) для ИИ
+  // 2. ГЕНЕРАЦИЯ SCHEMA (Service, OfferCatalog, FAQPage) для ИИ и Google
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Изготовление объемных букв",
-    "provider": {
-      "@type": "LocalBusiness",
-      "name": "ADLight",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Астана",
-        "addressCountry": "KZ"
-      }
-    },
-    "areaServed": "Астана",
-    "description": "Производство всех видов объемных букв: от несветовых до цельноклееного премиум-акрила.",
-
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Виды объемных букв",
-      "itemListElement": VOLUME_LETTERS_CATALOG.map(item => ({
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service",
-          "name": item.title,
-          "description": item.description,
-          "url": `https://adlight.kz/services/volume-letters/${item.slug}`
+    "@graph": [
+      {
+        "@type": "Service",
+        "@id": "https://adlight.kz/services/volume-letters#service",
+        "name": "Изготовление объемных букв в Астане",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "ADLight",
+          "image": "https://adlight.kz/images/logo.png",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Астана",
+            "addressCountry": "KZ"
+          },
+          "priceRange": "$$"
         },
-        "priceSpecification": {
-          "@type": "PriceSpecification",
-          "minPrice": parseInt(item.price.replace(/\D/g, '')) || 0,
-          "priceCurrency": "KZT",
-          "unitCode": "CMT"
+        "areaServed": {
+          "@type": "City",
+          "name": "Астана"
+        },
+        "description": "Профессиональное производство всех видов объемных букв: от несветовых из ПВХ до премиум-акрила с подсветкой контражур.",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Виды объемных букв",
+          "itemListElement": VOLUME_LETTERS_CATALOG.map(item => ({
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": item.title,
+              "description": item.description,
+              "url": `https://adlight.kz/services/volume-letters/${item.slug}`
+            },
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "minPrice": parseInt(item.price.replace(/\D/g, '')) || 0,
+              "priceCurrency": "KZT",
+              "unitCode": "CMT"
+            }
+          }))
         }
-      }))
-    }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://adlight.kz/services/volume-letters#faq",
+        "mainEntity": VOLUME_LETTERS_DICT.faq.items.map(item => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }))
+      }
+    ]
   };
 
   return (
-    <main className="min-h-screen bg-[#0F172A] font-sans selection:bg-orange-500/30">
+    <main className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-orange-500/10 selection:text-orange-600">
       
-      {/* Вставляем Schema */}
+      {/* Вставляем Schema.org микроразметку */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -106,49 +142,74 @@ export default async function VolumeLettersPage() {
       {/* 4. КАТАЛОГ ТЕХНОЛОГИЙ */}
       <TechCatalogGrid />
 
+      {/* 4.1 СОВЕТЫ ГЛАВНОГО ТЕХНОЛОГА */}
+      <VolumeLettersExpertTips />
+
       {/* 5. ИНЖЕНЕРНАЯ ЧАСТЬ ("Качество не на словах") */}
       <VolumeLettersTechCards />
 
+      {/* 5.1 ТАБЛИЦА СРАВНЕНИЯ КОМПЛЕКТАЦИЙ */}
+      <VolumeLettersComparison />
+
       {/* 6. КАЛЬКУЛЯТОР БЛОК */}
-      <section className="py-24 bg-[#0F172A] border-t border-slate-800">
+      <section className="py-24 bg-slate-50 border-t border-slate-200/80">
          <div className="container mx-auto px-4">
-             <div className="max-w-5xl mx-auto bg-gradient-to-r from-orange-600 to-red-600 rounded-3xl p-8 md:p-12 relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-orange-900/50">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.webp')] opacity-20"></div>
+             <div className="max-w-5xl mx-auto bg-gradient-to-r from-orange-600 to-red-600 rounded-3xl p-8 md:p-12 relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.webp')] opacity-10"></div>
                 <div className="relative z-10 md:max-w-xl">
-                   <h2 className="text-3xl font-bold text-white mb-4">Узнайте точную цену за 1 минуту</h2>
-                   <p className="text-white/90 text-lg">
-                      Не ждите менеджера. Наш умный калькулятор рассчитает стоимость вывески онлайн, учитывая шрифт, размеры и сложность монтажа.
+                   <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">
+                     {VOLUME_LETTERS_DICT.calculator.title}
+                   </h2>
+                   <p className="text-white/95 text-base leading-relaxed">
+                     {VOLUME_LETTERS_DICT.calculator.description}
                    </p>
                 </div>
-                <div className="relative z-10">
-                   <Link href="/calculator" className="inline-flex items-center gap-3 px-8 py-4 bg-white text-orange-600 font-bold text-lg rounded-xl hover:bg-gray-100 transition shadow-xl active:scale-95">
-                      Перейти в калькулятор
-                   </Link>
+                <div className="relative z-10 shrink-0">
+                    <Button 
+                      href="/calculator" 
+                      variant="lightOutline" 
+                      size="lg"
+                    >
+                      {VOLUME_LETTERS_DICT.calculator.buttonText}
+                    </Button>
                 </div>
              </div>
          </div>
       </section>
 
-      {/* 7. ДИЗАЙН-КОД */}
+      {/* 7. ДИЗАЙН-КОД БЛОК АКИМАТА */}
       <DesignCodeBlock />
+
+      {/* 7.1 ДИЗАЙН-КОД ЧЕК-ЛИСТ (РАЗРЕШЕНО/ЗАПРЕЩЕНО) */}
+      <VolumeLettersRules />
 
       {/* 8. ЭТАПЫ РАБОТЫ */}
       <VolumeLettersSteps />
 
       {/* 9. ГАЛЕРЕЯ РАБОТ */}
-      <section className="py-24 bg-[#0F172A] border-t border-slate-800">
+      <section className="py-24 bg-slate-50 border-t border-slate-200/80">
          <div className="container mx-auto px-4 mb-12 text-center">
-             <h2 className="text-3xl font-bold text-white mb-4">Наши работы</h2>
-             <p className="text-gray-400">Галерея реализованных проектов</p>
+             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
+               {VOLUME_LETTERS_DICT.gallery.title}
+             </h2>
+             <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
+               {VOLUME_LETTERS_DICT.gallery.subtitle}
+             </p>
          </div>
          <div className="container mx-auto px-4">
             <ImageGallery images={allGalleryImages} />
          </div>
       </section>
 
-      {/* 10. ОТЗЫВЫ, ДРУГИЕ УСЛУГИ, CTA */}
+      {/* 9.1 КЛИМАТИЧЕСКАЯ ЭКСПЛУАТАЦИЯ (УХОД) */}
+      <VolumeLettersCareGuide />
+
+      {/* 10. FAQ SECTION */}
+      <VolumeLettersFAQ />
+
+      {/* 11. ОТЗЫВЫ, ДРУГИЕ УСЛУГИ, CTA */}
       <ReviewsCarousel />
-      <ServicesCarousel title="Другие услуги" subtitle="Комплексное оформление" hiddenLink="/services/volume-letters"/>
+      <ServicesCarousel title="Другие услуги" subtitle="Комплексное оформление" hiddenLink="/services/volume-letters" />
       <CallToAction source="Страница: Объемные буквы (Hub)" />
 
     </main>

@@ -51,11 +51,19 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
       },
       {
         title: "Оформление фасадов",
-        price: "от 18 000 ₸/m²",
-        link: SITE_LINKS.services.facadeDecoration || "/services/facade-decoration",
+        price: "от 18 000 ₸/м²",
+        link: SITE_LINKS.services.facadeDecoration,
         image: "/images/pages/services-facade.png",
         tags: ["Композит", "Алюкобонд", "Под ключ"],
         description: "Облицовка фасадов композитными панелями и керамогранитом под рекламу."
+      },
+      {
+        title: "Брендирование витрин",
+        price: "от 4 500 ₸/м²",
+        link: SITE_LINKS.services.facadeDecoration, // витрины collocated с оформлением фасадов
+        image: "/images/calc/face.jpg",
+        tags: ["Оклейка окон", "Виниловая аппликация", "Перфорация"],
+        description: "Оклейка витрин магазинов полноцветной печатью, перфопленкой или плоттерной резкой."
       }
     ]
   },
@@ -90,9 +98,9 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         description: "Кабинетные таблички, указатели и системы навигации для бизнес-центров."
       },
       {
-        title: "Баннеры и таблички",
-        price: "от 2 500 ₸/m²",
-        link: "/services/banners-plates",
+        title: "Баннеры и стенды",
+        price: "от 2 500 ₸/м²",
+        link: SITE_LINKS.services.bannersPlates,
         image: "/images/pages/services-banners.png",
         tags: ["Широкоформат", "Инфо-стенды", "Срочно"],
         description: "Печать баннеров, пресс-стены, информационные стенды и дверные таблички."
@@ -116,7 +124,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
       {
         title: "Входные группы",
         price: "Проектно",
-        link: SITE_LINKS.services.entranceGroups || "/services/entrance-groups",
+        link: SITE_LINKS.services.entranceGroups,
         image: "/images/pages/services-entrance-groups.webp",
         tags: ["Козырьки", "Колонны", "Дизайн-проект"],
         description: "Комплексное оформление входа в магазин, банк или офис: козырьки, облицовка."
@@ -130,11 +138,19 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         description: "Отдельно стоящие рекламные стелы, пилоны и указатели направления."
       },
       {
+        title: "LED-экраны",
+        price: "от 350 000 ₸",
+        link: SITE_LINKS.services.roofInstallations, // Screens are scale-level engineering
+        image: "/images/calc/lightbox-1.jpg",
+        tags: ["Медиафасады", "Бегущие строки", "Яркость"],
+        description: "Установка уличных и интерьерных светодиодных LED-экранов под ключ в Астане."
+      },
+      {
         title: "Вывески на выставку",
         price: "от 120 000 ₸",
         link: SITE_LINKS.services.exhibitionStands,
         image: "/images/pages/services-exhibition.png",
-        tags: ["Выставки", "Промо-зоны", "Быстрая сборка"],
+        tags: ["EXPO Астана", "Промо-зоны", "Быстрая сборка"],
         description: "Изготовление выставочных стендов, световых конструкций и промо-зон."
       }
     ]
@@ -150,7 +166,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         price: SITE_PRICES.brandingCars,
         link: SITE_LINKS.services.brandingCars,
         image: "/images/pages/services-branding-cars.png",
-        tags: ["Оклейка авто", "Винил", "Реклама на колесах"],
+        tags: ["Оклейка авто", "Винил Oracal", "Реклама на колесах"],
         description: "Оклейка коммерческого транспорта виниловой пленкой с рекламой компании."
       },
       {
@@ -158,8 +174,24 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         price: SITE_PRICES.signboardRepair,
         link: SITE_LINKS.services.signboardRepair,
         image: "/images/pages/services-repair.png",
-        tags: ["Диагностика", "Светодиоды", "Срочный выезд"],
+        tags: ["Диагностика", "Светодиоды Samsung", "Срочный выезд"],
         description: "Ремонт, модернизация на диоды, чистка и техническое обслуживание вывесок."
+      },
+      {
+        title: "Согласование вывесок",
+        price: "от 15 000 ₸",
+        link: SITE_LINKS.designCode,
+        image: "/images/pages/dk_approved.png",
+        tags: ["e-Otinish", "Акимат Астаны", "100% Законно"],
+        description: "Разработка эскизных проектов и полное сопровождение подачи на согласование."
+      },
+      {
+        title: "Архитектурная подсветка",
+        price: "от 120 000 ₸",
+        link: SITE_LINKS.services.roofInstallations,
+        image: "/images/pages/led_glow.png",
+        tags: ["Фасадный свет", "LED неон", "Дизайн освещения"],
+        description: "Проектирование и монтаж контурной светодиодной подсветки фасадов коммерческих зданий."
       }
     ]
   }
