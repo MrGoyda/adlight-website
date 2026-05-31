@@ -184,7 +184,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
             </h4>
             <div className="grid grid-cols-2 gap-2">
               {COMMON_NAV_LINKS
-                .filter(link => link.href !== '/services' && link.href !== '/calculator')
+                .filter(link => link.href !== '/calculator')
                 .map((page) => (
                 <Link
                   key={page.href}

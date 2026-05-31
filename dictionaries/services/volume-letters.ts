@@ -68,7 +68,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     id: 7,
     slug: 'acrylic-slim',
     title: 'Цельноклееный акрил',
-    description: 'Премиум-класс. Бесшовное склеивание борта и лица. Абсолютная монолитность и ровная засветка.',
+    description: 'Premium-класс. Бесшовное склеивание борта и лица. Абсолютная монолитность и ровная засветка.',
     price: "от 950 ₸/см",
     images: { day: '/images/letters/acrylic-slim-day.webp', night: '/images/letters/acrylic-slim-night.webp' },
     badge: "Премиум"
@@ -131,18 +131,48 @@ export interface VolumeLetterDetailData {
   conceptHighlights: { title: string; desc: string; iconName: string }[];
   anatomy: { title: string; desc: string; iconName: string }[];
   priceExample: { title: string; quantity: string; height: string; face: string; total: string };
+  // Новые экспертные свойства для E-E-A-T
+  expertAuthor?: { name: string; role: string; experience: string };
+  expertQuote?: { title: string; text: string; subtext: string };
+  expertRegulations?: { title: string; desc: string; items: string[] };
+  expertSpecifications?: {
+    title: string;
+    subtitle: string;
+    rows: { label: string; premium: string; chineseAlternative: string; purpose: string }[];
+  };
+  expertBudgetDisclaimer?: { title: string; text: string };
 }
 
 // Import modular technology details
 import { face_litDetails } from "./details/volume-letters/face-lit";
 import { back_litDetails } from "./details/volume-letters/back-lit";
+import { side_litDetails } from "./details/volume-letters/side-lit";
+import { full_litDetails } from "./details/volume-letters/full-lit";
+import { combo_litDetails } from "./details/volume-letters/combo-lit";
+import { perforatedDetails } from "./details/volume-letters/perforated";
+import { acrylic_slimDetails } from "./details/volume-letters/acrylic-slim";
+import { loft_lampsDetails } from "./details/volume-letters/loft-lamps";
+import { pixel_ledDetails } from "./details/volume-letters/pixel-led";
+import { wood_styleDetails } from "./details/volume-letters/wood-style";
+import { non_litDetails } from "./details/volume-letters/non-lit";
+import { day_night_effectDetails } from "./details/volume-letters/day-night-effect";
 
 export const VOLUME_LETTERS_DETAILS: Record<string, VolumeLetterDetailData> = {
   "face-lit": face_litDetails,
   "back-lit": back_litDetails,
+  "side-lit": side_litDetails,
+  "full-lit": full_litDetails,
+  "combo-lit": combo_litDetails,
+  "perforated": perforatedDetails,
+  "acrylic-slim": acrylic_slimDetails,
+  "loft-lamps": loft_lampsDetails,
+  "pixel-led": pixel_ledDetails,
+  "wood-style": wood_styleDetails,
+  "non-lit": non_litDetails,
+  "day-night-effect": day_night_effectDetails,
 };
 
-// Заполним все остальные 10 технологий дефолтными значениями, чтобы они все имели полноценные красивые страницы!
+// Заполним все остальные 10 технологий дефолтными значениями
 VOLUME_LETTERS_CATALOG.forEach(item => {
   if (!VOLUME_LETTERS_DETAILS[item.slug]) {
     VOLUME_LETTERS_DETAILS[item.slug] = {
@@ -185,7 +215,37 @@ VOLUME_LETTERS_CATALOG.forEach(item => {
         { title: "Корпус буквы", desc: "Высокопрочные материалы (ПВХ, алюминий, акрил).", iconName: "Layers" },
         { title: "Засветка", desc: "Яркие диодные модули с низким энергопотреблением.", iconName: "Zap" }
       ],
-      priceExample: { title: "Вывеска \"БИЗНЕС\"", quantity: "6 букв", height: "30 см", face: "Индивидуальный выбор", total: "98 000 ₸" }
+      priceExample: { title: "Вывеска \"БИЗНЕС\"", quantity: "6 букв", height: "30 см", face: "Индивидуальный выбор", total: "98 000 ₸" },
+      // Дефолтные экспертные блоки для стабильности остальных страниц
+      expertAuthor: { name: "Парчевин Даниил", role: "Главный технолог производства ADLight", experience: "9+ лет" },
+      expertQuote: {
+        title: "«Тонкости подбора вывески под фасад здания»",
+        text: `При выборе технологии "${item.title}" важно учитывать тип фасадного материала. В зависимости от текстуры (кирпич, керамогранит, остекление) мы подберем оптимальный вариант рассеивания света для обеспечения максимального контраста.`,
+        subtext: "Совет технолога"
+      },
+      expertRegulations: {
+        title: "Согласование вывески без штрафов",
+        desc: "Акимат Астаны строго следит за соответствием вывесок городскому Дизайн-коду. Чтобы вашу вывеску не демонтировали, проверьте:",
+        items: [
+          "Только объемные буквы на металлораме в цвет фасада (без сплошных подложек на первом этаже).",
+          "Высота букв не должна превышать 50 см согласно городским правилам благоустройства.",
+          "Отсутствие агрессивной мигающей динамики и стробоскопических эффектов.",
+          "Подача эскизного проекта с фотопривязкой 3D (день/ночь) через e-Otinish."
+        ]
+      },
+      expertSpecifications: {
+        title: "Технические спецификации и климат Астаны",
+        subtitle: "Используемые материалы, стандарты ГОСТ и адаптация к нагрузкам",
+        rows: [
+          { label: "Корпус буквы", premium: "Премиальные европейские материалы", chineseAlternative: "Заводские прочные аналоги", purpose: "Высокая износостойкость и защита от выгорания" },
+          { label: "Светодиодные модули", premium: "Линзованные диоды ELF (Samsung чипы)", chineseAlternative: "Заводские яркие LED-модули IP67", purpose: "Стабильная работа подсветки до 50 000 часов" },
+          { label: "Морозостойкость", premium: "Специальный силикон для критических температур до -45°C", chineseAlternative: "Морозостойкий герметик до -35°C", purpose: "Защита вывески в условиях астанинских зим" }
+        ]
+      },
+      expertBudgetDisclaimer: {
+        title: "Гибкий выбор под ваш бюджет",
+        text: `Мы предлагаем как премиальные комплектации на базе европейских и корейских комплектующих, так и качественные заводские китайские аналоги. Это позволяет вам сэкономить до 30-40% от стоимости вывески без ущерба для ее внешнего вида с нашей полной официальной гарантией по договору.`
+      }
     };
   }
 });
@@ -203,20 +263,20 @@ export const VOLUME_LETTERS_ADVANTAGES = {
 
 export const VOLUME_LETTERS_TECH_CARDS = [
   {
-    title: "Акрил Plexiglas GS и аналоги",
-    desc: "Литой немецкий акрил или качественные сертифицированные заводские аналоги китайского производства. Прочность, защита от пожелтения, материалы на любой бюджет."
+    title: "Акрил: Германия и заводской Китай",
+    desc: "Для лицевых частей мы честно предлагаем оригинальный немецкий акрил Plexiglas или сертифицированный китайский акрил 2-5 мм заводского качества, гарантирующий ровное свечение."
   },
   {
-    title: "Светодиоды ELF и заводской Китай",
-    desc: "Премиальные корейские светодиодные модули Samsung (бренд ELF) или надежные заводские китайские диоды с высокой яркостью и гарантией."
+    title: "Пленки и УФ-печать в 200%",
+    desc: "Применяем оригинальную немецкую светорассеивающую пленку Oracal 8100 серии или наносим сочную прямую УФ-печать в 200% плотности на прозрачную пленку для максимальной яркости."
   },
   {
-    title: "Блоки питания с защитой",
-    desc: "Промышленные влагозащищенные адаптеры питания Mean Well или сертифицированные аналоги с автоматической защитой от короткого замыкания."
+    title: "Борта, задники и автоэмали",
+    desc: "Задники из ПВХ 8 мм (плотность 0.45 или 0.60). Борта из ПВХ 3, 5, 8 мм, окрашенные профессиональной краской Arton или Flame для превосходного глянцевого или матового покрытия."
   },
   {
-    title: "Прочный ПВХ и пленка Oracal",
-    desc: "Плотный пластик толщиной 8-10 мм для задников и бортов, а также оригинальная виниловая пленка для точной цветопередачи."
+    title: "Светодиоды ELF и БП с автозащитой",
+    desc: "Премиальные корейские модули ELF (Samsung чипы), качественные заводские китайские диоды IP67 и промышленные адаптеры питания Mean Well с термопредохранителями."
   }
 ];
 
@@ -317,7 +377,6 @@ export const VOLUME_LETTERS_DICT = {
     ]
   }
 };
-
 
 export const VOLUME_LETTERS_EXPERT = {
   comparison: {
