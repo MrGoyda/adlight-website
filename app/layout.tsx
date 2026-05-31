@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { LazyMotion, domAnimation } from "framer-motion";
 import Script from "next/script";
@@ -39,13 +39,6 @@ export const metadata: Metadata = {
     "согласование рекламы Астана"
   ],
 
-  // viewport-fit=cover — обязателен для env(safe-area-inset-*) на iOS
-  // Без него safe area не работает вообще
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    viewportFit: "cover",
-  } as never,
 
   authors: [{ name: "ADLight Team", url: "https://adlight.kz" }],
   creator: "ADLight",
@@ -95,6 +88,14 @@ export const metadata: Metadata = {
     yandex: "b6b612c60b50394f", 
     // google: "ВАШ_КОД_ИЗ_GOOGLE_SEARCH_CONSOLE", // Если есть код подтверждения домена, раскомментируйте
   },
+};
+
+// Viewport — отдельный экспорт (Next.js 15 требование).
+// viewport-fit=cover обязателен для env(safe-area-inset-*) на iOS Safari.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

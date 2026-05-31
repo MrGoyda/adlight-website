@@ -88,7 +88,7 @@ export default function Header() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <header className={`sticky top-0 z-50 w-full border-b transition-all duration-305 ${
+      <header className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
         scrolled 
           ? 'border-slate-200/80 shadow-xl shadow-slate-200/20 bg-white/95 backdrop-blur-md' 
           : 'border-slate-200/40 bg-white'
@@ -98,7 +98,7 @@ export default function Header() {
         <div className="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between relative">
           
           {/* Логотип */}
-          <Link href="/" className="relative z-55 flex items-center" onClick={() => setIsOpen(false)} aria-label="ADLight - Наружная реклама Астана">
+          <Link href="/" className="relative z-[55] flex items-center" onClick={() => setIsOpen(false)} aria-label="ADLight - Наружная реклама Астана">
              <div className="relative w-36 h-10 md:w-44 md:h-12 active:scale-98 transition-transform">
                 <Image 
                    src="/adlight-logo-full.webp" 
@@ -112,7 +112,7 @@ export default function Header() {
           </Link>
 
           {/* ДЕСКТОПНЫЕ ЭЛЕМЕНТЫ (Адрес, Соцсети, Контакты) */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8 relative z-55">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8 relative z-[55]">
              
              {/* 1. Адрес с иконкой */}
              <div className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition duration-250 text-xs font-semibold border-r border-slate-200 pr-5">

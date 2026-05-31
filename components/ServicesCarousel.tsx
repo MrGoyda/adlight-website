@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import FadeIn from "@/components/ui/FadeIn";
 
 // Данные услуг
 const services = [
@@ -68,12 +69,14 @@ interface ServicesCarouselProps {
   title?: string;
   subtitle?: string;
   hiddenLink?: string;
+  headingLevel?: "h2" | "h3";
 }
 
 export default function ServicesCarousel({ 
-  title = "Что мы производим", 
-  subtitle = "Полный цикл: от таблички до крышной установки",
-  hiddenLink 
+  title = "Изготовление наружной рекламы в Астане", 
+  subtitle = "Собственное производство вывесок полного цикла с гарантией до 3 лет",
+  hiddenLink,
+  headingLevel = "h2"
 }: ServicesCarouselProps) {
   
   const displayedServices = services.filter(s => s.link !== hiddenLink);
@@ -83,108 +86,164 @@ export default function ServicesCarousel({
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
-  // Кнопки: плавный скролл
   const scroll = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
-      // Включаем плавность для кнопок
-      sliderRef.current.style.scrollBehavior = 'smooth';
-      const scrollAmount = 400;
+      const scrollAmount = 420;
       sliderRef.current.scrollBy({
         left: direction === 'right' ? scrollAmount : -scrollAmount,
-        behavior: 'smooth' // Дублируем для надежности
+        behavior: 'smooth'
       });
     }
   };
 
-  // Мышь: Drag & Drop
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!sliderRef.current) return;
     isDown.current = true;
-    // Отключаем плавность для прямого контроля (чтобы не было "желе")
-    sliderRef.current.style.scrollBehavior = 'auto';
     sliderRef.current.style.cursor = 'grabbing';
+    sliderRef.current.style.scrollBehavior = 'auto';
+    sliderRef.current.style.scrollSnapType = 'none'; // Отключаем привязку скролла для плавного драга
     startX.current = e.pageX - sliderRef.current.offsetLeft;
     scrollLeft.current = sliderRef.current.scrollLeft;
   };
 
   const handleMouseLeave = () => {
     isDown.current = false;
-    if (sliderRef.current) sliderRef.current.style.cursor = 'grab';
+    if (sliderRef.current) {
+      sliderRef.current.style.cursor = 'grab';
+      sliderRef.current.style.scrollBehavior = 'smooth';
+      sliderRef.current.style.scrollSnapType = 'x mandatory'; // Возвращаем привязку скролла
+    }
   };
 
   const handleMouseUp = () => {
     isDown.current = false;
-    if (sliderRef.current) sliderRef.current.style.cursor = 'grab';
+    if (sliderRef.current) {
+      sliderRef.current.style.cursor = 'grab';
+      sliderRef.current.style.scrollBehavior = 'smooth';
+      sliderRef.current.style.scrollSnapType = 'x mandatory'; // Возвращаем привязку скролла
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDown.current || !sliderRef.current) return;
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.5; // Скорость прокрутки
+    const walk = (x - startX.current) * 1.6; // Увеличен коэффициент чувствительности
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
+  const triggerHaptic = () => {
+    if (typeof window !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  };
+
+  const handleScrollClick = (direction: 'left' | 'right') => {
+    triggerHaptic();
+    scroll(direction);
+  };
+
+  // Динамически рендерим нужный уровень заголовка для правильной SEO/AI иерархии
+  const HeadingTag = headingLevel;
+
   return (
-    <section className="py-10 lg:py-24 bg-[#0F172A] overflow-hidden border-t border-slate-800">
+    <section 
+      className="py-20 lg:py-28 bg-white relative overflow-hidden border-t border-slate-200/60"
+      aria-label={title}
+    >
+       {/* Decorative subtle ambient light glow */}
+       <div className="absolute left-0 bottom-0 w-[500px] h-[500px] bg-blue-500/[0.01] rounded-full pointer-events-none -z-10" />
+
        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-6">
-            <div>
-              <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-4">{title}</h2>
-              <p className="text-gray-400 text-sm md:text-base">{subtitle}</p>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
+            <div className="text-left space-y-4">
+              <HeadingTag className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
+                 {title.includes("услуги") ? (
+                   <>
+                     Наши{" "}
+                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600">услуги в Астане</span>
+                   </>
+                 ) : title}
+              </HeadingTag>
+              <p className="text-slate-500 text-sm md:text-base font-semibold">{subtitle}</p>
             </div>
             
-            <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
-               <Link href="/services" className="text-orange-500 font-bold text-sm flex items-center gap-2 hover:text-orange-400 transition whitespace-nowrap">
+            <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end self-start md:self-end">
+               <Link href="/services" className="text-orange-600 font-bold text-sm flex items-center gap-2 hover:text-orange-500 transition whitespace-nowrap">
                   Смотреть все <ArrowRight className="w-4 h-4"/>
                </Link>
 
-               <div className="hidden md:flex gap-3">
-                  <button onClick={() => scroll('left')} className="p-3 rounded-full border border-slate-700 text-white hover:bg-slate-800 transition active:scale-95">
-                     <ChevronLeft className="w-6 h-6"/>
+               <div className="hidden md:flex gap-2.5">
+                  <button 
+                    onClick={() => handleScrollClick('left')} 
+                    className="p-3.5 rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition active:scale-95 shadow-sm cursor-pointer"
+                    aria-label="Предыдущий слайд"
+                  >
+                     <ChevronLeft className="w-5 h-5"/>
                   </button>
-                  <button onClick={() => scroll('right')} className="p-3 rounded-full bg-orange-600 text-white hover:bg-orange-700 transition shadow-lg active:scale-95">
-                     <ChevronRight className="w-6 h-6"/>
+                  <button 
+                    onClick={() => handleScrollClick('right')} 
+                    className="p-3.5 rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition shadow-md shadow-orange-600/10 active:scale-95 cursor-pointer"
+                    aria-label="Следующий слайд"
+                  >
+                     <ChevronRight className="w-5 h-5"/>
                   </button>
                </div>
             </div>
           </div>
           
-          {/* СЛАЙДЕР КОНТЕЙНЕР 
-             md:snap-none — отключает прилипание на десктопе для плавности мыши
-             snap-x — включает прилипание на мобилках для удобства свайпа
-          */}
+          {/* СЛАЙДЕР КОНТЕЙНЕР (С разметкой Schema.org ItemList для поисковиков и ИИ-ботов) */}
           <div 
             ref={sliderRef}
             onMouseDown={handleMouseDown} 
             onMouseLeave={handleMouseLeave} 
             onMouseUp={handleMouseUp} 
             onMouseMove={handleMouseMove}
-            className="flex overflow-x-auto gap-4 md:gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory md:snap-none scroll-pl-4"
+            className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory"
+            itemScope 
+            itemType="https://schema.org/ItemList"
           >
               {displayedServices.map((service, i) => (
-                <Link 
-                  key={i} 
-                  href={service.link} 
-                  draggable={false} 
-                  className="relative group min-w-[280px] md:min-w-[380px] h-[400px] md:h-[450px] flex-shrink-0 rounded-2xl overflow-hidden border border-slate-800 hover:border-orange-500/50 transition-colors flex-none snap-center"
+                <FadeIn
+                  key={i}
+                  delay={i * 50}
+                  threshold={0.1}
+                  className="flex-none snap-start"
                 >
-                  {/* Картинка */}
-                  <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none" style={{ backgroundImage: `url(${service.image})` }}></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent opacity-90 pointer-events-none"></div>
-                  
-                  {/* Текст */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 pointer-events-none">
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-orange-500 transition">{service.title}</h3>
-                    <p className="text-gray-300 text-xs md:text-sm mb-6 line-clamp-2">{service.desc}</p>
-                    <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                        <span className="text-orange-400 font-bold text-sm md:text-base">{service.price}</span>
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition">
-                           <ArrowRight className="w-4 h-4 md:w-5 md:h-5"/>
+                  <div
+                    itemProp="itemListElement"
+                    itemScope
+                    itemType="https://schema.org/ListItem"
+                    className="relative block"
+                  >
+                    {/* Метаданные для ИИ и Поисковых систем */}
+                    <meta itemProp="position" content={String(i + 1)} />
+                    <span itemProp="name" className="hidden">{service.title}</span>
+                    
+                    <Link 
+                      href={service.link} 
+                      draggable={false} 
+                      className="relative group block w-[85vw] sm:w-[380px] h-[400px] md:h-[450px] rounded-3xl overflow-hidden border border-slate-200/80 hover:border-orange-500/30 transition duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-lg select-none"
+                      itemProp="url"
+                    >
+                      {/* Картинка */}
+                      <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none" style={{ backgroundImage: `url(${service.image})` }}></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent opacity-90 pointer-events-none"></div>
+                      
+                      {/* Текст */}
+                      <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 pointer-events-none">
+                        <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-orange-400 transition tracking-tight">{service.title}</h3>
+                        <p className="text-gray-300 text-xs md:text-sm mb-6 line-clamp-2">{service.desc}</p>
+                        <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                            <span className="text-orange-400 font-bold text-sm md:text-base">{service.price}</span>
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition">
+                               <ArrowRight className="w-4 h-4 md:w-5 md:h-5"/>
+                            </div>
                         </div>
-                    </div>
+                      </div>
+                   </Link>
                   </div>
-               </Link>
+                </FadeIn>
               ))}
           </div>
        </div>

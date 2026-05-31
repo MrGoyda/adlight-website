@@ -6,12 +6,14 @@ import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
 
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+import Button from "@/components/ui/Button";
 
 interface ImageGalleryProps {
   images?: string[];
+  projectTitle?: string;
 }
 
-export default function ImageGallery({ images = [] }: ImageGalleryProps) {
+export default function ImageGallery({ images = [], projectTitle }: ImageGalleryProps) {
   // 1. Безопасный массив данных
   const safeImages = Array.isArray(images) ? images : [];
   
@@ -150,10 +152,11 @@ export default function ImageGallery({ images = [] }: ImageGalleryProps) {
             >
                 <Image 
                     src={img} 
-                    alt={`Фото ${i + 1}`} 
+                    alt={projectTitle ? `${projectTitle} — фотоотчет с производства ADLight ${i + 1}` : `Фото ${i + 1}`} 
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                     className="object-cover transition duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                    itemProp="image"
                 />
                 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -171,21 +174,23 @@ export default function ImageGallery({ images = [] }: ImageGalleryProps) {
         <div className="mt-12 flex flex-col items-center gap-4">
            <div className="flex flex-wrap justify-center gap-4">
               {hasMore && (
-                <button 
+                <Button 
                   onClick={showMore}
-                  className="inline-flex items-center gap-2 px-8 py-3 rounded-xl border border-slate-700 text-white hover:bg-slate-800 hover:border-slate-600 transition active:scale-95 group"
+                  variant="lightOutline"
+                  rightIcon={<ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform"/>}
                 >
-                   Показать еще <ChevronDown className="w-4 h-4 group-hover:translate-y-1 transition-transform"/>
-                </button>
+                   Показать еще
+                </Button>
               )}
               
               {canCollapse && (
-                <button 
+                <Button 
                   onClick={showLess}
-                  className="inline-flex items-center gap-2 px-8 py-3 rounded-xl border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 hover:border-slate-600 transition active:scale-95 group"
+                  variant="lightGlass"
+                  rightIcon={<ChevronUp className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform"/>}
                 >
-                   Свернуть <ChevronUp className="w-4 h-4 group-hover:-translate-y-1 transition-transform"/>
-                </button>
+                   Свернуть
+                </Button>
               )}
            </div>
 

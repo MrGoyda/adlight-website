@@ -5,6 +5,8 @@ import { MessageCircle, Search } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ConsultationModal from "@/components/ConsultationModal";
 
+import { DESIGN_CODE_TEXTS } from "@/dictionaries/design-code";
+
 export default function DesignCodeHeroButtons() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -15,10 +17,9 @@ export default function DesignCodeHeroButtons() {
            onClick={() => setIsModalOpen(true)}
            variant="solid"
            size="xl"
-           className="bg-blue-600 hover:bg-blue-700 text-white border-blue-500/20 shadow-blue-900/20"
            leftIcon={<MessageCircle className="w-5 h-5"/>}
          >
-            Бесплатная консультация
+            {DESIGN_CODE_TEXTS.hero.btnConsult}
          </Button>
          
          <Button 
@@ -27,7 +28,7 @@ export default function DesignCodeHeroButtons() {
             size="xl"
             leftIcon={<Search className="w-5 h-5"/>}
          >
-            Проверить вывеску
+            {DESIGN_CODE_TEXTS.hero.btnCheck}
          </Button>
       </div>
 
@@ -35,9 +36,9 @@ export default function DesignCodeHeroButtons() {
          isOpen={isModalOpen} 
          onClose={() => setIsModalOpen(false)} 
          source="Страница: Дизайн-код (Hero)"
-         title="Консультация по дизайн-коду"
-         subtitle="Поможем разобраться в новых правилах размещения рекламы в Астане и избежать штрафов."
-         buttonText="Проконсультироваться"
+         title={DESIGN_CODE_TEXTS.hero.modal.title}
+         subtitle={DESIGN_CODE_TEXTS.hero.modal.subtitle}
+         buttonText={DESIGN_CODE_TEXTS.hero.modal.btnText}
       />
     </>
   );

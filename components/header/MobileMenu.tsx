@@ -20,7 +20,7 @@ import { motion, useMotionValue, useTransform, animate, type PanInfo } from "fra
 
 import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
-import { COMPANY_NAP } from "@/dictionaries/common";
+import { COMPANY_NAP, COMMON_NAV_LINKS } from "@/dictionaries/common";
 import Button from "@/components/ui/Button";
 
 interface MobileMenuProps {
@@ -47,11 +47,11 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
   // Оверлей: 0px → opacity 1,  300px → opacity 0
   const overlayOpacity = useTransform(x, [0, 300], [1, 0]);
 
-  const triggerHaptic = (type: "light" | "medium" = "light") => {
+  const triggerHaptic = React.useCallback((type: "light" | "medium" = "light") => {
     if (typeof window !== "undefined" && navigator.vibrate) {
       navigator.vibrate(type === "light" ? 10 : 25);
     }
-  };
+  }, []);
 
   // --- Анимация открытия ---
   React.useEffect(() => {
@@ -61,7 +61,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
       setShouldRender(true);
       triggerHaptic("light");
     }
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, x, triggerHaptic]);
 
   // Запускаем slide-in после рендера (через rAF чтобы не было флеша)
   React.useEffect(() => {
@@ -71,7 +71,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
       });
       return () => cancelAnimationFrame(raf);
     }
-  }, [shouldRender, isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [shouldRender, isOpen, x]);
 
   // --- Анимация закрытия ---
   const isClosing = React.useRef(false);
@@ -99,12 +99,17 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
     registerClose?.(closeDrawer);
   }, [registerClose, closeDrawer]);
 
-  // Если родитель сбросил isOpen напрямую — анимируем закрытие
+  const shouldRenderRef = React.useRef(shouldRender);
+  
   React.useEffect(() => {
-    if (!isOpen && shouldRender && !isClosing.current) {
+    shouldRenderRef.current = shouldRender;
+  }, [shouldRender]);
+
+  React.useEffect(() => {
+    if (!isOpen && shouldRenderRef.current && !isClosing.current) {
       closeDrawer();
     }
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, closeDrawer]);
 
   // --- Drag обработчики ---
   const handleDragEnd = (_: unknown, info: PanInfo) => {
@@ -143,6 +148,12 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
         aria-modal="true"
         aria-label="Навигационное меню"
       >
+        {/* Вертикальный индикатор перетаскивания (drag handle) на левой грани для свайпа закрытия */}
+        <div 
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 w-1 h-14 rounded-full bg-slate-300/80 backdrop-blur-xs flex items-center justify-center transition-colors duration-200 z-50 pointer-events-none"
+          aria-hidden="true"
+        />
+
         {/* Drag Handle — пилюля (только мобиле) */}
         <div className="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 rounded-full bg-slate-300" aria-hidden="true" />
@@ -165,18 +176,16 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
         {/* ── Прокручиваемый контент ── */}
         <div className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-8 scrollbar-thin scrollbar-thumb-slate-200">
 
-          {/* Основные страницы */}
+          {/* Основные страницы — из COMMON_NAV_LINKS, исключаем «Услуги» и «Калькулятор»
+              (у них есть собственные секции ниже в этом меню) */}
           <div className="space-y-3">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
               Основные страницы
             </h4>
             <div className="grid grid-cols-2 gap-2">
-              {[
-                { href: "/",            label: "Главная" },
-                { href: "/portfolio",   label: "Портфолио" },
-                { href: "/design-code", label: "Дизайн-код" },
-                { href: "/contacts",    label: "Контакты" },
-              ].map((page) => (
+              {COMMON_NAV_LINKS
+                .filter(link => link.href !== '/services' && link.href !== '/calculator')
+                .map((page) => (
                 <Link
                   key={page.href}
                   href={page.href}

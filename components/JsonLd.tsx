@@ -36,7 +36,24 @@ export default function JsonLd() {
       "opens": "09:00",
       "closes": "18:00"
     },
-    "priceRange": "$$"
+    "priceRange": "$$",
+    // knowsAbout — Google/Perplexity/ChatGPT используют для понимания экспертизы компании
+    "knowsAbout": [
+      "Дизайн-код Астаны",
+      "Наружная реклама в Казахстане",
+      "Согласование вывесок в Астане",
+      "Производство объёмных букв",
+      "Лайтбоксы и вывески",
+      "Неоновая реклама",
+      "Паспорт наружной рекламы",
+      "Требования к вывескам Казахстан"
+    ],
+    "serviceType": "Наружная реклама",
+    // sameAs — прямые ссылки на профили (помогают связать сущность в Google Knowledge Graph)
+    "sameAs": [
+      "https://go.2gis.com/adlight-astana",
+      "https://yandex.kz/maps/?text=ADLight+Астана"
+    ]
   };
 
   return (

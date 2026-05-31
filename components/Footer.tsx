@@ -1,4 +1,3 @@
-"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -14,7 +13,7 @@ import {
 
 import { COMPANY_NAP } from "@/dictionaries/common";
 import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
-import { SITE_CONTACTS } from "@/config/site";
+import { SITE_CONTACTS, SITE_LINKS } from "@/config/site";
 import Button from "@/components/ui/Button";
 
 export default function Footer() {
@@ -52,17 +51,17 @@ export default function Footer() {
                <p className="font-bold text-slate-700 mb-1.5 uppercase tracking-wider text-[10px]">Юридическая информация:</p>
                <p className="font-bold text-slate-800">{COMPANY_NAP.owner}</p>
                <p className="mt-1">ИИН: {COMPANY_NAP.iin}</p>
-               <p className="mt-0.5">г. Астана, ул. Аспара 7</p>
+               <p className="mt-0.5">{COMPANY_NAP.legalAddress}</p>
             </div>
 
             <div className="flex gap-4">
-              <a href={COMPANY_NAP.socials.instagram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-pink-600 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-305" aria-label="Instagram">
+              <a href={COMPANY_NAP.socials.instagram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-pink-600 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" aria-label="Instagram">
                 <Instagram className="w-5 h-5"/>
               </a>
-              <a href={COMPANY_NAP.socials.telegram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-305" aria-label="Telegram">
+              <a href={COMPANY_NAP.socials.telegram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" aria-label="Telegram">
                 <Send className="w-5 h-5 ml-0.5"/>
               </a>
-              <a href={COMPANY_NAP.socials.whatsapp} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-305" aria-label="WhatsApp">
+              <a href={COMPANY_NAP.socials.whatsapp} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" aria-label="WhatsApp">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                    <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.89 5.83L2.03 22l4.31-1.83c1.55.98 3.39 1.54 5.37 1.54 5.52 0 10-4.48 10-10S17.52 2 12.004 2zm5.72 13.91c-.24.68-1.2 1.24-1.93 1.39-.49.1-1.13.17-3.29-.71-2.76-1.12-4.53-3.93-4.67-4.12-.14-.19-1.14-1.51-1.14-2.87a3 3 0 01.91-2.22c.26-.26.56-.33.75-.33h.49c.16 0 .37.01.53.39.17.41.59 1.43.64 1.54.05.11.09.24.01.39-.08.15-.12.24-.24.38-.12.14-.25.31-.36.42-.12.12-.25.25-.11.49.14.24.63 1.03 1.35 1.67.92.82 1.7 1.07 1.94 1.19.24.12.38.1.52-.06.14-.16.59-.69.75-.92.16-.23.32-.19.53-.11.22.08 1.37.65 1.61.76.24.12.4.17.46.28.06.11.06.64-.18 1.32z"/>
                 </svg>
@@ -232,8 +231,8 @@ export default function Footer() {
         <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400 font-semibold">
            <p>© 2017-{currentYear} ADLight. Изготовление вывесок и наружной рекламы в Астане. Все права защищены.</p>
            <div className="flex gap-6">
-              <span className="cursor-default hover:text-slate-600 transition-colors">Политика конфиденциальности</span>
-              <span className="cursor-default hover:text-slate-600 transition-colors">Договор оферты</span>
+              <Link href={SITE_LINKS.privacy} className="hover:text-slate-600 transition-colors">Политика конфиденциальности</Link>
+              <Link href={SITE_LINKS.offer} className="hover:text-slate-600 transition-colors">Договор оферты</Link>
            </div>
         </div>
       </div>

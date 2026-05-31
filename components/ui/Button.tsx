@@ -12,6 +12,8 @@ interface ButtonProps {
   variant?: "solid" | "secondary" | "outline" | "ghost" | "glass" | "lightOutline" | "lightGlass";
   size?: "sm" | "md" | "lg" | "xl";
   href?: string;
+  target?: string;
+  rel?: string;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -27,6 +29,8 @@ export default function Button({
   variant = "solid",
   size = "md",
   href,
+  target,
+  rel,
   isLoading = false,
   leftIcon,
   rightIcon,
@@ -63,7 +67,7 @@ export default function Button({
     <>
       {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin shrink-0" />}
       {!isLoading && leftIcon && <span className="mr-2 shrink-0 relative z-10">{leftIcon}</span>}
-      <span className="relative z-10">{children}</span>
+      <span className={cn("relative z-10", className?.includes("flex") && "flex flex-col items-center justify-center w-full h-full")}>{children}</span>
       {!isLoading && rightIcon && <span className="ml-2 shrink-0 relative z-10">{rightIcon}</span>}
       
       {/* Эффект Блика (Shimmer) */}
@@ -87,6 +91,8 @@ export default function Button({
           className={componentStyles} 
           onClick={onClick as any}
           title={title}
+          target={target}
+          rel={rel || (target === "_blank" ? "noopener noreferrer" : undefined)}
         >
           {innerContent}
         </Link>

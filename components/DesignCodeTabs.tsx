@@ -1,56 +1,115 @@
+// components/DesignCodeTabs.tsx
+// Данные вынесены в dictionaries/design-code.ts (паттерн словарей).
+// WAI-ARIA Tabs Pattern. Все панели в DOM для SEO-индексации.
 "use client";
 
 import { useState } from "react";
-import { Building, Layers, MapPin, Megaphone, Layout, Store, ArrowRight, Armchair } from "lucide-react";
+import {
+  Building, Layers, MapPin, Megaphone,
+  Layout, Store, ArrowRight, Armchair, Info
+} from "lucide-react";
+import { motion, LayoutGroup } from "framer-motion";
+import { cn } from "@/lib/utils";
+import {
+  DESIGN_CODE_TABS_DATA,
+  DESIGN_CODE_TABS_LIST,
+  type DesignCodeTabId,
+} from "@/dictionaries/design-code";
 
-type TabType = 'ads' | 'trade' | 'urban';
-
-const TAB_DATA = {
-  ads: [
-    { t: "Крышные установки", d: "Сложные конструкции (объемные буквы/панно), размещаемые строго на крыше зданий.", i: <Building className="w-6 h-6"/> },
-    { t: "Брандмауэр", d: "Панно на глухой стене здания. Используется винил или баннерная сетка.", i: <Layers className="w-6 h-6"/> },
-    { t: "Стела", d: "Отдельно стоящая конструкция на собственном фундаменте. Не более 2 сторон.", i: <MapPin className="w-6 h-6"/> },
-    { t: "Билборд", d: "Щит размером от 2х3 м. Устанавливается вдоль улиц и дорог.", i: <Megaphone className="w-6 h-6"/> },
-    { t: "Сити-формат", d: "Лайт-постер до 2.5 кв.м с внутренней подсветкой.", i: <Layout className="w-6 h-6"/> },
-    { t: "Панель-кронштейн", d: "Плоская конструкция перпендикулярно фасаду. Допускается подсветка.", i: <Layout className="w-6 h-6"/> },
-    { t: "Штендер", d: "Выносная мобильная конструкция до 2 кв.м. Убирается в нерабочее время.", i: <Store className="w-6 h-6"/> },
-  ],
-  trade: [
-    { t: "Киоск", d: "Сооружение без торгового зала, на 1-2 рабочих места.", i: <Store className="w-6 h-6"/> },
-    { t: "Павильон", d: "Легкая конструкция с входом внутрь для покупателей.", i: <Store className="w-6 h-6"/> },
-    { t: "Автолавка", d: "Специализированный автомобиль с торговым оборудованием.", i: <ArrowRight className="w-6 h-6"/> },
-  ],
-  urban: [
-    { t: "Остановки", d: "Открытые и теплые павильоны закрытого типа для ожидания транспорта.", i: <Store className="w-6 h-6"/> },
-    { t: "Информационные панели", d: "Электронные табло с навигацией, погодой и трафиком.", i: <MapPin className="w-6 h-6"/> },
-    { t: "Скамьи", d: "Уличная мебель в едином архитектурном стиле.", i: <Armchair className="w-6 h-6"/> },
-  ]
+// --- IconMap: разрешает iconName → компонент Lucide ---
+const IconMap: Record<string, React.ElementType> = {
+  Building, Layers, MapPin, Megaphone,
+  Layout, Store, ArrowRight, Armchair,
 };
 
+function TabIcon({ name }: { name: string }) {
+  const Icon = IconMap[name] ?? Info;
+  return <Icon className="w-6 h-6" aria-hidden="true" />;
+}
+
 export default function DesignCodeTabs() {
-  const [activeTab, setActiveTab] = useState<TabType>('ads');
+  const [activeTab, setActiveTab] = useState<DesignCodeTabId>("ads");
 
   return (
-    <section className="py-24 bg-slate-950 border-y border-slate-800">
+    <section
+      className="py-24 bg-slate-50 border-y border-slate-200/60"
+      aria-labelledby="tab-section-heading"
+    >
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-white mb-8 text-center">Типы рекламных конструкций</h2>
-        
-        {/* Табы */}
-        <div className="flex justify-center gap-2 mb-12 overflow-x-auto hide-scrollbar">
-          <button onClick={() => setActiveTab('ads')} className={`shrink-0 px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'ads' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Реклама</button>
-          <button onClick={() => setActiveTab('trade')} className={`shrink-0 px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'trade' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Торговля</button>
-          <button onClick={() => setActiveTab('urban')} className={`shrink-0 px-6 py-3 rounded-full font-bold text-sm transition ${activeTab === 'urban' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-gray-400 hover:text-white'}`}>Городская среда</button>
-        </div>
+        <h2
+          id="tab-section-heading"
+          className="text-3xl font-bold text-slate-950 mb-8 text-center tracking-tight"
+        >
+          Типы рекламных конструкций
+        </h2>
 
-        {/* Контент табов */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {TAB_DATA[activeTab].map((item, i) => (
-            <div key={i} className="bg-[#0F172A] p-6 rounded-2xl border border-slate-800 flex gap-4 items-start hover:border-blue-500/30 transition">
-              <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500">{item.i}</div>
-              <div><h4 className="text-white font-bold mb-1">{item.t}</h4><p className="text-gray-400 text-sm leading-relaxed">{item.d}</p></div>
+        {/* TABLIST — WAI-ARIA Tabs Pattern */}
+        <LayoutGroup>
+          <div
+            role="tablist"
+            aria-label="Категории рекламных конструкций"
+            className="flex justify-center gap-2 mb-12 overflow-x-auto hide-scrollbar p-1.5 bg-slate-100 rounded-full max-w-md mx-auto border border-slate-200/60"
+          >
+            {DESIGN_CODE_TABS_LIST.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  id={`tab-${tab.id}`}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={`panel-${tab.id}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "relative shrink-0 px-6 py-3 rounded-full font-bold text-sm transition-colors duration-200 select-none",
+                    isActive ? "text-white" : "text-slate-600 hover:text-slate-950"
+                  )}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTabIndicator"
+                      className="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 rounded-full z-0 shadow-lg shadow-orange-500/15"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </LayoutGroup>
+
+        {/*
+          TABPANELS: все три панели в DOM для SEO.
+          inactive: только "hidden" (без grid) — избегаем конфликта display:none vs display:grid
+        */}
+        {DESIGN_CODE_TABS_LIST.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <div
+              key={tab.id}
+              id={`panel-${tab.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${tab.id}`}
+              className={isActive ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6" : "hidden"}
+            >
+              {DESIGN_CODE_TABS_DATA[tab.id].map((item) => (
+                <div
+                  key={item.t}
+                  className="bg-white p-6 rounded-2xl border border-slate-200/80 flex gap-4 items-start hover:border-orange-500/20 transition shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)]"
+                >
+                  <div className="p-3 bg-orange-50 rounded-xl text-orange-600 shrink-0">
+                    <TabIcon name={item.iconName} />
+                  </div>
+                  <div>
+                    <h3 className="text-slate-950 font-bold mb-1 text-base">{item.t}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed">{item.d}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </section>
   );

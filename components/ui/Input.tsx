@@ -23,7 +23,8 @@ export default function Input({
   disabled,
   ...props
 }: InputProps) {
-  const uniqueId = id || React.useId();
+  const fallbackId = React.useId();
+  const uniqueId = id || fallbackId;
   const isLight = variant === "light";
 
   return (

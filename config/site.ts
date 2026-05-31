@@ -79,5 +79,7 @@ export const SITE_LINKS = {
   portfolio: "/portfolio",
   designCode: "/design-code",
   contacts: "/contacts",
-  calculator: "/calculator"
+  calculator: "/calculator",
+  privacy: "/privacy",
+  offer: "/offer"
 };

@@ -140,7 +140,7 @@ export default function CallToAction({
           <div className="max-w-3xl mx-auto text-center relative z-10">
             
             <h2 className="mb-4 text-3xl md:text-5.5xl font-black tracking-tight text-slate-950 leading-tight">
-              Получите бесплатный <span className="text-orange-500">дизайн-проект</span> вывески
+              {title}
             </h2>
             
             <p className="mb-10 text-slate-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-semibold">
@@ -158,7 +158,11 @@ export default function CallToAction({
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 w-full max-w-2xl mx-auto mb-6 items-end">
+              <form
+                onSubmit={handleSubmit}
+                aria-label="Заявка на бесплатный дизайн-проект"
+                className="flex flex-col md:flex-row gap-4 w-full max-w-2xl mx-auto mb-6 items-end"
+              >
                 
                 {/* Input Name */}
                 <div className="flex-1 w-full text-left space-y-2">
@@ -171,11 +175,13 @@ export default function CallToAction({
                       placeholder="Имя"
                       value={name}
                       onChange={handleNameChange}
+                      aria-describedby={nameError ? "cta-name-error" : undefined}
+                      aria-invalid={!!nameError}
                       className={`w-full bg-white border ${nameError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-sm`}
                       disabled={isLoading}
                     />
                   </div>
-                  {nameError && <p className="text-[10px] text-red-500 font-bold pl-1">{nameError}</p>}
+                  {nameError && <p id="cta-name-error" role="alert" className="text-[10px] text-red-500 font-bold pl-1">{nameError}</p>}
                 </div>
                 
                 {/* Input Phone */}
@@ -189,11 +195,13 @@ export default function CallToAction({
                       placeholder="+7 (707) 000-00-00"
                       value={phone}
                       onChange={handlePhoneChange}
+                      aria-describedby={phoneError ? "cta-phone-error" : undefined}
+                      aria-invalid={!!phoneError}
                       className={`w-full bg-white border ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-sm`}
                       disabled={isLoading}
                     />
                   </div>
-                  {phoneError && <p className="text-[10px] text-red-500 font-bold pl-1">{phoneError}</p>}
+                  {phoneError && <p id="cta-phone-error" role="alert" className="text-[10px] text-red-500 font-bold pl-1">{phoneError}</p>}
                 </div>
 
                 <Button 
@@ -210,7 +218,7 @@ export default function CallToAction({
             
             <div className="flex flex-wrap justify-center gap-6 mt-8 text-xs font-bold text-slate-400">
               <div className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-emerald-600"/> Гарантия по договору</div>
-              <div className="flex items-center gap-1.5"><XCircle className="w-4 h-4 text-rose-600"/> Без спама и наценок</div>
+              <div className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-emerald-600"/> Без спама и наценок</div>
               <div className="flex items-center gap-1.5"><Ruler className="w-4 h-4 text-orange-500"/> Замер и проект бесплатно</div>
             </div>
           </div>

@@ -13,23 +13,28 @@ export default function robots(): MetadataRoute.Robots {
           '/admin/',      // Закрываем админку (если будет)
           '/private/',    // Закрываем личные кабинеты
           '/api/',        // Закрываем API роуты (чтобы не тратить краулинговый бюджет)
-          '/_next/',      // Системные папки Next.js
+          // ВАЖНО: /_next/ НЕЛЬЗЯ блокировать! Google рендерит страницы с JS/CSS из _next.
+          // Блокировка /_next/ делает сайт «слепым» для Googlebot (не видит стили, шрифты).
         ],
       },
-      // 2. Явное приглашение для AI-ботов (GPT, Gemini и др.)
-      // Многие сайты их блокируют, но тебе для GEO это нужно разрешить!
+      // 2. Явное приглашение для AI-ботов (GEO-стратегия: разрешить обучающий краулинг)
       {
         userAgent: [
-          'GPTBot',           // ChatGPT (OpenAI)
-          'Google-Extended',  // Gemini / Vertex AI (Google)
-          'CCBot',            // Common Crawl (база для обучения большинства нейросетей)
-          'Claude-Web',       // Anthropic (Claude)
-          'Applebot-Extended' // Apple Intelligence
+          'GPTBot',            // ChatGPT (OpenAI)
+          'OAI-SearchBot',     // OpenAI Search
+          'Google-Extended',   // Gemini / Vertex AI (Google)
+          'CCBot',             // Common Crawl
+          'claudebot',         // Anthropic Claude (актуальное имя)
+          'anthropic-ai',      // Anthropic (второй агент)
+          'Claude-Web',        // Anthropic (устаревший, оставляем для совместимости)
+          'Applebot-Extended', // Apple Intelligence
+          'PerplexityBot',     // Perplexity AI
+          'YouBot',            // You.com
         ],
         allow: '/',
       },
     ],
-    // 3. Указание, где лежит карта сайта (обязательно!)
+    // 3. Карта сайта (обязательно для индексации)
     sitemap: `${baseUrl}/sitemap.xml`,
   }
 }
