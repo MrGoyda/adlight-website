@@ -58,6 +58,7 @@ export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps
                 size="lg" 
                 href="/calculator"
                 leftIcon={<Calculator className="w-5 h-5" />}
+                className="w-full sm:w-auto"
               >
                 {heroData.btnCalculate}
               </Button>
@@ -66,6 +67,7 @@ export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps
                 size="lg" 
                 onClick={() => setIsModalOpen(true)}
                 leftIcon={<MessageCircle className="w-5 h-5 text-green-600" />}
+                className="w-full sm:w-auto"
               >
                 {heroData.btnRequest}
               </Button>
