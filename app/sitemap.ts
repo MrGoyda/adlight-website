@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // 2. Основные категории услуг (Высокий приоритет 0.9 - это твой хлеб)
   const mainServices = [
     '/services/volume-letters',
+    '/services/lightboxes',
     ...Object.keys(SERVICES_DETAILS).map((slug) => `/services/${slug}`),
   ];
 

@@ -20,9 +20,9 @@ export default function ContactsDepartments() {
             <h2 className="text-2xl sm:text-3xl font-black text-slate-955 tracking-tight mb-8">{dict.title}</h2>
           </FadeIn>
           
-          <div className="grid md:grid-cols-3 gap-6">
+          <ul className="grid md:grid-cols-3 gap-6">
              {/* Продажи */}
-             <FadeIn direction="up" delay={0.1}>
+             <FadeIn direction="up" delay={0.1} as="li" className="h-full">
                <div className="flex items-start gap-4 p-6 bg-slate-50/50 rounded-2xl border border-slate-200/80 hover:border-orange-500/30 transition-colors h-full">
                   <div className="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-700 shrink-0 shadow-sm"><Users className="w-6 h-6 text-orange-500"/></div>
                   <div>
@@ -36,7 +36,7 @@ export default function ContactsDepartments() {
              </FadeIn>
              
              {/* Производство */}
-             <FadeIn direction="up" delay={0.2}>
+             <FadeIn direction="up" delay={0.2} as="li" className="h-full">
                <div className="flex items-start gap-4 p-6 bg-slate-50/50 rounded-2xl border border-slate-200/80 hover:border-orange-500/30 transition-colors h-full">
                   <div className="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-700 shrink-0 shadow-sm"><HardHat className="w-6 h-6 text-purple-500"/></div>
                   <div>
@@ -50,7 +50,7 @@ export default function ContactsDepartments() {
              </FadeIn>
 
              {/* Бухгалтерия */}
-             <FadeIn direction="up" delay={0.3}>
+             <FadeIn direction="up" delay={0.3} as="li" className="h-full">
                <div className="flex items-start gap-4 p-6 bg-slate-50/50 rounded-2xl border border-slate-200/80 hover:border-orange-500/30 transition-colors h-full">
                   <div className="w-12 h-12 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-700 shrink-0 shadow-sm"><FileText className="w-6 h-6 text-pink-500"/></div>
                   <div>
@@ -62,7 +62,7 @@ export default function ContactsDepartments() {
                   </div>
                </div>
              </FadeIn>
-          </div>
+          </ul>
        </div>
     </section>
   );

@@ -37,10 +37,15 @@ export default function ContactsFaq({ activeFaq, setActiveFaq, triggerHaptic }: 
             {dict.title}
           </h2>
         </FadeIn>
-        <div className="space-y-4">
+        <div className="space-y-4" itemScope itemType="https://schema.org/FAQPage">
           {faqList.map((item, idx) => (
             <FadeIn key={idx} direction="up" delay={idx * 0.1}>
-              <div className="border border-slate-250 rounded-2xl overflow-hidden bg-slate-50/50 hover:bg-slate-50 transition-colors shadow-sm">
+              <div 
+                itemScope 
+                itemProp="mainEntity" 
+                itemType="https://schema.org/Question" 
+                className="border border-slate-250 rounded-2xl overflow-hidden bg-slate-50/50 hover:bg-slate-50 transition-colors shadow-sm"
+              >
                 <button
                   onClick={() => {
                     triggerHaptic();
@@ -48,11 +53,16 @@ export default function ContactsFaq({ activeFaq, setActiveFaq, triggerHaptic }: 
                   }}
                   className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
                 >
-                  <span className="font-extrabold text-slate-955 text-base md:text-lg pr-4">{item.q}</span>
+                  <span itemProp="name" className="font-extrabold text-slate-955 text-base md:text-lg pr-4">{item.q}</span>
                   <ChevronDown className={`w-5 h-5 text-slate-700 shrink-0 transition-transform duration-300 ${activeFaq === idx ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activeFaq === idx ? 'max-h-60 border-t border-slate-200' : 'max-h-0'}`}>
-                  <div className="px-6 py-5 text-slate-900 text-sm md:text-base leading-relaxed font-semibold bg-white">
+                <div 
+                  itemProp="acceptedAnswer" 
+                  itemScope 
+                  itemType="https://schema.org/Answer" 
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${activeFaq === idx ? 'max-h-60 border-t border-slate-200' : 'max-h-0'}`}
+                >
+                  <div itemProp="text" className="px-6 py-5 text-slate-900 text-sm md:text-base leading-relaxed font-semibold bg-white">
                     {item.a}
                   </div>
                 </div>

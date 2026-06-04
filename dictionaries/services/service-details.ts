@@ -6,6 +6,9 @@ export interface ServiceTypeItem {
   image: string;
   tag?: string;
   iconName?: string;
+  specs?: string;
+  bestFor?: string;
+  hex?: string;
 }
 
 export interface ServiceComparisonItem {
@@ -62,7 +65,6 @@ export interface ServiceDetailData {
 
 
 // Import modular service details
-import { lightboxesDetails } from "./details/lightboxes";
 import { panel_bracketsDetails } from "./details/panel-brackets";
 import { neonDetails } from "./details/neon";
 import { interiorDetails } from "./details/interior";
@@ -70,9 +72,9 @@ import { navigationDetails } from "./details/navigation";
 import { roof_installationsDetails } from "./details/roof-installations";
 import { pylonsDetails } from "./details/pylons";
 import { entrance_groupsDetails } from "./details/entrance-groups";
+import { facade_decorationDetails } from "./details/facade-decoration";
 
 export const SERVICES_DETAILS: Record<string, ServiceDetailData> = {
-  "lightboxes": lightboxesDetails,
   "panel-brackets": panel_bracketsDetails,
   "neon": neonDetails,
   "interior": interiorDetails,
@@ -80,4 +82,5 @@ export const SERVICES_DETAILS: Record<string, ServiceDetailData> = {
   "roof-installations": roof_installationsDetails,
   "pylons": pylonsDetails,
   "entrance-groups": entrance_groupsDetails,
+  "facade-decoration": facade_decorationDetails,
 };

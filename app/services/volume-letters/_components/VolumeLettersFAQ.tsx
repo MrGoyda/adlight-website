@@ -37,6 +37,9 @@ export default function VolumeLettersFAQ() {
               return (
                 <div
                   key={idx}
+                  itemScope
+                  itemProp="mainEntity"
+                  itemType="https://schema.org/Question"
                   className={`bg-white rounded-2xl border transition-all duration-300 ${
                     isOpen
                       ? "border-orange-500 shadow-lg shadow-orange-500/5 ring-1 ring-orange-500/20"
@@ -48,7 +51,10 @@ export default function VolumeLettersFAQ() {
                     className="w-full flex items-center justify-between p-6 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded-2xl group"
                     aria-expanded={isOpen}
                   >
-                    <span className="font-bold text-slate-800 text-lg leading-snug group-hover:text-orange-600 transition-colors pr-4">
+                    <span 
+                      itemProp="name" 
+                      className="font-bold text-slate-800 text-lg leading-snug group-hover:text-orange-600 transition-colors pr-4"
+                    >
                       {item.question}
                     </span>
                     <span
@@ -67,11 +73,17 @@ export default function VolumeLettersFAQ() {
                   </button>
 
                   <div
+                    itemProp="acceptedAnswer"
+                    itemScope
+                    itemType="https://schema.org/Answer"
                     className={`transition-all duration-300 overflow-hidden ${
                       isOpen ? "max-h-[300px] opacity-100" : "max-h-0 opacity-0"
                     }`}
                   >
-                    <div className="p-6 pt-0 border-t border-slate-100 text-slate-600 leading-relaxed text-base">
+                    <div 
+                      itemProp="text"
+                      className="p-6 pt-0 border-t border-slate-100 text-slate-600 leading-relaxed text-base"
+                    >
                       {item.answer}
                     </div>
                   </div>

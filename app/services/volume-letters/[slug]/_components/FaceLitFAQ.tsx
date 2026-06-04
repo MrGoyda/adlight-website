@@ -36,6 +36,9 @@ export default function FaceLitFAQ({ data }: FaceLitFAQProps) {
           {data.faqs.map((item, index) => (
             <details 
               key={index} 
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
               className="group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 open:border-orange-500/30 open:shadow-[0_15px_30px_rgba(0,0,0,0.02)]"
             >
               <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-50 transition">
@@ -43,7 +46,10 @@ export default function FaceLitFAQ({ data }: FaceLitFAQProps) {
                   <div className="p-2 bg-orange-50 rounded-lg group-open:bg-orange-100 transition shrink-0">
                     <IconHelper name={item.iconName} className="w-5 h-5 text-orange-600"/>
                   </div>
-                  <span className="font-extrabold text-slate-900 text-base md:text-lg group-open:text-orange-600 transition">
+                  <span 
+                    itemProp="name" 
+                    className="font-extrabold text-slate-900 text-base md:text-lg group-open:text-orange-600 transition"
+                  >
                     {item.question}
                   </span>
                 </div>
@@ -51,8 +57,15 @@ export default function FaceLitFAQ({ data }: FaceLitFAQProps) {
                   <ChevronDown className="w-4 h-4"/>
                 </div>
               </summary>
-              <div className="px-6 pb-6 pl-[4.5rem] text-slate-600 text-sm md:text-base leading-relaxed border-t border-slate-100 pt-4 animate-in fade-in duration-200">
-                {item.answer}
+              <div 
+                itemProp="acceptedAnswer"
+                itemScope
+                itemType="https://schema.org/Answer"
+                className="px-6 pb-6 pl-[4.5rem] text-slate-600 text-sm md:text-base leading-relaxed border-t border-slate-100 pt-4 animate-in fade-in duration-200"
+              >
+                <div itemProp="text">
+                  {item.answer}
+                </div>
               </div>
             </details>
           ))}

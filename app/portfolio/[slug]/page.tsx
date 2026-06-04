@@ -147,7 +147,7 @@ export default async function ProjectPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 font-sans selection:bg-orange-500/30" itemScope itemType="http://schema.org/CreativeWork">
+    <article className="min-h-screen bg-slate-50/50 font-sans selection:bg-orange-500/30" itemScope itemType="https://schema.org/Project">
       
       {/* Вставляем разметку JSON-LD */}
       <script
@@ -202,7 +202,7 @@ export default async function ProjectPage({ params }: Props) {
 
                   <div className="flex flex-wrap gap-y-3.5 gap-x-6 text-slate-500 text-sm font-bold mb-8 border-b border-slate-200/50 pb-6">
                      {project.location && (
-                        <div className="flex items-center gap-2" itemProp="locationCreated" itemScope itemType="http://schema.org/Place">
+                        <div className="flex items-center gap-2" itemProp="locationCreated" itemScope itemType="https://schema.org/Place">
                            <MapPin className="w-4.5 h-4.5 text-orange-600"/> <span itemProp="name" className="text-slate-700">{project.location}</span>
                         </div>
                      )}
@@ -316,14 +316,14 @@ export default async function ProjectPage({ params }: Props) {
                            <Info className="w-5 h-5 text-orange-600"/> {PORTFOLIO_DICT.caseDetails.specs.title}
                         </h3>
                         
-                        <div className="space-y-6">
+                        <dl className="space-y-6">
                            <div className="flex gap-4 items-start">
                               <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 shrink-0">
                                  <Layers className="w-5 h-5"/>
                               </div>
                               <div>
-                                 <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.face}</p>
-                                 <p className="text-slate-800 text-sm font-extrabold leading-snug">{project.techSpecs.face}</p>
+                                 <dt className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.face}</dt>
+                                 <dd className="text-slate-800 text-sm font-extrabold leading-snug">{project.techSpecs.face}</dd>
                               </div>
                            </div>
                            
@@ -332,8 +332,8 @@ export default async function ProjectPage({ params }: Props) {
                                  <Hammer className="w-5 h-5"/>
                               </div>
                               <div>
-                                 <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.body}</p>
-                                 <p className="text-slate-800 text-sm font-extrabold leading-snug">{project.techSpecs.body}</p>
+                                 <dt className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.body}</dt>
+                                 <dd className="text-slate-800 text-sm font-extrabold leading-snug">{project.techSpecs.body}</dd>
                               </div>
                            </div>
  
@@ -342,8 +342,8 @@ export default async function ProjectPage({ params }: Props) {
                                  <Zap className="w-5 h-5"/>
                               </div>
                               <div>
-                                 <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.light}</p>
-                                 <p className="text-slate-800 text-sm font-extrabold leading-snug">{project.techSpecs.light}</p>
+                                 <dt className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.light}</dt>
+                                 <dd className="text-slate-800 text-sm font-extrabold leading-snug">{project.techSpecs.light}</dd>
                               </div>
                            </div>
  
@@ -352,11 +352,11 @@ export default async function ProjectPage({ params }: Props) {
                                  <ShieldCheck className="w-5 h-5"/>
                               </div>
                               <div>
-                                 <p className="text-[10px] text-emerald-600 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.warranty}</p>
-                                 <p className="text-emerald-600 text-sm font-black leading-snug">{project.techSpecs.warranty || PORTFOLIO_DICT.caseDetails.specs.defaultWarranty}</p>
+                                 <dt className="text-[10px] text-emerald-600 uppercase font-black tracking-wider mb-0.5">{PORTFOLIO_DICT.caseDetails.specs.warranty}</dt>
+                                 <dd className="text-emerald-600 text-sm font-black leading-snug">{project.techSpecs.warranty || PORTFOLIO_DICT.caseDetails.specs.defaultWarranty}</dd>
                               </div>
                            </div>
-                        </div>
+                        </dl>
                      </div>
  
                      <div className="bg-white border border-slate-200/80 shadow-xs rounded-3xl p-6 flex items-center gap-4">
@@ -440,6 +440,6 @@ export default async function ProjectPage({ params }: Props) {
       </section>
  
       <CallToAction source={`Кейс: ${project.title}`} />
-    </div>
+    </article>
   );
 }

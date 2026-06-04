@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, ReactNode } from "react";
+import React, { useEffect, useRef, useState, ReactNode } from "react";
 
 interface FadeInProps {
   children: ReactNode;
@@ -9,6 +9,8 @@ interface FadeInProps {
   duration?: number; // в миллисекундах
   className?: string;
   threshold?: number;
+  as?: keyof React.JSX.IntrinsicElements;
+  [key: string]: any; // Allow custom attributes like itemScope, itemType, etc.
 }
 
 export default function FadeIn({
@@ -17,7 +19,9 @@ export default function FadeIn({
   delay = 0,
   duration = 600,
   className = "",
-  threshold = 0.05
+  threshold = 0.05,
+  as = "div",
+  ...props
 }: FadeInProps) {
   const [isVisible, setIsVisible] = useState(false);
   const domRef = useRef<HTMLDivElement>(null);
@@ -67,8 +71,10 @@ export default function FadeIn({
     }
   };
 
+  const Component = as as any;
+
   return (
-    <div
+    <Component
       ref={domRef}
       className={`transform-gpu transition-all ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity] ${
         isVisible ? "translate-y-0 translate-x-0 opacity-100" : getDirectionClass()
@@ -77,8 +83,9 @@ export default function FadeIn({
         transitionDuration: `${duration}ms`,
         transitionDelay: `${delay}ms`
       }}
+      {...props}
     >
       {children}
-    </div>
+    </Component>
   );
 }

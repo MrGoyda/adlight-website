@@ -197,7 +197,10 @@ export default async function VolumeLettersPage() {
              </p>
          </div>
          <div className="container mx-auto px-4">
-            <ImageGallery images={allGalleryImages} />
+            <ImageGallery 
+              images={allGalleryImages} 
+              projectTitle="Изготовление объемных букв в Астане"
+            />
          </div>
       </section>
 

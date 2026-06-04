@@ -26,37 +26,39 @@ export default function ContactsRequisites({
                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-6 flex items-center gap-2.5">
                    <Building2 className="w-5 h-5 text-slate-400"/> {dict.title}
                 </h3>
-                <div className="grid md:grid-cols-2 gap-y-3.5 gap-x-8 text-sm font-semibold w-full">
-                   <div className="col-span-2 text-slate-900 font-extrabold pb-2 text-base border-b border-slate-100">
-                     {dict.ownerLabel} {COMPANY_NAP.owner}
+                <dl className="grid md:grid-cols-2 gap-y-3.5 gap-x-8 text-sm font-semibold w-full">
+                   <div className="col-span-2 text-slate-900 font-extrabold pb-2 text-base border-b border-slate-100 flex flex-wrap gap-2">
+                     <dt className="text-slate-400 font-medium">{dict.ownerLabel}</dt>
+                     <dd className="text-slate-900 font-extrabold">{COMPANY_NAP.owner}</dd>
                    </div>
                    
                    <div className="flex justify-between md:contents">
-                     <span className="text-slate-400 font-medium">{dict.iinLabel}</span> 
-                     <span className="text-slate-850 font-mono font-black select-all">{COMPANY_NAP.iin}</span>
+                     <dt className="text-slate-400 font-medium">{dict.iinLabel}</dt> 
+                     <dd className="text-slate-850 font-mono font-black select-all text-right md:text-left">{COMPANY_NAP.iin}</dd>
                    </div>
                    
                    <div className="flex justify-between md:contents">
-                     <span className="text-slate-400 font-medium">{dict.phoneLabel}</span> 
-                     <span className="text-slate-850 font-black">{COMPANY_NAP.phone}</span>
+                     <dt className="text-slate-400 font-medium">{dict.phoneLabel}</dt> 
+                     <dd className="text-slate-850 font-black text-right md:text-left">{COMPANY_NAP.phone}</dd>
                    </div>
                    
                    <div className="col-span-2 pt-4 text-slate-900 font-extrabold flex items-center gap-2 border-b border-slate-100 pb-1">
-                      <CreditCard className="w-4 h-4 text-emerald-500"/> {COMPANY_NAP.bankName}
+                      <CreditCard className="w-4 h-4 text-emerald-500"/>
+                      <span>{COMPANY_NAP.bankName}</span>
                    </div>
                    <div className="flex justify-between md:contents">
-                     <span className="text-slate-400 font-medium">{dict.iikLabel}</span> 
-                     <span className="text-slate-850 font-mono font-black select-all break-all">{COMPANY_NAP.iik}</span>
+                     <dt className="text-slate-400 font-medium">{dict.iikLabel}</dt> 
+                     <dd className="text-slate-850 font-mono font-black select-all break-all text-right md:text-left">{COMPANY_NAP.iik}</dd>
                    </div>
                    <div className="flex justify-between md:contents">
-                     <span className="text-slate-400 font-medium">{dict.bikLabel}</span> 
-                     <span className="text-slate-850 font-mono font-black select-all">{COMPANY_NAP.bik}</span>
+                     <dt className="text-slate-400 font-medium">{dict.bikLabel}</dt> 
+                     <dd className="text-slate-850 font-mono font-black select-all text-right md:text-left">{COMPANY_NAP.bik}</dd>
                    </div>
                    <div className="col-span-2 pt-4 border-t border-slate-100 mt-2">
-                      <span className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">{dict.legalAddressLabel}</span>
-                      <span className="text-slate-750 leading-relaxed font-semibold">{COMPANY_NAP.legalAddress}</span>
+                      <dt className="block text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">{dict.legalAddressLabel}</dt>
+                      <dd className="text-slate-750 leading-relaxed font-semibold">{COMPANY_NAP.legalAddress}</dd>
                    </div>
-                </div>
+                </dl>
              </div>
              
              <Button 

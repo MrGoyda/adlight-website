@@ -6,7 +6,7 @@ import FadeIn from "@/components/ui/FadeIn";
 import { ALL_REVIEWS } from "@/dictionaries/reviews";
 
 export default function ReviewsCarousel() {
-  const sliderRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLUListElement>(null);
   
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -87,7 +87,7 @@ export default function ReviewsCarousel() {
                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-600">о нашей работе</span>
             </h2>
             <div className="flex flex-wrap items-center gap-2.5 text-slate-500 text-sm font-semibold">
-              <span>Рейтинг 4.8 на основе более 300 реальных отзывов в</span>
+              <span>Рейтинг 5.0 на основе более 300 реальных отзывов в</span>
               <a 
                 href="https://2gis.kz" 
                 target="_blank" 
@@ -118,8 +118,18 @@ export default function ReviewsCarousel() {
           </div>
         </div>
         
+        {/* Schema.org AggregateRating metadata for SEO/AI engines */}
+        <div className="hidden" itemScope itemType="https://schema.org/Product">
+          <meta itemProp="name" content="Изготовление наружной рекламы ADLight" />
+          <div itemProp="aggregateRating" itemScope itemType="https://schema.org/AggregateRating">
+            <meta itemProp="ratingValue" content="5" />
+            <meta itemProp="bestRating" content="5" />
+            <meta itemProp="ratingCount" content="312" />
+          </div>
+        </div>
+
         {/* Horizontal Slider Area */}
-        <div 
+        <ul 
           ref={sliderRef}
           onMouseDown={handleMouseDown} 
           onMouseLeave={handleMouseLeave} 
@@ -132,8 +142,15 @@ export default function ReviewsCarousel() {
                key={i}
                delay={i * 50}
                threshold={0.1}
+               as="li"
                className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between snap-start animate-in fade-in"
+               itemScope
+               itemType="https://schema.org/Review"
              >
+                <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" className="hidden">
+                  <meta itemProp="ratingValue" content="5" />
+                  <meta itemProp="bestRating" content="5" />
+                </div>
                 <div>
                    {/* Golden rating stars */}
                    <div className="flex gap-1.5 text-amber-400 mb-6">
@@ -142,7 +159,7 @@ export default function ReviewsCarousel() {
                       ))}
                    </div>
                    
-                   <p className="text-slate-600 text-sm leading-relaxed font-semibold mb-8 italic">
+                   <p itemProp="reviewBody" className="text-slate-600 text-sm leading-relaxed font-semibold mb-8 italic">
                       «{rev.text}»
                    </p>
                 </div>
@@ -153,13 +170,15 @@ export default function ReviewsCarousel() {
                       {rev.name[0]}
                    </div>
                    <div className="text-left leading-tight">
-                      <div className="text-slate-900 font-extrabold text-sm">{rev.name}</div>
+                      <div itemProp="author" itemScope itemType="https://schema.org/Person" className="text-slate-900 font-extrabold text-sm">
+                         <span itemProp="name">{rev.name}</span>
+                      </div>
                       <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{rev.role}</div>
                    </div>
                 </div>
              </FadeIn>
            ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

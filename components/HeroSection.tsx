@@ -40,7 +40,7 @@ export default function HeroSection({
       <div className="container mx-auto px-4 grid lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
         {/* ЛЕВАЯ КОЛОНКА: SEO/AI-ОПТИМИЗИРОВАННЫЙ ТЕКСТ (7 колонок) */}
         <div className="lg:col-span-7 space-y-8 flex flex-col justify-center text-left">
-          {/* ПРЕМИУМ-ПЛАШКА (Более 300 отзывов, 4.8 рейтинг, Лучшие) */}
+          {/* ПРЕМИУМ-ПЛАШКА (Более 300 отзывов, 5.0 рейтинг, Лучшие) */}
           <FadeIn>
             <div className="inline-flex flex-wrap items-center gap-3 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-md shadow-slate-100 text-xs font-bold text-slate-800 w-fit leading-tight">
               <div className="flex items-center gap-1 text-orange-500 font-extrabold text-sm">
@@ -48,7 +48,7 @@ export default function HeroSection({
               </div>
               <span className="text-slate-600">более 300 отзывов</span>
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-              <span className="text-slate-950 font-black">Рейтинг 4.8</span>
+              <span className="text-slate-950 font-black">Рейтинг 5.0</span>
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
               <span className="text-orange-600 font-black">Лучшие по Астане и регионам</span>
             </div>

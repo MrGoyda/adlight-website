@@ -95,13 +95,13 @@ export default function StepsSection({
         </div>
 
         {/* Responsive Steps Layout: Mobile Swipeable Horizontal Slider, Desktop Bento Grid */}
-        <div className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-3 md:mx-0 md:px-0">
+        <ol className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-3 md:mx-0 md:px-0">
           
           {steps.map((item, i) => {
             const itemColor = item.color || "text-orange-600 bg-orange-50 border-orange-100";
 
             return (
-              <div
+              <li
                 key={i} 
                 className="relative flex-none w-[82vw] sm:w-[340px] md:w-auto snap-center bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 group flex flex-col justify-between"
               >
@@ -130,11 +130,11 @@ export default function StepsSection({
                    <span>Шаг {item.step} из 0{steps.length}</span>
                    {i < steps.length - 1 && <Icons.ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-0.5 transition-transform"/>}
                 </div>
-              </div>
+              </li>
             );
           })}
 
-        </div>
+        </ol>
       </div>
     </section>
   );

@@ -35,16 +35,19 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
       inline: "center"
     });
 
-    // Smoothly scroll the entire window to align the content grid immediately below sticky elements
-    setTimeout(() => {
-      const anchor = document.getElementById("dynamic-services-hub-content-anchor");
-      if (anchor) {
-        anchor.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
+    // Smart Scroll: Scroll viewport ONLY if the tab container is scrolled past the top of the viewport
+    const section = document.getElementById("dynamic-services-hub-section");
+    if (section) {
+      const rect = section.getBoundingClientRect();
+      // If the top of the services section is scrolled past the top of the viewport (negative top value)
+      // or if it is below sticky header heights (typically 80px), scroll it back into view.
+      if (rect.top < 60) {
+        window.scrollTo({
+          top: window.scrollY + rect.top - 80, // Offset for sticky navbar
+          behavior: "smooth"
         });
       }
-    }, 150);
+    }
   };
 
   return (
@@ -113,7 +116,7 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
         </div>
 
         {/* SERVICE GRID WITH ANCHOR */}
-        <div className="relative">
+        <div className="relative min-h-[480px] sm:min-h-[500px] lg:min-h-[460px]">
           <div id="dynamic-services-hub-content-anchor" className="absolute -top-[140px] sm:-top-[160px] lg:-top-[190px]" />
 
           <AnimatePresence mode="wait">
@@ -121,7 +124,7 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
               if (group.id !== activeTab) return null;
 
               return (
-                <motion.div
+                <motion.ul
                   key={group.id}
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -130,38 +133,67 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
                   className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch snap-x snap-mandatory w-full -mx-4 px-4 lg:mx-0 lg:px-0"
                 >
                   {group.items.map((item, index) => {
+                    // Extract numeric price for Schema Offer
+                    const priceMatch = item.price.replace(/[^\d]/g, "");
+                    const priceValue = priceMatch ? parseInt(priceMatch, 10) : 0;
+
                     return (
-                      <div
+                      <li
                         key={index}
                         className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/20 p-5 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[280px] sm:w-[320px] lg:w-full lg:shrink snap-start"
+                        itemScope
+                        itemType="https://schema.org/Service"
                       >
+                        {/* Hidden meta fields for Schema.org compliance */}
+                        <meta itemProp="serviceType" content={group.category} />
+                        <div itemProp="provider" itemScope itemType="https://schema.org/LocalBusiness" className="hidden">
+                          <meta itemProp="name" content="ADLight" />
+                          <meta itemProp="address" content="Астана, ул. Аспара, 7" />
+                          <meta itemProp="telephone" content="+77071356701" />
+                        </div>
+
                         <div>
                           {/* Картинка */}
                           <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
                             <Image
                               src={item.image}
-                              alt={item.title}
+                              alt={`${item.title} — изготовление наружной рекламы в Астане`}
                               fill
                               className="object-cover rounded-2xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
                               sizes="(max-width: 768px) 100vw, 25vw"
                               loading="lazy"
+                              itemProp="image"
                             />
                             <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20 pointer-events-none" />
                           </div>
 
                           {/* Тексты */}
                           <div className="space-y-2 mb-4">
-                            <h3 className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
+                            <h3 itemProp="name" className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
                               {item.title}
                             </h3>
-                            <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                            <p itemProp="description" className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
                               {item.description}
                             </p>
                           </div>
                         </div>
 
                         {/* Цена и кнопка */}
-                        <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4">
+                        <div 
+                          className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4"
+                          itemProp="offers"
+                          itemScope
+                          itemType="https://schema.org/Offer"
+                        >
+                          <meta itemProp="priceCurrency" content="KZT" />
+                          {priceValue > 0 ? (
+                            <meta itemProp="price" content={priceValue.toString()} />
+                          ) : (
+                            <meta itemProp="price" content="0" />
+                          )}
+                          <meta itemProp="priceValidUntil" content="2027-12-31" />
+                          <meta itemProp="availability" content="https://schema.org/InStock" />
+
                           <span className="text-xs sm:text-sm font-black text-slate-900">
                             {item.price}
                           </span>
@@ -174,10 +206,10 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
                             <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
                           </Link>
                         </div>
-                      </div>
+                      </li>
                     );
                   })}
-                </motion.div>
+                </motion.ul>
               );
             })}
           </AnimatePresence>

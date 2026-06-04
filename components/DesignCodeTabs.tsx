@@ -86,15 +86,15 @@ export default function DesignCodeTabs() {
         {DESIGN_CODE_TABS_LIST.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
-            <div
+            <ul
               key={tab.id}
               id={`panel-${tab.id}`}
               role="tabpanel"
               aria-labelledby={`tab-${tab.id}`}
-              className={isActive ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6" : "hidden"}
+              className={isActive ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6 list-none" : "hidden"}
             >
               {DESIGN_CODE_TABS_DATA[tab.id].map((item) => (
-                <div
+                <li
                   key={item.t}
                   className="bg-white p-6 rounded-2xl border border-slate-200/80 flex gap-4 items-start hover:border-orange-500/20 transition shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)]"
                 >
@@ -102,12 +102,12 @@ export default function DesignCodeTabs() {
                     <TabIcon name={item.iconName} />
                   </div>
                   <div>
-                    <h3 className="text-slate-950 font-bold mb-1 text-base">{item.t}</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed">{item.d}</p>
+                    <h3 className="text-slate-955 font-black mb-1 text-base leading-snug">{item.t}</h3>
+                    <p className="text-slate-700 text-sm leading-relaxed font-semibold">{item.d}</p>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           );
         })}
       </div>

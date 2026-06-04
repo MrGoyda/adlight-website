@@ -34,29 +34,31 @@ export default function DesignCodeWays() {
           </FadeIn>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <ul className="grid lg:grid-cols-3 gap-8 list-none">
           {DESIGN_CODE_WAYS.map((way, idx) => (
-            <FadeIn key={way.title} direction="up" delay={idx * 100}>
-              <Card hover className="p-8 border border-slate-200/60 bg-white transition-all duration-300 hover:y-[-4px] shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] rounded-3xl">
-                <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-6 text-orange-600">
-                  {renderIcon(way.iconName, "w-7 h-7")}
+            <FadeIn key={way.title} direction="up" delay={idx * 100} as="li" className="h-full">
+              <Card hover className="p-8 border border-slate-200/60 bg-white transition-all duration-300 hover:y-[-4px] shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] rounded-3xl h-full flex flex-col justify-between">
+                <div>
+                  <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-6 text-orange-600">
+                    {renderIcon(way.iconName, "w-7 h-7")}
+                  </div>
+                  <Typography variant="h3" className="mb-4 text-xl tracking-tight text-slate-955 font-bold">
+                    {way.title}
+                  </Typography>
+                  <Typography variant="body" className="mb-6 min-h-[60px] text-slate-600 font-semibold leading-relaxed">
+                    {way.desc}
+                  </Typography>
+                  {/* example отдельным элементом — убран br из p */}
+                  <p className="mb-6 text-slate-400 text-xs font-bold uppercase tracking-wider">{way.example}</p>
                 </div>
-                <Typography variant="h3" className="mb-4 text-xl tracking-tight text-slate-950 font-bold">
-                  {way.title}
-                </Typography>
-                <Typography variant="body" className="mb-6 min-h-[60px] text-slate-600">
-                  {way.desc}
-                </Typography>
-                {/* example отдельным элементом — убран br из p */}
-                <p className="mb-6 text-slate-400 text-xs font-medium">{way.example}</p>
-                <div className="pt-6 border-t border-slate-100">
+                <div className="pt-6 border-t border-slate-100 mt-auto">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-900 font-bold flex items-center gap-2">
+                    <span className="text-slate-950 font-black flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-orange-600"/> 
                       {way.badge}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-3 text-xs text-slate-400 font-mono font-medium">
+                  <div className="flex items-center gap-2 mt-3 text-xs text-slate-400 font-mono font-bold">
                     <Clock className="w-4 h-4"/> 
                     {way.term}
                   </div>
@@ -64,7 +66,7 @@ export default function DesignCodeWays() {
               </Card>
             </FadeIn>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

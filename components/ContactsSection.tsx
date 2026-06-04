@@ -59,7 +59,15 @@ export default function ContactsSection() {
       
       {/* Content (Layer 2) */}
       <div className="container mx-auto px-4 h-full flex items-center justify-center md:justify-start relative pointer-events-none z-20">
-         <div className="bg-white/95 backdrop-blur-xl p-8 md:p-10 rounded-3xl border border-slate-200/80 border-t-4 border-t-orange-500 shadow-[0_15px_50px_rgba(0,0,0,0.04)] max-w-md w-full pointer-events-auto space-y-8">
+         <div 
+           className="bg-white/95 backdrop-blur-xl p-8 md:p-10 rounded-3xl border border-slate-200/80 border-t-4 border-t-orange-500 shadow-[0_15px_50px_rgba(0,0,0,0.04)] max-w-md w-full pointer-events-auto space-y-8"
+           itemScope 
+           itemType="https://schema.org/LocalBusiness"
+         >
+            <meta itemProp="name" content="ADLight" />
+            <meta itemProp="image" content="https://adlight.kz/adlight-logo-full.webp" />
+            <meta itemProp="priceRange" content="$$" />
+
             <div className="space-y-2">
                <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest block">Наши контакты</span>
                <h3 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight leading-none">Приезжайте в гости</h3>
@@ -68,18 +76,30 @@ export default function ContactsSection() {
             <div className="space-y-6">
                
                {/* Address */}
-               <div className="flex gap-4 items-start">
+               <div className="flex gap-4 items-start" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+                  <meta itemProp="addressCountry" content="KZ" />
+                  <meta itemProp="postalCode" content="010000" />
                   <div className="w-10 h-10 bg-orange-50 text-orange-600 border border-orange-100/60 rounded-xl flex items-center justify-center shrink-0">
                      <MapPin className="w-5 h-5"/>
                   </div>
                   <div className="text-left">
                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Адрес цеха и офиса:</span>
-                     <p className="text-slate-900 font-extrabold text-base leading-tight">г. {SITE_CONTACTS.locality}, {SITE_CONTACTS.address.replace(", г. Астана", "")}</p>
+                     <p className="text-slate-900 font-extrabold text-base leading-tight">
+                       г. <span itemProp="addressLocality">{SITE_CONTACTS.locality}</span>, <span itemProp="streetAddress">{SITE_CONTACTS.address.replace(", г. Астана", "")}</span>
+                     </p>
                   </div>
                </div>
                
                {/* Mode of operation */}
-               <div className="flex gap-4 items-start">
+               <div className="flex gap-4 items-start" itemProp="openingHoursSpecification" itemScope itemType="https://schema.org/OpeningHoursSpecification">
+                  <meta itemProp="dayOfWeek" content="Monday" />
+                  <meta itemProp="dayOfWeek" content="Tuesday" />
+                  <meta itemProp="dayOfWeek" content="Wednesday" />
+                  <meta itemProp="dayOfWeek" content="Thursday" />
+                  <meta itemProp="dayOfWeek" content="Friday" />
+                  <meta itemProp="opens" content="09:00" />
+                  <meta itemProp="closes" content="18:00" />
+
                   <div className="w-10 h-10 bg-orange-50/50 text-orange-600 border border-orange-100/40 rounded-xl flex items-center justify-center shrink-0">
                      <Clock className="w-5 h-5"/>
                   </div>
@@ -100,6 +120,7 @@ export default function ContactsSection() {
                      <a 
                        href={`tel:${SITE_CONTACTS.phoneRaw}`} 
                        className="text-slate-900 font-extrabold text-base hover:text-orange-600 transition block leading-tight"
+                       itemProp="telephone"
                      >
                         {SITE_CONTACTS.phone}
                      </a>

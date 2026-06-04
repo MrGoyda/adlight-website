@@ -21,7 +21,7 @@ export default function ProjectsBento({
 }: ProjectsBentoProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLUListElement>(null);
   
   const [dragWidth, setDragWidth] = useState(0);
   const [positionX, setPositionX] = useState(0);
@@ -150,91 +150,94 @@ export default function ProjectsBento({
           </div>
         </div>
 
-        {/* Framer Motion Draggable Slider Container with Inertia Physics */}
-        <div 
-          ref={containerRef}
-          className="overflow-x-auto md:overflow-hidden -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing scroll-smooth snap-x snap-mandatory hide-scrollbar"
-        >
-           <motion.div
-              ref={carouselRef}
-              drag={isMobile ? false : "x"}
-              dragConstraints={{ right: 0, left: -dragWidth }}
-              dragElastic={0.15}
-              dragTransition={{ power: 0.2, timeConstant: 300 }} // Мягкая инерция (momentum скролл)
-              animate={isMobile ? undefined : { x: positionX }}
-              transition={{ type: "spring", stiffness: 220, damping: 28 }}
-              className="flex gap-6 pb-8 w-max"
-           >
-              {displayProjects.map((project, i) => {
-                const mainCategoryLabel = getCategoryLabel(project.categories[0]);
-                return (
-                  <FadeIn
-                    key={`${project.id}-${i}`}
-                    delay={(i % sortedProjects.length) * 40}
-                    threshold={0.05}
-                    className="relative group flex-none w-[82vw] sm:w-[380px] h-[460px] bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:shadow-lg hover:border-slate-350 transition duration-500 select-none flex flex-col justify-end snap-start"
-                  >
-                     {/* Background Image with Zoom */}
-                     <div 
-                       className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]" 
-                       style={{ backgroundImage: `url(${project.image})` }}
-                     ></div>
-                     
-                     {/* Dark overlay for contrast */}
-                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent transition duration-300 opacity-90 group-hover:opacity-95 pointer-events-none"></div>
-                     
-                     {/* Category badge */}
-                     <div className="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white font-extrabold text-[10px] uppercase tracking-wider">
-                        {mainCategoryLabel}
-                     </div>
+         {/* Framer Motion Draggable Slider Container with Inertia Physics */}
+         <div 
+           ref={containerRef}
+           className="overflow-x-auto md:overflow-hidden -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing scroll-smooth snap-x snap-mandatory hide-scrollbar"
+         >
+            <motion.ul
+               ref={carouselRef}
+               drag={isMobile ? false : "x"}
+               dragConstraints={{ right: 0, left: -dragWidth }}
+               dragElastic={0.15}
+               dragTransition={{ power: 0.2, timeConstant: 300 }} // Мягкая инерция (momentum скролл)
+               animate={isMobile ? undefined : { x: positionX }}
+               transition={{ type: "spring", stiffness: 220, damping: 28 }}
+               className="flex gap-6 pb-8 w-max"
+            >
+               {displayProjects.map((project, i) => {
+                 const mainCategoryLabel = getCategoryLabel(project.categories[0]);
+                 const completionDate = project.date || "2026-01-01";
 
-                     {/* Details panel */}
-                     <div className="relative z-10 w-full p-7 space-y-3.5 text-left">
-                        
-                        {/* Title link */}
-                        <Link 
-                          href={`/portfolio/${project.slug}`}
-                          onClick={triggerHaptic}
-                          className="block cursor-pointer"
-                        >
-                          <h3 className="font-black text-white text-xl sm:text-2xl group-hover:text-orange-400 transition-colors leading-tight line-clamp-1">
-                             {project.title}
-                          </h3>
-                        </Link>
-                        
-                        <p className="text-slate-300 text-xs font-semibold leading-relaxed line-clamp-2">
-                           {project.description}
-                        </p>
+                 return (
+                   <FadeIn
+                     key={`${project.id}-${i}`}
+                     delay={(i % sortedProjects.length) * 40}
+                     threshold={0.05}
+                     as="li"
+                     className="relative group flex-none w-[82vw] sm:w-[380px] h-[460px] bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:shadow-lg hover:border-slate-350 transition duration-500 select-none flex flex-col justify-end snap-start"
+                   >
+                      {/* Background Image with Zoom */}
+                      <div 
+                        className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]" 
+                        style={{ backgroundImage: `url(${project.image})` }}
+                      ></div>
+                      
+                      {/* Dark overlay for contrast */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent transition duration-300 opacity-90 group-hover:opacity-95 pointer-events-none"></div>
+                      
+                      {/* Category badge */}
+                      <div className="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white font-extrabold text-[10px] uppercase tracking-wider">
+                         {mainCategoryLabel}
+                      </div>
 
-                        {/* Stats badges */}
-                        <div className="flex flex-wrap items-center gap-2 pt-1">
-                           {project.completionTime && (
-                              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
-                                 <Clock className="w-3 h-3 text-orange-400"/>
-                                 <span>{project.completionTime}</span>
-                              </div>
-                           )}
-                           
-                           {project.techSpecs.warranty && (
-                              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
-                                 <ShieldCheck className="w-3 h-3 text-emerald-400"/>
-                                 <span>Гарантия {project.techSpecs.warranty}</span>
-                              </div>
-                           )}
+                      {/* Details panel */}
+                      <div className="relative z-10 w-full p-7 space-y-3.5 text-left">
+                         
+                         {/* Title link */}
+                         <Link 
+                           href={`/portfolio/${project.slug}`}
+                           onClick={triggerHaptic}
+                           className="block cursor-pointer"
+                         >
+                           <h3 className="font-black text-white text-xl sm:text-2xl group-hover:text-orange-400 transition-colors leading-tight line-clamp-1">
+                              {project.title}
+                           </h3>
+                         </Link>
+                         
+                         <p className="text-slate-300 text-xs font-semibold leading-relaxed line-clamp-2">
+                            {project.description}
+                         </p>
 
-                           {project.location && (
-                              <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold max-w-[180px] truncate">
-                                 <MapPin className="w-3 h-3 text-blue-400 shrink-0"/>
-                                 <span className="truncate">{project.location.split(',')[1] || project.location}</span>
-                              </div>
-                           )}
-                        </div>
+                         {/* Stats badges */}
+                         <div className="flex flex-wrap items-center gap-2 pt-1">
+                            {project.completionTime && (
+                               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
+                                  <Clock className="w-3 h-3 text-orange-400"/>
+                                  <time dateTime={completionDate}>{project.completionTime}</time>
+                               </div>
+                            )}
+                            
+                            {project.techSpecs.warranty && (
+                               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
+                                  <ShieldCheck className="w-3 h-3 text-emerald-400"/>
+                                  <span>Гарантия {project.techSpecs.warranty}</span>
+                               </div>
+                            )}
 
-                     </div>
-                  </FadeIn>
-                );
-              })}
-           </motion.div>
+                            {project.location && (
+                               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold max-w-[180px] truncate">
+                                  <MapPin className="w-3 h-3 text-blue-400 shrink-0"/>
+                                  <span className="truncate">{project.location.split(',')[1] || project.location}</span>
+                               </div>
+                            )}
+                         </div>
+
+                      </div>
+                   </FadeIn>
+                 );
+               })}
+            </motion.ul>
         </div>
       </div>
     </section>

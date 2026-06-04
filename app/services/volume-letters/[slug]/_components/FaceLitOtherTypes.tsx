@@ -12,7 +12,7 @@ interface FaceLitOtherTypesProps {
 }
 
 export default function FaceLitOtherTypes({ otherTypes }: FaceLitOtherTypesProps) {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLUListElement>(null);
   
   // Рефы для Drag-to-scroll без дерганий
   const isDown = useRef(false);
@@ -119,7 +119,7 @@ export default function FaceLitOtherTypes({ otherTypes }: FaceLitOtherTypesProps
         </div>
 
         {/* Скролл-контейнер с физикой сглаживания Apple */}
-        <div 
+        <ul 
           ref={scrollContainerRef}
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
@@ -128,48 +128,74 @@ export default function FaceLitOtherTypes({ otherTypes }: FaceLitOtherTypesProps
           className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-none hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing"
           style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
         >
-          {otherTypes.map((type) => (
-            <Link 
-              key={type.id} 
-              href={`/services/volume-letters/${type.slug}`}
-              onClick={handleLinkClick}
-              className="group snap-start bg-slate-50 rounded-[2rem] overflow-hidden border border-slate-200/60 hover:border-orange-500/40 transition-all duration-500 shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1 cursor-pointer flex flex-col h-full min-w-[280px] sm:min-w-[310px] max-w-[310px] shrink-0"
-              draggable="false"
-            >
-              {/* Превью со сменой дня и ночи при наведении */}
-              <div className="h-48 relative bg-slate-950 shrink-0 overflow-hidden rounded-t-[2rem]" draggable="false">
-                <Image 
-                  src={type.images.night} 
-                  alt={`${type.title} ночью`} 
-                  fill 
-                  className="object-cover opacity-90 group-hover:opacity-0 transition-opacity duration-700"
+          {otherTypes.map((type) => {
+            const numericPrice = type.price.replace(/\D/g, "");
+            return (
+              <li 
+                key={type.id} 
+                itemScope 
+                itemType="https://schema.org/Product"
+                className="snap-start min-w-[280px] sm:min-w-[310px] max-w-[310px] shrink-0"
+              >
+                <Link 
+                  href={`/services/volume-letters/${type.slug}`}
+                  onClick={handleLinkClick}
+                  className="group flex flex-col h-full bg-slate-50 rounded-[2rem] overflow-hidden border border-slate-200/60 hover:border-orange-500/40 transition-all duration-500 shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1 cursor-pointer"
                   draggable="false"
-                />
-                <Image 
-                  src={type.images.day} 
-                  alt={`${type.title} днем`} 
-                  fill 
-                  className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-                  draggable="false"
-                />
-              </div>
+                >
+                  {/* Превью со сменой дня и ночи при наведении */}
+                  <div className="h-48 relative bg-slate-950 shrink-0 overflow-hidden rounded-t-[2rem]" draggable="false">
+                    <Image 
+                      src={type.images.night} 
+                      alt={`${type.title} ночью`} 
+                      fill 
+                      itemProp="image"
+                      className="object-cover opacity-90 group-hover:opacity-0 transition-opacity duration-700"
+                      draggable="false"
+                    />
+                    <Image 
+                      src={type.images.day} 
+                      alt={`${type.title} днем`} 
+                      fill 
+                      className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                      draggable="false"
+                    />
+                  </div>
 
-              {/* Текстовая панель */}
-              <div className="p-6 flex flex-col flex-1" draggable="false">
-                <h4 className="text-slate-950 font-bold text-lg mb-2 group-hover:text-orange-600 transition-colors duration-300 line-clamp-2">
-                  {type.title}
-                </h4>
-                <p className="text-slate-500 text-sm leading-relaxed mb-4 line-clamp-2 flex-1">
-                  {type.description}
-                </p>
-                <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-200/60">
-                  <span className="text-slate-400 text-xs font-semibold">Базовая ставка</span>
-                  <span className="text-orange-600 font-extrabold text-base">{type.price}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                  {/* Текстовая панель */}
+                  <div className="p-6 flex flex-col flex-1" draggable="false">
+                    <h4 
+                      itemProp="name" 
+                      className="text-slate-950 font-bold text-lg mb-2 group-hover:text-orange-600 transition-colors duration-300 line-clamp-2"
+                    >
+                      {type.title}
+                    </h4>
+                    <p 
+                      itemProp="description" 
+                      className="text-slate-500 text-sm leading-relaxed mb-4 line-clamp-2 flex-1"
+                    >
+                      {type.description}
+                    </p>
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-200/60">
+                      <span className="text-slate-400 text-xs font-semibold">Базовая ставка</span>
+                      <span 
+                        itemProp="offers"
+                        itemScope
+                        itemType="https://schema.org/Offer"
+                        className="text-orange-600 font-extrabold text-base"
+                      >
+                        <meta itemProp="price" content={numericPrice} />
+                        <meta itemProp="priceCurrency" content="KZT" />
+                        <link itemProp="availability" href="https://schema.org/InStock" />
+                        {type.price}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
 
       </div>
     </section>

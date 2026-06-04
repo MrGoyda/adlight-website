@@ -36,23 +36,23 @@ export default function DesignCodeRules() {
           </FadeIn>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <ul className="grid lg:grid-cols-3 gap-8 list-none">
           {DESIGN_CODE_RULES.map((rule, idx) => (
-            <FadeIn key={rule.id} direction="up" delay={idx * 100}>
-              <Card hover className="p-8 bg-white border border-slate-200/60 transition-all duration-300 hover:y-[-4px] shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] rounded-3xl relative overflow-hidden">
+            <FadeIn key={rule.id} direction="up" delay={idx * 100} as="li" className="h-full">
+              <Card hover className="p-8 bg-white border border-slate-200/60 transition-all duration-300 hover:y-[-4px] shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] rounded-3xl relative overflow-hidden h-full flex flex-col">
                 <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition">
                   {renderIcon(rule.iconName, "w-20 h-20 text-orange-600")}
                 </div>
                 
-                <div className="inline-block px-3.5 py-1 bg-orange-50 text-orange-600 rounded-full text-xs font-bold mb-6 tracking-wide border border-orange-200/30">
+                <div className="inline-block px-3.5 py-1 bg-orange-50 text-orange-600 rounded-full text-xs font-bold mb-6 tracking-wide border border-orange-200/30 self-start">
                   {rule.badge}
                 </div>
                 
-                <Typography variant="h3" className="mb-6 text-xl tracking-tight text-slate-950 font-bold">
+                <Typography variant="h3" className="mb-6 text-xl tracking-tight text-slate-955 font-bold">
                   {rule.title}
                 </Typography>
                 
-                <ul className="space-y-4 relative z-10">
+                <ul className="space-y-4 relative z-10 mt-auto">
                   {rule.items.map((item, idx) => {
                     const isBold = item.includes(":");
                     const parts = isBold ? item.split(":") : [item];
@@ -73,7 +73,7 @@ export default function DesignCodeRules() {
               </Card>
             </FadeIn>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

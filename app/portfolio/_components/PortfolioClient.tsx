@@ -35,7 +35,7 @@ export default function PortfolioClient({
   totalProjectsCount,
 }: PortfolioClientProps) {
   const router = useRouter();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLUListElement>(null);
   const casesSectionRef = useRef<HTMLDivElement>(null);
 
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -176,95 +176,107 @@ export default function PortfolioClient({
                <div className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none transition-opacity ${showLeftArrow ? 'opacity-100' : 'opacity-0'}`} />
                <div className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none transition-opacity ${showRightArrow ? 'opacity-100' : 'opacity-0'}`} />
 
-               <div 
+               <ul 
                   ref={scrollContainerRef}
                   className="flex gap-2 overflow-x-auto hide-scrollbar items-center justify-start w-full scroll-smooth px-2"
                >
                   {CATEGORIES.map((cat) => (
-                     <button
-                        key={cat.id}
-                        onClick={(e) => handleCategoryChange(e, cat.id)}
-                        className={`shrink-0 px-5 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all duration-300 border cursor-pointer ${
-                           activeCategory === cat.id 
-                              ? "bg-gradient-to-r from-orange-600 to-red-600 text-white border-transparent shadow-md shadow-orange-500/10" 
-                              : "bg-transparent text-slate-500 border-transparent hover:bg-slate-100 hover:text-slate-900"
-                        }`}
-                     >
-                        {cat.label}
-                     </button>
+                     <li key={cat.id} className="shrink-0">
+                        <button
+                           onClick={(e) => handleCategoryChange(e, cat.id)}
+                           className={`px-5 py-3 rounded-xl text-sm font-bold whitespace-nowrap transition-all duration-300 border cursor-pointer ${
+                              activeCategory === cat.id 
+                                 ? "bg-gradient-to-r from-orange-600 to-red-600 text-white border-transparent shadow-md shadow-orange-500/10" 
+                                 : "bg-transparent text-slate-500 border-transparent hover:bg-slate-100 hover:text-slate-900"
+                           }`}
+                        >
+                           {cat.label}
+                        </button>
+                     </li>
                   ))}
-               </div>
-            </div>
-         </div>
-      </section>
+                </ul>
+             </div>
+          </div>
+       </section>
 
       {/* 3. СЕТКА ПРОЕКТОВ */}
       <section ref={casesSectionRef} className="container mx-auto px-4 pb-16">
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+         <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {initialProjects.map((project, i) => (
-               <FadeIn key={`${activeCategory}-${project.id}`} direction="up" delay={i % 3 * 100} duration={500}>
-                  <Link 
-                     href={`/portfolio/${project.slug}`} 
-                     className="group relative flex flex-col gap-4 cursor-pointer"
+               <FadeIn 
+                 key={`${activeCategory}-${project.id}`} 
+                 direction="up" 
+                 delay={i % 3 * 100} 
+                 duration={500}
+                 as="li"
+               >
+                  <article 
                      itemScope
-                     itemType="http://schema.org/CreativeWork"
+                     itemType="https://schema.org/CreativeWork"
                      data-ai-entity="ProjectCard"
                      data-ai-category={project.categories.join(", ")}
                      data-ai-location="Казахстан, Астана"
                      data-ai-date={project.date}
+                     className="flex flex-col gap-4"
                   >
-                     {/* Картинка */}
-                     <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs group-hover:shadow-md group-hover:border-orange-500/20 transition-all duration-300">
-                        <div className="absolute inset-0 bg-slate-200/60 animate-pulse" /> 
-                        
-                        <Image 
-                           src={project.image} 
-                           alt={project.seoAlt || project.title} 
-                           fill
-                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                           className="object-cover transition duration-700 group-hover:scale-105"
-                           itemProp="image"
-                           priority={i < 3 && currentPage === 1}
-                        />
-                        
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent opacity-85 group-hover:opacity-75 transition duration-500" />
+                     <Link 
+                        href={`/portfolio/${project.slug}`} 
+                        className="group relative flex flex-col gap-4 cursor-pointer"
+                        itemProp="url"
+                     >
+                        {/* Картинка */}
+                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs group-hover:shadow-md group-hover:border-orange-500/20 transition-all duration-300">
+                           <div className="absolute inset-0 bg-slate-200/60 animate-pulse" /> 
+                           
+                           <Image 
+                              src={project.image} 
+                              alt={project.seoAlt || project.title} 
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              className="object-cover transition duration-700 group-hover:scale-105"
+                              itemProp="image"
+                              priority={i < 3 && currentPage === 1}
+                           />
+                           
+                           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/10 to-transparent opacity-85 group-hover:opacity-75 transition duration-500" />
 
-                        <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
-                           {project.categories.slice(0, 2).map(catId => {
-                              const catLabel = CATEGORIES.find(c => c.id === catId)?.label;
-                              return (
-                                 <span key={catId} className="px-2.5 py-1 rounded-lg bg-white/95 border border-slate-200/80 text-[10px] font-black uppercase tracking-wider text-slate-700 shadow-xs">
-                                    {catLabel}
-                                 </span>
-                              );
-                           })}
-                        </div>
+                           <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
+                              {project.categories.slice(0, 2).map(catId => {
+                                 const catLabel = CATEGORIES.find(c => c.id === catId)?.label;
+                                 return (
+                                    <span key={catId} className="px-2.5 py-1 rounded-lg bg-white/95 border border-slate-200/80 text-[10px] font-black uppercase tracking-wider text-slate-700 shadow-xs">
+                                       {catLabel}
+                                    </span>
+                                 );
+                              })}
+                           </div>
 
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-500 z-10">
-                           <div className="w-14 h-14 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 flex items-center justify-center text-slate-800 transform translate-y-4 group-hover:translate-y-0 transition duration-500 shadow-sm">
-                              <ArrowUpRight className="w-6 h-6 text-orange-600"/>
+                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-500 z-10">
+                              <div className="w-14 h-14 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 flex items-center justify-center text-slate-800 transform translate-y-4 group-hover:translate-y-0 transition duration-500 shadow-sm">
+                                 <ArrowUpRight className="w-6 h-6 text-orange-600"/>
+                              </div>
                            </div>
                         </div>
-                     </div>
 
-                     {/* Информация */}
-                     <div className="px-2 text-left">
-                        <div className="flex justify-between items-start gap-3 mb-1.5">
-                           <h3 itemProp="name" className="text-xl font-black text-slate-900 group-hover:text-orange-600 transition-colors leading-tight">
-                              {project.title}
-                           </h3>
-                           <time itemProp="dateCreated" dateTime={project.date} className="text-xs font-mono text-slate-400 pt-1.5 whitespace-nowrap font-medium">
-                              {formatDate(project.date)}
-                           </time>
+                        {/* Информация */}
+                        <div className="px-2 text-left">
+                           <div className="flex justify-between items-start gap-3 mb-1.5">
+                              <h3 itemProp="name" className="text-xl font-black text-slate-900 group-hover:text-orange-600 transition-colors leading-tight">
+                                 {project.title}
+                              </h3>
+                              <time itemProp="dateCreated" dateTime={project.date} className="text-xs font-mono text-slate-400 pt-1.5 whitespace-nowrap font-medium">
+                                 {formatDate(project.date)}
+                              </time>
+                           </div>
+                           <p itemProp="description" className="text-sm text-slate-500 line-clamp-2 leading-relaxed font-medium">
+                              {project.description}
+                           </p>
                         </div>
-                        <p itemProp="description" className="text-sm text-slate-500 line-clamp-2 leading-relaxed font-medium">
-                           {project.description}
-                        </p>
-                     </div>
-                  </Link>
+                     </Link>
+                  </article>
                </FadeIn>
             ))}
-         </div>
+         </ul>
 
          {initialProjects.length === 0 && (
             <div className="flex flex-col items-center justify-center py-32 border border-dashed border-slate-200 rounded-3xl bg-white shadow-xs">

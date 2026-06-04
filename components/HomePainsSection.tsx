@@ -25,7 +25,7 @@ export default function HomePainsSection() {
         </div>
 
         {/* Сетка из 4 раздельных Pillars */}
-        <div className="space-y-16 md:space-y-24">
+        <dl className="space-y-16 md:space-y-24">
           {HOME_PILLARS.map((item, index) => (
             <HomePainsCard
               key={item.id}
@@ -33,7 +33,7 @@ export default function HomePainsSection() {
               isEven={index % 2 === 0}
             />
           ))}
-        </div>
+        </dl>
       </div>
     </section>
   );

@@ -51,7 +51,7 @@ export default function FaqSection({
         </div>
 
         {/* Clean Accordion List */}
-        <div className="space-y-4">
+        <div className="space-y-4" itemScope itemType="https://schema.org/FAQPage">
           {faqs.map((item, index) => {
             const isOpen = openFaq === index;
             return (
@@ -62,14 +62,20 @@ export default function FaqSection({
                     ? 'bg-slate-50/40 border-orange-500/20 shadow-[0_8px_30px_rgb(0,0,0,0.01)]' 
                     : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.005)]'
                 }`}
+                itemScope
+                itemProp="mainEntity"
+                itemType="https://schema.org/Question"
               >
                 <button 
                   onClick={() => toggleFaq(index)} 
                   className="w-full flex items-center justify-between p-6 md:p-8 text-left focus:outline-none"
                 >
-                  <span className={`text-base sm:text-lg font-extrabold tracking-tight transition-colors duration-250 pr-4 leading-snug ${
-                    isOpen ? 'text-orange-600' : 'text-slate-900 group-hover:text-orange-500'
-                  }`}>
+                  <span 
+                    itemProp="name"
+                    className={`text-base sm:text-lg font-extrabold tracking-tight transition-colors duration-250 pr-4 leading-snug ${
+                      isOpen ? 'text-orange-600' : 'text-slate-900 group-hover:text-orange-500'
+                    }`}
+                  >
                     {item.q}
                   </span>
                   
@@ -86,8 +92,15 @@ export default function FaqSection({
                   isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                 }`}>
                   <div className="overflow-hidden">
-                    <div className="px-6 md:px-8 pb-8 text-slate-600 leading-relaxed font-semibold text-sm sm:text-base border-t border-slate-100 pt-5">
-                      {item.a}
+                    <div 
+                      itemProp="acceptedAnswer"
+                      itemScope
+                      itemType="https://schema.org/Answer"
+                      className="px-6 md:px-8 pb-8 text-slate-600 leading-relaxed font-semibold text-sm sm:text-base border-t border-slate-100 pt-5"
+                    >
+                      <div itemProp="text">
+                        {item.a}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -91,11 +91,15 @@ export default function ContactsMap({
         onMouseLeave={() => setMapInteractive(false)}
       >
          <div className="bg-white/97 backdrop-blur-md p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-[0_20px_60px_rgba(15,23,42,0.06)] max-w-md w-full pointer-events-auto space-y-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4" itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
                <div className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-600 shrink-0"><MapPin className="w-5 h-5"/></div>
                <div>
                   <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-0.5">{dict.label}</span>
-                  <h3 className="text-xl font-black text-slate-900 tracking-tight leading-snug">{COMPANY_NAP.address}</h3>
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight leading-snug" itemProp="streetAddress">
+                     <meta itemProp="addressLocality" content="Астана" />
+                     <meta itemProp="addressCountry" content="KZ" />
+                     {COMPANY_NAP.address}
+                  </h3>
                </div>
             </div>
             
