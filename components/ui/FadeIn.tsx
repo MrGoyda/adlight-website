@@ -76,7 +76,7 @@ export default function FadeIn({
   return (
     <Component
       ref={domRef}
-      className={`transform-gpu transition-all ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity] ${
+      className={`transform-gpu transition-[transform,opacity] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity] ${
         isVisible ? "translate-y-0 translate-x-0 opacity-100" : getDirectionClass()
       } ${className}`}
       style={{

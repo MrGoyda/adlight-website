@@ -201,12 +201,12 @@ export default function ProjectsBento({
                      >
                        {/* Background Image with Zoom */}
                        <div 
-                         className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]" 
+                         className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02] rounded-3xl" 
                          style={{ backgroundImage: `url(${project.image})` }}
                        ></div>
                        
                        {/* Dark overlay for contrast */}
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent transition duration-300 opacity-90 group-hover:opacity-95 pointer-events-none"></div>
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent transition duration-300 opacity-90 group-hover:opacity-95 pointer-events-none rounded-3xl"></div>
                        
                        {/* Category badge */}
                        <div className="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white font-extrabold text-[10px] uppercase tracking-wider">

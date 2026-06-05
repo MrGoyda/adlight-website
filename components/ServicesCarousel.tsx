@@ -199,8 +199,8 @@ export default function ServicesCarousel({
                         itemProp="url"
                       >
                         {/* Картинка */}
-                        <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none" style={{ backgroundImage: `url(${service.image})` }}></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent opacity-90 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none rounded-3xl" style={{ backgroundImage: `url(${service.image})` }}></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent opacity-90 pointer-events-none rounded-3xl"></div>
                         
                         {/* Текст */}
                         <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 pointer-events-none">
