@@ -194,28 +194,41 @@ ${parsed.title}
 ⏰ <i>${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })} (Астана)</i>
 `;
 
-    // 5. Отправляем запрос к API Telegram
+    // 5. Отправляем запрос к API Telegram для каждого Chat ID
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const chatIds = chatId.split(',').map(id => id.trim());
     
-    const telegramResponse = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: messageContent.trim(),
-        parse_mode: 'HTML',
-      }),
+    const sendPromises = chatIds.map(async (id) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: id,
+          text: messageContent.trim(),
+          parse_mode: 'HTML',
+        }),
+      });
+      return { id, response };
     });
 
-    if (!telegramResponse.ok) {
-      const errorData = await telegramResponse.json();
-      console.error('Telegram API Error:', errorData);
-      return NextResponse.json({ error: `Ошибка Telegram: ${errorData.description}` }, { status: 500 });
+    const results = await Promise.all(sendPromises);
+    let failedChats = [];
+
+    for (const result of results) {
+      if (!result.response.ok) {
+        const errorData = await result.response.json();
+        console.error(`Telegram API Error for Chat ID ${result.id}:`, errorData);
+        failedChats.push(`${result.id}: ${errorData.description}`);
+      }
     }
 
-    return NextResponse.json({ success: true });
+    if (failedChats.length === chatIds.length) {
+      return NextResponse.json({ error: `Ошибка Telegram для всех чатов: ${failedChats.join(', ')}` }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, partialFailures: failedChats.length > 0 ? failedChats : undefined });
 
   } catch (error) {
     console.error('Internal Server Error:', error);

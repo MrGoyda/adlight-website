@@ -17,11 +17,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   // 2. Основные категории услуг (Высокий приоритет 0.9 - это твой хлеб)
-  const mainServices = [
-    '/services/volume-letters',
-    '/services/lightboxes',
-    ...Object.keys(SERVICES_DETAILS).map((slug) => `/services/${slug}`),
-  ];
+  const mainServices = Array.from(
+    new Set([
+      '/services/volume-letters',
+      '/services/lightboxes',
+      ...Object.keys(SERVICES_DETAILS).map((slug) => `/services/${slug}`),
+    ])
+  );
 
   // 3. Узкие специализации (Приоритет 0.8 - "Long tail" запросы)
   // AI очень любят эти страницы за конкретику

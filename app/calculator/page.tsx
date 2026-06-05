@@ -1,14 +1,18 @@
-/**
- * app/calculator/page.tsx — Server Component
- * Скилл seo-expert: h1 + Schema.org (WebApplication + ItemList + FAQPage) индексируются без JS.
- */
-
+import { Metadata } from "next";
+import { constructMetadata } from "@/lib/seo";
 import { SITE_PRICES_NUMERIC, SITE_CONTACTS } from "@/config/site";
 import { CALCULATOR_FAQ, CALC_UI } from "@/dictionaries/calculator";
 import FaqSection from "@/components/FaqSection";
 
 import CalculatorShell from "./_components/CalculatorShell";
 import PriceShowcase from "./_components/PriceShowcase";
+
+export const metadata: Metadata = constructMetadata({
+  title: "Калькулятор стоимости вывески в Астане | Рассчитать цену вывески онлайн",
+  description: "Онлайн-калькулятор стоимости изготовления объемных букв и лайтбоксов в Астане. Укажите размеры и тип конструкции, чтобы мгновенно получить ориентировочный расчет цены.",
+  canonicalUrl: "https://adlight.kz/calculator",
+  keywords: ["калькулятор вывески астана", "рассчитать стоимость вывески", "цена объемных букв онлайн", "расчет цены лайтбокса", "наружная реклама стоимость"]
+});
 
 // ─── Schema.org ───────────────────────────────────────────────────────────────
 

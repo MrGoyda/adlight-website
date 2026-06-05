@@ -24,10 +24,10 @@ module.exports = {
         'apple-card': '0 20px 50px rgba(0, 0, 0, 0.1)',
         'apple-modal': '0 30px 70px rgba(0, 0, 0, 0.3)',
       },
-      // --- ВОТ ЭТО МЫ ДОБАВЛЯЕМ ---
       animation: {
         marquee: 'marquee 25s linear infinite',
         marquee2: 'marquee2 25s linear infinite',
+        shimmer: 'shimmer 1.5s infinite linear',
       },
       keyframes: {
         marquee: {
@@ -37,6 +37,10 @@ module.exports = {
         marquee2: {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(0%)' },
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       // -----------------------------
