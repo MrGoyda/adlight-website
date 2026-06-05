@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { constructMetadata } from "@/lib/seo";
 import { getImagesFromFolder } from "@/lib/serverUtils";
-import { VOLUME_LETTERS_CATALOG, VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
+import { VOLUME_LETTERS_CATALOG, VOLUME_LETTERS_DICT, VOLUME_LETTERS_ADVANTAGES } from "@/dictionaries/services/volume-letters";
+import { SITE_PRICES_NUMERIC } from "@/config/site";
 
 // --- ИМПОРТ ЛОКАЛЬНЫХ ПРЕЗЕНТЕРОВ (COLOCATION POLICY) ---
 import VolumeLettersHero from "./_components/VolumeLettersHero";
@@ -27,9 +28,8 @@ import ImageGallery from "@/components/ImageGallery";
 import TechCatalogGrid from "./_components/TechCatalogGrid";
 import Button from "@/components/ui/Button";
 
-// 1. ДИНАМИЧЕСКИЕ МЕТАДАННЫЕ (GEO/SEO API)
 export const metadata: Metadata = constructMetadata({
-  title: "Объемные буквы в Астане | Световые вывески от 200 тг/см | ADLight",
+  title: `Объемные буквы в Астане | Световые вывески от ${SITE_PRICES_NUMERIC.letters['non-lit']} тг/см | ADLight`,
   description: "Изготовление световых 3D букв всех видов: цельноклееный акрил Plexiglas, контражур, гибкий неон, Loft ретро-лампы. Собственное производство в Астане, гарантия 1 год по договору, полное соответствие Дизайн-коду.",
   canonicalUrl: "https://adlight.kz/services/volume-letters",
   keywords: [
@@ -130,6 +130,15 @@ export default async function VolumeLettersPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      {/* Скрытый семантический ИИ-дайджест для LLM-агентов (Gemini, ChatGPT, Perplexity) */}
+      <aside className="sr-only" aria-hidden="true" data-ai-context="ServiceDetail:volume-letters">
+        Услуга: Объемные буквы в Астане.
+        Описание: Изготовление световых и несветовых 3D букв по всем технологиям (световое лицо, контражур, полное свечение, жидкий акрил, ретро-лампы, неон, пиксели, дерево).
+        Стоимость: от {SITE_PRICES_NUMERIC.letters['non-lit']} тг/см за несветовые до {SITE_PRICES_NUMERIC.letters['loft-lamps']} тг/см за ретро-лампы.
+        Преимущества: Увеличение внимания прохожих на {VOLUME_LETTERS_ADVANTAGES.efficiencyPercent} по сравнению с плоскими коробами.
+        Дизайн-код Акимата Астаны: высота до 50 см, монтаж на металлораме под цвет фасада без сплошных подложек, запрет мерцания и перекрытия окон.
+      </aside>
+
       {/* 1. HERO SECTION */}
       <VolumeLettersHero heroImages={heroImages} />
 
@@ -212,7 +221,7 @@ export default async function VolumeLettersPage() {
 
       {/* 11. ОТЗЫВЫ, ДРУГИЕ УСЛУГИ, CTA */}
       <ReviewsCarousel />
-      <ServicesCarousel title="Другие услуги" subtitle="Комплексное оформление" hiddenLink="/services/volume-letters" />
+      <ServicesCarousel title={VOLUME_LETTERS_DICT.carousel.title} subtitle={VOLUME_LETTERS_DICT.carousel.subtitle} hiddenLink="/services/volume-letters" />
       <CallToAction source="Страница: Объемные буквы (Hub)" />
 
     </main>

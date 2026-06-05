@@ -29,9 +29,9 @@ export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps
       <div className="container mx-auto px-4 relative z-10">
         {/* Breadcrumbs */}
         <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-500 mb-8 font-medium">
-          <Link href="/" className="hover:text-slate-900 transition-colors">Главная</Link>
+          <Link href="/" className="hover:text-slate-900 transition-colors">{VOLUME_LETTERS_DICT.breadcrumbs.home}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link href="/services" className="hover:text-slate-900 transition-colors">Услуги</Link>
+          <Link href="/services" className="hover:text-slate-900 transition-colors">{VOLUME_LETTERS_DICT.breadcrumbs.services}</Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           <span className="text-orange-600 font-semibold">{heroData.title}</span>
         </div>

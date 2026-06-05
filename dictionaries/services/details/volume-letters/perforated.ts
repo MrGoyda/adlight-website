@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const perforatedDetails: VolumeLetterDetailData = {
   slug: "perforated",
   title: "Объемные буквы с перфорацией бортов",
   subtitle: "Эффект звездного мерцания (Sparkle / Starry Night Effect). Инновационная технология: боковые алюминиевые стороны с тысячами лазерных отверстий создают мерцающий ореол кристаллов.",
-  price: "750",
+  price: String(SITE_PRICES_NUMERIC.letters['perforated']),
   badge: "Перфорированные буквы Астана | Вывески по дизайн-коду",
   seoTitle: "Объемные буквы с перфорацией в Астане | Заказать вывеску с перфорированным бортом",
   seoDesc: "Профессиональное изготовление световых объемных букв с перфорированными боковинами в Астане. Уникальный мерцающий эффект, алюминиевый борт, гарантия 2 года. Соответствие Дизайн-коду Акимата. Закажите трендовую вывеску напрямую с производства!",
@@ -66,7 +67,7 @@ export const perforatedDetails: VolumeLetterDetailData = {
     quantity: "7 объемных букв",
     height: "30 см",
     face: "Акрил Plexiglas + Перфорированный алюминий + Влагозащищенный дубляж + Диоды ELF",
-    total: "157 500 ₸"
+    total: `${formatPrice(7 * 30 * SITE_PRICES_NUMERIC.letters['perforated'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

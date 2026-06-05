@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const day_night_effectDetails: VolumeLetterDetailData = {
   slug: "day-night-effect",
   title: "Объемные световые буквы «День-Ночь»",
   subtitle: "Магия перфорированной пленки (Day-Night Dual Effect). Уникальная технология: днем буквы имеют строгий черный цвет, а ночью светятся ярко-белым светом.",
-  price: "700",
+  price: String(SITE_PRICES_NUMERIC.letters['day-night-effect']),
   badge: "Вывески День-Ночь Астана | Магия свечения",
   seoTitle: "Объемные буквы День-Ночь в Астане | Заказать вывеску с эффектом День/Ночь напрямую",
   seoDesc: "Профессиональное изготовление объемных световых букв День-Ночь в Астане. Немецкая транслюцентная пленка Oracal, корейская LED-оптика, гарантия 2 года. Соответствие Дизайн-коду. Закажите технологичную вывеску напрямую от производителя!",
@@ -66,7 +67,7 @@ export const day_night_effectDetails: VolumeLetterDetailData = {
     quantity: "13 объемных букв",
     height: "30 см",
     face: "Акрил Plexiglas + Перфорированная пленка Oracal Day-Night + Усиленные диоды ELF",
-    total: "273 000 ₸"
+    total: `${formatPrice(13 * 30 * SITE_PRICES_NUMERIC.letters['day-night-effect'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

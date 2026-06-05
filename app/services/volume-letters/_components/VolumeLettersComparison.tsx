@@ -1,7 +1,7 @@
 // app/services/volume-letters/_components/VolumeLettersComparison.tsx
 
 import { ShieldCheck, HelpCircle } from "lucide-react";
-import { VOLUME_LETTERS_EXPERT } from "@/dictionaries/services/volume-letters";
+import { VOLUME_LETTERS_EXPERT, VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
 
 export default function VolumeLettersComparison() {
   const data = VOLUME_LETTERS_EXPERT.comparison;
@@ -13,7 +13,7 @@ export default function VolumeLettersComparison() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded-full uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5" />
-            Выбор комплектации
+            {VOLUME_LETTERS_DICT.comparison.badge}
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
             {data.title}
@@ -74,14 +74,14 @@ export default function VolumeLettersComparison() {
                 <div className="flex flex-col gap-3 mb-4">
                   {/* Premium column stack */}
                   <div className="flex flex-col gap-1">
-                    <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Премиум</span>
+                    <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">{VOLUME_LETTERS_DICT.comparison.premiumLabel}</span>
                     <span className="text-orange-700 font-bold bg-orange-50 px-2.5 py-1.5 rounded-lg border border-orange-100 text-xs self-start whitespace-normal break-words leading-relaxed">
                       {row.premium}
                     </span>
                   </div>
                   {/* Budget column stack */}
                   <div className="flex flex-col gap-1">
-                    <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Заводской Бюджет</span>
+                    <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">{VOLUME_LETTERS_DICT.comparison.budgetLabel}</span>
                     <span className="text-slate-700 font-bold bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs self-start whitespace-normal break-words leading-relaxed">
                       {row.budget}
                     </span>

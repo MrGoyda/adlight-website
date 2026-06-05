@@ -18,6 +18,53 @@ export interface ServiceComparisonItem {
   items: { bold: string; normal: string }[];
 }
 
+export interface ServiceRuleItem {
+  title: string;
+  desc: string;
+}
+
+export interface ServiceRules {
+  allowed: ServiceRuleItem[];
+  forbidden: ServiceRuleItem[];
+}
+
+export interface ServiceStepItem {
+  step: string;
+  title: string;
+  desc: string;
+}
+
+export interface ServiceCareTip {
+  step: string;
+  title: string;
+  desc: string;
+}
+
+export interface ServiceCareGuide {
+  title: string;
+  subtitle: string;
+  tips: ServiceCareTip[];
+}
+
+export interface ServiceExpertTip {
+  title: string;
+  desc: string;
+  iconName: string;
+}
+
+export interface ServiceOfferItem {
+  name: string;
+  price: string;
+  priceCurrency: string;
+}
+
+export interface ServiceReviewItem {
+  author: string;
+  datePublished: string;
+  ratingValue: string;
+  reviewBody: string;
+}
+
 export interface ServiceDetailData {
   slug: string;
   title: string;
@@ -61,6 +108,26 @@ export interface ServiceDetailData {
 
   // FAQ List
   faqs: { question: string; answer: string; iconName: string }[];
+
+  // DRY Configurable layouts
+  rules?: ServiceRules;
+  steps?: ServiceStepItem[];
+  careGuide?: ServiceCareGuide;
+  expertTips?: {
+    title: string;
+    subtitle: string;
+    expertId: string;
+    expertQuote: string;
+    tips: ServiceExpertTip[];
+  };
+
+  // Schema & Rich metadata extensions
+  subOffers?: ServiceOfferItem[];
+  reviews?: ServiceReviewItem[];
+
+  // Conditional layout flags
+  hasCalculatorBanner?: boolean;
+  hasDesignCodeBlock?: boolean;
 }
 
 
@@ -73,6 +140,14 @@ import { roof_installationsDetails } from "./details/roof-installations";
 import { pylonsDetails } from "./details/pylons";
 import { entrance_groupsDetails } from "./details/entrance-groups";
 import { facade_decorationDetails } from "./details/facade-decoration";
+import { branding_carsDetails } from "./details/branding-cars";
+import { signboard_repairDetails } from "./details/signboard-repair";
+import { exhibition_standsDetails } from "./details/exhibition-stands";
+import { window_brandingDetails } from "./details/window-branding";
+import { led_screensDetails } from "./details/led-screens";
+import { architectural_lightingDetails } from "./details/architectural-lighting";
+import { banners_platesDetails } from "./details/banners-plates";
+import { lightboxesDetails } from "./details/lightboxes";
 
 export const SERVICES_DETAILS: Record<string, ServiceDetailData> = {
   "panel-brackets": panel_bracketsDetails,
@@ -83,4 +158,31 @@ export const SERVICES_DETAILS: Record<string, ServiceDetailData> = {
   "pylons": pylonsDetails,
   "entrance-groups": entrance_groupsDetails,
   "facade-decoration": facade_decorationDetails,
+  "branding-cars": branding_carsDetails,
+  "signboard-repair": signboard_repairDetails,
+  "exhibition-stands": exhibition_standsDetails,
+  "window-branding": window_brandingDetails,
+  "led-screens": led_screensDetails,
+  "architectural-lighting": architectural_lightingDetails,
+  "banners-plates": banners_platesDetails,
+  "lightboxes": lightboxesDetails,
+};
+
+export const SERVICES_DETAILS_UI = {
+  notFound: "Услуга не найдена",
+  calculator: {
+    title: "Рассчитайте точную цену за 1 минуту",
+    description: "Интеллектуальный калькулятор на нашем сайте моментально рассчитает ориентировочную стоимость вашей конструкции онлайн. Выберите желаемые параметры и получите моментальный сметный расчет.",
+    buttonText: "Перейти в калькулятор"
+  },
+  gallery: {
+    title: "Наши работы",
+    subtitle: "Примеры выполненных работ",
+    projectTitleTemplate: "Изготовление и монтаж {title} в Астане",
+    placeholderTemplate: "Загрузите фотографии в папку public/images/{slug}"
+  },
+  carousel: {
+    title: "Другие услуги",
+    subtitle: "Комплексный подход к вашему бренду"
+  }
 };

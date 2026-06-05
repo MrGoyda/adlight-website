@@ -51,7 +51,7 @@ export default function TechCatalogGrid() {
                     <div className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-0 z-10">
                       <Image 
                         src={type.images.night} 
-                        alt={`${type.title} - ночная подсветка`} 
+                        alt={notice.altNightTemplate.replace("{title}", type.title)} 
                         fill 
                         itemProp="image"
                         className="object-cover" 
@@ -64,7 +64,7 @@ export default function TechCatalogGrid() {
                     <div className="absolute inset-0">
                       <Image 
                         src={type.images.day} 
-                        alt={`${type.title} - вид днем`} 
+                        alt={notice.altDayTemplate.replace("{title}", type.title)} 
                         fill 
                         className="object-cover" 
                       />

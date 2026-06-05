@@ -1,7 +1,7 @@
 // app/services/volume-letters/_components/VolumeLettersRules.tsx
 
 import { CheckCircle2, XCircle, FileText } from "lucide-react";
-import { VOLUME_LETTERS_EXPERT } from "@/dictionaries/services/volume-letters";
+import { VOLUME_LETTERS_EXPERT, VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
 
 export default function VolumeLettersRules() {
   const data = VOLUME_LETTERS_EXPERT.designCode;
@@ -13,7 +13,7 @@ export default function VolumeLettersRules() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded-full uppercase tracking-wider">
             <FileText className="w-3.5 h-3.5" />
-            Дизайн-код Астаны
+            {VOLUME_LETTERS_DICT.rules.badge}
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
             {data.title}

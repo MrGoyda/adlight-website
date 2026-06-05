@@ -1,13 +1,14 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../config/site";
 import { ServiceDetailData } from "../service-details";
 
 export const lightboxesDetails: ServiceDetailData = {
   slug: "lightboxes",
   title: "Световые короба (Лайтбоксы)",
   subtitle: "От простых вывесок до сверхтонких меню-бордов. Максимальная площадь свечения по лучшей цене.",
-  price: "80 000",
+  price: formatPrice(SITE_PRICES_NUMERIC.lightboxes.acrylic),
   priceSuffix: "₸ / м²",
   badge: "Яркие лайтбоксы",
-  seoTitle: "Световые короба Астана | Лайтбоксы от 80 000 тг | ADLight",
+  seoTitle: `Световые короба Астана | Лайтбоксы от ${formatPrice(SITE_PRICES_NUMERIC.lightboxes.acrylic)} тг | ADLight`,
   seoDesc: "Изготовление лайтбоксов всех видов: акриловые, баннерные (для больших размеров), композитные с инкрустацией. Собственное производство, гарантия качества.",
   keywords: ["световой короб астана", "лайтбокс цена", "изготовление лайтбоксов", "баннерный короб", "вывеска для магазина"],
   heroTag: "Производство любых форм",
@@ -94,9 +95,9 @@ export const lightboxesDetails: ServiceDetailData = {
   pricingTitle: "Стоимость лайтбокса",
   pricingDesc: "Цена рассчитывается за квадратный метр (для простых форм) или индивидуально (для сложных фигурных конструкций).",
   pricingItems: [
-    { label: "Акриловый короб (до 3м)", value: "от 80 000 ₸ / м²" },
-    { label: "Баннерный короб (XXL)", value: "от 90 000 ₸ / м²" },
-    { label: "Композитный короб с инкрустацией", value: "от 120 000 ₸ / м²" }
+    { label: "Акриловый короб (до 3м)", value: `от ${formatPrice(SITE_PRICES_NUMERIC.lightboxes.acrylic)} ₸ / м²` },
+    { label: "Баннерный короб (XXL)", value: `от ${formatPrice(SITE_PRICES_NUMERIC.lightboxes.banner)} ₸ / м²` },
+    { label: "Композитный короб с инкрустацией", value: `от ${formatPrice(SITE_PRICES_NUMERIC.lightboxes.composite)} ₸ / м²` }
   ],
   pricingCalculatorPlaceholder: "Короб 200 x 50 см (~1 м²)",
   pricingActionText: "Рассчитать короб",

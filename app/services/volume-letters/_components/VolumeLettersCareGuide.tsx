@@ -1,7 +1,7 @@
 // app/services/volume-letters/_components/VolumeLettersCareGuide.tsx
 
 import { ShieldAlert } from "lucide-react";
-import { VOLUME_LETTERS_EXPERT } from "@/dictionaries/services/volume-letters";
+import { VOLUME_LETTERS_EXPERT, VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
 
 export default function VolumeLettersCareGuide() {
   const data = VOLUME_LETTERS_EXPERT.careGuide;
@@ -13,7 +13,7 @@ export default function VolumeLettersCareGuide() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 text-xs font-bold text-orange-600 bg-orange-50 border border-orange-200 rounded-full uppercase tracking-wider">
             <ShieldAlert className="w-3.5 h-3.5" />
-            Надежность и уход
+            {VOLUME_LETTERS_DICT.careGuide.badge}
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
             {data.title}
@@ -33,7 +33,7 @@ export default function VolumeLettersCareGuide() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-bl-full pointer-events-none group-hover:bg-orange-500/10 transition-colors"></div>
               
               <div className="text-orange-600 font-extrabold text-xs mb-3 tracking-widest uppercase">
-                Рекомендация {item.step}
+                {VOLUME_LETTERS_DICT.careGuide.tipPrefix} {item.step}
               </div>
               <h3 className="text-slate-800 font-bold text-lg mb-2 whitespace-normal break-words">{item.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed whitespace-normal break-words">{item.desc}</p>

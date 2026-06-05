@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const back_litDetails: VolumeLetterDetailData = {
   slug: "back-lit",
   title: "Объемные буквы с контражурной подсветкой",
   subtitle: "Эффект парения (Halo Lit / Контражур) — выбор премиальных брендов Астаны. Создание мягкого, обволакивающего светового ореола вокруг благородного темного силуэта буквы.",
-  price: "650",
+  price: String(SITE_PRICES_NUMERIC.letters['back-lit']),
   badge: "Буквы с контражуром Астана | Заказать вывеску",
   seoTitle: "Объемные буквы с контражуром в Астане | Заказать вывеску контражур по Дизайн-коду",
   seoDesc: "Профессиональное изготовление световых объемных букв с обратной подсветкой контражур (Back-Lit) в Астане. Собственное производство, соответствие Дизайн-коду Акимата, гарантия 2 года. Закажите премиальную вывеску с эффектом парения с фабрики!",
@@ -66,7 +67,7 @@ export const back_litDetails: VolumeLetterDetailData = {
     quantity: "10 объемных букв",
     height: "30 см",
     face: "Нержавеющая сталь + Дистанционы + Диоды ELF Samsung чип",
-    total: "195 000 ₸"
+    total: `${formatPrice(10 * 30 * SITE_PRICES_NUMERIC.letters['back-lit'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

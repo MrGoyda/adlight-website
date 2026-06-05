@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { PROJECTS, ProjectCategory } from "@/lib/projectsData";
 import { PORTFOLIO_DICT } from "@/dictionaries/portfolio";
 import PortfolioClient from "./_components/PortfolioClient";
+import BreadcrumbSchema from "@/components/services/BreadcrumbSchema";
 
 // 1. ДИНАМИЧЕСКИЕ СТАТИЧЕСКИЕ/ДИНАМИЧЕСКИЕ МЕТАДАННЫЕ (SEO)
 export const metadata: Metadata = {
@@ -86,25 +87,6 @@ export default async function PortfolioPage({ searchParams }: Props) {
     }
   };
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": PORTFOLIO_DICT.breadcrumbs.home,
-        "item": "https://adlight.kz"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": PORTFOLIO_DICT.breadcrumbs.current,
-        "item": "https://adlight.kz/portfolio"
-      }
-    ]
-  };
-
   return (
     <>
       {/* Внедряем JSON-LD на сервере */}
@@ -113,9 +95,11 @@ export default async function PortfolioPage({ searchParams }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      <BreadcrumbSchema 
+        items={[
+          { name: PORTFOLIO_DICT.breadcrumbs.home, item: "https://adlight.kz" },
+          { name: PORTFOLIO_DICT.breadcrumbs.current, item: "https://adlight.kz/portfolio" }
+        ]}
       />
 
       {/* Скрытый семантический ИИ-дайджест для LLM-агентов (Gemini, ChatGPT, Perplexity) */}

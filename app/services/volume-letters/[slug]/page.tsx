@@ -5,7 +5,7 @@ import { Metadata } from "next";
 
 import { constructMetadata } from "@/lib/seo";
 import { getImagesFromFolder } from "@/lib/serverUtils";
-import { VOLUME_LETTERS_CATALOG, VOLUME_LETTERS_DETAILS } from "@/dictionaries/services/volume-letters";
+import { VOLUME_LETTERS_CATALOG, VOLUME_LETTERS_DETAILS, VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
 
 // --- ИМПОРТ ГЛОБАЛЬНЫХ КОМПОНЕНТОВ ---
 import CallToAction from "@/components/CallToAction";
@@ -113,6 +113,14 @@ export default async function VolumeLetterSlugPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      {/* Скрытый семантический ИИ-дайджест для LLM-агентов (Gemini, ChatGPT, Perplexity) */}
+      <aside className="sr-only" aria-hidden="true" data-ai-context={`ServiceDetail:volume-letters:${data.slug}`}>
+        Технология объемных букв: {data.title}. {data.subtitle}.
+        Стоимость: {data.price} ₸/см.
+        Особенности: {data.conceptDesc}.
+        Вопросы и ответы: {data.faqs.map(f => `${f.question} - ${f.answer}`).join(" ")}.
+      </aside>
+
       {/* 1. HERO SECTION (Светлая тема с тёмным акцентом на слайдере) */}
       <FaceLitHero data={data} displayHeroImages={displayHeroImages} />
 
@@ -134,9 +142,15 @@ export default async function VolumeLetterSlugPage({ params }: PageProps) {
       {/* 6. ГАЛЕРЕЯ ВЫПОЛНЕННЫХ ПРОЕКТОВ (Премиальная светлая тема Apple) */}
       <section className="py-24 bg-white border-b border-slate-200">
         <div className="container mx-auto px-4 mb-16 text-center">
-          <span className="text-orange-600 font-extrabold text-sm uppercase tracking-widest mb-2 block">Портфолио</span>
-          <h2 className="text-3xl md:text-5xl font-black text-slate-950 tracking-tight mb-4">Галерея реализованных проектов</h2>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">Фотоотчеты реальных объемных световых букв со световым лицом, установленных нашей монтажной командой ADLight в Астане.</p>
+          <span className="text-orange-600 font-extrabold text-sm uppercase tracking-widest mb-2 block">
+            {VOLUME_LETTERS_DICT.detailGallery.badge}
+          </span>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-950 tracking-tight mb-4">
+            {VOLUME_LETTERS_DICT.detailGallery.title}
+          </h2>
+          <p className="text-slate-500 text-lg max-w-xl mx-auto">
+            {VOLUME_LETTERS_DICT.detailGallery.descriptionTemplate.replace("{techName}", data.title.toLowerCase())}
+          </p>
         </div>
         <div className="container mx-auto px-4">
           <FaceLitGallery images={galleryImages} projectTitle={data.title} />

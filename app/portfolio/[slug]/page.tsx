@@ -24,6 +24,7 @@ import CallToAction from "@/components/CallToAction";
 import ImageGallery from "@/components/ImageGallery";
 import VideoModalWrapper from "@/components/VideoModalWrapper";
 import { PORTFOLIO_DICT } from "@/dictionaries/portfolio";
+import BreadcrumbSchema from "@/components/services/BreadcrumbSchema";
 
 // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
@@ -120,32 +121,6 @@ export default async function ProjectPage({ params }: Props) {
     "keywords": categoryLabels.join(", ")
   };
 
-  // Хлебные крошки для Google SERP
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": PORTFOLIO_DICT.breadcrumbs.home,
-        "item": "https://adlight.kz"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": PORTFOLIO_DICT.breadcrumbs.current,
-        "item": "https://adlight.kz/portfolio"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": project.title,
-        "item": `https://adlight.kz/portfolio/${project.slug}`
-      }
-    ]
-  };
-
   return (
     <article className="min-h-screen bg-slate-50/50 font-sans selection:bg-orange-500/30" itemScope itemType="https://schema.org/Project">
       
@@ -155,9 +130,12 @@ export default async function ProjectPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      <BreadcrumbSchema 
+        items={[
+          { name: PORTFOLIO_DICT.breadcrumbs.home, item: "https://adlight.kz" },
+          { name: PORTFOLIO_DICT.breadcrumbs.current, item: "https://adlight.kz/portfolio" },
+          { name: project.title, item: `https://adlight.kz/portfolio/${project.slug}` }
+        ]}
       />
 
       {/* Скрытый ИИ-дайджест для LLM-агентов */}

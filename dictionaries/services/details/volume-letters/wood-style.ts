@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const wood_styleDetails: VolumeLetterDetailData = {
   slug: "wood-style",
   title: "Объемные буквы из дерева в эко-стиле",
   subtitle: "Натуральные премиум-материалы (Eco Wood Design). Лазерная резка массива дерева или фанеры с пропиткой защитными маслами для создания теплого, природного имиджа вашего бренда.",
-  price: "350",
+  price: String(SITE_PRICES_NUMERIC.letters['wood-style']),
   badge: "Эко вывески из дерева Астана | Элитная реклама",
   seoTitle: "Деревянные объемные буквы в Астане | Заказать эко-вывеску из дерева напрямую",
   seoDesc: "Профессиональное изготовление деревянных объемных букв (Wood Style) в Астане. Натуральный массив, лазерная резка ЧПУ, пропитка воском и маслами, гарантия 2 года. Соответствие Дизайн-коду. Закажите эко-вывеску с фабрики!",
@@ -66,7 +67,7 @@ export const wood_styleDetails: VolumeLetterDetailData = {
     quantity: "11 объемных букв",
     height: "25 см",
     face: "Массив лиственницы + Пропитка маслом Osmo + Скрытый крепеж на раму",
-    total: "96 250 ₸"
+    total: `${formatPrice(11 * 25 * SITE_PRICES_NUMERIC.letters['wood-style'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

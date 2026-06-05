@@ -12,21 +12,10 @@ import CallToAction from "@/components/CallToAction";
 
 // 1. ДИНАМИЧЕСКИЕ МЕТАДАННЫЕ (GEO/SEO API)
 export const metadata: Metadata = constructMetadata({
-  title: "Услуги наружной рекламы в Астане | Каталог ADLight",
-  description: "Полный каталог услуг ADLight: изготовление объемных букв, световых коробов, неоновых вывесок, крышных установок, стел и согласование вывесок. Цены от производителя в Астане.",
+  title: SERVICES_CATALOG_UI.seo.title,
+  description: SERVICES_CATALOG_UI.seo.description,
   canonicalUrl: "https://adlight.kz/services",
-  keywords: [
-    "наружная реклама астана", 
-    "изготовление вывесок астана",
-    "объемные буквы астана",
-    "световые короба астана",
-    "неоновые вывески астана",
-    "согласование рекламы астана",
-    "вывеска на выставку астана",
-    "ремонт вывесок астана",
-    "брендирование авто астана",
-    "ADLight"
-  ]
+  keywords: SERVICES_CATALOG_UI.seo.keywords
 });
 
 export default function ServicesPage() {
@@ -39,8 +28,8 @@ export default function ServicesPage() {
     "@graph": [
       {
         "@type": "ItemList",
-        "name": "Каталог услуг ADLight",
-        "description": "Полный перечень услуг по изготовлению и согласованию наружной рекламы в Астане.",
+        "name": SERVICES_CATALOG_UI.schema.name,
+        "description": SERVICES_CATALOG_UI.schema.description,
         "url": "https://adlight.kz/services",
         "itemListElement": allServices.map((item, index) => ({
           "@type": "ListItem",
@@ -96,6 +85,11 @@ export default function ServicesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      {/* Скрытый семантический ИИ-дайджест для LLM-агентов (Gemini, ChatGPT, Perplexity) */}
+      <aside className="sr-only" aria-hidden="true" data-ai-context="ServicesSummary">
+        {SERVICES_CATALOG_UI.aiDigest}
+      </aside>
+
       {/* 1. HERO SECTION */}
       <ServicesHero />
 
@@ -107,7 +101,7 @@ export default function ServicesPage() {
 
       {/* 4. КОМПЛЕКСНОЕ ПРЕДЛОЖЕНИЕ (CTA) */}
       <CallToAction 
-        source="Страница: Каталог Услуг" 
+        source={SERVICES_CATALOG_UI.cta.source} 
         title={SERVICES_CATALOG_UI.cta.title}
         subtitle={SERVICES_CATALOG_UI.cta.subtitle}
         buttonText={SERVICES_CATALOG_UI.cta.buttonText}

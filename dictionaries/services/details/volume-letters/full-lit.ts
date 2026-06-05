@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const full_litDetails: VolumeLetterDetailData = {
   slug: "full-lit",
   title: "Объемные буквы с полным свечением",
   subtitle: "Эффект 3D-леденца (360° Illumination). Уникальное решение: светится вся поверхность буквы — как лицевая панель, так и боковые стороны.",
-  price: "850",
+  price: String(SITE_PRICES_NUMERIC.letters['full-lit']),
   badge: "Объемные буквы в Астане | Полное свечение",
   seoTitle: "Объемные буквы с полным свечением в Астане | Заказать вывеску полное свечение по Дизайн-коду",
   seoDesc: "Профессиональное изготовление световых объемных букв с полным свечением (лицо + бока) в Астане. Литой акрил Plexiglas, корейская LED-оптика, гарантия 2 года. Соответствие Дизайн-коду Акимата. Закажите яркую вывеску 365 градусов с фабрики!",
@@ -66,7 +67,7 @@ export const full_litDetails: VolumeLetterDetailData = {
     quantity: "4 объемных буквы",
     height: "40 см",
     face: "Немецкий акрил Plexiglas + Клей Cosmofen + Диоды ELF Samsung чип",
-    total: "136 000 ₸"
+    total: `${formatPrice(4 * 40 * SITE_PRICES_NUMERIC.letters['full-lit'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const pixel_ledDetails: VolumeLetterDetailData = {
   slug: "pixel-led",
   title: "Пиксельные LED объемные буквы",
   subtitle: "Максимальная яркость и динамические эффекты (Exposed Pixel Technology). Объемные буквы с открытыми точечными светодиодами для экстремальной видимости вывески на расстоянии до 500 метров.",
-  price: "1000",
+  price: String(SITE_PRICES_NUMERIC.letters['pixel-led']),
   badge: "Пиксельные буквы Астана | Сверхъяркие LED",
   seoTitle: "Пиксельные LED буквы в Астане | Заказать вывеску с открытыми диодами",
   seoDesc: "Профессиональное изготовление объемных букв с открытыми пиксельными светодиодами (Pixel LED) в Астане. Сверхъяркие диоды, динамическая анимация, гарантия 2 года. Соответствие Дизайн-коду. Закажите супер-ярукую вывеску напрямую от производителя!",
@@ -66,7 +67,7 @@ export const pixel_ledDetails: VolumeLetterDetailData = {
     quantity: "7 объемных букв",
     height: "40 см",
     face: "Алюминиевый композит + 680 пикселей ELF IP67 + Блок Mean Well 12V",
-    total: "198 000 ₸"
+    total: `${formatPrice(7 * 40 * SITE_PRICES_NUMERIC.letters['pixel-led'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

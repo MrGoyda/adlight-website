@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const acrylic_slimDetails: VolumeLetterDetailData = {
   slug: "acrylic-slim",
   title: "Объемные буквы из цельноклееного акрила",
   subtitle: "Монолитная бесшовная конструкция (Solid Acrylic). Премиум-класс фасадной рекламы: борта и лицевая часть склеиваются без видимых швов для идеально ровной, заливающей засветки.",
-  price: "950",
+  price: String(SITE_PRICES_NUMERIC.letters['acrylic-slim']),
   badge: "Цельноклееный акрил Астана | Премиум вывески",
   seoTitle: "Цельноклееные акриловые буквы в Астане | Заказать бесшовную вывеску из акрила",
   seoDesc: "Профессиональное изготовление объемных цельноклееных букв из акрила (Acrylic Slim) в Астане. Бесшовное молекулярное склеивание, корейская LED-оптика, гарантия 2 года. Соответствие Дизайн-коду. Закажите элитную вывеску напрямую от производителя!",
@@ -66,7 +67,7 @@ export const acrylic_slimDetails: VolumeLetterDetailData = {
     quantity: "6 объемных букв",
     height: "30 см",
     face: "Литой акрил Plexiglas GS + Бесшовная склейка Cosmofen + Диоды ELF IP67",
-    total: "171 000 ₸"
+    total: `${formatPrice(6 * 30 * SITE_PRICES_NUMERIC.letters['acrylic-slim'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

@@ -1,4 +1,5 @@
 // dictionaries/services/volume-letters.ts
+import { SITE_PRICES_NUMERIC } from "@/config/site";
 
 export interface VolumeLetterTechItem {
   id: number;
@@ -16,7 +17,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'face-lit',
     title: 'Световое лицо', 
     description: 'Классика. Самый популярный выбор. Светится только лицевая часть, борта в цвет фасада.',
-    price: "от 550 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['face-lit']} ₸/см`,
     images: { day: '/images/letters/face-lit-day.webp', night: '/images/letters/face-lit-night.webp' },
     badge: "Хит продаж"
   },
@@ -25,7 +26,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'full-lit',
     title: 'Полное свечение',
     description: 'Эффект «леденца». Буква светится целиком (лицо + борта). Максимальный угол обзора 360°.',
-    price: "от 850 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['full-lit']} ₸/см`,
     images: { day: '/images/letters/full-lit-day.webp', night: '/images/letters/full-lit-night.webp' },
     badge: "Premium"
   },
@@ -34,7 +35,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'back-lit',
     title: 'Контражур',
     description: 'Эффект парения. Свет направлен на стену, создавая мягкий ореол вокруг темной буквы.',
-    price: "от 650 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['back-lit']} ₸/см`,
     images: { day: '/images/letters/back-lit-day.webp', night: '/images/letters/back-lit-night.webp' },
     badge: "Стиль"
   },
@@ -43,7 +44,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'combo-lit',
     title: 'Комбо (Лицо + Бэк)',
     description: 'Двойной удар. Читаемость лицевого свечения + премиальный ореол контражура.',
-    price: "от 950 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['combo-lit']} ₸/см`,
     images: { day: '/images/letters/combo-lit-day.webp', night: '/images/letters/combo-lit-night.webp' },
     badge: "VIP"
   },
@@ -52,7 +53,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'side-lit',
     title: 'Светятся борта',
     description: 'Инверсия. Лицо темное, а контур (борт) светится. Строгий, архитектурный стиль.',
-    price: "от 700 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['side-lit']} ₸/см`,
     images: { day: '/images/letters/side-lit-day.webp', night: '/images/letters/side-lit-night.webp' },
   },
   {
@@ -60,7 +61,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'perforated',
     title: 'Перфорация',
     description: 'Wow-эффект. Алюминиевый борт с тысячами отверстий создает эффект мерцания кристаллов.',
-    price: "от 750 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['perforated']} ₸/см`,
     images: { day: '/images/letters/perforated-day.webp', night: '/images/letters/perforated-night.webp' },
     badge: "Тренд"
   },
@@ -69,7 +70,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'acrylic-slim',
     title: 'Цельноклееный акрил',
     description: 'Premium-класс. Бесшовное склеивание борта и лица. Абсолютная монолитность и ровная засветка.',
-    price: "от 950 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['acrylic-slim']} ₸/см`,
     images: { day: '/images/letters/acrylic-slim-day.webp', night: '/images/letters/acrylic-slim-night.webp' },
     badge: "Премиум"
   },
@@ -78,7 +79,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'loft-lamps',
     title: 'Ретро с лампами',
     description: 'Стиль Лофт / Бродвей. Открытые винтажные лампы для создания атмосферы.',
-    price: "от 1200 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['loft-lamps']} ₸/см`,
     images: { day: '/images/letters/loft-lamps-day.webp', night: '/images/letters/loft-lamps-night.webp' },
   },
   {
@@ -86,7 +87,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'pixel-led',
     title: 'Пиксельные LED',
     description: 'Открытые диоды. Рекордная яркость и динамические спецэффекты (анимация).',
-    price: "от 1000 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['pixel-led']} ₸/см`,
     images: { day: '/images/letters/pixel-led-day.webp', night: '/images/letters/pixel-led-night.webp' },
   },
   {
@@ -94,7 +95,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'wood-style',
     title: 'Эко / Дерево',
     description: 'Натуральные материалы. Лазерная резка фанеры или массива с пропиткой маслом.',
-    price: "от 350 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['wood-style']} ₸/см`,
     images: { day: '/images/letters/wood-style-day.webp', night: '/images/letters/wood-style-night.webp' },
   },
   {
@@ -102,7 +103,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'non-lit',
     title: 'Без подсветки',
     description: 'Бюджетное решение для интерьеров. Объемные буквы из ПВХ или пенопласта.',
-    price: "от 200 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['non-lit']} ₸/см`,
     images: { day: '/images/letters/non-lit-day.webp', night: '/images/letters/non-lit-night.webp' },
   },
   {
@@ -110,7 +111,7 @@ export const VOLUME_LETTERS_CATALOG: VolumeLetterTechItem[] = [
     slug: 'day-night-effect',
     title: 'День / Ночь',
     description: 'Магия пленки: днем буквы черные, ночью светятся ярко-белым.',
-    price: "от 700 ₸/см",
+    price: `от ${SITE_PRICES_NUMERIC.letters['day-night-effect']} ₸/см`,
     images: { day: '/images/letters/day-night-effect-day.webp', night: '/images/letters/day-night-effect-night.webp' },
   },
 ];
@@ -309,6 +310,10 @@ export const VOLUME_LETTERS_STEPS = [
 ];
 
 export const VOLUME_LETTERS_DICT = {
+  breadcrumbs: {
+    home: "Главная",
+    services: "Услуги"
+  },
   hero: {
     badge: "Собственное производство вывесок в Астане",
     title: "Объемные буквы",
@@ -327,16 +332,23 @@ export const VOLUME_LETTERS_DICT = {
     title: "Изготавливаем объемные буквы по всем известным мировым технологиям.",
     description: "В зависимости от ваших задач и стиля здания мы подберем идеальный способ засветки и материалов. Ознакомьтесь подробнее с каждым типом объемных букв ниже:",
     day: "День",
-    night: "Ночь"
+    night: "Ночь",
+    altNightTemplate: "{title} - ночная подсветка",
+    altDayTemplate: "{title} - вид днем"
   },
   calculator: {
     title: "Рассчитайте точную цену объемных букв за 1 минуту",
-    description: "Интеллеклятор на нашем сайте моментально рассчитает стоимость вывески онлайн. Выберите желаемый шрифт, высоту букв и тип подсветки, чтобы получить моментальный сметный расчет.",
+    description: "Интеллектуальный калькулятор на нашем сайте моментально рассчитает стоимость вывески онлайн. Выберите желаемый шрифт, высоту букв и тип подсветки, чтобы получить моментальный сметный расчет.",
     buttonText: "Перейти в калькулятор"
   },
   gallery: {
     title: "Наши реализованные вывески в Астане",
     subtitle: "Примеры готовых объемных букв, установленных нашей монтажной командой"
+  },
+  detailGallery: {
+    badge: "Портфолио",
+    title: "Галерея реализованных проектов",
+    descriptionTemplate: "Фотоотчеты реальных объемных световых букв {techName}, установленных нашей монтажной командой ADLight в Астане."
   },
   specifications: {
     title: "Качество не на словах",
@@ -344,6 +356,32 @@ export const VOLUME_LETTERS_DICT = {
   },
   steps: {
     title: "Как мы работаем"
+  },
+  careGuide: {
+    badge: "Надежность и уход",
+    tipPrefix: "Рекомендация"
+  },
+  comparison: {
+    badge: "Выбор комплектации",
+    premiumLabel: "Премиум",
+    budgetLabel: "Заводской Бюджет"
+  },
+  expertTips: {
+    badge: "Экспертное мнение",
+    facadeLabel: "Фасад",
+    quote: "Правильный подбор типа крепления под особенности фасада вашего здания в Астане — это залог не только эстетики, но и безопасности эксплуатации конструкции при сильных ветрах.",
+    footerProduction: "Собственное производство в Астане",
+    footerWarranty: "Гарантия 1 год"
+  },
+  rules: {
+    badge: "Дизайн-код Астаны"
+  },
+  psychology: {
+    badge: "Эффективность"
+  },
+  carousel: {
+    title: "Другие услуги",
+    subtitle: "Комплексное оформление"
   },
   faq: {
     badge: "Вопросы и ответы",

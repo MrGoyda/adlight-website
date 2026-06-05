@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const loft_lampsDetails: VolumeLetterDetailData = {
   slug: "loft-lamps",
   title: "Объемные ретро-буквы с лампами",
   subtitle: "Атмосфера Бродвея и винтажный стиль Loft (Vintage Bulbs Effect). Уникальные металлические или деревянные буквы с открытыми лампами накаливания или филаментными LED-лампами.",
-  price: "1200",
+  price: String(SITE_PRICES_NUMERIC.letters['loft-lamps']),
   badge: "Ретро вывески Астана | Буквы с лампочками",
   seoTitle: "Ретро-буквы с лампами в Астане | Заказать вивеску в стиле лофт с лампочками",
   seoDesc: "Профессиональное изготовление объемных ретро-букв с лампами (Loft / Broadway) в Астане. Металлический корпус, винтажные филаментные LED-лампы, гарантия 2 года. Полное соответствие Дизайн-коду. Закажите атмосферную вывеску напрямую от производителя!",
@@ -66,7 +67,7 @@ export const loft_lampsDetails: VolumeLetterDetailData = {
     quantity: "6 объемных букв",
     height: "35 см",
     face: "Оцинкованная сталь + Порошковая покраска + 32 филаментные LED-лампы + Патроны IP65",
-    total: "252 000 ₸"
+    total: `${formatPrice(6 * 35 * SITE_PRICES_NUMERIC.letters['loft-lamps'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

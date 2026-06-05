@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const side_litDetails: VolumeLetterDetailData = {
   slug: "side-lit",
   title: "Объемные буквы со свечением бортов",
   subtitle: "Изысканный архитектурный стиль для премиальных брендов Астаны. Эффектная инверсия: строгая темная лицевая панель в сочетании с яркими светящимися боковинами.",
-  price: "700",
+  price: String(SITE_PRICES_NUMERIC.letters['side-lit']),
   badge: "Изготовление вывесок Астана | Светящиеся борта",
   seoTitle: "Объемные буквы со светящимися бортами в Астане | Заказать вывеску со свечением бортов по Дизайн-коду",
   seoDesc: "Профессиональное изготовление световых объемных букв со светящимися боковинами (Side-Lit) в Астане. Собственное производство, соответствие Дизайн-коду Акимата на 100%, гарантия 2 года. Закажите изысканную вывеску напрямую от производителя!",
@@ -66,7 +67,7 @@ export const side_litDetails: VolumeLetterDetailData = {
     quantity: "8 объемных букв",
     height: "35 см",
     face: "Непрозрачный ПВХ + Акриловые борта + Диоды Samsung чип",
-    total: "148 000 ₸"
+    total: `${formatPrice(8 * 35 * SITE_PRICES_NUMERIC.letters['side-lit'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

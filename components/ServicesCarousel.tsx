@@ -4,27 +4,28 @@ import Link from "next/link";
 import { useRef } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import FadeIn from "@/components/ui/FadeIn";
+import { SITE_PRICES } from "@/config/site";
 
 // Данные услуг
 const services = [
   { 
     title: "Объемные буквы", 
     desc: "Лицевая, боковая и контражурная подсветка. Комбинирование техник.", 
-    price: "от 450 тг/см", 
+    price: SITE_PRICES.volumeLetters, 
     link: "/services/volume-letters", 
     image: "/images/pages/services-letters.webp" 
   },
   { 
     title: "Световые короба", 
     desc: "Лайтбоксы сложных форм, инкрустация.", 
-    price: "от 35 000 тг/кв.м", 
+    price: SITE_PRICES.lightboxes, 
     link: "/services/lightboxes", 
     image: "/images/pages/services-lightboxes.webp" 
   },
   { 
     title: "Неоновые вывески", 
     desc: "Гибкий неон для интерьера и фотозон.", 
-    price: "Индивидуально", 
+    price: SITE_PRICES.neon, 
     link: "/services/neon", 
     image: "/images/pages/services-neon.webp" 
   },
@@ -38,7 +39,7 @@ const services = [
   { 
     title: "Панель-кронштейны", 
     desc: "Двусторонние торцевые вывески.", 
-    price: "от 45 000 тг", 
+    price: SITE_PRICES.panelBrackets, 
     link: "/services/panel-brackets", 
     image: "/images/pages/services-panel-brackets.webp" 
   },
@@ -52,14 +53,14 @@ const services = [
   { 
     title: "Рекламные стелы", 
     desc: "Отдельно стоящие конструкции, пилоны для АЗС и навигации.", 
-    price: "Проектно", 
+    price: SITE_PRICES.pylons, 
     link: "/services/pylons", 
     image: "/images/pages/services-pylons.webp" 
   },
   { 
     title: "Таблички и Навигация", 
     desc: "Офисные таблички, указатели и системы навигации внутри зданий.", 
-    price: "от 5 000 ₸", 
+    price: SITE_PRICES.navigation, 
     link: "/services/navigation", 
     image: "/images/pages/services-navigation.webp"
   }
@@ -208,7 +209,7 @@ export default function ServicesCarousel({
                   key={i}
                   delay={i * 50}
                   threshold={0.1}
-                  className="flex-none snap-start"
+                  className="flex-none snap-center"
                 >
                   <div
                     itemProp="itemListElement"

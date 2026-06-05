@@ -1,14 +1,22 @@
 import { Metadata } from "next";
 import React from "react";
-import { COMPANY_NAP } from "@/dictionaries/common";
+import { SITE_CONTACTS } from "@/config/site";
 import { constructMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = constructMetadata({
-  title: `Калькулятор вывески ${COMPANY_NAP.locality} | Рассчитать стоимость онлайн`,
-  description: `Онлайн калькулятор наружной рекламы от ${COMPANY_NAP.name}. Узнайте цену объемных букв, лайтбоксов и неона за 1 минуту. Точный расчет стоимости изготовления в г. ${COMPANY_NAP.locality}.`,
+  title: `Калькулятор вывески ${SITE_CONTACTS.locality} — Расчёт цены онлайн за 1 минуту`,
+  description: `Бесплатный онлайн-калькулятор стоимости вывесок в ${SITE_CONTACTS.locality}. Объёмные буквы от 550 ₸/см, лайтбоксы от 80 000 ₸/м², неон от 8 000 ₸/пог.м. Результат мгновенно — замер и макет бесплатно.`,
   canonicalUrl: "https://adlight.kz/calculator",
-  image: "/images/calc/lightbox-1.jpg",
-  keywords: ["калькулятор вывески", "расчет стоимости наружной рекламы", "цена объемных букв астана", "сколько стоит вывеска", "онлайн расчет лайтбокса"]
+  image: "/images/pages/services-lightboxes.webp",
+  keywords: [
+    "калькулятор вывески астана",
+    "сколько стоит вывеска астана",
+    "цена объемных букв астана",
+    "рассчитать стоимость лайтбокса",
+    "онлайн расчет наружной рекламы",
+    "калькулятор стоимости рекламы",
+    "цена неоновой вывески астана",
+  ],
 });
 
 export default function CalculatorLayout({

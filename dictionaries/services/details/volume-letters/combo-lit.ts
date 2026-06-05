@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const combo_litDetails: VolumeLetterDetailData = {
   slug: "combo-lit",
   title: "Объемные буквы с комбинированным свечением",
   subtitle: "Двойной визуальный удар (Face + Back Illumination). Объединение читаемости яркого светового лица с изысканным парящим ореолом контражурной подсветки.",
-  price: "950",
+  price: String(SITE_PRICES_NUMERIC.letters['combo-lit']),
   badge: "Световые вывески Астана | Лицо + Контражур",
   seoTitle: "Объемные буквы комбо (лицо + бэк) в Астане | Заказать комбинированную вывеску по Дизайн-коду",
   seoDesc: "Профессиональное изготовление объемных световых букв с комбинированной подсветкой (лицо и контражур) в Астане. Премиальный акрил Plexiglas, влагозащищенные светодиоды, гарантия 2 года. Полное соответствие Дизайн-коду Акимата. Закажите VIP вывеску с фабрики!",
@@ -66,7 +67,7 @@ export const combo_litDetails: VolumeLetterDetailData = {
     quantity: "10 объемных букв",
     height: "35 см",
     face: "Акрил Plexiglas + ПВХ борт + Двухсторонние диоды ELF + Дистанционы",
-    total: "245 000 ₸"
+    total: `${formatPrice(10 * 35 * SITE_PRICES_NUMERIC.letters['combo-lit'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",

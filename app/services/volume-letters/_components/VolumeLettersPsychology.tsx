@@ -1,7 +1,7 @@
 // app/services/volume-letters/_components/VolumeLettersPsychology.tsx
 
 import { Eye } from "lucide-react";
-import { VOLUME_LETTERS_ADVANTAGES } from "@/dictionaries/services/volume-letters";
+import { VOLUME_LETTERS_ADVANTAGES, VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
 
 export default function VolumeLettersPsychology() {
   return (
@@ -37,7 +37,7 @@ export default function VolumeLettersPsychology() {
             
             <div className="bg-slate-50/80 backdrop-blur p-8 rounded-2xl border border-slate-200 text-center relative shadow-sm">
               <div className="text-sm text-slate-500 uppercase tracking-widest mb-2 font-bold">
-                Эффективность
+                {VOLUME_LETTERS_DICT.psychology.badge}
               </div>
               <div className="text-7xl font-black text-slate-900 mb-2 tracking-tighter">
                 +{VOLUME_LETTERS_ADVANTAGES.efficiencyPercent}

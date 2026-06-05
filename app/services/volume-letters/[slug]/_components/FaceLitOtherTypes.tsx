@@ -91,7 +91,7 @@ export default function FaceLitOtherTypes({ otherTypes }: FaceLitOtherTypesProps
 
   return (
     <section className="py-24 bg-white border-t border-slate-200/80 relative select-none">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-[1400px]">
         
         {/* Шапка с кнопками управления */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
@@ -125,7 +125,7 @@ export default function FaceLitOtherTypes({ otherTypes }: FaceLitOtherTypesProps
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-none hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 cursor-grab active:cursor-grabbing"
+          className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-none hide-scrollbar -mx-4 px-4 cursor-grab active:cursor-grabbing sm:mx-0 sm:px-0"
           style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
         >
           {otherTypes.map((type) => {
@@ -135,7 +135,7 @@ export default function FaceLitOtherTypes({ otherTypes }: FaceLitOtherTypesProps
                 key={type.id} 
                 itemScope 
                 itemType="https://schema.org/Product"
-                className="snap-start min-w-[280px] sm:min-w-[310px] max-w-[310px] shrink-0"
+                className="snap-center min-w-[280px] sm:min-w-[310px] max-w-[310px] shrink-0"
               >
                 <Link 
                   href={`/services/volume-letters/${type.slug}`}

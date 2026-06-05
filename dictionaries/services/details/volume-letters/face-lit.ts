@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const face_litDetails: VolumeLetterDetailData = {
   slug: "face-lit",
   title: "Объемные буквы со световым лицом",
   subtitle: "Классика наружной рекламы в Астане. Самый яркий, контрастный и легко читаемый вид фасадных вывесок от прямого производителя ADLight.",
-  price: "550",
+  price: String(SITE_PRICES_NUMERIC.letters['face-lit']),
   badge: "Световые буквы в Астане | Производство вывесок",
   seoTitle: "Световые объемные буквы в Астане | Заказать вывеску со световым лицом по дизайн-коду",
   seoDesc: "Профессиональное изготовление объемных световых букв (Face-Lit) в Астане. Литой акрил Plexiglas, яркие влагозащищенные светодиоды, гарантия 2 года. Соответствие дизайн-коду Акимата. Закажите вывеску со световым лицом напрямую с производства!",
@@ -66,7 +67,7 @@ export const face_litDetails: VolumeLetterDetailData = {
     quantity: "5 объемных букв", 
     height: "40 см", 
     face: "Премиум Акрил + ПВХ борт + Светодиоды IP67", 
-    total: "110 000 ₸" 
+    total: `${formatPrice(5 * 40 * SITE_PRICES_NUMERIC.letters['face-lit'])} ₸` 
   },
   
   // Добавляем новые экспертные блоки в словарь, полностью избавляясь от хардкода!

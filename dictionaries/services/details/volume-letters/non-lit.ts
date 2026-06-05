@@ -1,10 +1,11 @@
+import { SITE_PRICES_NUMERIC, formatPrice } from "../../../../config/site";
 import { VolumeLetterDetailData } from "../../volume-letters";
 
 export const non_litDetails: VolumeLetterDetailData = {
   slug: "non-lit",
   title: "Объемные буквы без подсветки",
   subtitle: "Экономичное и лаконичное интерьерное решение (Non-Illuminated 3D Letters). Объемные буквы из ПВХ, акрила или композита для оформления офисов, ресепшн и бюджетных наружных вывесок.",
-  price: "200",
+  price: String(SITE_PRICES_NUMERIC.letters['non-lit']),
   badge: "Несветовые буквы Астана | Вывески для офиса",
   seoTitle: "Объемные несветовые буквы в Астане | Заказать вывеску без подсветки из ПВХ",
   seoDesc: "Профессиональное изготовление несветовых объемных букв в Астане. Прочный ПВХ, акрил, композит, лазерная резка ЧПУ, гарантия 2 года. Полное соответствие Дизайн-коду. Закажите бюджетную вывеску напрямую от производителя!",
@@ -46,7 +47,7 @@ export const non_litDetails: VolumeLetterDetailData = {
   conceptHighlights: [
     {
       title: "Минимальный бюджет на старте",
-      desc: "Самая низкая стоимость изготовления среди всех видов объемных букв (от 200 тг/см), позволяющая сэкономить до 60-70% бюджета.",
+      desc: `Самая низкая стоимость изготовления среди всех видов объемных букв (от ${SITE_PRICES_NUMERIC.letters['non-lit']} тг/см), позволяющая сэкономить до 60-70% бюджета.`,
       iconName: "Gem"
     },
     {
@@ -66,7 +67,7 @@ export const non_litDetails: VolumeLetterDetailData = {
     quantity: "6 объемных букв",
     height: "20 см",
     face: "Вспененный ПВХ 10 мм + Накатка пленки Oracal 641 + Дистанционный крепеж",
-    total: "24 000 ₸"
+    total: `${formatPrice(6 * 20 * SITE_PRICES_NUMERIC.letters['non-lit'])} ₸`
   },
   expertAuthor: {
     name: "Парчевин Даниил",
