@@ -215,30 +215,15 @@ export default function CallToAction({
                   {phoneError && <p id="cta-phone-error" role="alert" className="text-[10px] text-red-500 font-bold pl-1">{phoneError}</p>}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
-                  <Button 
-                    type="submit" 
-                    variant="solid" 
-                    size="lg"
-                    isLoading={isLoading}
-                    className="w-full sm:w-auto h-[54px] min-w-[150px] bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg active:scale-97 text-center shrink-0 border border-orange-600"
-                  >
-                    {buttonText}
-                  </Button>
-
-                  <Button 
-                    type="button" 
-                    onClick={() => {
-                      triggerHaptic();
-                      setIsQuizOpen(true);
-                    }}
-                    variant="lightOutline" 
-                    size="lg"
-                    className="w-full sm:w-auto h-[54px] min-w-[150px] text-orange-600 border border-slate-200 hover:border-orange-500 bg-white hover:bg-orange-50/50 rounded-2xl font-black text-xs uppercase tracking-wider active:scale-97 text-center shrink-0"
-                  >
-                    Пройти квиз -10%
-                  </Button>
-                </div>
+                <Button 
+                  type="submit" 
+                  variant="solid" 
+                  size="lg"
+                  isLoading={isLoading}
+                  className="w-full md:w-auto h-[54px] min-w-[180px] bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg active:scale-97 text-center shrink-0 border border-orange-600"
+                >
+                  {buttonText}
+                </Button>
               </form>
             )}
             
