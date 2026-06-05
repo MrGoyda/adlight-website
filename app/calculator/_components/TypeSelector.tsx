@@ -77,6 +77,7 @@ export default function TypeSelector({ mode, types, selected, onSelect }: TypeSe
               key={t.id}
               data-active={isActive}
               type="button"
+              aria-pressed={isActive}
               onClick={() => {
                 triggerHaptic("light");
                 onSelect(t.id);

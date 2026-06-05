@@ -3,7 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-interface TypographyProps {
+interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   variant?: "h1" | "h2" | "h3" | "h4" | "body" | "lead" | "caption";
   children: React.ReactNode;
   className?: string;
@@ -15,6 +15,7 @@ export default function Typography({
   children,
   className,
   as: Component,
+  ...props
 }: TypographyProps) {
   const styles = {
     h1: "text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight",
@@ -39,7 +40,7 @@ export default function Typography({
   const Tag = Component || defaultTag[variant];
 
   return (
-    <Tag className={cn(styles[variant], className)}>
+    <Tag className={cn(styles[variant], className)} {...props}>
       {children}
     </Tag>
   );

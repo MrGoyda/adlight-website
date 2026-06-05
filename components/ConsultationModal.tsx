@@ -182,7 +182,7 @@ export default function ConsultationModal({
   if (!mounted || !shouldRender) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-4 sm:p-6 pb-safe">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 pb-safe">
         {/* Overlay */}
         <div 
             className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300 ease-out ${
@@ -192,14 +192,16 @@ export default function ConsultationModal({
         ></div>
 
         {/* Modal Window using design system components */}
-        <div className="w-full max-w-md relative">
+        <div 
+            className={`w-full max-w-md relative z-10 max-h-[90dvh] overflow-y-auto rounded-[2.5rem] shadow-apple-modal border border-white/20 transition-all duration-300 ease-out transform ${
+              isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
+            }`}
+        >
           <Card 
               glass
               intensity="light"
               rounded="3xl"
-              className={`w-full shadow-apple-modal border border-white/40 bg-white/80 backdrop-blur-2xl overflow-hidden transition-all duration-300 ease-out transform ${
-                isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
-              }`}
+              className="w-full bg-white/80 backdrop-blur-2xl"
           >
               <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[60px] rounded-full pointer-events-none"></div>
 

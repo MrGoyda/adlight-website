@@ -8,6 +8,7 @@ import * as Icons from "lucide-react";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import Button from "@/components/ui/Button";
 import ConsultationModal from "@/components/ConsultationModal";
+import CalculatePriceModal from "@/components/CalculatePriceModal/index";
 import { ServiceDetailData } from "@/dictionaries/services/service-details";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ interface ServiceHeroProps {
 
 export default function ServiceHero({ data, heroImages }: ServiceHeroProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
 
   // Force orange brand theme or map colors from props dynamically if needed
   const isBlue = data.priceColor === "blue";
@@ -62,9 +64,9 @@ export default function ServiceHero({ data, heroImages }: ServiceHeroProps) {
               <Button 
                 variant="solid" 
                 size="lg" 
-                href="/calculator"
+                onClick={() => setIsPriceModalOpen(true)}
                 leftIcon={<Calculator className="w-5 h-5" />}
-                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white border-none"
+                className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white border-none cursor-pointer"
               >
                 Рассчитать стоимость
               </Button>
@@ -113,6 +115,11 @@ export default function ServiceHero({ data, heroImages }: ServiceHeroProps) {
         title={`Заказать консультацию по услуге ${data.title}`}
         subtitle="Оставьте ваши контакты, и мы перезвоним для детального обсуждения и предварительного расчета стоимости."
         buttonText="Жду звонка"
+      />
+      <CalculatePriceModal
+        isOpen={isPriceModalOpen}
+        onClose={() => setIsPriceModalOpen(false)}
+        source={`Услуга: ${data.title}`}
       />
     </header>
   );

@@ -1,4 +1,8 @@
 
+"use client";
+
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -12,12 +16,17 @@ import {
 } from "lucide-react";
 
 import { COMPANY_NAP } from "@/dictionaries/common";
-import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
+import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { SITE_CONTACTS, SITE_LINKS } from "@/config/site";
 import Button from "@/components/ui/Button";
+import CalculatePriceModal from "@/components/CalculatePriceModal/index";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const pathname = usePathname();
+  const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
+  
+  const isServicePage = pathname?.startsWith("/services/");
 
   return (
     <footer className="bg-slate-50 border-t border-slate-200 pt-20 pb-8 text-slate-600 font-sans relative overflow-hidden">
@@ -39,7 +48,7 @@ export default function Footer() {
                    fill
                    className="object-contain object-left"
                    sizes="(max-width: 768px) 144px, 176px"
-                />
+                 />
             </Link>
 
             <p className="text-sm leading-relaxed text-slate-500 font-semibold">
@@ -73,80 +82,33 @@ export default function Footer() {
           <div>
             <h3 className="text-slate-900 font-extrabold text-[11px] uppercase tracking-widest mb-6 border-b border-slate-200 pb-3">Буквы и Интерьер</h3>
             <ul className="space-y-3.5 text-sm font-semibold">
-              <li>
-                <Link href="/services/volume-letters" className="text-slate-600 hover:text-orange-600 transition-colors flex items-center gap-1.5 group">
-                  Изготовление объемных букв <span className="text-[9px] text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-100 font-bold uppercase tracking-wider">Хит</span>
-                </Link>
-              </li>
-              {VOLUME_LETTERS_CATALOG.slice(0, 4).map((tech) => (
-                <li key={tech.id}>
-                  <Link href={`/services/volume-letters/${tech.slug}`} className="text-slate-500 hover:text-orange-600 transition-colors">
-                    {tech.title} (буквы)
+              {[
+                ...(CATALOG_SERVICES.find(c => c.id === "facade")?.items || []),
+                ...(CATALOG_SERVICES.find(c => c.id === "interior")?.items || [])
+              ].map((item, idx) => (
+                <li key={idx}>
+                  <Link href={item.link} className="text-slate-500 hover:text-orange-600 transition-colors">
+                    {item.title}
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/services/neon" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Световые вывески из неона
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/interior" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Интерьерные логотипы на стену
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/navigation" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Таблички и навигация в офис
-                </Link>
-              </li>
             </ul>
           </div>
 
           {/* COLUMN 3: OUTDOOR ADVERTISING */}
           <div>
-            <h3 className="text-slate-900 font-extrabold text-[11px] uppercase tracking-widest mb-6 border-b border-slate-200 pb-3">Наружная реклама</h3>
+            <h3 className="text-slate-900 font-extrabold text-[11px] uppercase tracking-widest mb-6 border-b border-slate-200 pb-3">Наружная реклама и Услуги</h3>
             <ul className="space-y-3.5 text-sm font-semibold">
-              <li>
-                <Link href="/services/lightboxes" className="text-slate-600 hover:text-orange-600 transition-colors">
-                  Световые короба и лайтбоксы
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/panel-brackets" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Двусторонние панель-кронштейны
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/facade-decoration" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Рекламное оформление фасадов
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/entrance-groups" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Комплексные входные группы
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/roof-installations" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Крышные рекламные установки
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/pylons" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Рекламные стелы и пилоны
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/branding-cars" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Рекламное брендирование авто
-                </Link>
-              </li>
-              <li>
-                <Link href="/services/signboard-repair" className="text-slate-500 hover:text-orange-600 transition-colors">
-                  Ремонт и обслуживание вывесок
-                </Link>
-              </li>
+              {[
+                ...(CATALOG_SERVICES.find(c => c.id === "scale")?.items || []),
+                ...(CATALOG_SERVICES.find(c => c.id === "service")?.items || [])
+              ].map((item, idx) => (
+                <li key={idx}>
+                  <Link href={item.link} className="text-slate-500 hover:text-orange-600 transition-colors">
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -211,13 +173,23 @@ export default function Footer() {
             </div>
             
             <div className="pt-2">
-               <Button 
-                  href="/calculator"
-                  variant="solid"
-                  className="w-full text-center py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-[0.98]"
-               >
-                  Рассчитать стоимость
-               </Button>
+                {isServicePage ? (
+                   <Button 
+                      onClick={() => setIsPriceModalOpen(true)}
+                      variant="solid"
+                      className="w-full text-center py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-[0.98]"
+                   >
+                      Рассчитать стоимость
+                   </Button>
+                ) : (
+                   <Button 
+                      href="/calculator"
+                      variant="solid"
+                      className="w-full text-center py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 active:scale-[0.98]"
+                   >
+                      Рассчитать стоимость
+                   </Button>
+                )}
                <Link href="/design-code" className="flex items-center justify-center gap-2 w-full py-2.5 mt-2.5 text-center text-xs font-semibold text-slate-400 hover:text-slate-600 transition group">
                   <FileText className="w-4 h-4 group-hover:text-orange-500 transition-colors"/>
                   <span className="underline decoration-slate-200 hover:decoration-slate-300">Дизайн-код Астаны (СНиП)</span>
@@ -236,6 +208,11 @@ export default function Footer() {
            </div>
         </div>
       </div>
+      <CalculatePriceModal 
+        isOpen={isPriceModalOpen} 
+        onClose={() => setIsPriceModalOpen(false)} 
+        source="Футер сайта" 
+      />
     </footer>
   );
 }

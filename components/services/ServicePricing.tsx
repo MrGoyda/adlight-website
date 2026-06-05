@@ -1,15 +1,27 @@
 // components/services/ServicePricing.tsx
 "use client";
 
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Calculator } from "lucide-react";
 import { ServiceDetailData } from "@/dictionaries/services/service-details";
 import Button from "@/components/ui/Button";
+import CalculatePriceModal from "@/components/CalculatePriceModal/index";
 
 interface ServicePricingProps {
   data: ServiceDetailData;
 }
 
 export default function ServicePricing({ data }: ServicePricingProps) {
+  const pathname = usePathname();
+  const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
+
+  const path = pathname || "";
+  const isCalculatorPage = 
+    path === "/services/volume-letters" || 
+    path.startsWith("/services/volume-letters/") || 
+    path === "/services/lightboxes";
+
   return (
     <section id="pricing" className="py-24 bg-white border-t border-slate-200/80">
       <div className="container mx-auto px-4 max-w-[1400px]">
@@ -51,16 +63,35 @@ export default function ServicePricing({ data }: ServicePricingProps) {
             <p className="text-slate-500 text-sm mb-6 leading-relaxed">
               Консультация инженера и выезд на замер бесплатно.
             </p>
-            <Button 
-              href="/calculator" 
-              variant="solid" 
-              size="lg"
-            >
-              {data.pricingActionText}
-            </Button>
+            {isCalculatorPage ? (
+              <Button 
+                href="/calculator" 
+                variant="solid" 
+                size="lg"
+              >
+                {data.pricingActionText}
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => setIsPriceModalOpen(true)} 
+                variant="solid" 
+                size="lg"
+                className="cursor-pointer"
+              >
+                {data.pricingActionText}
+              </Button>
+            )}
           </div>
         </div>
       </div>
+
+      {!isCalculatorPage && (
+        <CalculatePriceModal 
+          isOpen={isPriceModalOpen} 
+          onClose={() => setIsPriceModalOpen(false)} 
+          source={`Секция цены: ${data.pricingTitle}`}
+        />
+      )}
     </section>
   );
 }

@@ -192,13 +192,13 @@ export default function CalculatorShell() {
     <>
       {/* ── Обёртка layout ── */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:gap-8">
-
+ 
         {/* ── Левая часть: форма ──────────────────────────────────── */}
-        <div className="w-full lg:flex-1 space-y-4">
-
+        <form onSubmit={(e) => e.preventDefault()} className="w-full lg:flex-1 space-y-4">
+ 
           {/* Переключатель режимов */}
           <ModeTabBar active={activeTab} onChange={(m) => { triggerHaptic("light"); setActiveTab(m); }} />
-
+ 
           {/* Выбор технологии — ВАЖНО: нет overflow-hidden, иначе блокирует скролл */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
             <div className="p-4 pb-0">
@@ -212,7 +212,7 @@ export default function CalculatorShell() {
             {/* Отступ снизу вне TypeSelector — он использует pb-3 для pb скролла */}
             <div className="h-4" />
           </div>
-
+ 
           {/* Параметры */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
             <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">
@@ -235,7 +235,7 @@ export default function CalculatorShell() {
               )}
             </div>
           </div>
-
+ 
           {/* Результат — только мобиль (инлайн под формой) */}
           <div className="lg:hidden">
             <PriceResult
@@ -246,10 +246,10 @@ export default function CalculatorShell() {
               onOpenModal={openModal}
             />
           </div>
-        </div>
-
+        </form>
+ 
         {/* ── Правая часть: результат sticky — только десктоп ──── */}
-        <div className="hidden lg:block w-[380px] shrink-0 sticky top-24">
+        <aside className="hidden lg:block w-[380px] shrink-0 sticky top-24" aria-label="Результаты расчета">
           <PriceResult
             min={calculation.min}
             max={calculation.max}
@@ -257,7 +257,7 @@ export default function CalculatorShell() {
             whatsappLink={whatsappLink}
             onOpenModal={openModal}
           />
-        </div>
+        </aside>
       </div>
 
       {/* ── Мобильный sticky CTA-бар снизу ── */}

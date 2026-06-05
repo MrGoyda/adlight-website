@@ -57,6 +57,7 @@ export default function LettersForm({
           step={HEIGHT.step}
           value={[height]}
           onValueChange={([v]) => onHeightChange(v)}
+          aria-label={CALC_UI.heightLabel}
           className="[&_[data-radix-slider-range]]:bg-orange-500 [&_[data-radix-slider-thumb]]:border-orange-500"
         />
         <div className="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">
@@ -111,6 +112,7 @@ export default function LettersForm({
             step={SUB_HEIGHT.step}
             value={[subHeight]}
             onValueChange={([v]) => onSubHeightChange(v)}
+            aria-label={CALC_UI.subHeightLabel}
             className="[&_[data-radix-slider-range]]:bg-blue-500 [&_[data-radix-slider-thumb]]:border-blue-500"
           />
           <div className="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">

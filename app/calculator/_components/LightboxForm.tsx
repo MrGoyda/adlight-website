@@ -36,6 +36,7 @@ export default function LightboxForm({
           step={BOX_WIDTH.step}
           value={[boxWidth]}
           onValueChange={([v]) => onWidthChange(v)}
+          aria-label={CALC_UI.widthLabel}
           className="[&_[data-radix-slider-range]]:bg-blue-500 [&_[data-radix-slider-thumb]]:border-blue-500"
         />
         <div className="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">
@@ -61,6 +62,7 @@ export default function LightboxForm({
           step={BOX_HEIGHT.step}
           value={[boxHeight]}
           onValueChange={([v]) => onHeightChange(v)}
+          aria-label={CALC_UI.boxHeightLabel}
           className="[&_[data-radix-slider-range]]:bg-blue-500 [&_[data-radix-slider-thumb]]:border-blue-500"
         />
         <div className="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">

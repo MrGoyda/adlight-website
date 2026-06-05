@@ -7,6 +7,7 @@ import { ChevronRight, CheckCircle, Gem, Calculator, MessageCircle } from "lucid
 import HeroSlideshow from "@/components/HeroSlideshow";
 import Button from "@/components/ui/Button";
 import ConsultationModal from "@/components/ConsultationModal";
+import CalculatePriceModal from "@/components/CalculatePriceModal/index";
 import { VolumeLetterDetailData } from "@/dictionaries/services/volume-letters";
 
 interface FaceLitHeroProps {
@@ -16,6 +17,7 @@ interface FaceLitHeroProps {
 
 export default function FaceLitHero({ data, displayHeroImages }: FaceLitHeroProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
 
   return (
     <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-slate-200/80 bg-slate-50">
@@ -63,11 +65,11 @@ export default function FaceLitHero({ data, displayHeroImages }: FaceLitHeroProp
             {/* Фирменные кнопки Button в светлом стиле */}
             <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
               <Button 
-                href="/calculator" 
+                onClick={() => setIsPriceModalOpen(true)}
                 variant="solid" 
                 size="lg"
                 leftIcon={<Calculator className="w-5 h-5"/>}
-                className="shadow-lg shadow-orange-600/10 hover:shadow-xl hover:shadow-orange-600/20 transition-all duration-300"
+                className="shadow-lg shadow-orange-600/10 hover:shadow-xl hover:shadow-orange-600/20 transition-all duration-300 cursor-pointer"
               >
                 Рассчитать стоимость
               </Button>
@@ -105,6 +107,11 @@ export default function FaceLitHero({ data, displayHeroImages }: FaceLitHeroProp
         title={`Заявка на ${data.title}`}
         subtitle={`Оставьте контакты. Рассчитаем стоимость производства конструкции "${data.title}" за 15 минут.`}
         buttonText="Получить расчет"
+      />
+      <CalculatePriceModal 
+        isOpen={isPriceModalOpen} 
+        onClose={() => setIsPriceModalOpen(false)} 
+        source={`Технология букв: ${data.title}`} 
       />
     </section>
   );

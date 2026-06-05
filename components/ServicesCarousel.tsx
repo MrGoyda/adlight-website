@@ -4,67 +4,18 @@ import Link from "next/link";
 import { useRef } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import FadeIn from "@/components/ui/FadeIn";
-import { SITE_PRICES } from "@/config/site";
+import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 
-// Данные услуг
-const services = [
-  { 
-    title: "Объемные буквы", 
-    desc: "Лицевая, боковая и контражурная подсветка. Комбинирование техник.", 
-    price: SITE_PRICES.volumeLetters, 
-    link: "/services/volume-letters", 
-    image: "/images/pages/services-letters.webp" 
-  },
-  { 
-    title: "Световые короба", 
-    desc: "Лайтбоксы сложных форм, инкрустация.", 
-    price: SITE_PRICES.lightboxes, 
-    link: "/services/lightboxes", 
-    image: "/images/pages/services-lightboxes.webp" 
-  },
-  { 
-    title: "Неоновые вывески", 
-    desc: "Гибкий неон для интерьера и фотозон.", 
-    price: SITE_PRICES.neon, 
-    link: "/services/neon", 
-    image: "/images/pages/services-neon.webp" 
-  },
-  { 
-    title: "Крышные установки", 
-    desc: "Громадные буквы на крышу. Расчет нагрузок.", 
-    price: "Проектно", 
-    link: "/services/roof-installations", 
-    image: "/images/pages/services-roof-installations.webp" 
-  },
-  { 
-    title: "Панель-кронштейны", 
-    desc: "Двусторонние торцевые вывески.", 
-    price: SITE_PRICES.panelBrackets, 
-    link: "/services/panel-brackets", 
-    image: "/images/pages/services-panel-brackets.webp" 
-  },
-  { 
-    title: "Входные группы", 
-    desc: "Козырьки, композит, полная обшивка.", 
-    price: "Проектно", 
-    link: "/services/entrance-groups", 
-    image: "/images/pages/services-entrance-groups.webp" 
-  },
-  { 
-    title: "Рекламные стелы", 
-    desc: "Отдельно стоящие конструкции, пилоны для АЗС и навигации.", 
-    price: SITE_PRICES.pylons, 
-    link: "/services/pylons", 
-    image: "/images/pages/services-pylons.webp" 
-  },
-  { 
-    title: "Таблички и Навигация", 
-    desc: "Офисные таблички, указатели и системы навигации внутри зданий.", 
-    price: SITE_PRICES.navigation, 
-    link: "/services/navigation", 
-    image: "/images/pages/services-navigation.webp"
-  }
-];
+// Динамически получаем все услуги из общего каталога
+const services = CATALOG_SERVICES.flatMap(group => 
+  group.items.map(item => ({
+    title: item.title,
+    desc: item.description,
+    price: item.price,
+    link: item.link,
+    image: item.image
+  }))
+);
 
 interface ServicesCarouselProps {
   title?: string;
@@ -86,6 +37,7 @@ export default function ServicesCarousel({
   const isDown = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  const dragDistance = useRef(0);
 
   const scroll = (direction: 'left' | 'right') => {
     if (sliderRef.current) {
@@ -100,6 +52,7 @@ export default function ServicesCarousel({
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!sliderRef.current) return;
     isDown.current = true;
+    dragDistance.current = 0;
     sliderRef.current.style.cursor = 'grabbing';
     sliderRef.current.style.scrollBehavior = 'auto';
     sliderRef.current.style.scrollSnapType = 'none'; // Отключаем привязку скролла для плавного драга
@@ -130,6 +83,7 @@ export default function ServicesCarousel({
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
     const walk = (x - startX.current) * 1.6; // Увеличен коэффициент чувствительности
+    dragDistance.current = Math.abs(x - startX.current);
     sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
@@ -224,6 +178,12 @@ export default function ServicesCarousel({
                     <Link 
                       href={service.link} 
                       draggable={false} 
+                      onClick={(e) => {
+                        // Если сдвиг мышки при зажатии больше 10 пикселей, отменяем клик/переход
+                        if (dragDistance.current > 10) {
+                          e.preventDefault();
+                        }
+                      }}
                       className="relative group block w-[85vw] sm:w-[380px] h-[400px] md:h-[450px] rounded-3xl overflow-hidden border border-slate-200/80 hover:border-orange-500/30 transition duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-lg select-none"
                       itemProp="url"
                     >

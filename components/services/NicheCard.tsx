@@ -87,19 +87,22 @@ export default function NicheCard({
           </span>
           <div className="flex flex-wrap gap-2.5">
             {currentNiche.lsiKeywords.map((kw: any, i: number) => (
-              <Link
+              <button
                 key={i}
-                href={kw.link}
-                onClick={triggerHaptic}
-                className="group/tag inline-flex items-center gap-1.5 pl-3.5 pr-2.5 py-1.5 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 rounded-xl border border-slate-200/80 shadow-sm transition-all duration-200 hover:shadow-[0_4px_12px_rgba(249,115,22,0.06)] hover:border-orange-500/20 active:scale-95"
-                title={`Подробнее про вывески для: ${kw.label}`}
+                type="button"
+                onClick={() => {
+                  triggerHaptic();
+                  openConsultation(kw.label);
+                }}
+                className="group/tag inline-flex items-center gap-1.5 pl-3.5 pr-2.5 py-1.5 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 rounded-xl border border-slate-200/80 shadow-sm transition-all duration-200 hover:shadow-[0_4px_12px_rgba(249,115,22,0.06)] hover:border-orange-500/20 active:scale-95 cursor-pointer"
+                title={`Заказать вывеску для: ${kw.label}`}
               >
                 <span>{kw.label}</span>
                 <span className="inline-flex items-center justify-center pl-1 text-[9px] font-black uppercase text-slate-400 group-hover/tag:text-orange-600 transition-colors">
                   Подробнее
                   <ChevronRight className="w-3 h-3 ml-0.5 transform group-hover/tag:translate-x-0.5 transition-transform" />
                 </span>
-              </Link>
+              </button>
             ))}
           </div>
         </div>

@@ -8,6 +8,7 @@ import * as Icons from "lucide-react";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import Button from "@/components/ui/Button";
 import ConsultationModal from "@/components/ConsultationModal";
+import CalculatePriceModal from "@/components/CalculatePriceModal/index";
 import { VOLUME_LETTERS_DICT } from "@/dictionaries/services/volume-letters";
 
 interface VolumeLettersHeroProps {
@@ -16,6 +17,7 @@ interface VolumeLettersHeroProps {
 
 export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
   const heroData = VOLUME_LETTERS_DICT.hero;
 
   return (
@@ -57,9 +59,9 @@ export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps
               <Button 
                 variant="solid" 
                 size="lg" 
-                href="/calculator"
+                onClick={() => setIsPriceModalOpen(true)}
                 leftIcon={<Calculator className="w-5 h-5" />}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto cursor-pointer"
               >
                 {heroData.btnCalculate}
               </Button>
@@ -106,6 +108,11 @@ export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps
         title={heroData.modalTitle}
         subtitle={heroData.modalSubtitle}
         buttonText={heroData.modalButton}
+      />
+      <CalculatePriceModal 
+        isOpen={isPriceModalOpen} 
+        onClose={() => setIsPriceModalOpen(false)} 
+        source="Услуга: Объемные буквы (Общая)" 
       />
     </section>
   );
