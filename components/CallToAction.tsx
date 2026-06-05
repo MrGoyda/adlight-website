@@ -4,19 +4,23 @@ import { useState } from "react";
 import { ShieldCheck, XCircle, Ruler, CheckCircle, User, Phone } from "lucide-react";
 import Button from "@/components/ui/Button";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
+import QuizModal from "@/components/QuizModal";
+import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
 
 interface CallToActionProps {
   source: string;
   title?: string;
   subtitle?: string;
   buttonText?: string;
+  serviceContext?: string;
 }
 
 export default function CallToAction({ 
   source, 
-  title = "Получите бесплатный дизайн-проект вывески", 
-  subtitle = "Оставьте контакты, и мы пришлём пример фотопривязки «до / после» для вашего фасада.",
-  buttonText = "Отправить заявку"
+  title, 
+  subtitle, 
+  buttonText = "Отправить заявку",
+  serviceContext
 }: CallToActionProps) {
   
   const [name, setName] = useState("");
@@ -25,6 +29,13 @@ export default function CallToAction({
   const [nameError, setNameError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
+
+  const configKey = getQuizContextKey(serviceContext);
+  const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
+
+  const displayTitle = title || ctaConfig.title;
+  const displaySubtitle = subtitle || ctaConfig.subtitle;
 
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && navigator.vibrate) {
@@ -101,7 +112,7 @@ export default function CallToAction({
         body: JSON.stringify({
           name,
           phone,
-          message: "Заявка с блока Call To Action",
+          message: `Заявка с быстрого CTA блока. Контекст: ${serviceContext || "general"}`,
           source: source
         }),
       });
@@ -140,11 +151,11 @@ export default function CallToAction({
           <div className="max-w-3xl mx-auto text-center relative z-10">
             
             <h2 className="mb-4 text-3xl md:text-5.5xl font-black tracking-tight text-slate-950 leading-tight">
-              {title}
+              {displayTitle}
             </h2>
             
             <p className="mb-10 text-slate-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-semibold">
-              {subtitle}
+              {displaySubtitle}
             </p>
             
             {isSuccess ? (
@@ -161,7 +172,7 @@ export default function CallToAction({
               <form
                 onSubmit={handleSubmit}
                 aria-label="Заявка на бесплатный дизайн-проект"
-                className="flex flex-col md:flex-row gap-4 w-full max-w-2xl mx-auto mb-6 items-end"
+                className="flex flex-col md:flex-row gap-4 w-full max-w-3xl mx-auto mb-6 items-end"
               >
                 
                 {/* Input Name */}
@@ -204,15 +215,30 @@ export default function CallToAction({
                   {phoneError && <p id="cta-phone-error" role="alert" className="text-[10px] text-red-500 font-bold pl-1">{phoneError}</p>}
                 </div>
 
-                <Button 
-                  type="submit" 
-                  variant="solid" 
-                  size="lg"
-                  isLoading={isLoading}
-                  className="w-full md:w-auto h-[54px] min-w-[180px] bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg active:scale-97 text-center shrink-0 border border-orange-600"
-                >
-                  {buttonText}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
+                  <Button 
+                    type="submit" 
+                    variant="solid" 
+                    size="lg"
+                    isLoading={isLoading}
+                    className="w-full sm:w-auto h-[54px] min-w-[150px] bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg active:scale-97 text-center shrink-0 border border-orange-600"
+                  >
+                    {buttonText}
+                  </Button>
+
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      triggerHaptic();
+                      setIsQuizOpen(true);
+                    }}
+                    variant="lightOutline" 
+                    size="lg"
+                    className="w-full sm:w-auto h-[54px] min-w-[150px] text-orange-600 border border-slate-200 hover:border-orange-500 bg-white hover:bg-orange-50/50 rounded-2xl font-black text-xs uppercase tracking-wider active:scale-97 text-center shrink-0"
+                  >
+                    Пройти квиз -10%
+                  </Button>
+                </div>
               </form>
             )}
             
@@ -224,6 +250,12 @@ export default function CallToAction({
           </div>
         </div>
       </div>
+
+      <QuizModal 
+        isOpen={isQuizOpen}
+        onClose={() => setIsQuizOpen(false)}
+        serviceContext={serviceContext}
+      />
     </section>
   );
 }

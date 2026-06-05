@@ -161,7 +161,7 @@ export default async function VolumeLetterSlugPage({ params }: PageProps) {
       <FaceLitOtherTypes otherTypes={otherTypes} />
 
       <ReviewsCarousel />
-      <CallToAction source={`Услуга: ${data.title}`} />
+      <CallToAction source={`Услуга: ${data.title}`} serviceContext={data.slug} />
 
     </main>
   );

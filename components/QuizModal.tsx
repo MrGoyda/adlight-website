@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X, CheckCircle, ArrowRight, ArrowLeft, ShieldCheck, HelpCircle } from "lucide-react";
 import Card from "@/components/ui/Card";
@@ -9,10 +9,12 @@ import Input from "@/components/ui/Input";
 import Typography from "@/components/ui/Typography";
 
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+import { QUIZ_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
 
 interface QuizModalProps {
   isOpen: boolean;
   onClose: () => void;
+  serviceContext?: string;
 }
 
 // Легковесная функция маскирования для номеров Казахстана (+7 (7XX) XXX-XX-XX)
@@ -53,11 +55,11 @@ const formatKazakhstanPhone = (value: string): string => {
   return formatted;
 };
 
-export default function QuizModal({ isOpen, onClose }: QuizModalProps) {
+
+
+export default function QuizModal({ isOpen, onClose, serviceContext }: QuizModalProps) {
   const [step, setStep] = useState(1);
-  const [signType, setSignType] = useState("");
-  const [niche, setNiche] = useState("");
-  const [timeline, setTimeline] = useState("");
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -70,6 +72,10 @@ export default function QuizModal({ isOpen, onClose }: QuizModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
+  const configKey = getQuizContextKey(serviceContext);
+  const config = QUIZ_CONFIGS[configKey] || QUIZ_CONFIGS["general"];
+  const totalSteps = config.steps.length + 1; // +1 для формы контактов
+
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
@@ -80,9 +86,7 @@ export default function QuizModal({ isOpen, onClose }: QuizModalProps) {
       setShouldRender(true);
       setIsSuccess(false);
       setStep(1);
-      setSignType("");
-      setNiche("");
-      setTimeline("");
+      setAnswers({});
       setName("");
       setPhone("");
       setHoneypot("");
@@ -102,7 +106,6 @@ export default function QuizModal({ isOpen, onClose }: QuizModalProps) {
     }
   }, [isOpen]);
 
-  // Cleanup scroll lock on unmount
   useEffect(() => {
     return () => {
       unlockScroll("quiz-modal");
@@ -125,302 +128,230 @@ export default function QuizModal({ isOpen, onClose }: QuizModalProps) {
 
     const digits = phone.replace(/\D/g, "");
     
-    // Валидация полной длины (+7 + 10 цифр = 11 цифр)
     if (digits.length !== 11) {
       setPhoneError("Пожалуйста, введите полный номер телефона");
       setIsLoading(false);
       return;
-    }
-
-    // Валидация кода оператора РК (+7 7XX)
-    if (digits.charAt(1) !== "7") {
-      setPhoneError("Некорректный код оператора (+7 7XX...)");
-      setIsLoading(false);
-      return;
-    }
-
-    const source = `Квиз-Подбор: [Вывеска: ${signType}] [Ниша: ${niche}] [Сроки: ${timeline}]`;
-
-    try {
-      const res = await fetch("/api/telegram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, source, website: honeypot }),
-      });
-
-      if (res.ok) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          if (isOpen) onClose();
-        }, 4000);
-      } else {
-        alert("Ошибка при отправке. Попробуйте связаться напрямую в WhatsApp.");
       }
-    } catch (error) {
-      console.error(error);
-      alert("Ошибка сети. Попробуйте еще раз.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (!mounted || !shouldRender) return null;
-
-  return createPortal(
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 pb-safe">
-      {/* Overlay */}
-      <div 
-        className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300 ease-out ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-        onClick={onClose}
-      ></div>
-
-      {/* Modal */}
-      <div 
-        className={`w-full max-w-lg relative z-10 max-h-[90dvh] overflow-y-auto rounded-[2.5rem] shadow-apple-modal border border-white/20 transition-all duration-300 ease-out transform ${
-          isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
-        }`}
-      >
-        <Card 
-          glass
-          intensity="light"
-          rounded="3xl"
-          className="w-full bg-white/80 backdrop-blur-2xl text-slate-900"
+  
+      if (digits.charAt(1) !== "7") {
+        setPhoneError("Некорректный код оператора (+7 7XX...)");
+        setIsLoading(false);
+        return;
+      }
+  
+      // Форматируем ответы в один текстовый лог
+      const answersText = config.steps.map((q, idx) => {
+        const ans = answers[idx + 1] || "Не выбрано";
+        return `[Вопрос ${idx + 1}: ${q.title}] -> [Ответ: ${ans}]`;
+      }).join(" | ");
+  
+      const source = `Квиз: ${config.title}. Контекст: ${serviceContext || "general"}. Ответы: ${answersText}`;
+  
+      try {
+        const res = await fetch("/api/telegram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, source, website: honeypot }),
+        });
+  
+        if (res.ok) {
+          setIsSuccess(true);
+          setTimeout(() => {
+            if (isOpen) onClose();
+          }, 4000);
+        } else {
+          alert("Ошибка при отправке. Попробуйте связаться напрямую в WhatsApp.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Ошибка сети. Попробуйте еще раз.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    if (!mounted || !shouldRender) return null;
+  
+    return createPortal(
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 pb-safe">
+        {/* Overlay */}
+        <div 
+          className={`absolute inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity duration-300 ease-out ${
+            isVisible ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={onClose}
+        ></div>
+  
+        {/* Modal */}
+        <div 
+          className={`w-full max-w-lg relative z-10 max-h-[90dvh] overflow-y-auto rounded-[2.5rem] shadow-apple-modal border border-white/20 transition-all duration-300 ease-out transform ${
+            isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
+          }`}
         >
-          {/* Top glowing effect */}
-          <div className="absolute top-0 right-0 w-36 h-36 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-
-          {/* Close button */}
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition z-50"
-            aria-label="Закрыть"
+          <Card 
+            glass
+            intensity="light"
+            rounded="3xl"
+            className="w-full bg-white/80 backdrop-blur-2xl text-slate-900"
           >
-            <X className="w-6 h-6"/>
-          </button>
-
-          <div className="px-8 pb-8 pt-14 relative z-10">
-            {isSuccess ? (
-              /* ЭКРАН УСПЕХА */
-              <div className="text-center py-6 animate-in fade-in zoom-in duration-300">
-                <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-6 border border-emerald-100">
-                  <CheckCircle className="w-10 h-10"/>
+            {/* Top glowing effect */}
+            <div className="absolute top-0 right-0 w-36 h-36 bg-orange-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+  
+            {/* Close button */}
+            <button 
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition z-50 cursor-pointer"
+              aria-label="Закрыть"
+            >
+              <X className="w-6 h-6"/>
+            </button>
+  
+            <div className="px-8 pb-8 pt-14 relative z-10">
+              {isSuccess ? (
+                /* ЭКРАН УСПЕХА */
+                <div className="text-center py-6 animate-in fade-in zoom-in duration-300">
+                  <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-6 border border-emerald-100">
+                    <CheckCircle className="w-10 h-10"/>
+                  </div>
+                  <Typography variant="h3" className="mb-2 text-slate-900 font-extrabold text-2xl">Смета рассчитана!</Typography>
+                  <Typography variant="body" className="mb-6 text-slate-500">
+                    Спасибо! Мы подготовим для вас персональное предложение и перезвоним в течение 10 минут.
+                  </Typography>
+                  <Button onClick={onClose} variant="secondary" className="w-full h-[54px]">
+                    Отлично
+                  </Button>
                 </div>
-                <Typography variant="h3" className="mb-2 text-slate-900 font-extrabold text-2xl">Смета рассчитана!</Typography>
-                <Typography variant="body" className="mb-6 text-slate-500">
-                  Спасибо! Мы подготовим для вас персональное предложение и перезвоним в течение 10 минут.
-                </Typography>
-                <Button onClick={onClose} variant="secondary" className="w-full h-[54px]">
-                  Отлично
-                </Button>
-              </div>
-            ) : (
-              <div>
-                {/* Индикатор шага */}
-                <div className="flex items-center gap-1.5 mb-6">
-                  {[1, 2, 3, 4].map((s) => (
-                    <div 
-                      key={s} 
-                      className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                        s <= step ? "bg-orange-500 shadow-sm" : "bg-slate-200"
-                      }`}
-                    />
-                  ))}
-                  <span className="text-[10px] font-mono text-slate-500 font-extrabold ml-2">Шаг {step}/4</span>
-                </div>
-
-                {/* ШАГ 1: Тип вывески */}
-                {step === 1 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div>
-                      <Typography variant="h3" className="text-slate-900 font-extrabold text-2xl mb-2 flex items-center gap-2">
-                        <HelpCircle className="w-6 h-6 text-orange-500 shrink-0"/> Что необходимо изготовить?
-                      </Typography>
-                      <Typography variant="body" className="text-slate-500 text-sm">
-                        Выберите тип конструкции, чтобы мы подобрали технологические карты и материалы
-                      </Typography>
-                    </div>
-
-                    <div className="grid gap-2">
-                      {[
-                        "Объемные световые буквы",
-                        "Световой короб / Лайтбокс",
-                        "Интерьерный логотип / Неоновая вывеска",
-                        "Оформление фасада композитом",
-                        "Пока не знаю, нужна консультация инженера"
-                      ].map((item) => (
-                        <button
-                          key={item}
-                          onClick={() => { setSignType(item); nextStep(); }}
-                          className={`w-full text-left p-4 rounded-xl border text-sm font-semibold transition duration-200 active:scale-[0.99] ${
-                            signType === item 
-                              ? "bg-orange-50 border-orange-500 text-orange-600 shadow-md font-bold" 
-                              : "bg-slate-50/50 border-slate-200 hover:border-slate-350 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ШАГ 2: Ниша */}
-                {step === 2 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div>
-                      <Typography variant="h3" className="text-slate-900 font-extrabold text-2xl mb-2">
-                        Для какой сферы бизнеса?
-                      </Typography>
-                      <Typography variant="body" className="text-slate-500 text-sm">
-                        Это поможет нам учесть требования законодательства и стандарты Дизайн-кода Астаны
-                      </Typography>
-                    </div>
-
-                    <div className="grid gap-2">
-                      {[
-                        "Ресторан / Кафе / Кофейня",
-                        "Салон красоты / Бьюти-сфера",
-                        "Магазин / Продукты / Торговый центр",
-                        "Офис компании / Ресепшн",
-                        "СТО / Автомагазин / Услуги",
-                        "Другое направление"
-                      ].map((item) => (
-                        <button
-                          key={item}
-                          onClick={() => { setNiche(item); nextStep(); }}
-                          className={`w-full text-left p-4 rounded-xl border text-sm font-semibold transition duration-200 active:scale-[0.99] ${
-                            niche === item 
-                              ? "bg-orange-50 border-orange-500 text-orange-600 shadow-md font-bold" 
-                              : "bg-slate-50/50 border-slate-200 hover:border-slate-350 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-
-                    <button onClick={prevStep} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition pt-2 font-medium">
-                      <ArrowLeft className="w-4 h-4"/> Назад
-                    </button>
-                  </div>
-                )}
-
-                {/* ШАГ 3: Сроки */}
-                {step === 3 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div>
-                      <Typography variant="h3" className="text-slate-900 font-extrabold text-2xl mb-2">
-                        Желаемые сроки производства?
-                      </Typography>
-                      <Typography variant="body" className="text-slate-500 text-sm">
-                        У нас собственный сборочный цех, мы можем реализовать вывеску от 3 дней!
-                      </Typography>
-                    </div>
-
-                    <div className="grid gap-2">
-                      {[
-                        "Срочно (в течение 3-5 дней)",
-                        "Стандартно (в течение 7-10 дней)",
-                        "Не спешу (в процессе планирования открытия)"
-                      ].map((item) => (
-                        <button
-                          key={item}
-                          onClick={() => { setTimeline(item); nextStep(); }}
-                          className={`w-full text-left p-4 rounded-xl border text-sm font-semibold transition duration-200 active:scale-[0.99] ${
-                            timeline === item 
-                              ? "bg-orange-50 border-orange-500 text-orange-600 shadow-md font-bold" 
-                              : "bg-slate-50/50 border-slate-200 hover:border-slate-350 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-
-                    <button onClick={prevStep} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition pt-2 font-medium">
-                      <ArrowLeft className="w-4 h-4"/> Назад
-                    </button>
-                  </div>
-                )}
-
-                {/* ШАГ 4: Форма контактов */}
-                {step === 4 && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div>
-                      <Typography variant="h3" className="text-slate-900 font-extrabold text-2xl mb-2">
-                        Получить расчет сметы
-                      </Typography>
-                      <Typography variant="body" className="text-slate-500 text-sm">
-                        Мы зафиксируем за вашим номером скидку 10% и подготовим расчет.
-                      </Typography>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      {/* Honeypot скрытое поле для защиты от спам-ботов */}
-                      <input 
-                        type="text" 
-                        name="website" 
-                        className="sr-only" 
-                        tabIndex={-1} 
-                        autoComplete="off" 
-                        value={honeypot} 
-                        onChange={(e) => setHoneypot(e.target.value)} 
+              ) : (
+                <div>
+                  {/* Индикатор шага */}
+                  <div className="flex items-center gap-1.5 mb-6">
+                    {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
+                      <div 
+                        key={s} 
+                        className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                          s <= step ? "bg-orange-500 shadow-sm" : "bg-slate-200"
+                        }`}
                       />
-                      <Input
-                        label="Ваше имя"
-                        hideLabel
-                        variant="light"
-                        id="quiz-name"
-                        placeholder="Ваше имя"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        disabled={isLoading}
-                      />
-                      <Input
-                        label="Номер телефона"
-                        hideLabel
-                        variant="light"
-                        id="quiz-phone"
-                        type="tel"
-                        placeholder="+7 (777) 123-45-67"
-                        value={phone}
-                        onChange={handlePhoneChange}
-                        error={phoneError}
-                        required
-                        disabled={isLoading}
-                      />
-
-                      <Button
-                        type="submit"
-                        variant="solid"
-                        size="lg"
-                        isLoading={isLoading}
-                        className="w-full h-[58px]"
-                        rightIcon={<ArrowRight className="w-5 h-5"/>}
-                      >
-                        Рассчитать вывеску
-                      </Button>
-                    </form>
-
-                    <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-6">
-                      <button onClick={prevStep} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition font-medium">
-                        <ArrowLeft className="w-4 h-4"/> Назад
-                      </button>
-                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-medium">
-                        <ShieldCheck className="w-3.5 h-3.5 text-slate-500"/> Безопасная отправка
+                    ))}
+                    <span className="text-[10px] font-mono text-slate-500 font-extrabold ml-2">Шаг {step}/{totalSteps}</span>
+                  </div>
+  
+                  {/* Динамические вопросы */}
+                  {step <= config.steps.length && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div>
+                        <Typography variant="h3" className="text-slate-900 font-extrabold text-xl sm:text-2xl mb-2 flex items-center gap-2">
+                          <HelpCircle className="w-6 h-6 text-orange-500 shrink-0"/> {config.steps[step - 1].title}
+                        </Typography>
+                        <Typography variant="body" className="text-slate-500 text-sm">
+                          {config.steps[step - 1].description}
+                        </Typography>
+                      </div>
+  
+                      <div className="grid gap-2">
+                        {config.steps[step - 1].options.map((item) => (
+                          <button
+                            key={item}
+                            onClick={() => {
+                              setAnswers(prev => ({ ...prev, [step]: item }));
+                              nextStep();
+                            }}
+                            className={`w-full text-left p-4 rounded-xl border text-sm font-semibold transition duration-200 active:scale-[0.99] cursor-pointer ${
+                              answers[step] === item 
+                                ? "bg-orange-50 border-orange-500 text-orange-600 shadow-md font-bold" 
+                                : "bg-slate-50/50 border-slate-200 hover:border-slate-350 text-slate-700 hover:text-slate-900 hover:bg-slate-50"
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+  
+                      {step > 1 && (
+                        <button onClick={prevStep} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition pt-2 font-medium cursor-pointer">
+                          <ArrowLeft className="w-4 h-4"/> Назад
+                        </button>
+                      )}
+                    </div>
+                  )}
+  
+                  {/* ФОРМА КОНТАКТОВ (ПОСЛЕДНИЙ ШАГ) */}
+                  {step === totalSteps && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div>
+                        <Typography variant="h3" className="text-slate-900 font-extrabold text-2xl mb-2">
+                          Получить расчет сметы
+                        </Typography>
+                        <Typography variant="body" className="text-slate-500 text-sm">
+                          Мы зафиксируем за вашим номером скидку 10% и подготовим расчет.
+                        </Typography>
+                      </div>
+  
+                      <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Honeypot скрытое поле для защиты от спам-ботов */}
+                        <input 
+                          type="text" 
+                          name="website" 
+                          className="sr-only" 
+                          tabIndex={-1} 
+                          autoComplete="off" 
+                          value={honeypot} 
+                          onChange={(e) => setHoneypot(e.target.value)} 
+                        />
+                        <Input
+                          label="Ваше имя"
+                          hideLabel
+                          variant="light"
+                          id="quiz-name"
+                          placeholder="Ваше имя"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                          disabled={isLoading}
+                        />
+                        <Input
+                          label="Номер телефона"
+                          hideLabel
+                          variant="light"
+                          id="quiz-phone"
+                          type="tel"
+                          placeholder="+7 (777) 123-45-67"
+                          value={phone}
+                          onChange={handlePhoneChange}
+                          error={phoneError}
+                          required
+                          disabled={isLoading}
+                        />
+  
+                        <Button
+                          type="submit"
+                          variant="solid"
+                          size="lg"
+                          isLoading={isLoading}
+                          className="w-full h-[58px]"
+                          rightIcon={<ArrowRight className="w-5 h-5"/>}
+                        >
+                          Рассчитать вывеску
+                        </Button>
+                      </form>
+  
+                      <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-6">
+                        <button onClick={prevStep} className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition font-medium cursor-pointer">
+                          <ArrowLeft className="w-4 h-4"/> Назад
+                        </button>
+                        <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-medium">
+                          <ShieldCheck className="w-3.5 h-3.5 text-slate-500"/> Безопасная отправка
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </Card>
-      </div>
-    </div>,
-    document.body
-  );
-}
+                  )}
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+      </div>,
+      document.body
+    );
+  }

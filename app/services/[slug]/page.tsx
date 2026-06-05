@@ -169,7 +169,7 @@ export default async function DynamicServicePage({ params }: Props) {
       {/* 10. ОТЗЫВЫ И CTA */}
       <ReviewsCarousel />
       <ServicesCarousel title={SERVICES_DETAILS_UI.carousel.title} subtitle={SERVICES_DETAILS_UI.carousel.subtitle} hiddenLink={`/services/${service.slug}`} />
-      <CallToAction source={`Услуга: ${service.title}`} />
+      <CallToAction source={`Услуга: ${service.title}`} serviceContext={service.slug} />
     </main>
   );
 }

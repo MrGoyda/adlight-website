@@ -222,7 +222,7 @@ export default async function VolumeLettersPage() {
       {/* 11. ОТЗЫВЫ, ДРУГИЕ УСЛУГИ, CTA */}
       <ReviewsCarousel />
       <ServicesCarousel title={VOLUME_LETTERS_DICT.carousel.title} subtitle={VOLUME_LETTERS_DICT.carousel.subtitle} hiddenLink="/services/volume-letters" />
-      <CallToAction source="Страница: Объемные буквы (Hub)" />
+      <CallToAction source="Страница: Объемные буквы (Hub)" serviceContext="volume-letters" />
 
     </main>
   );
