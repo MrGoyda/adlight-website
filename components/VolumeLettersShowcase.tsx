@@ -29,9 +29,25 @@ export default function VolumeLettersShowcase() {
     }
   };
 
+  const clickStartCoords = useRef({ x: 0, y: 0 });
+
   const handleToggle = () => {
     setIsNightMode((prev) => !prev);
     triggerHaptic("medium");
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    clickStartCoords.current = { x: e.screenX, y: e.screenY };
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const distanceX = Math.abs(e.screenX - clickStartCoords.current.x);
+    const distanceY = Math.abs(e.screenY - clickStartCoords.current.y);
+    if (distanceX > 10 || distanceY > 10) {
+      e.preventDefault();
+    } else {
+      triggerHaptic("light");
+    }
   };
 
   // Измерение ограничений драга при изменении размеров
@@ -117,7 +133,7 @@ export default function VolumeLettersShowcase() {
                 изготовления объемных букв
               </span>
             </h2>
-            <p className="text-slate-600 text-base sm:text-lg font-medium leading-relaxed">
+            <p className="text-slate-650 text-base sm:text-lg font-medium leading-relaxed">
               Каждая технология создает уникальный характер бренда. Посмотрите, как меняется внешний вид вывески при включении ночной подсветки.
             </p>
           </div>
@@ -185,77 +201,83 @@ export default function VolumeLettersShowcase() {
               return (
                 <div 
                   key={tech.id}
-                  className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/25 p-5 md:p-6 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[82vw] sm:w-[350px] snap-center"
+                  className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/25 p-0 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[82vw] sm:w-[350px] snap-center"
                 >
-                  {/* Картинка с днем и ночью */}
-                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100 pointer-events-none">
-                    {/* Дневная картинка */}
-                    <Image
-                      src={tech.images.day}
-                      alt={`${tech.title} - День`}
-                      fill
-                      className={cn(
-                        "object-cover rounded-2xl transition-all duration-700 ease-in-out",
-                        isNightMode ? "opacity-0 scale-98" : "opacity-100 scale-100"
-                      )}
-                      sizes="(max-width: 768px) 100vw, 30vw"
-                      loading="lazy"
-                    />
-                    {/* Ночная картинка */}
-                    <Image
-                      src={tech.images.night}
-                      alt={`${tech.title} - Ночь`}
-                      fill
-                      className={cn(
-                        "object-cover rounded-2xl transition-all duration-700 ease-in-out",
-                        isNightMode ? "opacity-100 scale-100" : "opacity-0 scale-98"
-                      )}
-                      sizes="(max-width: 768px) 100vw, 30vw"
-                      loading="lazy"
-                    />
-                    {/* Мягкий контур */}
-                    <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20" />
-                  </div>
-
-                  {/* Описание технологии */}
-                  <div className="space-y-3 flex-grow mb-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
-                          {tech.title}
-                        </h3>
+                  <Link
+                    href={`/services/volume-letters/${tech.slug}`}
+                    onMouseDown={handleMouseDown}
+                    onClick={handleCardClick}
+                    className="flex flex-col justify-between p-5 md:p-6 w-full h-full text-left relative"
+                    draggable={false}
+                  >
+                    <div>
+                      {/* Картинка с днем и ночью */}
+                      <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100 pointer-events-none">
+                        {/* Дневная картинка */}
+                        <Image
+                          src={tech.images.day}
+                          alt={`${tech.title} - День`}
+                          fill
+                          className={cn(
+                            "object-cover rounded-2xl transition-all duration-700 ease-in-out",
+                            isNightMode ? "opacity-0 scale-98" : "opacity-100 scale-100"
+                          )}
+                          sizes="(max-width: 768px) 100vw, 30vw"
+                          loading="lazy"
+                        />
+                        {/* Ночная картинка */}
+                        <Image
+                          src={tech.images.night}
+                          alt={`${tech.title} - Ночь`}
+                          fill
+                          className={cn(
+                            "object-cover rounded-2xl transition-all duration-700 ease-in-out",
+                            isNightMode ? "opacity-100 scale-100" : "opacity-0 scale-98"
+                          )}
+                          sizes="(max-width: 768px) 100vw, 30vw"
+                          loading="lazy"
+                        />
+                        {/* Мягкий контур */}
+                        <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20" />
                       </div>
-                      
-                      <Link
-                        href={`/services/volume-letters/${tech.slug}`}
-                        onClick={() => triggerHaptic("light")}
-                        className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-slate-900 group-hover:border-orange-500 transition-all hover:scale-105"
-                        aria-label={`Подробнее о ${tech.title}`}
-                      >
-                        <ArrowUpRight className="w-4 h-4" />
-                      </Link>
+
+                      {/* Описание технологии */}
+                      <div className="space-y-3 flex-grow mb-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h3 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
+                              {tech.title}
+                            </h3>
+                          </div>
+                          
+                          <span
+                            className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-slate-900 group-hover:border-orange-500 transition-all hover:scale-105"
+                            aria-label={`Подробнее о ${tech.title}`}
+                          >
+                            <ArrowUpRight className="w-4 h-4" />
+                          </span>
+                        </div>
+
+                        <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                          {tech.description}
+                        </p>
+                      </div>
                     </div>
 
-                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                      {tech.description}
-                    </p>
-                  </div>
-
-                  {/* Цена и кнопка перехода */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                    <span className="text-xs sm:text-sm font-black text-slate-900">
-                      {tech.price}
-                    </span>
-                    
-                    <Link 
-                      href={`/services/volume-letters/${tech.slug}`}
-                      onClick={() => triggerHaptic("light")}
-                      className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
-                    >
-                      Подробнее
-                      <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
-                    </Link>
-                  </div>
+                    {/* Цена и кнопка перехода */}
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                      <span className="text-xs sm:text-sm font-black text-slate-900">
+                        {tech.price}
+                      </span>
+                      
+                      <span 
+                        className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
+                      >
+                        Подробнее
+                        <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
+                      </span>
+                    </div>
+                  </Link>
                 </div>
               );
             })}
