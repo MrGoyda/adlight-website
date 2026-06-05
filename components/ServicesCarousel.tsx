@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, useMotionValue, animate } from "framer-motion";
 import FadeIn from "@/components/ui/FadeIn";
 import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 
@@ -33,59 +34,30 @@ export default function ServicesCarousel({
   
   const displayedServices = services.filter(s => s.link !== hiddenLink);
 
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const isDown = useRef(false);
-  const startX = useRef(0);
-  const scrollLeft = useRef(0);
-  const dragDistance = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  
+  const [dragWidth, setDragWidth] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const clickStartCoords = useRef({ x: 0, y: 0 });
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (sliderRef.current) {
-      const scrollAmount = 420;
-      sliderRef.current.scrollBy({
-        left: direction === 'right' ? scrollAmount : -scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
+  const x = useMotionValue(0);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!sliderRef.current) return;
-    isDown.current = true;
-    dragDistance.current = 0;
-    sliderRef.current.style.cursor = 'grabbing';
-    sliderRef.current.style.scrollBehavior = 'auto';
-    sliderRef.current.style.scrollSnapType = 'none'; // Отключаем привязку скролла для плавного драга
-    startX.current = e.pageX - sliderRef.current.offsetLeft;
-    scrollLeft.current = sliderRef.current.scrollLeft;
-  };
-
-  const handleMouseLeave = () => {
-    isDown.current = false;
-    if (sliderRef.current) {
-      sliderRef.current.style.cursor = 'grab';
-      sliderRef.current.style.scrollBehavior = 'smooth';
-      sliderRef.current.style.scrollSnapType = 'x mandatory'; // Возвращаем привязку скролла
-    }
-  };
-
-  const handleMouseUp = () => {
-    isDown.current = false;
-    if (sliderRef.current) {
-      sliderRef.current.style.cursor = 'grab';
-      sliderRef.current.style.scrollBehavior = 'smooth';
-      sliderRef.current.style.scrollSnapType = 'x mandatory'; // Возвращаем привязку скролла
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDown.current || !sliderRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - sliderRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.6; // Увеличен коэффициент чувствительности
-    dragDistance.current = Math.abs(x - startX.current);
-    sliderRef.current.scrollLeft = scrollLeft.current - walk;
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (carouselRef.current && containerRef.current) {
+        setDragWidth(Math.max(0, carouselRef.current.scrollWidth - containerRef.current.offsetWidth));
+      }
+    };
+    
+    const timer = setTimeout(handleResize, 100);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [displayedServices]);
 
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && navigator.vibrate) {
@@ -93,9 +65,47 @@ export default function ServicesCarousel({
     }
   };
 
-  const handleScrollClick = (direction: 'left' | 'right') => {
+  const scroll = (direction: 'left' | 'right') => {
+    if (!containerRef.current) return;
     triggerHaptic();
-    scroll(direction);
+
+    if (isMobile) {
+      const scrollAmount = 350;
+      containerRef.current.scrollBy({
+        left: direction === 'right' ? scrollAmount : -scrollAmount,
+        behavior: 'smooth'
+      });
+      return;
+    }
+
+    const viewportWidth = containerRef.current.offsetWidth;
+    const currentX = x.get();
+    const scrollAmount = viewportWidth * 0.75;
+    let targetX = direction === 'left' ? currentX + scrollAmount : currentX - scrollAmount;
+
+    if (targetX > 0) targetX = 0;
+    if (targetX < -dragWidth) targetX = -dragWidth;
+
+    animate(x, targetX, {
+      type: "spring",
+      stiffness: 150,
+      damping: 22,
+      mass: 0.8,
+    });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    clickStartCoords.current = { x: e.screenX, y: e.screenY };
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const distanceX = Math.abs(e.screenX - clickStartCoords.current.x);
+    const distanceY = Math.abs(e.screenY - clickStartCoords.current.y);
+    if (distanceX > 10 || distanceY > 10) {
+      e.preventDefault();
+    } else {
+      triggerHaptic();
+    }
   };
 
   // Динамически рендерим нужный уровень заголовка для правильной SEO/AI иерархии
@@ -130,14 +140,14 @@ export default function ServicesCarousel({
 
                <div className="hidden md:flex gap-2.5">
                   <button 
-                    onClick={() => handleScrollClick('left')} 
+                    onClick={() => scroll('left')} 
                     className="p-3.5 rounded-xl border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition active:scale-95 shadow-sm cursor-pointer"
                     aria-label="Предыдущий слайд"
                   >
                      <ChevronLeft className="w-5 h-5"/>
                   </button>
                   <button 
-                    onClick={() => handleScrollClick('right')} 
+                    onClick={() => scroll('right')} 
                     className="p-3.5 rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition shadow-md shadow-orange-600/10 active:scale-95 cursor-pointer"
                     aria-label="Следующий слайд"
                   >
@@ -149,63 +159,65 @@ export default function ServicesCarousel({
           
           {/* СЛАЙДЕР КОНТЕЙНЕР (С разметкой Schema.org ItemList для поисковиков и ИИ-ботов) */}
           <div 
-            ref={sliderRef}
-            onMouseDown={handleMouseDown} 
-            onMouseLeave={handleMouseLeave} 
-            onMouseUp={handleMouseUp} 
-            onMouseMove={handleMouseMove}
-            className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory"
+            ref={containerRef}
+            className="overflow-x-auto md:overflow-hidden -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing scroll-smooth snap-x snap-mandatory hide-scrollbar"
             itemScope 
             itemType="https://schema.org/ItemList"
           >
-              {displayedServices.map((service, i) => (
-                <FadeIn
-                  key={i}
-                  delay={i * 50}
-                  threshold={0.1}
-                  className="flex-none snap-center"
-                >
-                  <div
-                    itemProp="itemListElement"
-                    itemScope
-                    itemType="https://schema.org/ListItem"
-                    className="relative block"
+              <motion.div
+                ref={carouselRef}
+                drag={isMobile ? false : "x"}
+                dragConstraints={{ right: 0, left: -dragWidth }}
+                dragElastic={0.1}
+                dragTransition={{ power: 0.2, timeConstant: 300 }} // Мягкая инерция (momentum скролл)
+                style={isMobile ? undefined : { x }}
+                className="flex gap-6 pb-8 w-max"
+              >
+                {displayedServices.map((service, i) => (
+                  <FadeIn
+                    key={i}
+                    delay={i * 50}
+                    threshold={0.1}
+                    className="flex-none snap-center"
                   >
-                    {/* Метаданные для ИИ и Поисковых систем */}
-                    <meta itemProp="position" content={String(i + 1)} />
-                    <span itemProp="name" className="hidden">{service.title}</span>
-                    
-                    <Link 
-                      href={service.link} 
-                      draggable={false} 
-                      onClick={(e) => {
-                        // Если сдвиг мышки при зажатии больше 10 пикселей, отменяем клик/переход
-                        if (dragDistance.current > 10) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className="relative group block w-[85vw] sm:w-[380px] h-[400px] md:h-[450px] rounded-3xl overflow-hidden border border-slate-200/80 hover:border-orange-500/30 transition duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-lg select-none"
-                      itemProp="url"
+                    <div
+                      itemProp="itemListElement"
+                      itemScope
+                      itemType="https://schema.org/ListItem"
+                      className="relative block"
                     >
-                      {/* Картинка */}
-                      <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none" style={{ backgroundImage: `url(${service.image})` }}></div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent opacity-90 pointer-events-none"></div>
+                      {/* Метаданные для ИИ и Поисковых систем */}
+                      <meta itemProp="position" content={String(i + 1)} />
+                      <span itemProp="name" className="hidden">{service.title}</span>
                       
-                      {/* Текст */}
-                      <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 pointer-events-none">
-                        <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-orange-400 transition tracking-tight">{service.title}</h3>
-                        <p className="text-gray-300 text-xs md:text-sm mb-6 line-clamp-2">{service.desc}</p>
-                        <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                            <span className="text-orange-400 font-bold text-sm md:text-base">{service.price}</span>
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition">
-                               <ArrowRight className="w-4 h-4 md:w-5 md:h-5"/>
-                            </div>
+                      <Link 
+                        href={service.link} 
+                        draggable={false} 
+                        onMouseDown={handleMouseDown}
+                        onClick={handleCardClick}
+                        className="relative group block w-[85vw] sm:w-[380px] h-[400px] md:h-[450px] rounded-3xl overflow-hidden [transform:translateZ(0)] border border-slate-200/80 hover:border-orange-500/30 transition duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-lg select-none"
+                        itemProp="url"
+                      >
+                        {/* Картинка */}
+                        <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none" style={{ backgroundImage: `url(${service.image})` }}></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent opacity-90 pointer-events-none"></div>
+                        
+                        {/* Текст */}
+                        <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 pointer-events-none">
+                          <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-orange-400 transition tracking-tight">{service.title}</h3>
+                          <p className="text-gray-300 text-xs md:text-sm mb-6 line-clamp-2">{service.desc}</p>
+                          <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                              <span className="text-orange-400 font-bold text-sm md:text-base">{service.price}</span>
+                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 backdrop-blur flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition">
+                                 <ArrowRight className="w-4 h-4 md:w-5 md:h-5"/>
+                              </div>
+                          </div>
                         </div>
-                      </div>
-                   </Link>
-                  </div>
-                </FadeIn>
-              ))}
+                     </Link>
+                    </div>
+                  </FadeIn>
+                ))}
+              </motion.div>
           </div>
        </div>
     </section>
