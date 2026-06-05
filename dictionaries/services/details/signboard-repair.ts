@@ -14,6 +14,9 @@ export const signboard_repairDetails: ServiceDetailData = {
   heroTag: "Срочный ремонт от профессионалов",
   priceColor: "orange",
   heroVisualType: "zap",
+  heroBadgeText: "Срочный ремонт",
+  heroBadgeSubtext: "Диагностика электрики и замена диодов в день выезда",
+  heroBadgeIcon: "Wrench",
   conceptTitle: "Погасшая вывеска отпугивает клиентов.",
   conceptDesc: "Световая вывеска — это лицо вашего бизнеса в темное время суток. Погасшие буквы, мерцающие модули или полностью неработающая подсветка создают ощущение заброшенности и небрежности. Мы предлагаем оперативное устранение неисправностей в день обращения.",
   conceptHighlights: [

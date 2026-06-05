@@ -14,6 +14,9 @@ export const navigationDetails: ServiceDetailData = {
   heroTag: "Навигационные системы от производителя",
   priceColor: "teal",
   heroVisualType: "map",
+  heroBadgeText: "Понятная навигация",
+  heroBadgeSubtext: "Эргономичный дизайн и быстрое считывание информации на объекте",
+  heroBadgeIcon: "Compass",
   conceptTitle: "Навигация — это забота о клиенте.",
   conceptDesc: "Если ваш клиент тратит больше 30 секунд на поиски нужного кабинета, лифта или уборной, он испытывает дискомфорт, который проецируется на весь ваш бизнес. Продуманный путь (wayfinding) с лаконичными и стильными указателями направляет потоки людей тихо и эффективно.",
   conceptHighlights: [

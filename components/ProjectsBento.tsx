@@ -175,7 +175,7 @@ export default function ProjectsBento({
                      delay={(i % sortedProjects.length) * 40}
                      threshold={0.05}
                      as="li"
-                     className="relative group flex-none w-[82vw] sm:w-[380px] h-[460px] bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:shadow-lg hover:border-slate-350 transition duration-500 select-none flex flex-col justify-end snap-start"
+                     className="relative group flex-none w-[82vw] sm:w-[380px] h-[460px] bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:shadow-lg hover:border-slate-350 transition duration-500 select-none flex flex-col justify-end snap-center"
                    >
                       {/* Background Image with Zoom */}
                       <div 

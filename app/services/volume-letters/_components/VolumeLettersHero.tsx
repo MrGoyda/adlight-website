@@ -3,7 +3,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, FileCheck, Calculator, MessageCircle } from "lucide-react";
+import { ChevronRight, Calculator, MessageCircle } from "lucide-react";
+import * as Icons from "lucide-react";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import Button from "@/components/ui/Button";
 import ConsultationModal from "@/components/ConsultationModal";
@@ -79,15 +80,20 @@ export default function VolumeLettersHero({ heroImages }: VolumeLettersHeroProps
             <HeroSlideshow images={heroImages} />
             
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent pointer-events-none"></div>
-            <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md border border-slate-200/80 p-4 rounded-2xl flex items-center gap-4 pointer-events-none z-20 shadow-lg">
-              <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center text-green-600 shrink-0">
-                <FileCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-slate-900 font-bold text-base">{heroData.badgeContract}</div>
-                <div className="text-slate-500 text-xs font-medium">{heroData.badgeContractDesc}</div>
-              </div>
-            </div>
+            {(() => {
+              const IconComp = (Icons as any)[(heroData as any).badgeContractIcon] || Icons.FileCheck;
+              return (
+                <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md border border-slate-200/80 p-4 rounded-2xl flex items-center gap-4 pointer-events-none z-20 shadow-lg">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center text-green-600 shrink-0">
+                    <IconComp className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-slate-900 font-bold text-base">{heroData.badgeContract}</div>
+                    <div className="text-slate-500 text-xs font-medium">{heroData.badgeContractDesc}</div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

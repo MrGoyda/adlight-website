@@ -14,6 +14,9 @@ export const panel_bracketsDetails: ServiceDetailData = {
   heroTag: "Панель-кронштейны от производителя",
   priceColor: "indigo",
   heroVisualType: "box",
+  heroBadgeText: "Двухсторонний обзор",
+  heroBadgeSubtext: "Охват 100% пешеходного трафика с обеих сторон фасада",
+  heroBadgeIcon: "Eye",
   conceptTitle: "Почему обычную вывеску не видно?",
   conceptDesc: "Когда человек идет вдоль здания по тротуару, обычные вывески висят параллельно его траектории — он их просто проскакивает. Панель-кронштейн монтируется перпендикулярно фасаду, преграждая путь взгляду. Это увеличивает видимость вашей точки на 40%.",
   conceptHighlights: [

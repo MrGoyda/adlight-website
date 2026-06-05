@@ -14,6 +14,9 @@ export const entrance_groupsDetails: ServiceDetailData = {
   heroTag: "Входные группы в Астане",
   priceColor: "blue",
   heroVisualType: "store",
+  heroBadgeText: "Единая концепция",
+  heroBadgeSubtext: "Комплексная облицовка композитом и световое оформление входного портала",
+  heroBadgeIcon: "Layout",
   conceptTitle: "Вывески не читают — их чувствуют.",
   conceptDesc: "Человеку достаточно одной секунды, чтобы бросить взгляд на вход и решить: стоит туда заходить или нет. Комплексная входная группа решает задачу доверия. Она маскирует старые дефекты стены, задает фирменный цвет и делает бренд солидным. Мы проектируем входы под ключ.",
   conceptHighlights: [

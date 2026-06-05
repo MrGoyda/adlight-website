@@ -179,13 +179,13 @@ export default function VolumeLettersShowcase() {
             dragConstraints={dragConstraints}
             dragElastic={0.08}
             style={isMobile ? undefined : { x }}
-            className="flex gap-6 md:gap-8 w-max px-4 md:px-8"
+            className="flex gap-6 md:gap-8 w-max md:px-8"
           >
             {VOLUME_LETTERS_CATALOG.map((tech) => {
               return (
                 <div 
                   key={tech.id}
-                  className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/25 p-5 md:p-6 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[82vw] sm:w-[350px] snap-start"
+                  className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/25 p-5 md:p-6 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[82vw] sm:w-[350px] snap-center"
                 >
                   {/* Картинка с днем и ночью */}
                   <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100 pointer-events-none">

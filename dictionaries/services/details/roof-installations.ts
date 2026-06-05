@@ -14,6 +14,9 @@ export const roof_installationsDetails: ServiceDetailData = {
   heroTag: "Крышные установки в Астане",
   priceColor: "blue",
   heroVisualType: "wind",
+  heroBadgeText: "Монументальный масштаб",
+  heroBadgeSubtext: "Усиленный силовой каркас с расчетом ветровых нагрузок по СНиП",
+  heroBadgeIcon: "Building",
   conceptTitle: "Главный символ вашего статуса.",
   conceptDesc: "Крышная установка — самый сложный, дорогой и престижный вид наружной рекламы. Это колоссальная силовая ферма, несущая на себе гигантские буквы или экраны. Такую конструкцию видно с расстояния нескольких километров. Это заявляет о масштабе бренда громче любых слов.",
   conceptHighlights: [

@@ -6,7 +6,7 @@ import FadeIn from "@/components/ui/FadeIn";
 import { ALL_REVIEWS } from "@/dictionaries/reviews";
 
 export default function ReviewsCarousel() {
-  const sliderRef = useRef<HTMLUListElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -128,57 +128,58 @@ export default function ReviewsCarousel() {
           </div>
         </div>
 
-        {/* Horizontal Slider Area */}
-        <ul 
+        <div 
           ref={sliderRef}
           onMouseDown={handleMouseDown} 
           onMouseLeave={handleMouseLeave} 
           onMouseUp={handleMouseUp} 
           onMouseMove={handleMouseMove}
-          className="flex overflow-x-auto gap-6 pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory"
+          className="overflow-x-auto pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing"
         >
-           {ALL_REVIEWS.map((rev, i) => (
-             <FadeIn
-               key={i}
-               delay={i * 50}
-               threshold={0.1}
-               as="li"
-               className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between snap-start animate-in fade-in"
-               itemScope
-               itemType="https://schema.org/Review"
-             >
-                <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" className="hidden">
-                  <meta itemProp="ratingValue" content="5" />
-                  <meta itemProp="bestRating" content="5" />
-                </div>
-                <div>
-                   {/* Golden rating stars */}
-                   <div className="flex gap-1.5 text-amber-400 mb-6">
-                      {[1,2,3,4,5].map(star => (
-                         <Star key={star} className="w-4.5 h-4.5 fill-current"/>
-                      ))}
-                   </div>
-                   
-                   <p itemProp="reviewBody" className="text-slate-600 text-sm leading-relaxed font-semibold mb-8 italic">
-                      «{rev.text}»
-                   </p>
-                </div>
-                
-                {/* Reviewer Details */}
-                <div className="flex items-center gap-3.5 border-t border-slate-100 pt-5 mt-auto">
-                   <div className="w-10 h-10 bg-slate-50 border border-slate-200 text-slate-700 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">
-                      {rev.name[0]}
-                   </div>
-                   <div className="text-left leading-tight">
-                      <div itemProp="author" itemScope itemType="https://schema.org/Person" className="text-slate-900 font-extrabold text-sm">
-                         <span itemProp="name">{rev.name}</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{rev.role}</div>
-                   </div>
-                </div>
-             </FadeIn>
-           ))}
-        </ul>
+          <ul className="flex gap-6 snap-x snap-mandatory w-max md:w-full">
+             {ALL_REVIEWS.map((rev, i) => (
+               <FadeIn
+                 key={i}
+                 delay={i * 50}
+                 threshold={0.1}
+                 as="li"
+                 className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between snap-center animate-in fade-in"
+                 itemScope
+                 itemType="https://schema.org/Review"
+               >
+                  <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" className="hidden">
+                    <meta itemProp="ratingValue" content="5" />
+                    <meta itemProp="bestRating" content="5" />
+                  </div>
+                  <div>
+                     {/* Golden rating stars */}
+                     <div className="flex gap-1.5 text-amber-400 mb-6">
+                        {[1,2,3,4,5].map(star => (
+                           <Star key={star} className="w-4.5 h-4.5 fill-current"/>
+                        ))}
+                     </div>
+                     
+                     <p itemProp="reviewBody" className="text-slate-600 text-sm leading-relaxed font-semibold mb-8 italic">
+                        «{rev.text}»
+                     </p>
+                  </div>
+                  
+                  {/* Reviewer Details */}
+                  <div className="flex items-center gap-3.5 border-t border-slate-100 pt-5 mt-auto">
+                     <div className="w-10 h-10 bg-slate-50 border border-slate-200 text-slate-700 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0">
+                        {rev.name[0]}
+                     </div>
+                     <div className="text-left leading-tight">
+                        <div itemProp="author" itemScope itemType="https://schema.org/Person" className="text-slate-900 font-extrabold text-sm">
+                           <span itemProp="name">{rev.name}</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{rev.role}</div>
+                     </div>
+                  </div>
+               </FadeIn>
+             ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

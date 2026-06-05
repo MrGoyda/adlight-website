@@ -124,92 +124,94 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
               if (group.id !== activeTab) return null;
 
               return (
-                <motion.ul
-                  key={group.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch snap-x snap-mandatory w-full -mx-4 px-4 lg:mx-0 lg:px-0"
-                >
-                  {group.items.map((item, index) => {
-                    // Extract numeric price for Schema Offer
-                    const priceMatch = item.price.replace(/[^\d]/g, "");
-                    const priceValue = priceMatch ? parseInt(priceMatch, 10) : 0;
+                <div className="overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch w-full -mx-4 lg:mx-0">
+                  <motion.ul
+                    key={group.id}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 snap-x snap-mandatory px-4 lg:px-0 w-max lg:w-full"
+                  >
+                    {group.items.map((item, index) => {
+                      // Extract numeric price for Schema Offer
+                      const priceMatch = item.price.replace(/[^\d]/g, "");
+                      const priceValue = priceMatch ? parseInt(priceMatch, 10) : 0;
 
-                    return (
-                      <li
-                        key={index}
-                        className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/20 p-5 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[280px] sm:w-[320px] lg:w-full lg:shrink snap-start"
-                        itemScope
-                        itemType="https://schema.org/Service"
-                      >
-                        {/* Hidden meta fields for Schema.org compliance */}
-                        <meta itemProp="serviceType" content={group.category} />
-                        <div itemProp="provider" itemScope itemType="https://schema.org/LocalBusiness" className="hidden">
-                          <meta itemProp="name" content="ADLight" />
-                          <meta itemProp="address" content="Астана, ул. Аспара, 7" />
-                          <meta itemProp="telephone" content="+77071356701" />
-                        </div>
-
-                        <div>
-                          {/* Картинка */}
-                          <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
-                            <Image
-                              src={item.image}
-                              alt={`${item.title} — изготовление наружной рекламы в Астане`}
-                              fill
-                              className="object-cover rounded-2xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                              sizes="(max-width: 768px) 100vw, 25vw"
-                              loading="lazy"
-                              itemProp="image"
-                            />
-                            <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20 pointer-events-none" />
-                          </div>
-
-                          {/* Тексты */}
-                          <div className="space-y-2 mb-4">
-                            <h3 itemProp="name" className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
-                              {item.title}
-                            </h3>
-                            <p itemProp="description" className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                              {item.description}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Цена и кнопка */}
-                        <div 
-                          className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4"
-                          itemProp="offers"
+                      return (
+                        <li
+                          key={index}
+                          className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/20 p-5 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[280px] sm:w-[320px] lg:w-full lg:shrink snap-center"
                           itemScope
-                          itemType="https://schema.org/Offer"
+                          itemType="https://schema.org/Service"
                         >
-                          <meta itemProp="priceCurrency" content="KZT" />
-                          {priceValue > 0 ? (
-                            <meta itemProp="price" content={priceValue.toString()} />
-                          ) : (
-                            <meta itemProp="price" content="0" />
-                          )}
-                          <meta itemProp="priceValidUntil" content="2027-12-31" />
-                          <meta itemProp="availability" content="https://schema.org/InStock" />
+                          {/* Hidden meta fields for Schema.org compliance */}
+                          <meta itemProp="serviceType" content={group.category} />
+                          <div itemProp="provider" itemScope itemType="https://schema.org/LocalBusiness" className="hidden">
+                            <meta itemProp="name" content="ADLight" />
+                            <meta itemProp="address" content="Астана, ул. Аспара, 7" />
+                            <meta itemProp="telephone" content="+77071356701" />
+                          </div>
 
-                          <span className="text-xs sm:text-sm font-black text-slate-900">
-                            {item.price}
-                          </span>
-                          
-                          <Link
-                            href={item.link}
-                            className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
+                          <div>
+                            {/* Картинка */}
+                            <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
+                              <Image
+                                src={item.image}
+                                alt={`${item.title} — изготовление наружной рекламы в Астане`}
+                                fill
+                                className="object-cover rounded-2xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                                sizes="(max-width: 768px) 100vw, 25vw"
+                                loading="lazy"
+                                itemProp="image"
+                              />
+                              <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20 pointer-events-none" />
+                            </div>
+
+                            {/* Тексты */}
+                            <div className="space-y-2 mb-4">
+                              <h3 itemProp="name" className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
+                                {item.title}
+                              </h3>
+                              <p itemProp="description" className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                                {item.description}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Цена и кнопка */}
+                          <div 
+                            className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4"
+                            itemProp="offers"
+                            itemScope
+                            itemType="https://schema.org/Offer"
                           >
-                            Смотреть
-                            <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
-                          </Link>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </motion.ul>
+                            <meta itemProp="priceCurrency" content="KZT" />
+                            {priceValue > 0 ? (
+                              <meta itemProp="price" content={priceValue.toString()} />
+                            ) : (
+                              <meta itemProp="price" content="0" />
+                            )}
+                            <meta itemProp="priceValidUntil" content="2027-12-31" />
+                            <meta itemProp="availability" content="https://schema.org/InStock" />
+
+                            <span className="text-xs sm:text-sm font-black text-slate-900">
+                              {item.price}
+                            </span>
+                            
+                            <Link
+                              href={item.link}
+                              className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
+                            >
+                              Смотреть
+                              <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
+                            </Link>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </motion.ul>
+                </div>
               );
             })}
           </AnimatePresence>

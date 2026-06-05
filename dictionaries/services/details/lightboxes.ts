@@ -14,6 +14,9 @@ export const lightboxesDetails: ServiceDetailData = {
   heroTag: "Производство любых форм",
   priceColor: "blue",
   heroVisualType: "box",
+  heroBadgeText: "Свечение 24/7",
+  heroBadgeSubtext: "Герметичный корпус, энергосберегающие диоды Samsung",
+  heroBadgeIcon: "Sun",
   conceptTitle: "Максимальная площадь свечения.",
   conceptDesc: "Световой короб (лайтбокс) — это герметичная конструкция со светопропускающей лицевой панелью. Благодаря внутренней диодной подсветке вся поверхность вывески излучает яркий, равномерный свет, делая ваш бренд заметным за сотни метров даже в непогоду.",
   conceptHighlights: [

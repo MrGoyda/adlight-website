@@ -80,6 +80,9 @@ export interface ServiceDetailData {
   heroTag: string;
   priceColor: "blue" | "purple" | "orange" | "green" | "indigo" | "teal";
   heroVisualType: "box" | "zap" | "star" | "map" | "wind" | "store";
+  heroBadgeText?: string;
+  heroBadgeSubtext?: string;
+  heroBadgeIcon?: string;
 
   // Concept Section
   conceptTitle: string;
