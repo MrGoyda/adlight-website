@@ -11,6 +11,7 @@ import {
 import CallToAction from "@/components/CallToAction";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import DesignCodeTabs from "@/components/DesignCodeTabs"; 
+import HomeOfferBanner from "@/components/HomeOfferBanner";
 
 // --- ИМПОРТ АТОМАРНЫХ КОМПОНЕНТОВ (Component Colocation) ---
 import DesignCodeHero from "./_components/DesignCodeHero";
@@ -291,6 +292,9 @@ export default function DesignCodePage() {
 
       {/* 5. ПЛАТА ЗА РАЗМЕЩЕНИЕ РЕКЛАМЫ (Ст. 653–656 НК РК) */}
       <DesignCodeFees />
+
+      {/* 5.5. ПРОМО-БАННЕР С КВИЗОМ */}
+      <HomeOfferBanner serviceContext="general" source="Дизайн-код: Промо" />
 
       {/* 6. КАТАЛОГ ФОРМАТОВ */}
       <DesignCodeTabs />

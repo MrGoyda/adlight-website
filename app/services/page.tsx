@@ -9,6 +9,7 @@ import ServicesHero from "./_components/ServicesHero";
 import ServicesGrid from "./_components/ServicesGrid";
 import ServicesFAQ from "./_components/ServicesFAQ";
 import CallToAction from "@/components/CallToAction"; 
+import HomeOfferBanner from "@/components/HomeOfferBanner";
 
 // 1. ДИНАМИЧЕСКИЕ МЕТАДАННЫЕ (GEO/SEO API)
 export const metadata: Metadata = constructMetadata({
@@ -95,6 +96,9 @@ export default function ServicesPage() {
 
       {/* 2. КАТАЛОГ (GRID) */}
       <ServicesGrid />
+
+      {/* 2.5. ПРОМО-БАННЕР С КВИЗОМ */}
+      <HomeOfferBanner serviceContext="general" source="Каталог услуг: Промо" />
 
       {/* 3. ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ (FAQ) */}
       <ServicesFAQ />

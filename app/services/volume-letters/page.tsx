@@ -21,6 +21,7 @@ import VolumeLettersCareGuide from "./_components/VolumeLettersCareGuide";
 // --- ИМПОРТ ГЛОБАЛЬНЫХ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import CallToAction from "@/components/CallToAction";
+import HomeOfferBanner from "@/components/HomeOfferBanner";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import DesignCodeBlock from "@/components/DesignCodeBlock";
@@ -185,6 +186,9 @@ export default async function VolumeLettersPage() {
              </div>
          </div>
       </section>
+
+      {/* 6.5. ПРОМО-БАННЕР С КВИЗОМ */}
+      <HomeOfferBanner serviceContext="volume-letters" source="Хаб объемных букв: Промо" />
 
       {/* 7. ДИЗАЙН-КОД БЛОК АКИМАТА */}
       <DesignCodeBlock />

@@ -22,6 +22,7 @@ import ServiceSchema from "@/components/services/ServiceSchema";
 // --- ИМПОРТ ГЛОБАЛЬНЫХ КОМПОНЕНТОВ ---
 import ClientsMarquee from "@/components/ClientsMarquee";
 import CallToAction from "@/components/CallToAction";
+import HomeOfferBanner from "@/components/HomeOfferBanner";
 import ServicesCarousel from "@/components/ServicesCarousel";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
 import ImageGallery from "@/components/ImageGallery";
@@ -126,6 +127,9 @@ export default async function DynamicServicePage({ params }: Props) {
 
       {/* 6. ЦЕНЫ И ПРИМЕР СМЕТЫ */}
       <ServicePricing data={service} />
+
+      {/* 6.5. ПРОМО-БАННЕР С КВИЗОМ */}
+      <HomeOfferBanner serviceContext={service.slug} source={`Служебный промо-баннер: ${service.title}`} />
 
       {/* 7. ДИЗАЙН-КОД */}
       {service.hasDesignCodeBlock && <DesignCodeBlock />}

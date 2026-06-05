@@ -8,6 +8,7 @@ import QuizModal from "@/components/QuizModal";
 import ConsultationModal from "@/components/ConsultationModal";
 
 import { SITE_CONTACTS } from "@/config/site";
+import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
 
 interface HomeOfferBannerProps {
   title?: React.ReactNode;
@@ -15,25 +16,30 @@ interface HomeOfferBannerProps {
   description?: string;
   source?: string;
   discountValue?: string;
+  serviceContext?: string;
 }
 
 export default function HomeOfferBanner({
   title,
   subtitle,
-  description = "Планируете открытие бизнеса? Закажите расчет стоимости вывески сегодня. Мы зафиксируем за вашим номером 10% скидку, выполним бесплатный профессиональный замер на объекте и подготовим 3D-фотопривязку вывески к вашему фасаду!",
+  description,
   source = "Промо-баннер (Скидка 10%)",
-  discountValue = "-10%"
+  discountValue = "-10%",
+  serviceContext
 }: HomeOfferBannerProps) {
   const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const configKey = getQuizContextKey(serviceContext);
+  const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
+
   const defaultSubtitle = subtitle || `на изготовление вывески в ${SITE_CONTACTS.locality}`;
   const displayTitle = title || (
     <>
-      Зафиксируйте скидку <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">{discountValue}</span> <br/>
-      <span className="text-xl sm:text-2xl md:text-3.5xl font-extrabold text-slate-700">{defaultSubtitle}</span>
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">{discountValue}</span> {ctaConfig.title.replace("со скидкой 10%", "").replace("бесплатный дизайн-проект вывески", "вывески")}
     </>
   );
+  const displayDescription = description || ctaConfig.subtitle;
 
   return (
     <section className="relative py-20 lg:py-28 overflow-hidden border-b border-slate-200 bg-[#F8FAFB]">
@@ -66,8 +72,8 @@ export default function HomeOfferBanner({
                 {displayTitle}
               </h2>
  
-              <p className="text-slate-655 text-base sm:text-lg leading-relaxed font-medium max-w-2xl">
-                {description}
+              <p className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium max-w-2xl">
+                {displayDescription}
               </p>
  
               <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
@@ -148,6 +154,7 @@ export default function HomeOfferBanner({
       <QuizModal 
         isOpen={isQuizOpen} 
         onClose={() => setIsQuizOpen(false)} 
+        serviceContext={serviceContext}
       />
  
       {/* КЛАССИЧЕСКАЯ ФОРМА СВЯЗИ */}

@@ -10,6 +10,7 @@ import { VOLUME_LETTERS_CATALOG, VOLUME_LETTERS_DETAILS, VOLUME_LETTERS_DICT } f
 // --- ИМПОРТ ГЛОБАЛЬНЫХ КОМПОНЕНТОВ ---
 import CallToAction from "@/components/CallToAction";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
+import HomeOfferBanner from "@/components/HomeOfferBanner";
 
 // --- ИМПОРТ ЛОКАЛЬНЫХ АТОМАРНЫХ ПРЕЗЕНТЕРОВ ---
 import FaceLitHero from "./_components/FaceLitHero";
@@ -132,6 +133,9 @@ export default async function VolumeLetterSlugPage({ params }: PageProps) {
 
       {/* 4. PRICE SECTION (Прозрачный расчет стоимости) */}
       <FaceLitPrice data={data} />
+
+      {/* 4.5. ПРОМО-БАННЕР С КВИЗОМ */}
+      <HomeOfferBanner serviceContext={data.slug} source={`Промо-баннер: ${data.title}`} />
 
       {/* 5. FAQ SECTION (Ответы на популярные вопросы с LSI ключами) */}
       <FaceLitFAQ data={data} />
