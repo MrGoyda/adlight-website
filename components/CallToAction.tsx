@@ -34,8 +34,8 @@ export default function CallToAction({
   const configKey = getQuizContextKey(serviceContext);
   const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
 
-  const displayTitle = title || ctaConfig.title;
-  const displaySubtitle = subtitle || ctaConfig.subtitle;
+  const displayTitle = title || ctaConfig.bottomTitle;
+  const displaySubtitle = subtitle || ctaConfig.bottomSubtitle;
 
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && navigator.vibrate) {

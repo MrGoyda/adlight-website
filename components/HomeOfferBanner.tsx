@@ -33,13 +33,8 @@ export default function HomeOfferBanner({
   const configKey = getQuizContextKey(serviceContext);
   const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
 
-  const defaultSubtitle = subtitle || `на изготовление вывески в ${SITE_CONTACTS.locality}`;
-  const displayTitle = title || (
-    <>
-      <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">{discountValue}</span> {ctaConfig.title.replace("со скидкой 10%", "").replace("бесплатный дизайн-проект вывески", "вывески")}
-    </>
-  );
-  const displayDescription = description || ctaConfig.subtitle;
+  const displayTitle = title || ctaConfig.bannerTitle;
+  const displayDescription = description || ctaConfig.bannerSubtitle;
 
   return (
     <section className="relative py-20 lg:py-28 overflow-hidden border-b border-slate-200 bg-[#F8FAFB]">
