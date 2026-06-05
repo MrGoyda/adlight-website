@@ -39,7 +39,7 @@ export default function HeroActions() {
           Оставить заявку
         </Button>
 
-        <Button
+        {/* <Button
           onClick={() => setIsVideoOpen(true)}
           variant="lightGlass"
           size="xl"
@@ -52,7 +52,7 @@ export default function HeroActions() {
           }
         >
           Видеоприветствие
-        </Button>
+        </Button> */}
       </div>
 
       {/* Рендерим модальные окна только при необходимости */}
