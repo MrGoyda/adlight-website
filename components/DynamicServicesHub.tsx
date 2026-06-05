@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,11 +15,28 @@ interface DynamicServicesHubProps {
 
 export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicServicesHubProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
+  const clickStartCoords = useRef({ x: 0, y: 0 });
 
   // Тактильный отклик при переключении табов
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && navigator.vibrate) {
       navigator.vibrate(10);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    clickStartCoords.current = { x: e.screenX, y: e.screenY };
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const distanceX = Math.abs(e.screenX - clickStartCoords.current.x);
+    const distanceY = Math.abs(e.screenY - clickStartCoords.current.y);
+    if (distanceX > 10 || distanceY > 10) {
+      e.preventDefault();
+    } else {
+      if (typeof window !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(8);
+      }
     }
   };
 
@@ -39,8 +56,6 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
     const section = document.getElementById("dynamic-services-hub-section");
     if (section) {
       const rect = section.getBoundingClientRect();
-      // If the top of the services section is scrolled past the top of the viewport (negative top value)
-      // or if it is below sticky header heights (typically 80px), scroll it back into view.
       if (rect.top < 60) {
         window.scrollTo({
           top: window.scrollY + rect.top - 80, // Offset for sticky navbar
@@ -141,7 +156,7 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
                       return (
                         <li
                           key={index}
-                          className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/20 p-5 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[280px] sm:w-[320px] lg:w-full lg:shrink snap-center"
+                          className="group flex flex-col justify-between rounded-3xl bg-white border border-slate-200/80 hover:border-orange-500/20 shadow-sm hover:shadow-[0_20px_50px_rgba(15,23,42,0.06)] transition-all duration-500 relative shrink-0 w-[280px] sm:w-[320px] lg:w-full lg:shrink snap-center"
                           itemScope
                           itemType="https://schema.org/Service"
                         >
@@ -153,60 +168,67 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
                             <meta itemProp="telephone" content="+77071356701" />
                           </div>
 
-                          <div>
-                            {/* Картинка */}
-                            <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
-                              <Image
-                                src={item.image}
-                                alt={`${item.title} — изготовление наружной рекламы в Астане`}
-                                fill
-                                className="object-cover rounded-2xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                                sizes="(max-width: 768px) 100vw, 25vw"
-                                loading="lazy"
-                                itemProp="image"
-                              />
-                              <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20 pointer-events-none" />
-                            </div>
-
-                            {/* Тексты */}
-                            <div className="space-y-2 mb-4">
-                              <h3 itemProp="name" className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
-                                {item.title}
-                              </h3>
-                              <p itemProp="description" className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                                {item.description}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Цена и кнопка */}
-                          <div 
-                            className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4"
-                            itemProp="offers"
-                            itemScope
-                            itemType="https://schema.org/Offer"
+                          <Link
+                            href={item.link}
+                            onMouseDown={handleMouseDown}
+                            onClick={handleCardClick}
+                            className="flex flex-col justify-between p-5 w-full h-full text-left rounded-3xl relative"
+                            itemProp="url"
                           >
-                            <meta itemProp="priceCurrency" content="KZT" />
-                            {priceValue > 0 ? (
-                              <meta itemProp="price" content={priceValue.toString()} />
-                            ) : (
-                              <meta itemProp="price" content="0" />
-                            )}
-                            <meta itemProp="priceValidUntil" content="2027-12-31" />
-                            <meta itemProp="availability" content="https://schema.org/InStock" />
+                            <div>
+                              {/* Картинка */}
+                              <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
+                                <Image
+                                  src={item.image}
+                                  alt={`${item.title} — изготовление наружной рекламы в Астане`}
+                                  fill
+                                  className="object-cover rounded-2xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                                  sizes="(max-width: 768px) 100vw, 25vw"
+                                  loading="lazy"
+                                  itemProp="image"
+                                />
+                                <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20 pointer-events-none" />
+                              </div>
 
-                            <span className="text-xs sm:text-sm font-black text-slate-900">
-                              {item.price}
-                            </span>
-                            
-                            <Link
-                              href={item.link}
-                              className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
+                              {/* Тексты */}
+                              <div className="space-y-2 mb-4">
+                                <h3 itemProp="name" className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
+                                  {item.title}
+                                </h3>
+                                <p itemProp="description" className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                                  {item.description}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Цена и кнопка */}
+                            <div 
+                              className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4 w-full"
+                              itemProp="offers"
+                              itemScope
+                              itemType="https://schema.org/Offer"
                             >
-                              Смотреть
-                              <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
-                            </Link>
-                          </div>
+                              <meta itemProp="priceCurrency" content="KZT" />
+                              {priceValue > 0 ? (
+                                <meta itemProp="price" content={priceValue.toString()} />
+                              ) : (
+                                <meta itemProp="price" content="0" />
+                              )}
+                              <meta itemProp="priceValidUntil" content="2027-12-31" />
+                              <meta itemProp="availability" content="https://schema.org/InStock" />
+
+                              <span className="text-xs sm:text-sm font-black text-slate-900">
+                                {item.price}
+                              </span>
+                              
+                              <span
+                                className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
+                              >
+                                Смотреть
+                                <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
+                              </span>
+                            </div>
+                          </Link>
                         </li>
                       );
                     })}

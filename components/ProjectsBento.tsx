@@ -22,6 +22,7 @@ export default function ProjectsBento({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLUListElement>(null);
+  const clickStartCoords = useRef({ x: 0, y: 0 });
   
   const [dragWidth, setDragWidth] = useState(0);
   const [positionX, setPositionX] = useState(0);
@@ -92,6 +93,20 @@ export default function ProjectsBento({
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && navigator.vibrate) {
       navigator.vibrate(10);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    clickStartCoords.current = { x: e.screenX, y: e.screenY };
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const distanceX = Math.abs(e.screenX - clickStartCoords.current.x);
+    const distanceY = Math.abs(e.screenY - clickStartCoords.current.y);
+    if (distanceX > 10 || distanceY > 10) {
+      e.preventDefault();
+    } else {
+      triggerHaptic();
     }
   };
 
@@ -177,63 +192,64 @@ export default function ProjectsBento({
                      as="li"
                      className="relative group flex-none w-[82vw] sm:w-[380px] h-[460px] bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:shadow-lg hover:border-slate-350 transition duration-500 select-none flex flex-col justify-end snap-center"
                    >
-                      {/* Background Image with Zoom */}
-                      <div 
-                        className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]" 
-                        style={{ backgroundImage: `url(${project.image})` }}
-                      ></div>
-                      
-                      {/* Dark overlay for contrast */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent transition duration-300 opacity-90 group-hover:opacity-95 pointer-events-none"></div>
-                      
-                      {/* Category badge */}
-                      <div className="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white font-extrabold text-[10px] uppercase tracking-wider">
-                         {mainCategoryLabel}
-                      </div>
+                     <Link
+                       href={`/portfolio/${project.slug}`}
+                       onMouseDown={handleMouseDown}
+                       onClick={handleCardClick}
+                       className="absolute inset-0 block w-full h-full text-left"
+                       draggable={false}
+                     >
+                       {/* Background Image with Zoom */}
+                       <div 
+                         className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02]" 
+                         style={{ backgroundImage: `url(${project.image})` }}
+                       ></div>
+                       
+                       {/* Dark overlay for contrast */}
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent transition duration-300 opacity-90 group-hover:opacity-95 pointer-events-none"></div>
+                       
+                       {/* Category badge */}
+                       <div className="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white font-extrabold text-[10px] uppercase tracking-wider">
+                          {mainCategoryLabel}
+                       </div>
 
-                      {/* Details panel */}
-                      <div className="relative z-10 w-full p-7 space-y-3.5 text-left">
-                         
-                         {/* Title link */}
-                         <Link 
-                           href={`/portfolio/${project.slug}`}
-                           onClick={triggerHaptic}
-                           className="block cursor-pointer"
-                         >
-                           <h3 className="font-black text-white text-xl sm:text-2xl group-hover:text-orange-400 transition-colors leading-tight line-clamp-1">
-                              {project.title}
-                           </h3>
-                         </Link>
-                         
-                         <p className="text-slate-300 text-xs font-semibold leading-relaxed line-clamp-2">
-                            {project.description}
-                         </p>
+                       {/* Details panel */}
+                       <div className="absolute bottom-0 left-0 right-0 z-10 w-full p-7 space-y-3.5 text-left">
+                          
+                          <h3 className="font-black text-white text-xl sm:text-2xl group-hover:text-orange-400 transition-colors leading-tight line-clamp-1">
+                             {project.title}
+                          </h3>
+                          
+                          <p className="text-slate-300 text-xs font-semibold leading-relaxed line-clamp-2">
+                             {project.description}
+                          </p>
 
-                         {/* Stats badges */}
-                         <div className="flex flex-wrap items-center gap-2 pt-1">
-                            {project.completionTime && (
-                               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
-                                  <Clock className="w-3 h-3 text-orange-400"/>
-                                  <time dateTime={completionDate}>{project.completionTime}</time>
-                               </div>
-                            )}
-                            
-                            {project.techSpecs.warranty && (
-                               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
-                                  <ShieldCheck className="w-3 h-3 text-emerald-400"/>
-                                  <span>Гарантия {project.techSpecs.warranty}</span>
-                               </div>
-                            )}
+                          {/* Stats badges */}
+                          <div className="flex flex-wrap items-center gap-2 pt-1">
+                             {project.completionTime && (
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
+                                   <Clock className="w-3 h-3 text-orange-400"/>
+                                   <time dateTime={completionDate}>{project.completionTime}</time>
+                                </div>
+                             )}
+                             
+                             {project.techSpecs.warranty && (
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold">
+                                   <ShieldCheck className="w-3 h-3 text-emerald-400"/>
+                                   <span>Гарантия {project.techSpecs.warranty}</span>
+                                </div>
+                             )}
 
-                            {project.location && (
-                               <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold max-w-[180px] truncate">
-                                  <MapPin className="w-3 h-3 text-blue-400 shrink-0"/>
-                                  <span className="truncate">{project.location.split(',')[1] || project.location}</span>
-                               </div>
-                            )}
-                         </div>
+                             {project.location && (
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur text-white text-[10px] font-bold max-w-[180px] truncate">
+                                   <MapPin className="w-3 h-3 text-blue-400 shrink-0"/>
+                                   <span className="truncate">{project.location.split(',')[1] || project.location}</span>
+                                </div>
+                             )}
+                          </div>
 
-                      </div>
+                       </div>
+                     </Link>
                    </FadeIn>
                  );
                })}

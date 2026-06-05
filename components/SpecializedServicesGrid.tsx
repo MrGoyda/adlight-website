@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, ArrowUpRight } from "lucide-react";
@@ -9,11 +10,26 @@ import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import PremiumCard from "@/components/ui/PremiumCard";
 
 export default function SpecializedServicesGrid() {
+  const clickStartCoords = useRef({ x: 0, y: 0 });
   
   // Тактильный отклик
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && navigator.vibrate) {
       navigator.vibrate(12);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    clickStartCoords.current = { x: e.screenX, y: e.screenY };
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    const distanceX = Math.abs(e.screenX - clickStartCoords.current.x);
+    const distanceY = Math.abs(e.screenY - clickStartCoords.current.y);
+    if (distanceX > 10 || distanceY > 10) {
+      e.preventDefault();
+    } else {
+      triggerHaptic();
     }
   };
 
@@ -64,7 +80,7 @@ export default function SpecializedServicesGrid() {
                   <PremiumCard
                     variant="default"
                     hoverEffect="lift"
-                    className="group flex flex-col justify-between p-5 md:p-6 w-full h-full"
+                    className="group flex flex-col justify-between p-0 w-full h-full"
                   >
                     <meta itemProp="serviceType" content="Специализированные услуги рекламы" />
                     <div itemProp="provider" itemScope itemType="https://schema.org/LocalBusiness" className="hidden">
@@ -73,85 +89,89 @@ export default function SpecializedServicesGrid() {
                       <meta itemProp="telephone" content="+77071356701" />
                     </div>
 
-                    <div>
-                      {/* Изображение услуги */}
-                      <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
-                        <Image
-                          src={item.image}
-                          alt={item.imageAlt}
-                          fill
-                          className="object-cover rounded-2xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                          sizes="(max-width: 768px) 100vw, 25vw"
-                          loading="lazy"
-                          itemProp="image"
-                        />
-                        <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20 pointer-events-none" />
-                      </div>
-
-                      {/* Скрытый поисковый LSI ключ */}
-                      <span className="sr-only">{item.seoKey}</span>
-
-                      {/* Контент и Заголовки */}
-                      <div className="space-y-3 mb-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 itemProp="name" className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
-                            {item.title}
-                          </h3>
-                          <Link
-                            href={item.link}
-                            onClick={triggerHaptic}
-                            className="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-slate-900 group-hover:border-orange-500 transition-all hover:scale-105 bg-slate-50"
-                            aria-label={`Подробнее о ${item.title}`}
-                          >
-                            <ArrowUpRight className="w-4 h-4" />
-                          </Link>
-                        </div>
-                        
-                        <p itemProp="description" className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
-                          {item.desc}
-                        </p>
-                      </div>
-
-                      {/* Короткий список фич (Bullet Points) */}
-                      <ul className="space-y-2 mb-6">
-                        {item.features.map((feature, fIdx) => (
-                          <li key={fIdx} className="flex items-center gap-2 text-[11px] sm:text-xs font-bold text-slate-700">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Цена и ссылка на страницу */}
-                    <div 
-                      className="flex items-center justify-between pt-4 border-t border-slate-100"
-                      itemProp="offers"
-                      itemScope
-                      itemType="https://schema.org/Offer"
+                    <Link
+                      href={item.link}
+                      onMouseDown={handleMouseDown}
+                      onClick={handleCardClick}
+                      className="flex flex-col justify-between p-5 md:p-6 w-full h-full text-left relative"
+                      itemProp="url"
                     >
-                      <meta itemProp="priceCurrency" content="KZT" />
-                      {priceValue > 0 ? (
-                        <meta itemProp="price" content={priceValue.toString()} />
-                      ) : (
-                        <meta itemProp="price" content="0" />
-                      )}
-                      <meta itemProp="priceValidUntil" content="2027-12-31" />
-                      <meta itemProp="availability" content="https://schema.org/InStock" />
+                      <div>
+                        {/* Изображение услуги */}
+                        <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-slate-50 border border-slate-100">
+                          <Image
+                            src={item.image}
+                            alt={item.imageAlt}
+                            fill
+                            className="object-cover rounded-2xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                            sizes="(max-width: 768px) 100vw, 25vw"
+                            loading="lazy"
+                            itemProp="image"
+                          />
+                          <div className="absolute inset-0 rounded-2xl border border-black/[0.03] z-20 pointer-events-none" />
+                        </div>
 
-                      <span className="text-xs sm:text-sm font-black text-slate-900">
-                        {item.price}
-                      </span>
-                      
-                      <Link
-                        href={item.link}
-                        onClick={triggerHaptic}
-                        className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
+                        {/* Скрытый поисковый LSI ключ */}
+                        <span className="sr-only">{item.seoKey}</span>
+
+                        {/* Контент и Заголовки */}
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 itemProp="name" className="text-lg md:text-xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
+                              {item.title}
+                            </h3>
+                            <span
+                              className="w-8 h-8 rounded-full border border-slate-100 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-slate-900 group-hover:border-orange-500 transition-all hover:scale-105 bg-slate-50"
+                              aria-label={`Подробнее о ${item.title}`}
+                            >
+                              <ArrowUpRight className="w-4 h-4" />
+                            </span>
+                          </div>
+                          
+                          <p itemProp="description" className="text-slate-500 text-xs sm:text-sm leading-relaxed font-medium">
+                            {item.desc}
+                          </p>
+                        </div>
+
+                        {/* Короткий список фич (Bullet Points) */}
+                        <ul className="space-y-2 mb-6">
+                          {item.features.map((feature, fIdx) => (
+                            <li key={fIdx} className="flex items-center gap-2 text-[11px] sm:text-xs font-bold text-slate-700">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Цена и ссылка на страницу */}
+                      <div 
+                        className="flex items-center justify-between pt-4 border-t border-slate-100"
+                        itemProp="offers"
+                        itemScope
+                        itemType="https://schema.org/Offer"
                       >
-                        Подробнее
-                        <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
-                      </Link>
-                    </div>
+                        <meta itemProp="priceCurrency" content="KZT" />
+                        {priceValue > 0 ? (
+                          <meta itemProp="price" content={priceValue.toString()} />
+                        ) : (
+                          <meta itemProp="price" content="0" />
+                        )}
+                        <meta itemProp="priceValidUntil" content="2027-12-31" />
+                        <meta itemProp="availability" content="https://schema.org/InStock" />
+
+                        <span className="text-xs sm:text-sm font-black text-slate-900">
+                          {item.price}
+                        </span>
+                        
+                        <span
+                          className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-orange-600 hover:text-orange-700 transition-colors"
+                        >
+                          Подробнее
+                          <span className="inline-block transform group-hover:translate-x-0.5 transition-transform">→</span>
+                        </span>
+                      </div>
+                    </Link>
                   </PremiumCard>
                 </li>
               );
