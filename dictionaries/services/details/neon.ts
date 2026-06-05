@@ -31,7 +31,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Warm White (Теплый белый)", 
       desc: "Уютный, мягкий и теплый свет. Создает домашнюю атмосферу.", 
-      image: "/images/calc/face.jpg", 
+      image: "/images/neon/colors/warm-white.png", 
       hex: "#FDF5E6", 
       tag: "Cozy",
       specs: "Цветовая температура: 3000K; Силиконовый профиль: 6x12 мм; Потребление: 9.6 Вт/м.",
@@ -40,7 +40,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Cold White (Холодный белый)", 
       desc: "Чистый, нейтральный белый свет. Подчеркивает строгость и аккуратность.", 
-      image: "/images/calc/lightbox-1.jpg", 
+      image: "/images/neon/colors/cold-white.png", 
       hex: "#F0F8FF", 
       tag: "Modern",
       specs: "Цветовая температура: 6500K; Силиконовый профиль: 8x16 мм; Потребление: 12 Вт/м.",
@@ -49,7 +49,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Ice Blue (Ледяной синий)", 
       desc: "Футуристичный небесно-голубой оттенок. Придает технологичный вид.", 
-      image: "/images/pages/services-facade.png", 
+      image: "/images/neon/colors/ice-blue.png", 
       hex: "#00E5FF", 
       tag: "Future",
       specs: "Длина волны: 480 нм; Силиконовый профиль: 6x12 мм; Ресурс светодиодов: 50 000 часов.",
@@ -58,7 +58,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Lemon Yellow (Лимонный)", 
       desc: "Кислотно-лимонный цвет для привлечения максимального внимания прохожих.", 
-      image: "/images/calc/face.jpg", 
+      image: "/images/neon/colors/lemon.png", 
       hex: "#EAFF56", 
       tag: "Acidic",
       specs: "Высокая светоотдача: 120 Лм/Вт; Профиль: 6x12 мм; Угол светорассеивания: 170°.",
@@ -67,7 +67,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Green (Зеленый)", 
       desc: "Насыщенный травяной зеленый для эко-тематики и зон отдыха.", 
-      image: "/images/calc/lightbox-1.jpg", 
+      image: "/images/neon/colors/green.png", 
       hex: "#00E676", 
       tag: "Fresh",
       specs: "Длина волны: 525 нм; Класс влагозащиты: IP65; Подложка: прозрачный акрил 8 мм.",
@@ -76,7 +76,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Blue (Синий)", 
       desc: "Классический глубокий синий. Выглядит благородно и солидно.", 
-      image: "/images/pages/services-facade.png", 
+      image: "/images/neon/colors/blue.png", 
       hex: "#2979FF", 
       tag: "Classic",
       specs: "Длина волны: 465 нм; Питание: безопасное 12 Вольт; Ресурс: 5 лет непрерывной работы.",
@@ -85,7 +85,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Yellow (Золотой)", 
       desc: "Сочный золотисто-желтый цвет. Ассоциируется с теплом и едой.", 
-      image: "/images/calc/face.jpg", 
+      image: "/images/neon/colors/yellow.png", 
       hex: "#FFAB00", 
       tag: "Warm",
       specs: "Цветовая температура: 2200K; Силиконовый профиль: 6x12 мм; УФ-защита оболочки.",
@@ -94,7 +94,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Purple (Фиолетовый)", 
       desc: "Загадочный и манящий фиолетовый для создания приватной атмосферы.", 
-      image: "/images/calc/lightbox-1.jpg", 
+      image: "/images/neon/colors/purple.png", 
       hex: "#D500F9", 
       tag: "Glamour",
       specs: "Длина волны: 400 нм; Подложка: оргстекло с фрезеровкой паза на ЧПУ; Кабель: прозрачный.",
@@ -103,7 +103,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Pink (Розовый)", 
       desc: "Яркий инстаграмный розовый. Самый трендовый цвет для UGC-фотозон.", 
-      image: "/images/pages/services-facade.png", 
+      image: "/images/neon/colors/pink.png", 
       hex: "#FF4081", 
       tag: "Trendy",
       specs: "Люминофор: повышенная сочность; Силикон: пищевой 100%; Блок питания: Mean Well 12V.",
@@ -112,7 +112,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Orange (Оранжевый)", 
       desc: "Энергичный и согревающий оранжевый для активных брендов.", 
-      image: "/images/calc/face.jpg", 
+      image: "/images/neon/colors/orange.png", 
       hex: "#FF6D00", 
       tag: "Active",
       specs: "Длина волны: 605 нм; Класс влагозащиты: IP65; Подложка: фигурный акриловый задник.",
@@ -121,7 +121,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Rose Red (Малиновый)", 
       desc: "Насыщенный малиново-красный. Выглядит дерзко и современно.", 
-      image: "/images/calc/lightbox-1.jpg", 
+      image: "/images/neon/colors/rose-red.png", 
       hex: "#FF007F", 
       tag: "Stylish",
       specs: "Высококачественный диодный чип Epistar; Силикон: 6x12 мм; Ресурс: 50 000 часов.",
@@ -130,7 +130,7 @@ export const neonDetails: ServiceDetailData = {
     { 
       title: "Red (Красный)", 
       desc: "Огненно-красный классический неон. Ассоциируется со страстью и едой.", 
-      image: "/images/pages/services-facade.png", 
+      image: "/images/neon/colors/red.png", 
       hex: "#FF1744", 
       tag: "Bold",
       specs: "Длина волны: 625 нм; Потребление: 12 Вт/м; Основа: акриловый задник с пазами.",

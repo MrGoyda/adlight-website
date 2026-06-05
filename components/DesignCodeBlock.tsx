@@ -126,7 +126,7 @@ export default function DesignCodeBlock({
                 {/* Visual spec card with scan background mock */}
                 <div className="aspect-video bg-slate-100 rounded-2xl border border-slate-200 overflow-hidden relative">
                    <Image 
-                      src="/images/pages/dk.webp" 
+                      src="/images/pages/dk_approved.png" 
                       alt="Эскизный проект вывески, одобренный Акиматом"
                       fill
                       className="object-cover"

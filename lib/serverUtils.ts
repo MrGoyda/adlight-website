@@ -19,7 +19,7 @@ export function getImagesFromFolder(slug: string): string[] {
         const files = fs.readdirSync(dirPath);
         
         const images = files
-          .filter(file => /\.(jpg|jpeg|png|webp|avif)$/i.test(file))
+          .filter(file => /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file))
           .map(file => {
             // Важно: возвращаем путь относительно public для браузера
             // Получаем часть пути после 'public'

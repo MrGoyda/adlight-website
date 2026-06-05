@@ -85,8 +85,8 @@ export default function ServiceCatalog({ data }: ServiceCatalogProps) {
                     {type.tag}
                   </span>
                 )}
-                {type.hex ? (
-                  /* Имитация неонового свечения на темной подложке */
+                {type.hex && !type.image ? (
+                  /* Имитация неонового свечения на темной подложке если нет фото */
                   <div className="absolute inset-0 bg-slate-950 flex items-center justify-center p-6">
                     {/* Текстура темного карбонового или акрилового задника */}
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.webp')] opacity-20"></div>

@@ -53,7 +53,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Оформление фасадов",
         price: SITE_PRICES.facadeDecoration,
         link: SITE_LINKS.services.facadeDecoration,
-        image: "/images/pages/services-facade.png",
+        image: "/images/facade-decoration/6.jpg",
         tags: ["Композит", "Алюкобонд", "Под ключ"],
         description: "Облицовка фасадов композитными панелями и керамогранитом под рекламу."
       },
@@ -61,7 +61,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Брендирование витрин",
         price: SITE_PRICES.windowBranding,
         link: SITE_LINKS.services.windowBranding,
-        image: "/images/calc/face.jpg",
+        image: "/images/window-branding/1.png",
         tags: ["Оклейка окон", "Виниловая аппликация", "Перфорация"],
         description: "Оклейка витрин магазинов полноцветной печатью, перфопленкой или плоттерной резкой."
       }
@@ -101,7 +101,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Баннеры и стенды",
         price: SITE_PRICES.bannersPlates,
         link: SITE_LINKS.services.bannersPlates,
-        image: "/images/pages/services-banners.png",
+        image: "/images/banners-plates/1.webp",
         tags: ["Широкоформат", "Инфо-стенды", "Срочно"],
         description: "Печать баннеров, пресс-стены, информационные стенды и дверные таблички."
       }
@@ -141,7 +141,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "LED-экраны",
         price: SITE_PRICES.ledScreens,
         link: SITE_LINKS.services.ledScreens,
-        image: "/images/calc/lightbox-1.jpg",
+        image: "/images/led-screens/1.jpg",
         tags: ["Медиафасады", "Бегущие строки", "Яркость"],
         description: "Установка уличных и интерьерных светодиодных LED-экранов под ключ в Астане."
       },
@@ -149,7 +149,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Вывески на выставку",
         price: SITE_PRICES.exhibitionStands,
         link: SITE_LINKS.services.exhibitionStands,
-        image: "/images/pages/services-exhibition.png",
+        image: "/images/exhibition-stands/1.jpg",
         tags: ["EXPO Астана", "Промо-зоны", "Быстрая сборка"],
         description: "Изготовление выставочных стендов, световых конструкций и промо-зон."
       }
@@ -173,7 +173,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Ремонт вывесок",
         price: SITE_PRICES.signboardRepair,
         link: SITE_LINKS.services.signboardRepair,
-        image: "/images/pages/services-repair.png",
+        image: "/images/signboard-repair/1.gif",
         tags: ["Диагностика", "Светодиоды Samsung", "Срочный выезд"],
         description: "Ремонт, модернизация на диоды, чистка и техническое обслуживание вывесок."
       },
@@ -189,7 +189,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Архитектурная подсветка",
         price: SITE_PRICES.architecturalLighting,
         link: SITE_LINKS.services.architecturalLighting,
-        image: "/images/pages/led_glow.png",
+        image: "/images/architectural-lighting/1.jpg",
         tags: ["Фасадный свет", "LED неон", "Дизайн освещения"],
         description: "Проектирование и монтаж контурной светодиодной подсветки фасадов коммерческих зданий."
       }
