@@ -14,6 +14,7 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
     name: "",
     phone: "",
   });
+  const [honeypot, setHoneypot] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +28,8 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
           name: formData.name,
           phone: formData.phone,
           message: "Заявка с большого блока (Complex CTA)",
-          source: source
+          source: source,
+          website: honeypot
         }),
       });
 
@@ -95,6 +97,16 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Honeypot скрытое поле для защиты от спам-ботов */}
+                <input 
+                  type="text" 
+                  name="website" 
+                  className="sr-only" 
+                  tabIndex={-1} 
+                  autoComplete="off" 
+                  value={honeypot} 
+                  onChange={(e) => setHoneypot(e.target.value)} 
+                />
                 <div>
                   <label htmlFor="complex-name" className="block text-sm font-medium text-slate-400 mb-2">Ваше имя</label>
                   <div className="relative">

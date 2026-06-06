@@ -30,6 +30,7 @@ export default function CallToAction({
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
   const configKey = getQuizContextKey(serviceContext);
   const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
@@ -113,7 +114,8 @@ export default function CallToAction({
           name,
           phone,
           message: `Заявка с быстрого CTA блока. Контекст: ${serviceContext || "general"}`,
-          source: source
+          source: source,
+          website: honeypot
         }),
       });
 
@@ -174,6 +176,16 @@ export default function CallToAction({
                 aria-label="Заявка на бесплатный дизайн-проект"
                 className="flex flex-col md:flex-row gap-4 w-full max-w-3xl mx-auto mb-6 items-end"
               >
+                {/* Honeypot скрытое поле для защиты от спам-ботов */}
+                <input 
+                  type="text" 
+                  name="website" 
+                  className="sr-only" 
+                  tabIndex={-1} 
+                  autoComplete="off" 
+                  value={honeypot} 
+                  onChange={(e) => setHoneypot(e.target.value)} 
+                />
                 
                 {/* Input Name */}
                 <div className="flex-1 w-full text-left space-y-2">
