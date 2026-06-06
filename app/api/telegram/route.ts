@@ -166,12 +166,22 @@ export async function POST(req: Request) {
     // Парсим технический источник в человекочитаемый вид
     const parsed = parseLeadSource(rawSource);
 
+    // Чистим телефон для ссылки WhatsApp
+    const cleanPhone = phone.replace(/\D/g, "");
+    let formattedPhone = cleanPhone;
+    if (cleanPhone.length === 11 && cleanPhone.startsWith("8")) {
+      formattedPhone = "7" + cleanPhone.substring(1);
+    } else if (cleanPhone.length === 10) {
+      formattedPhone = "7" + cleanPhone;
+    }
+
     // Строим красивое HTML-сообщение
     let messageContent = `
 ${parsed.title}
 ──────────────────
 👤 <b>Имя:</b> ${name}
 📱 <b>Телефон:</b> <a href="tel:${phone.replace(/[^0-9+]/g, '')}">${phone}</a>
+🟢 <b>WhatsApp:</b> <a href="https://wa.me/${formattedPhone}">Написать клиенту</a>
 🏷️ <b>Форма:</b> ${parsed.formType}
 🎯 <b>Контекст:</b> ${parsed.context}
 `;
