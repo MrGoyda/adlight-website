@@ -18,6 +18,7 @@ interface ConsultationModalProps {
   title?: string;
   subtitle?: string;
   buttonText?: string;
+  customMessage?: string;
 }
 
 // Легковесная функция маскирования для номеров Казахстана (+7 (7XX) XXX-XX-XX)
@@ -64,7 +65,8 @@ export default function ConsultationModal({
   source,
   title = "Нужна консультация?",
   subtitle = "Оставьте номер телефона. Мы перезвоним в течение 15 минут.",
-  buttonText = "Жду звонка"
+  buttonText = "Жду звонка",
+  customMessage
 }: ConsultationModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -152,7 +154,7 @@ export default function ConsultationModal({
       const res = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source, website: honeypot }),
+        body: JSON.stringify({ name, phone, source, message: customMessage, website: honeypot }),
       });
 
       if (res.ok) {

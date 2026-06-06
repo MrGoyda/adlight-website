@@ -183,6 +183,29 @@ export default function CalculatorShell() {
     [activeTab, calculation, titleText, subTextRu, subTextKz, height, subHeight, letterType, boxWidth, boxHeight, boxType]
   );
 
+  const calcDetails = useMemo(() => {
+    const { min, max, breakdown } = calculation;
+    let detailsStr = "";
+    if (activeTab === "letters") {
+      const typeName = LETTER_TYPES.find((t) => t.id === letterType)?.name ?? letterType;
+      detailsStr = 
+        `Тип: Объемные буквы (${typeName})\n` +
+        `Надпись: "${titleText || "—"}" (${height} см)\n` +
+        (subTextRu ? `Подпись RU: "${subTextRu}" (${subHeight} см)\n` : "") +
+        (subTextKz ? `Подпись KZ: "${subTextKz}" (${subHeight} см)\n` : "") +
+        `Расчет:\n` + breakdown.map(b => `  • ${b.label}: ${b.value}`).join("\n") +
+        `\nОриентировочный бюджет: ${min.toLocaleString("ru")} - ${max.toLocaleString("ru")} ₸`;
+    } else {
+      const typeName = BOX_TYPES.find((t) => t.id === boxType)?.name ?? boxType;
+      detailsStr =
+        `Тип: Световой короб (${typeName})\n` +
+        `Размеры: ${boxWidth} × ${boxHeight} см\n` +
+        `Расчет:\n` + breakdown.map(b => `  • ${b.label}: ${b.value}`).join("\n") +
+        `\nОриентировочный бюджет: ${min.toLocaleString("ru")} - ${max.toLocaleString("ru")} ₸`;
+    }
+    return detailsStr;
+  }, [activeTab, calculation, titleText, subTextRu, subTextKz, height, subHeight, letterType, boxWidth, boxHeight, boxType]);
+
   const openModal = () => { triggerHaptic("success"); setIsModalOpen(true); };
 
   // ─── Рендер ────────────────────────────────────────────────────────────────
@@ -276,6 +299,7 @@ export default function CalculatorShell() {
         title={CALC_UI.modalTitle}
         subtitle={CALC_UI.modalSubtitle}
         buttonText={CALC_UI.modalButton}
+        customMessage={calcDetails}
       />
     </>
   );
