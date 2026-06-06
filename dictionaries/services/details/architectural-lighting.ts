@@ -31,7 +31,7 @@ export const architectural_lightingDetails: ServiceDetailData = {
     {
       title: "Заливающий свет",
       desc: "Мощные прожекторы освещают весь фасад целиком. Подходит для памятников и крупных административных зданий.",
-      image: "/images/calc/face.jpg",
+      image: "/images/architectural-lighting/flood-lighting.png",
       tag: "Масштаб",
       specs: "Светильники: мощные светодиодные прожекторы от 100W до 400W; Угол раскрытия луча: 60° - 120°; Корпус: литой алюминий IP66; Защита: закаленное стекло.",
       bestFor: "Административные здания, памятники архитектуры, спортивные комплексы, театры и крупные ТРЦ."
@@ -39,7 +39,7 @@ export const architectural_lightingDetails: ServiceDetailData = {
     {
       title: "Акцентное (локальное) освещение",
       desc: "Узконаправленные лучи выделяют колонны, межоконные проемы и пилястры.",
-      image: "/images/services-facade.png",
+      image: "/images/architectural-lighting/accent-lighting.jpg",
       tag: "Изящество",
       specs: "Светильники: фасадные узколучевые прожекторы 10W - 50W; Оптика: линзы 5°, 10°, 15° или овальные 10x60°; Защита от ослепления: антибликовые решетки и бленды.",
       bestFor: "Выделение пилястр, колонн, межоконных простенков бизнес-центров, отелей и элитных жилых комплексов (ЖК)."
@@ -47,7 +47,7 @@ export const architectural_lightingDetails: ServiceDetailData = {
     {
       title: "Контурная подсветка",
       desc: "Линейные светодиодные светильники очерчивают силуэт крыши или грани здания.",
-      image: "/images/calc/lightbox-1.jpg",
+      image: "/images/architectural-lighting/contour-lighting.jpg",
       tag: "Графика",
       specs: "Светильники: линейные светодиодные LED светильники (wallwasher) / гибкий неон IP67; Длина модулей: 500 мм / 1000 мм; Цветность: монохром / RGB / DMX512 контроль.",
       bestFor: "Очерчивание силуэтов кровли, карнизов, вертикальных углов современных высотных зданий и мостов."

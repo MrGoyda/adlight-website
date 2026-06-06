@@ -31,7 +31,7 @@ export const exhibition_standsDetails: ServiceDetailData = {
     { 
       title: "Мобильные промо-стойки", 
       desc: "Легкие, быстросборные конструкции для BTL-акций, дегустаций и презентаций.", 
-      image: "/images/calc/face.jpg", 
+      image: "/images/exhibition-stands/promo-racks.png", 
       tag: "Мобильность",
       specs: "Основа: ударопрочный полистирол / вспененный ПВХ; Столешница: ЛДСП / МДФ; Сумка-чехол в комплекте; Сборка за 3 минуты.",
       bestFor: "Промо-акции, дегустации в супермаркетах, презентации новых продуктов, BTL-активностей."
@@ -39,7 +39,7 @@ export const exhibition_standsDetails: ServiceDetailData = {
     { 
       title: "Эксклюзивные выставочные стенды", 
       desc: "Уникальные деревянные или металлические застройки со световым оформлением и медиазонами.", 
-      image: "/images/services-facade.png", 
+      image: "/images/exhibition-stands/exclusive-stands.jpg", 
       tag: "Премиум",
       specs: "Каркас: профильный металлопрокат / ЛДСП / МДФ; Отделка: высокоглянцевая покраска, HPL-панели, закаленное стекло; Интеграция светодиодных LED-экранов.",
       bestFor: "Крупные международные выставки, экспо-форумы, конгрессы, презентации новых брендов."
@@ -47,7 +47,7 @@ export const exhibition_standsDetails: ServiceDetailData = {
     { 
       title: "Фотозоны и Brand-Wall", 
       desc: "Эстетичные задники для интервью, фотосессий и деловых зон мероприятий.", 
-      image: "/images/calc/lightbox-1.jpg", 
+      image: "/images/exhibition-stands/photo-zones.jpg", 
       tag: "UGC",
       specs: "Основа: усиленный хромированный каркас Joker или деревянный брус; Полотно: литой баннер 510г/м² с интерьерной печатью 1440 dpi.",
       bestFor: "Оформление деловых зон форумов, корпоративные праздники, пресс-конференции, зоны для интервью."

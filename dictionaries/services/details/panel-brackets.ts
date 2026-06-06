@@ -23,7 +23,7 @@ export const panel_bracketsDetails: ServiceDetailData = {
     { title: "Пешеходный захват", desc: "Устанавливается на высоте 2.5 - 3.5м строго в поле зрения пешеходов.", iconName: "Signpost" },
     { title: "Сверхвысокая прочность", desc: "Внутренний стальной каркас гарантирует устойчивость к суровым ветрам Астаны.", iconName: "ShieldCheck" }
   ],
-  conceptVisualType: "scheme",
+  conceptVisualType: "beauty",
   typesTitle: "Виды консольных вывесок",
   typesSubtitle: "Мы производим любые формы и размеры с двухсторонней подсветкой по Дизайн-коду Астаны",
   types: [

@@ -86,7 +86,16 @@ export default async function DynamicServicePage({ params }: Props) {
       <ClientsMarquee />
 
       {/* 3. CONCEPT SECTION */}
-      <ServiceConcept data={service} fallbackImage={displayHeroImages[0]} />
+      <ServiceConcept 
+        data={service} 
+        fallbackImage={
+          service.slug === "branding-cars" 
+            ? "/images/branding-cars/full-branding.jpg" 
+            : service.slug === "panel-brackets"
+            ? "/images/panel-brackets/panel-brackets-01.webp"
+            : displayHeroImages[0]
+        } 
+      />
 
       {/* 4. КАТАЛОГ РЕШЕНИЙ */}
       <ServiceCatalog data={service} />

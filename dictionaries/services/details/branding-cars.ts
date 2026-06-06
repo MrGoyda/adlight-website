@@ -31,7 +31,7 @@ export const branding_carsDetails: ServiceDetailData = {
     { 
       title: "Реклама на заднее стекло", 
       desc: "Быстрый и экономичный способ. Используется перфорированная пленка One Way Vision.", 
-      image: "/images/calc/face.jpg", 
+      image: "/images/branding-cars/rear-window-sticker.avif", 
       tag: "Эконом",
       specs: "Пленка: перфорированная One Way Vision 160-180 мкм; Светопропускаемость: 40-50%; Печать: УФ/Сольвент 1440 DPI; Защита: контурный праймер 3M.",
       bestFor: "Частные автомобили, службы доставки, такси, быстрый старт рекламной кампании при минимальном бюджете."
@@ -39,7 +39,7 @@ export const branding_carsDetails: ServiceDetailData = {
     { 
       title: "Частичная оклейка бортов", 
       desc: "Нанесение логотипов, контактов и графических элементов на двери и капот.", 
-      image: "/images/services-facade.png", 
+      image: "/images/branding-cars/partial-wrapping.png", 
       tag: "Популярно",
       specs: "Материал: виниловая литая или каландрированная пленка Oracal 551/651; Способ нанесения: аппликация плоттерной резкой или наклейки с ламинацией.",
       bestFor: "Корпоративные автопарки, сервисные службы, интернет-магазины, грузовые авто и фургоны."
@@ -47,7 +47,7 @@ export const branding_carsDetails: ServiceDetailData = {
     { 
       title: "Полная оклейка (Брендирование)", 
       desc: "Полное покрытие кузова виниловой пленкой с изменением цвета или сложной графикой.", 
-      image: "/images/calc/lightbox-1.jpg", 
+      image: "/images/branding-cars/full-branding.jpg", 
       tag: "Максимум",
       specs: "Материал: высококачественная литая автопленка 3M / Avery / KPMF / Oracal 970; Толщина: 100-150 мкм; Срок службы: до 5-7 лет; Полная ламинация.",
       bestFor: "Крупные бренды, имиджевые авто, спецтехника, такси-парки, требующие полного изменения цвета кузова под брендбук."

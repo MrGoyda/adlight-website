@@ -30,7 +30,7 @@ export const signboard_repairDetails: ServiceDetailData = {
     {
       title: "Замена блоков питания",
       desc: "Блок питания — самое уязвимое звено световой вывески. Мы меняем вышедшие из строя адаптеры на надежные влагозащищенные блоки с запасом мощности.",
-      image: "/images/calc/face.jpg",
+      image: "/images/signboard-repair/power-supply-replacement.jpg",
       tag: "Электрика",
       specs: "Установка блоков питания MeanWell / Elf IP67; Запас мощности: не менее 30%; Защита от короткого замыкания и перегрузки.",
       bestFor: "Вывеска полностью погасла или светодиоды начали тускло мерцать после дождя."
@@ -38,7 +38,7 @@ export const signboard_repairDetails: ServiceDetailData = {
     {
       title: "Замена светодиодов (LED)",
       desc: "Устранение эффекта 'зебры' или темных пятен. Меняем перегоревшие диодные модули и ленты на новые сверхяркие линзованные элементы.",
-      image: "/images/services-facade.png",
+      image: "/images/signboard-repair/led-replacement.jfif",
       tag: "Светодиоды",
       specs: "Модули: Elf / Samsung с линзой 160°; Влагозащита: IP67; Срок службы новых модулей: до 50 000 часов.",
       bestFor: "Появление темных букв, неравномерное свечение, мерцание отдельных сегментов вывески."
@@ -46,7 +46,7 @@ export const signboard_repairDetails: ServiceDetailData = {
     {
       title: "Ремонт и замена неона",
       desc: "Замена поврежденных стеклянных трубок или перегоревшего гибкого неона (Flex LED). Устранение проблем с высоковольтными трансформаторами.",
-      image: "/images/calc/lightbox-1.jpg",
+      image: "/images/signboard-repair/neon-repair.jpg",
       tag: "Неон",
       specs: "Материал: силиконовый гибкий неон IP68; Ремонт силиконовых заглушек; Замена высоковольтных кабелей питания.",
       bestFor: "Ремонт неоновых вывесок ресторанов, баров, интерьерного оформления."

@@ -29,7 +29,7 @@ export const SITE_CONTACTS = {
   maps: {
     yandexWidget: "https://yandex.ru/map-widget/v1/?text=Астана+Аспара+7&z=16",
     yandexSearch: "https://yandex.kz/maps/?text=Астана+ул.+Аспара+7",
-    googleSearch: "https://maps.google.com/?q=ул.+Аспара+7,+Астана",
+    googleSearch: "https://maps.app.goo.gl/omnbQzU9ALrwEU8v8",
     gisSearch: "https://2gis.kz/astana/search/%D1%83%D0%BB.%20%D0%90%D1%81%D0%BF%D0%B0%D1%80%D0%B0%2C%207"
   }
 };

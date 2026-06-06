@@ -30,7 +30,7 @@ export const led_screensDetails: ServiceDetailData = {
     {
       title: "Уличные LED экраны (Outdoor)",
       desc: "Экраны повышенной яркости в герметичных кабинетах для установки на фасады зданий, опоры или билборды.",
-      image: "/images/services-facade.png",
+      image: "/images/led-screens/outdoor-screen.jpg",
       tag: "Outdoor",
       specs: "Шаг пикселя: P4, P5, P6, P8, P10; Яркость: 5500–7500 кд/м²; Рабочая температура: -45°C...+55°C; Степень защиты: IP65.",
       bestFor: "Рекламные видеоэкраны на фасадах ТРЦ, супермаркетов, отдельно стоящие медиавывески у дорог."
@@ -38,7 +38,7 @@ export const led_screensDetails: ServiceDetailData = {
     {
       title: "Интерьерные экраны (Indoor)",
       desc: "Экраны с высоким разрешением и мелким шагом пикселя для просмотра с близкого расстояния без зернистости.",
-      image: "/images/calc/lightbox-1.jpg",
+      image: "/images/led-screens/indoor-screen.webp",
       tag: "Indoor",
       specs: "Шаг пикселя: P1.2, P1.5, P1.8, P2, P2.5, P3; Яркость: 800–1200 кд/м²; Угол обзора: 160°/160°; Бесшумное охлаждение.",
       bestFor: "Конференц-залы, рестораны, зоны ресепшн БЦ, витрины магазинов в ТРЦ, концертные сцены."
@@ -46,7 +46,7 @@ export const led_screensDetails: ServiceDetailData = {
     {
       title: "Гибкие и прозрачные LED экраны",
       desc: "Креативные решения для витрин и изогнутых стен. Сохраняют естественный свет в помещении и создают эффект голограммы.",
-      image: "/images/calc/face.jpg",
+      image: "/images/led-screens/flexible-transparent-screen.webp",
       tag: "Креатив",
       specs: "Прозрачность: до 75-85%; Вес: всего 6-8 кг/м²; Минимальный радиус изгиба: от 350 мм; Шаг пикселя: P3.9/7.8, P7.8/7.8.",
       bestFor: "Панорамное остекление автосалонов, брендовых бутиков, креативные интерьерные инсталляции."
