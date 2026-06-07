@@ -282,11 +282,22 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
     const typeDetails = selectedOption ? ` (Тип: ${selectedOption.label}, Цена: ${selectedOption.price})` : "";
     const fullSource = `${source}${typeDetails}`;
 
+    const eventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq('track', 'Lead', {
+        content_name: fullSource,
+        currency: 'KZT',
+        value: 45000
+      }, {
+        eventID: eventId
+      });
+    }
+
     try {
       const res = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source: fullSource, website: honeypot }),
+        body: JSON.stringify({ name, phone, source: fullSource, website: honeypot, eventId }),
       });
 
       if (res.ok) {

@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getFeatureFlags } from '@/lib/featureFlags';
+import crypto from 'crypto';
+
+// Хелпер для шифрования данных для Meta API Privacy (SHA-256)
+function sha256(text: string): string {
+  return crypto.createHash('sha256').update(text.trim().toLowerCase()).digest('hex');
+}
 
 // Простой in-memory кэш для лимитирования запросов по IP (Rate Limiting)
 const rateLimitMap = new Map<string, number[]>();
@@ -19,6 +25,7 @@ const LeadSchema = z.object({
   source: z.string().optional().default('Не указан'),
   message: z.string().optional(),
   website: z.string().optional(), // Honeypot-поле
+  eventId: z.string().optional(),
 });
 
 interface ParsedSource {
@@ -117,6 +124,7 @@ export async function POST(req: Request) {
     let rawSource: string;
     let customMessage: string | undefined;
     let honeypot: string | undefined;
+    let eventId: string | undefined;
 
     if (flags.enableZodValidation) {
       // Строгая валидация Zod
@@ -135,6 +143,7 @@ export async function POST(req: Request) {
       rawSource = result.data.source;
       customMessage = result.data.message;
       honeypot = result.data.website;
+      eventId = result.data.eventId;
     } else {
       // Старая логика обратной совместимости
       name = body.name;
@@ -142,6 +151,7 @@ export async function POST(req: Request) {
       rawSource = body.source;
       customMessage = body.message;
       honeypot = body.website;
+      eventId = body.eventId;
 
       if (!name || !phone) {
         return NextResponse.json({ error: 'Имя и телефон обязательны' }, { status: 400 });
@@ -203,6 +213,59 @@ ${parsed.title}
     messageContent += `──────────────────
 ⏰ <i>${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })} (Астана)</i>
 `;
+
+    // --- META CONVERSIONS API (CAPI) DISPATCH ---
+    const metaPixelId = process.env.META_PIXEL_ID;
+    const metaAccessToken = process.env.META_ACCESS_TOKEN;
+    const finalEventId = eventId || `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+    if (metaPixelId && metaAccessToken) {
+      try {
+        const userAgent = req.headers.get('user-agent') || '';
+        const cookiesHeader = req.headers.get('cookie') || '';
+        const fbp = cookiesHeader.match(/_fbp=([^;]+)/)?.[1];
+        const fbc = cookiesHeader.match(/_fbc=([^;]+)/)?.[1];
+
+        const hashedPhone = sha256(formattedPhone);
+        const hashedName = sha256(name);
+
+        const userData: any = {
+          client_ip_address: ip,
+          client_user_agent: userAgent,
+        };
+
+        if (hashedPhone) userData.ph = [hashedPhone];
+        if (hashedName) userData.fn = [hashedName];
+        if (fbp) userData.fbp = fbp;
+        if (fbc) userData.fbc = fbc;
+
+        const eventData = {
+          event_name: 'Lead',
+          event_time: Math.floor(Date.now() / 1000),
+          event_id: finalEventId,
+          event_source_url: req.headers.get('referer') || 'https://adlight.kz/',
+          action_source: 'website',
+          user_data: userData,
+          custom_data: {
+            currency: 'KZT',
+            value: 45000
+          }
+        };
+
+        // Запуск фонового запроса к Meta CAPI без ожидания (non-blocking)
+        fetch(`https://graph.facebook.com/v19.0/${metaPixelId}/events?access_token=${metaAccessToken}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: [eventData] })
+        })
+        .then(res => res.json())
+        .then(data => console.log('Meta CAPI Success:', data))
+        .catch(err => console.error('Meta CAPI Error:', err));
+
+      } catch (metaErr) {
+        console.error('Failed to dispatch Meta CAPI event:', metaErr);
+      }
+    }
 
     // 5. Отправляем запрос к API Telegram для каждого Chat ID
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;

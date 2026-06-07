@@ -20,6 +20,17 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
     e.preventDefault();
     setIsLoading(true);
 
+    const eventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq('track', 'Lead', {
+        content_name: source,
+        currency: 'KZT',
+        value: 45000
+      }, {
+        eventID: eventId
+      });
+    }
+
     try {
       const response = await fetch("/api/telegram", {
         method: "POST",
@@ -29,7 +40,8 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
           phone: formData.phone,
           message: "Заявка с большого блока (Complex CTA)",
           source: source,
-          website: honeypot
+          website: honeypot,
+          eventId
         }),
       });
 
