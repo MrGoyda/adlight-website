@@ -32,7 +32,7 @@ export default function HeroSlideshow({ images }: HeroSlideshowProps) {
     return () => clearInterval(interval);
   }, [images.length, mounted]);
 
-  if (!mounted) return null;
+
 
   return (
     <>
