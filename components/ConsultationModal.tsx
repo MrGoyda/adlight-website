@@ -11,6 +11,7 @@ import Typography from "@/components/ui/Typography";
 
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -160,6 +161,7 @@ export default function ConsultationModal({
 
       if (res.ok) {
         setIsSuccess(true);
+        trackClientConversion('lead_form');
         setName("");
         setPhone("");
         // Авто-закрытие через 4 секунды
