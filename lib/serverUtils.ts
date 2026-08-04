@@ -21,11 +21,9 @@ export function getImagesFromFolder(slug: string): string[] {
         const images = files
           .filter(file => /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file))
           .map(file => {
-            // Важно: возвращаем путь относительно public для браузера
-            // Получаем часть пути после 'public'
-            const relativePath = dirPath.split('public')[1];
-            // Нормализуем слеши для Windows/Linux
-            return path.join(relativePath, file).replace(/\\/g, '/');
+            const relativePath = path.relative(path.join(process.cwd(), 'public'), dirPath);
+            const webPath = path.join('/', relativePath, file).replace(/\\/g, '/');
+            return webPath;
           });
 
         if (images.length > 0) {
