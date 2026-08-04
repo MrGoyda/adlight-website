@@ -36,6 +36,7 @@ export default function HeroSlider({ sliderImages }: HeroSliderProps) {
             className="object-cover rounded-3xl transform-gpu"
             sizes="(max-width: 1024px) 100vw, 35vw"
             priority={idx === 0}
+            loading={idx === 0 ? "eager" : "lazy"}
           />
         </div>
       ))}
