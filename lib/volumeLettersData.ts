@@ -1,4 +1,6 @@
-export const volumeLettersCatalog = [
+import { getCdnUrl } from "./serverUtils";
+
+const rawCatalog = [
   {
     id: 1,
     slug: 'face-lit',
@@ -99,3 +101,11 @@ export const volumeLettersCatalog = [
     images: { day: '/images/letters/day-night-effect-day.webp', night: '/images/letters/day-night-effect-night.webp' },
   },
 ];
+
+export const volumeLettersCatalog = rawCatalog.map((item) => ({
+  ...item,
+  images: {
+    day: getCdnUrl(item.images.day),
+    night: getCdnUrl(item.images.night),
+  },
+}));

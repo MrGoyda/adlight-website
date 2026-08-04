@@ -152,6 +152,8 @@ import { architectural_lightingDetails } from "./details/architectural-lighting"
 import { banners_platesDetails } from "./details/banners-plates";
 import { lightboxesDetails } from "./details/lightboxes";
 
+import { getCdnUrl } from "@/lib/serverUtils";
+
 export const SERVICES_DETAILS: Record<string, ServiceDetailData> = {
   "panel-brackets": panel_bracketsDetails,
   "neon": neonDetails,
@@ -170,6 +172,16 @@ export const SERVICES_DETAILS: Record<string, ServiceDetailData> = {
   "banners-plates": banners_platesDetails,
   "lightboxes": lightboxesDetails,
 };
+
+// Автоматическое преобразование всех внутренних картинок в CDN ссылки
+Object.values(SERVICES_DETAILS).forEach((service) => {
+  if (service.types) {
+    service.types = service.types.map((type) => ({
+      ...type,
+      image: getCdnUrl(type.image),
+    }));
+  }
+});
 
 export const SERVICES_DETAILS_UI = {
   notFound: "Услуга не найдена",

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Marquee from "react-fast-marquee";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 const CLIENTS = [
   { name: "Yandex Pro", src: "/images/clients/yandex-pro.png", alt: "Яндекс Про - Логотип клиента ADLight Астана" },
@@ -56,7 +57,7 @@ export default function ClientsMarquee() {
                  className="relative h-11 md:h-12 w-32 md:w-36 mx-8 md:mx-12 shrink-0 flex items-center justify-center filter grayscale contrast-125 opacity-40 hover:grayscale-0 hover:contrast-100 hover:opacity-100 transition-all duration-300 ease-in-out cursor-default"
                >
                   <Image 
-                     src={client.src} 
+                     src={getCdnUrl(client.src)} 
                      alt={client.alt}
                      fill
                      className="object-contain"

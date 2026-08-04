@@ -79,7 +79,7 @@ export default async function PortfolioPage({ searchParams }: Props) {
           "@type": "CreativeWork",
           "name": project.title,
           "description": project.description,
-          "image": `https://adlight.kz${project.image}`,
+          "image": project.image,
           "dateCreated": project.date,
           "url": `https://adlight.kz/portfolio/${project.slug}`
         }

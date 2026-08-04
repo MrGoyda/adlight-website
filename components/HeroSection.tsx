@@ -2,6 +2,7 @@ import HeroSlider from "@/components/sections/Hero/HeroSlider";
 import HeroActions from "@/components/sections/Hero/HeroActions";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import FadeIn from "@/components/ui/FadeIn";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 interface HeroSectionProps {
   lettersImages: string[];
@@ -25,10 +26,10 @@ export default function HeroSection({
   // Надежные фоллбэки с реальными проектами
   if (sliderImages.length === 0) {
     sliderImages.push(
-      "/images/portfolio/arustone/arustone-01.webp",
-      "/images/portfolio/kmg/kmg-01.webp",
-      "/images/portfolio/aigelova-beauty/aigelova-beauty-01.webp",
-      "/images/portfolio/family-care/family-care-01.webp"
+      getCdnUrl("/images/portfolio/arustone/arustone-01.webp"),
+      getCdnUrl("/images/portfolio/kmg/kmg-01.webp"),
+      getCdnUrl("/images/portfolio/aigelova-beauty/aigelova-beauty-01.webp"),
+      getCdnUrl("/images/portfolio/family-care/family-care-01.webp")
     );
   }
 

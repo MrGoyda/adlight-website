@@ -1,3 +1,5 @@
+import { getCdnUrl } from "./serverUtils";
+
 export type ProjectCategory = 'letters' | 'lightbox' | 'neon' | 'panel' | 'roof' | 'entrance' | 'interior';
 
 export interface Project {
@@ -46,7 +48,7 @@ export const CATEGORIES: { id: ProjectCategory | 'all'; label: string }[] = [
   { id: 'interior', label: 'Интерьер' },
 ];
 
-export const PROJECTS: Project[] = [
+const RAW_PROJECTS: Project[] = [
   // --- ШАБЛОН ИДЕАЛЬНОГО КЕЙСА (ID: 1) ---
   {
     id: 'family-care',
@@ -415,10 +417,14 @@ export const PROJECTS: Project[] = [
       '/images/portfolio/dks/dks-02.webp',
       '/images/portfolio/dks/dks-03.webp',
       '/images/portfolio/dks/dks-04.webp',
-      '/images/portfolio/dks/dks-05.webp',
-      '/images/portfolio/dks/dks-06.webp',
       '/images/portfolio/dks/dks-07.webp'
     ]
   },
 
 ];
+
+export const PROJECTS: Project[] = RAW_PROJECTS.map((p) => ({
+  ...p,
+  image: getCdnUrl(p.image),
+  gallery: p.gallery?.map((url) => getCdnUrl(url)),
+}));
