@@ -18,6 +18,8 @@ import CustomDropdown, { DropdownOption } from "./CustomDropdown";
 import PriceDisplay from "./PriceDisplay";
 import CalculatorBanner from "./CalculatorBanner";
 
+import { enrichLeadWithAnalytics } from "@/lib/utils";
+
 interface CalculatePriceModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -282,22 +284,11 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
     const typeDetails = selectedOption ? ` (Тип: ${selectedOption.label}, Цена: ${selectedOption.price})` : "";
     const fullSource = `${source}${typeDetails}`;
 
-    const eventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq('track', 'Lead', {
-        content_name: fullSource,
-        currency: 'KZT',
-        value: 45000
-      }, {
-        eventID: eventId
-      });
-    }
-
     try {
       const res = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source: fullSource, website: honeypot, eventId }),
+        body: JSON.stringify(enrichLeadWithAnalytics({ name, phone, source: fullSource, website: honeypot })),
       });
 
       if (res.ok) {
@@ -353,7 +344,7 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
 
       {/* Modal Window */}
       <div 
-        className={`w-full max-w-md relative z-10 max-h-[90dvh] overflow-y-auto rounded-[2.5rem] shadow-apple-modal border border-white/20 transition-all duration-300 ease-out transform ${
+        className={`w-full max-w-md relative z-10 max-h-[90dvh] overflow-y-auto custom-scrollbar rounded-[2.5rem] shadow-apple-modal border border-white/20 transition-all duration-300 ease-out transform ${
           isVisible ? "scale-100 opacity-100 translate-y-0" : "scale-95 opacity-0 translate-y-4"
         }`}
       >

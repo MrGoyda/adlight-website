@@ -10,6 +10,7 @@ import Input from "@/components/ui/Input";
 import Typography from "@/components/ui/Typography";
 
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+import { enrichLeadWithAnalytics } from "@/lib/utils";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -18,7 +19,6 @@ interface ConsultationModalProps {
   title?: string;
   subtitle?: string;
   buttonText?: string;
-  customMessage?: string;
 }
 
 // Легковесная функция маскирования для номеров Казахстана (+7 (7XX) XXX-XX-XX)
@@ -65,8 +65,7 @@ export default function ConsultationModal({
   source,
   title = "Нужна консультация?",
   subtitle = "Оставьте номер телефона. Мы перезвоним в течение 15 минут.",
-  buttonText = "Жду звонка",
-  customMessage
+  buttonText = "Жду звонка"
 }: ConsultationModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -150,22 +149,11 @@ export default function ConsultationModal({
       return;
     }
 
-    const eventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq('track', 'Lead', {
-        content_name: source,
-        currency: 'KZT',
-        value: 45000
-      }, {
-        eventID: eventId
-      });
-    }
-
     try {
       const res = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source, message: customMessage, website: honeypot, eventId }),
+        body: JSON.stringify(enrichLeadWithAnalytics({ name, phone, source, website: honeypot })),
       });
 
       if (res.ok) {

@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import QuizModal from "@/components/QuizModal";
 import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
+import { enrichLeadWithAnalytics } from "@/lib/utils";
 
 interface CallToActionProps {
   source: string;
@@ -30,7 +31,6 @@ export default function CallToAction({
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
-  const [honeypot, setHoneypot] = useState("");
 
   const configKey = getQuizContextKey(serviceContext);
   const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
@@ -104,31 +104,18 @@ export default function CallToAction({
 
     setIsLoading(true);
 
-    const eventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq('track', 'Lead', {
-        content_name: source,
-        currency: 'KZT',
-        value: 45000
-      }, {
-        eventID: eventId
-      });
-    }
-
     try {
       const response = await fetch("/api/telegram", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
+        body: JSON.stringify(enrichLeadWithAnalytics({
           name,
           phone,
           message: `Заявка с быстрого CTA блока. Контекст: ${serviceContext || "general"}`,
-          source: source,
-          website: honeypot,
-          eventId
-        }),
+          source: source
+        })),
       });
 
       if (response.ok) {
@@ -188,16 +175,6 @@ export default function CallToAction({
                 aria-label="Заявка на бесплатный дизайн-проект"
                 className="flex flex-col md:flex-row gap-4 w-full max-w-3xl mx-auto mb-6 items-end"
               >
-                {/* Honeypot скрытое поле для защиты от спам-ботов */}
-                <input 
-                  type="text" 
-                  name="website" 
-                  className="sr-only" 
-                  tabIndex={-1} 
-                  autoComplete="off" 
-                  value={honeypot} 
-                  onChange={(e) => setHoneypot(e.target.value)} 
-                />
                 
                 {/* Input Name */}
                 <div className="flex-1 w-full text-left space-y-2">

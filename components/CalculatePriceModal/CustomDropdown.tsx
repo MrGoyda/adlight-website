@@ -120,7 +120,7 @@ export default React.memo(function CustomDropdown({
           <div
             role="listbox"
             aria-label={label}
-            className="absolute left-0 right-0 mt-2 bg-white border border-slate-200/80 rounded-2xl shadow-xl z-[100] overflow-hidden max-h-60 overflow-y-auto outline-none"
+            className="absolute left-0 right-0 mt-2 bg-white border border-slate-200/80 rounded-2xl shadow-xl z-[100] overflow-hidden max-h-60 overflow-y-auto custom-scrollbar outline-none"
           >
             {options.map((option, idx) => {
               const isSelected = selectedOption?.value === option.value;

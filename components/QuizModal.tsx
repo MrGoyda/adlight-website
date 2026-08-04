@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, CheckCircle, ArrowRight, ArrowLeft, ShieldCheck, HelpCircle } from "lucide-react";
 import Card from "@/components/ui/Card";
@@ -10,6 +10,7 @@ import Typography from "@/components/ui/Typography";
 
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import { QUIZ_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
+import { enrichLeadWithAnalytics } from "@/lib/utils";
 
 interface QuizModalProps {
   isOpen: boolean;
@@ -148,22 +149,11 @@ export default function QuizModal({ isOpen, onClose, serviceContext }: QuizModal
   
       const source = `Квиз: ${config.title}. Контекст: ${serviceContext || "general"}. Ответы: ${answersText}`;
   
-      const eventId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      if (typeof window !== "undefined" && (window as any).fbq) {
-        (window as any).fbq('track', 'Lead', {
-          content_name: source,
-          currency: 'KZT',
-          value: 45000
-        }, {
-          eventID: eventId
-        });
-      }
-
       try {
         const res = await fetch("/api/telegram", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, source, website: honeypot, eventId }),
+          body: JSON.stringify(enrichLeadWithAnalytics({ name, phone, source, website: honeypot })),
         });
   
         if (res.ok) {

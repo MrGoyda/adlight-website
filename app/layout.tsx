@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 // Компоненты для SEO и Аналитики
 import JsonLd from "@/components/JsonLd";
 import YandexMetrica from "@/components/YandexMetrica";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 // Настройка шрифта
 const inter = Inter({ 
@@ -104,8 +105,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`scroll-smooth ${inter.variable}`} data-scroll-behavior="smooth">
+    <html lang="ru" className={`scroll-smooth ${inter.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`}>
+        <AnalyticsTracker />
         
         {/* --- GOOGLE ADS TAG (Вставка) --- */}
         {/* Загрузка библиотеки gtag.js */}
