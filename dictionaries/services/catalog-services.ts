@@ -1,5 +1,6 @@
 // dictionaries/services/catalog-services.ts
 import { SITE_PRICES, SITE_LINKS } from "@/config/site";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 export interface CatalogServiceItem {
   title: string;
@@ -29,7 +30,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Объемные буквы",
         price: SITE_PRICES.volumeLetters,
         link: SITE_LINKS.services.volumeLetters,
-        image: "/images/pages/services-letters.webp",
+        image: getCdnUrl("/images/pages/services-letters.webp"),
         tags: ["Хит продаж", "Согласование", "Гарантия 3 года"],
         description: "Изготовление объемных букв любой сложности по единому Дизайн-коду Астаны."
       },
@@ -37,7 +38,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Световые короба",
         price: SITE_PRICES.lightboxes,
         link: SITE_LINKS.services.lightboxes,
-        image: "/images/pages/services-lightboxes.webp",
+        image: getCdnUrl("/images/pages/services-lightboxes.webp"),
         tags: ["Много текста", "Яркость", "Любая форма"],
         description: "Лайтбоксы сложной формы и композитные короба с инкрустацией в Астане."
       },
@@ -45,7 +46,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Панель-кронштейны",
         price: SITE_PRICES.panelBrackets,
         link: SITE_LINKS.services.panelBrackets,
-        image: "/images/pages/services-panel-brackets.webp",
+        image: getCdnUrl("/images/pages/services-panel-brackets.webp"),
         tags: ["Двусторонние", "Для пешеходов", "Компактно"],
         description: "Двусторонние торцевые вывески для максимального обзора пешеходами."
       },
@@ -53,7 +54,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Оформление фасадов",
         price: SITE_PRICES.facadeDecoration,
         link: SITE_LINKS.services.facadeDecoration,
-        image: "/images/facade-decoration/6.jpg",
+        image: getCdnUrl("/images/facade-decoration/6.jpg"),
         tags: ["Композит", "Алюкобонд", "Под ключ"],
         description: "Облицовка фасадов композитными панелями и керамогранитом под рекламу."
       },
@@ -61,7 +62,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Брендирование витрин",
         price: SITE_PRICES.windowBranding,
         link: SITE_LINKS.services.windowBranding,
-        image: "/images/window-branding/1.png",
+        image: getCdnUrl("/images/window-branding/1.png"),
         tags: ["Оклейка окон", "Виниловая аппликация", "Перфорация"],
         description: "Оклейка витрин магазинов полноцветной печатью, перфопленкой или плоттерной резкой."
       }
@@ -77,7 +78,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Неоновые вывески",
         price: SITE_PRICES.neon,
         link: SITE_LINKS.services.neon,
-        image: "/images/pages/services-neon.webp",
+        image: getCdnUrl("/images/pages/services-neon.webp"),
         tags: ["Flex Neon 2.0", "Для фотозон", "Безопасно"],
         description: "Яркий гибкий неон для интерьера, офисов, баров и фотозон на заказ."
       },
@@ -85,7 +86,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Интерьерные лого",
         price: SITE_PRICES.interiorLogo,
         link: SITE_LINKS.services.interior,
-        image: "/images/pages/services-interior.webp",
+        image: getCdnUrl("/images/pages/services-interior.webp"),
         tags: ["Тонкий акрил", "Ресепшн", "Контражур"],
         description: "Стильные интерьерные логотипы для зоны ресепшн и офисов компаний."
       },
@@ -93,7 +94,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Таблички и Навигация",
         price: SITE_PRICES.navigation,
         link: SITE_LINKS.services.navigation,
-        image: "/images/pages/services-navigation.webp",
+        image: getCdnUrl("/images/pages/services-navigation.webp"),
         tags: ["Указатели", "Стенды", "Акрил"],
         description: "Кабинетные таблички, указатели и системы навигации для бизнес-центров."
       },
@@ -101,7 +102,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Баннеры и стенды",
         price: SITE_PRICES.bannersPlates,
         link: SITE_LINKS.services.bannersPlates,
-        image: "/images/banners-plates/1.webp",
+        image: getCdnUrl("/images/banners-plates/1.webp"),
         tags: ["Широкоформат", "Инфо-стенды", "Срочно"],
         description: "Печать баннеров, пресс-стены, информационные стенды и дверные таблички."
       }
@@ -117,7 +118,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Крышные установки",
         price: "Проектно",
         link: SITE_LINKS.services.roofInstallations,
-        image: "/images/pages/services-roof-installations.webp",
+        image: getCdnUrl("/images/pages/services-roof-installations.webp"),
         tags: ["Документация", "Нагрузки", "Масштаб"],
         description: "Грандиозные масштабные рекламные конструкции на крышах зданий."
       },
@@ -125,7 +126,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Входные группы",
         price: "Проектно",
         link: SITE_LINKS.services.entranceGroups,
-        image: "/images/pages/services-entrance-groups.webp",
+        image: getCdnUrl("/images/pages/services-entrance-groups.webp"),
         tags: ["Козырьки", "Колонны", "Дизайн-проект"],
         description: "Комплексное оформление входа в магазин, банк или офис: козырьки, облицовка."
       },
@@ -133,7 +134,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Стелы и Пилоны",
         price: SITE_PRICES.pylons,
         link: SITE_LINKS.services.pylons,
-        image: "/images/pages/services-pylons.webp",
+        image: getCdnUrl("/images/pages/services-pylons.webp"),
         tags: ["Фундамент", "Для АЗС", "Навигация"],
         description: "Отдельно стоящие рекламные стелы, пилоны и указатели направления."
       },
@@ -141,7 +142,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "LED-экраны",
         price: SITE_PRICES.ledScreens,
         link: SITE_LINKS.services.ledScreens,
-        image: "/images/led-screens/1.jpg",
+        image: getCdnUrl("/images/led-screens/1.jpg"),
         tags: ["Медиафасады", "Бегущие строки", "Яркость"],
         description: "Установка уличных и интерьерных светодиодных LED-экранов под ключ в Астане."
       },
@@ -149,7 +150,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Вывески на выставку",
         price: SITE_PRICES.exhibitionStands,
         link: SITE_LINKS.services.exhibitionStands,
-        image: "/images/exhibition-stands/1.jpg",
+        image: getCdnUrl("/images/exhibition-stands/1.jpg"),
         tags: ["EXPO Астана", "Промо-зоны", "Быстрая сборка"],
         description: "Изготовление выставочных стендов, световых конструкций и промо-зон."
       }
@@ -165,7 +166,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Брендирование авто",
         price: SITE_PRICES.brandingCars,
         link: SITE_LINKS.services.brandingCars,
-        image: "/images/pages/services-branding-cars.png",
+        image: getCdnUrl("/images/pages/services-branding-cars.png"),
         tags: ["Оклейка авто", "Винил Oracal", "Реклама на колесах"],
         description: "Оклейка коммерческого транспорта виниловой пленкой с рекламой компании."
       },
@@ -173,7 +174,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Ремонт вывесок",
         price: SITE_PRICES.signboardRepair,
         link: SITE_LINKS.services.signboardRepair,
-        image: "/images/signboard-repair/1.gif",
+        image: getCdnUrl("/images/signboard-repair/1.gif"),
         tags: ["Диагностика", "Светодиоды Samsung", "Срочный выезд"],
         description: "Ремонт, модернизация на диоды, чистка и техническое обслуживание вывесок."
       },
@@ -181,7 +182,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Согласование вывесок",
         price: SITE_PRICES.designCode,
         link: SITE_LINKS.designCode,
-        image: "/images/pages/dk_approved.png",
+        image: getCdnUrl("/images/pages/dk_approved.png"),
         tags: ["e-Otinish", "Акимат Астаны", "100% Законно"],
         description: "Разработка эскизных проектов и полное сопровождение подачи на согласование."
       },
@@ -189,7 +190,7 @@ export const CATALOG_SERVICES: CatalogServiceGroup[] = [
         title: "Архитектурная подсветка",
         price: SITE_PRICES.architecturalLighting,
         link: SITE_LINKS.services.architecturalLighting,
-        image: "/images/architectural-lighting/1.jpg",
+        image: getCdnUrl("/images/architectural-lighting/1.jpg"),
         tags: ["Фасадный свет", "LED неон", "Дизайн освещения"],
         description: "Проектирование и монтаж контурной светодиодной подсветки фасадов коммерческих зданий."
       }

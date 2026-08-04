@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CheckCircle, FileCheck, BookOpen, ShieldCheck } from "lucide-react";
+import { getCdnUrl } from "@/lib/serverUtils";
 import ConsultationModal from "./ConsultationModal";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import Button from "@/components/ui/Button";
@@ -126,7 +127,7 @@ export default function DesignCodeBlock({
                 {/* Visual spec card with scan background mock */}
                 <div className="aspect-video bg-slate-100 rounded-2xl border border-slate-200 overflow-hidden relative">
                    <Image 
-                      src="/images/pages/dk_approved.png" 
+                      src={getCdnUrl("/images/pages/dk_approved.png")} 
                       alt="Эскизный проект вывески, одобренный Акиматом"
                       fill
                       className="object-cover"

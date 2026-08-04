@@ -6,6 +6,7 @@ import { ChevronRight, BookOpen } from "lucide-react";
 import DesignCodeHeroButtons from "@/components/DesignCodeHeroButtons";
 import { DESIGN_CODE_TEXTS } from "@/dictionaries/design-code";
 import FadeIn from "@/components/ui/FadeIn";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 export default function DesignCodeHero() {
   return (
@@ -74,7 +75,7 @@ export default function DesignCodeHero() {
                   <div className="relative bg-white border border-slate-200 p-4 rounded-[32px] shadow-[0_15px_40px_rgba(0,0,0,0.03)] transform hover:rotate-0 transition duration-500">
                      <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden relative border border-slate-100 bg-slate-100">
                         <Image
-                           src="/images/pages/design-code-hero.jpg"
+                           src={getCdnUrl("/images/pages/design-code-hero.jpg")}
                            alt="Правильное оформление вывесок на фасаде здания по Дизайн-коду Астаны"
                            fill
                            priority

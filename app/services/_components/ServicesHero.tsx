@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Store, Zap, Building, ChevronRight, Wrench } from "lucide-react";
 import { SERVICES_CATALOG_UI } from "@/dictionaries/services/catalog-ui";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 export default function ServicesHero() {
   const t = SERVICES_CATALOG_UI.hero;
@@ -79,7 +80,7 @@ export default function ServicesHero() {
             <div className="hidden lg:flex relative h-[500px] w-full items-center justify-center">
                 <div className="absolute inset-0 bg-orange-500/5 blur-[100px] rounded-full pointer-events-none"></div>
                 <Image 
-                  src="/images/pages/services-hero.webp" 
+                  src={getCdnUrl("/images/pages/services-hero.webp")} 
                   alt={t.heroAlt}
                   width={600}
                   height={500}

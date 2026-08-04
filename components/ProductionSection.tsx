@@ -4,6 +4,7 @@ import Image from "next/image";
 import * as Icons from "lucide-react";
 import { PRODUCTION_DETAILS } from "@/dictionaries/production";
 import Button from "@/components/ui/Button";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 export default function ProductionSection() {
   return (
@@ -85,7 +86,7 @@ export default function ProductionSection() {
                 {/* Visual Spec Image Container */}
                 <div className="aspect-[4/3] bg-slate-100 rounded-2xl border border-slate-200 overflow-hidden relative group">
                    <Image 
-                      src="/images/pages/assembly_workshop.png" 
+                      src={getCdnUrl("/images/pages/assembly_workshop.png")} 
                       alt="Производственный цех рекламной компании ADLight в Астане"
                       fill
                       className="object-cover transition duration-700 group-hover:scale-[1.02]"

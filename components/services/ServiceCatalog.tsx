@@ -4,6 +4,7 @@
 import { useRef } from "react";
 import Image from "next/image";
 import { ServiceDetailData } from "@/dictionaries/services/service-details";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 interface ServiceCatalogProps {
   data: ServiceDetailData;
@@ -106,7 +107,7 @@ export default function ServiceCatalog({ data }: ServiceCatalogProps) {
                   </div>
                 ) : (
                   <Image 
-                    src={type.image || "/images/pages/assembly_workshop.png"} 
+                    src={getCdnUrl(type.image || "/images/pages/assembly_workshop.png")} 
                     alt={type.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
