@@ -10,7 +10,7 @@ import ContactsClient from "./_components/ContactsClient";
 import { COMPANY_NAP } from "@/dictionaries/common";
 
 export const metadata: Metadata = {
-  title: "Контакты ADLight Астана — Телефон, Адрес офиса и цеха вывесок",
+  title: "Контакты ADLight в Астане | Адрес цеха и Телефон",
   description: "Контакты рекламного агентства ADLight в Астанее. Звоните: +7 (707) 135-67-01. Наш адрес цеха: ул. Аспара, 7. Схема проезда, реквизиты компании и мессенджеры.",
   alternates: {
     canonical: "https://adlight.kz/contacts",

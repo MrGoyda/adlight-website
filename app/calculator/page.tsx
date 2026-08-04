@@ -8,7 +8,7 @@ import CalculatorShell from "./_components/CalculatorShell";
 import PriceShowcase from "./_components/PriceShowcase";
 
 export const metadata: Metadata = constructMetadata({
-  title: "Калькулятор стоимости вывески в Астане | Рассчитать цену вывески онлайн",
+  title: "Калькулятор стоимости вывески в Астане | Расчет онлайн",
   description: "Онлайн-калькулятор стоимости изготовления объемных букв и лайтбоксов в Астане. Укажите размеры и тип конструкции, чтобы мгновенно получить ориентировочный расчет цены.",
   canonicalUrl: "https://adlight.kz/calculator",
   keywords: ["калькулятор вывески астана", "рассчитать стоимость вывески", "цена объемных букв онлайн", "расчет цены лайтбокса", "наружная реклама стоимость"]

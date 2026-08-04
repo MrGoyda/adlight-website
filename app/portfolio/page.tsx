@@ -6,7 +6,7 @@ import BreadcrumbSchema from "@/components/services/BreadcrumbSchema";
 
 // 1. ДИНАМИЧЕСКИЕ СТАТИЧЕСКИЕ/ДИНАМИЧЕСКИЕ МЕТАДАННЫЕ (SEO)
 export const metadata: Metadata = {
-  title: "Портфолио выполненных работ ADLight Астана — Объемные буквы, Лайтбоксы, Вывески",
+  title: "Портфолио вывесок и наружной рекламы в Астане | ADLight",
   description: "Посмотрите галерею наших готовых проектов по наружной и интерьерной рекламе в Астане. Более 300 успешно сданных объектов с гарантией 12-24 месяца.",
   alternates: {
     canonical: "https://adlight.kz/portfolio",
