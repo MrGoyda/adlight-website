@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { PROJECTS } from '@/lib/projectsData';
 import { SERVICES_DETAILS } from '@/dictionaries/services/service-details';
-import { VOLUME_LETTERS_CATALOG } from '@/dictionaries/services/volume-letters';
+import { volumeLettersCatalog } from '@/lib/volumeLettersData';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://adlight.kz'; // Твой реальный домен
@@ -14,20 +14,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/services',  // Разводящая (Priority 0.9)
     '/calculator',
     '/design-code',
+    '/privacy',
+    '/offer',
   ];
 
-  // 2. Основные категории услуг (Высокий приоритет 0.9 - это твой хлеб)
+  // 2. Основные категории услуг (Высокий приоритет 0.9)
   const mainServices = Array.from(
     new Set([
       '/services/volume-letters',
-      '/services/lightboxes',
       ...Object.keys(SERVICES_DETAILS).map((slug) => `/services/${slug}`),
     ])
   );
 
-  // 3. Узкие специализации (Приоритет 0.8 - "Long tail" запросы)
-  // AI очень любят эти страницы за конкретику
-  const subServices = VOLUME_LETTERS_CATALOG.map(
+  // 3. Узкие специализации
+  const subServices = volumeLettersCatalog.map(
     (item) => `/services/volume-letters/${item.slug}`
   );
 
