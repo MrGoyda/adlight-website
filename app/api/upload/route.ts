@@ -19,6 +19,7 @@ export async function POST(req: Request) {
       Bucket: R2_BUCKET_NAME,
       Key: fileKey,
       ContentType: fileType,
+      ContentDisposition: "inline",
     });
 
     // Одноразовая подписанная ссылка для прямой загрузки в R2 (на 1 час)

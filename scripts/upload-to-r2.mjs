@@ -164,6 +164,7 @@ async function uploadFiles() {
         Key: r2Key,
         Body: fileBuffer,
         ContentType: contentType,
+        ContentDisposition: 'inline',
         // Агрессивное кэширование Edge CDN на 1 год для статики
         CacheControl: 'public, max-age=31536000, immutable',
       });
