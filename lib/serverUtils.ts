@@ -1,42 +1,41 @@
-import fs from 'fs';
-import path from 'path';
+import manifest from './media-manifest.json';
 
 export function getImagesFromFolder(slug: string): string[] {
-  // Определяем возможные пути, где могут лежать картинки
-  const possiblePaths = [
-    // 1. Сначала ищем в специфичной папке галерей букв
-    path.join(process.cwd(), 'public', 'images', 'letters-galery', slug),
-    // 2. Если нет, ищем в корне images (для лайтбоксов и прочего)
-    path.join(process.cwd(), 'public', 'images', slug),
-    // 3. На случай, если папка называется иначе, пробуем искать просто по слагу в public
-    path.join(process.cwd(), 'public', slug)
-  ];
+  // 1. Проверяем среди категорий (например: "face-lit", "volume-letters/face-lit", "lightboxes")
+  if (manifest.categories[slug as keyof typeof manifest.categories]) {
+    return manifest.categories[slug as keyof typeof manifest.categories];
+  }
 
-  for (const dirPath of possiblePaths) {
-    try {
-      // Проверяем, существует ли папка
-      if (fs.existsSync(dirPath)) {
-        const files = fs.readdirSync(dirPath);
-        
-        const images = files
-          .filter(file => /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file))
-          .map(file => {
-            const relativePath = path.relative(path.join(process.cwd(), 'public'), dirPath);
-            const webPath = path.join('/', relativePath, file).replace(/\\/g, '/');
-            return webPath;
-          });
+  // Пробуем варианты с префиксом volume-letters/
+  const volumeKey = `volume-letters/${slug}`;
+  if (manifest.categories[volumeKey as keyof typeof manifest.categories]) {
+    return manifest.categories[volumeKey as keyof typeof manifest.categories];
+  }
 
-        if (images.length > 0) {
-          // console.log(`[ServerUtils] Found ${images.length} images in ${dirPath}`);
-          return images;
-        }
-      }
-    } catch (error) {
-      console.error(`Ошибка при чтении папки ${dirPath}:`, error);
+  // Поиск совпадений по вложенным категориям
+  for (const [key, urls] of Object.entries(manifest.categories)) {
+    if (key.endsWith(`/${slug}`) || key === slug) {
+      return urls as string[];
     }
   }
 
-  // Если нигде не нашли
-  console.warn(`⚠️ [ServerUtils] Папка не найдена или пуста для слага: "${slug}". Проверены пути:`, possiblePaths);
+  // 2. Проверяем среди проектов портфолио
+  if (manifest.projects[slug as keyof typeof manifest.projects]) {
+    return manifest.projects[slug as keyof typeof manifest.projects];
+  }
+
+  // 3. Фолбэк поиска по путям файлов
+  const matchedFiles: string[] = [];
+  for (const [localPath, cdnUrl] of Object.entries(manifest.files)) {
+    if (localPath.includes(`/${slug}/`) || localPath.startsWith(`${slug}/`)) {
+      matchedFiles.push(cdnUrl);
+    }
+  }
+
+  if (matchedFiles.length > 0) {
+    return matchedFiles;
+  }
+
+  console.warn(`⚠️ [ServerUtils] Файлы не найдены в манифесте для слага: "${slug}"`);
   return [];
 }
