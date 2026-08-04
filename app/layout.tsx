@@ -124,6 +124,19 @@ export default function RootLayout({
           fetchPriority="high"
         />
         {/* Google/Meta теги убраны — трекинг идёт через /api/track (SST) */}
+        {/* --- GOOGLE TAG (GA4) — базовые метрики: сессии, устройства, geo --- */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-8HHR00E9DN"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-8HHR00E9DN');
+          `}
+        </Script>
       </head>
       <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`}>
         <AnalyticsTracker />
