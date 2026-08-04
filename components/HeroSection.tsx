@@ -78,9 +78,13 @@ export default function HeroSection({
         </div>
 
         {/* ПРАВАЯ КОЛОНКА: СЛАЙДЕР БЕЗ ЛИШНЕГО ШУМА (5 колонок) */}
-        <div className="lg:col-span-5 relative w-full aspect-[4/5] sm:max-w-md lg:max-w-none mx-auto opacity-0 animate-fade-in-left-fast">
+        <FadeIn
+          direction="left"
+          delay={100}
+          className="lg:col-span-5 relative w-full aspect-[4/5] sm:max-w-md lg:max-w-none mx-auto"
+        >
           <HeroSlider sliderImages={sliderImages} />
-        </div>
+        </FadeIn>
       </div>
     </section>
   );
