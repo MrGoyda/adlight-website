@@ -122,18 +122,12 @@ export default function RootLayout({
           // @ts-ignore
           fetchPriority="high"
         />
-      </head>
-      <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`}>
-        <AnalyticsTracker />
-        
-        {/* --- GOOGLE ADS TAG (Вставка) --- */}
-        {/* Загрузка библиотеки gtag.js */}
+        {/* --- GOOGLE ADS TAG --- */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17806280695"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
-        {/* Инициализация gtag */}
-        <Script id="google-ads-init" strategy="lazyOnload">
+        <Script id="google-ads-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -142,7 +136,9 @@ export default function RootLayout({
             gtag('config', 'AW-17806280695');
           `}
         </Script>
-        {/* --- КОНЕЦ ВСТАВКИ --- */}
+      </head>
+      <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`}>
+        <AnalyticsTracker />
 
         {/* Микроразметка и Аналитика */}
         <JsonLd />
