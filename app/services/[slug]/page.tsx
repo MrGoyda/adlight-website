@@ -68,7 +68,12 @@ export default async function DynamicServicePage({ params }: Props) {
 
   // Получаем фотографии из папки
   const galleryImages = getImagesFromFolder(service.slug);
-  const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
+  const seed = service.slug.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const heroImages = [...galleryImages]
+    .map((img, idx) => ({ img, sortKey: Math.sin(seed + idx) }))
+    .sort((a, b) => a.sortKey - b.sortKey)
+    .map((item) => item.img)
+    .slice(0, 15);
   
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 

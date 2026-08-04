@@ -1,0 +1,332 @@
+datasource db {
+  provider  = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum LeadStatus {
+  NEW          // Новая заявка
+  IN_PROGRESS  // В работе
+  ESTIMATE     // Смета/Замер
+  PROCESSED    // В производстве (предоплата)
+  COMPLETED    // Выполнен (оплачен полностью)
+  CANCELLED    // Отказ
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE_COMPANY
+  WITHDRAWAL_PARTNER
+}
+
+enum PartnerName {
+  DANIIL
+  ELISEY
+}
+
+enum ClientRating {
+  EASY        // "Легкий в общении / Адекватный" 🟢
+  STANDARD    // "Обычный / Стандартный" 🟡
+  PROBLEM     // "Сложный / Требовательный" 🔴
+}
+
+enum FileCategory {
+  MEASUREMENT // Фото замеров / объекта
+  SKETCH      // Эскизы / Макеты / Дизайн-код
+  CONTRACT    // Договоры и приложения
+  INVOICE     // Счета на оплату / Акт выполненных работ
+  OTHER       // Прочее
+}
+
+enum ProjectStatus {
+  PLANNING     // Планируется
+  IN_PROGRESS  // В работе
+  COMPLETED    // Завершен
+  ON_HOLD      // На паузе
+}
+
+model Lead {
+  id              String          @id @default(uuid())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  name            String
+  phone           String
+  message         String?
+  calcDetails     String?         // Детали из калькулятора
+  status          LeadStatus      @default(NEW)
+  rating          ClientRating    @default(STANDARD) // Оценка сложности заказчика
+  
+  // Новые поля для расширенного CRM
+  comment         String?         // Заметки менеджера / примечания
+  source          String?         // Источник ("Сайт (Квиз)", "WhatsApp", "Вручную" и т.д.)
+  address         String?         // Адрес замера / монтажа
+  appointmentDate DateTime?       // Дата замера
+  deadline        DateTime?       // Срок сдачи проекта
+  manager         PartnerName?    // Ответственный партнер
+  
+  // Аналитика
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  utmContent      String?
+  utmTerm         String?
+  yandexClientId  String?
+  googleClientId  String?
+  fbBrowserId     String?         // fbp/fbc
+
+  // Финансы сделки
+  revenue         Float           @default(0)
+  expenses        Float           @default(0)
+  prepayment      Float           @default(0)
+  isPrepaymentPaid Boolean        @default(false)
+  isBalancePaid    Boolean        @default(false)
+  
+  transactions    DbTransaction[]
+  files           LeadFile[]
+  activities      LeadActivity[]
+  
+  // Связь со сметой/калькулятором себестоимости
+  estimate        LeadEstimate?
+
+  // Связь с клиентом
+  clientId        String?
+  client          Client?         @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  // Новые связи B2B CRM (Компании, Проекты, Контакты)
+  companyId       String?
+  company         Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  projectId       String?
+  project         Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  contactId       String?
+  contact         Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+}
+
+model LeadFile {
+  id        String       @id @default(uuid())
+  createdAt DateTime     @default(now())
+  name      String       // Название файла ("Замер_фасада.jpg")
+  url       String       // Прямая ссылка на Cloudflare R2
+  fileKey   String       // Ключ в R2 для удаления
+  size      Int          // Размер в байтах
+  mimeType  String       // image/jpeg, application/pdf и т.д.
+  category  FileCategory @default(OTHER)
+  
+  leadId    String?
+  lead      Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  projectId String?
+  project   Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model LeadActivity {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  text      String   // "Созвонились: обсудили размеры букв, попросил акрил 3мм"
+  author    String?  // Даниил / Елисей / Система
+  type      String   @default("NOTE") // CALL, NOTE, STATUS_CHANGE, MEETING
+  
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model DbTransaction {
+  id          String          @id @default(uuid())
+  createdAt   DateTime        @default(now())
+  type        TransactionType
+  amount      Float
+  description String
+  
+  leadId      String?
+  lead        Lead?           @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  
+  partner     PartnerName?
+}
+
+model CompanyState {
+  id          String          @id @default("global")
+  cashbox     Float           @default(0) // Баланс кассы фирмы
+}
+
+model Client {
+  id            String          @id @default(uuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  name          String          // Имя контакта / представителя
+  phone         String          @unique // Уникальный телефон клиента
+  email         String?
+  companyName   String?         // Название организации
+  binIin        String?         // БИН или ИИН для документов
+  contractNum   String?         // Номер договора
+  legalAddress  String?         // Юридический адрес
+  bankAccount   String?         // Реквизиты счета / БИК / Банк
+  notes         String?         // Общие заметки по работе с клиентом
+
+  leads         Lead[]          // Проекты/сделки этого клиента
+}
+
+model Company {
+  id            String          @id @default(uuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  name          String          // Название компании ("ООО Вектор / ТРЦ Ардагер")
+  binIin        String?         // БИН или ИИН компании
+  industry      String?         // Сфера деятельности ("Рестораны", "Ритейл", "Строительство")
+  legalAddress  String?         // Юр. адрес
+  bankAccount   String?         // Реквизиты счета / ИИК / Банк
+  rating        ClientRating    @default(STANDARD) // Категория заказчика (EASY, STANDARD, PROBLEM)
+  notes         String?         // Общие заметки
+
+  contacts      Contact[]       // Сотрудники / ЛПР компании
+  projects      Project[]       // Объекты / крупные проекты компании
+  leads         Lead[]          // Заявки и сделки этой компании
+}
+
+model Contact {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  name            String   // ФИО контакта ("Иванов Иван")
+  position        String?  // Должность ("Маркетолог", "Ген. директор", "Прораб")
+  phone           String   // Номер телефона
+  email           String?  // Email
+  whatsapp        String?  // Ссылка/номер WhatsApp
+  isDecisionMaker Boolean  @default(false) // Флаг: ЛПР (Лицо Принимающее Решения)
+  notes           String?  // Заметки о контакте
+
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  leads           Lead[]   // Заявки, за которые отвечает этот контакт
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  title       String        // Название ("Оформление сети ресторанов 'Шеф'")
+  status      ProjectStatus @default(IN_PROGRESS)
+  budget      Float         @default(0) // Суммарный целевой/плановый бюджет
+  notes       String?       // Заметки по проекту/объекту
+
+  companyId   String
+  company     Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  leads       Lead[]        // Заявки / этапы входящие в этот проект
+  files       LeadFile[]    // Файлы, чертежи и договора проекта
+}
+
+enum InventoryUnit {
+  SQUARE_METER  // кв. м.
+  RUNNING_METER // пог. м.
+  PIECE        // шт.
+  ROLL         // рулон
+  PACK         // упак.
+  LITER        // л.
+}
+
+enum EstimateItemType {
+  MATERIAL_STOCK    // Материал со склада
+  MATERIAL_SUPPLIER // Поставщик (под заказ)
+  LOGISTICS         // Газель / Доставка
+  EQUIPMENT         // Автовышка / спецтехника
+  ASSEMBLY          // Оплата сборщикам
+  INSTALLATION      // Оплата монтажникам
+  CUSTOM            // Прочее (вручную)
+}
+
+model WarehouseItem {
+  id           String                 @id @default(uuid())
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  name         String                 @unique
+  category     String                 // "Пластики", "Светодиоды", "Профили", "Пленки" и т.д.
+  quantity     Float                  @default(0)
+  unit         InventoryUnit
+  price        Float                  @default(0) // Себестоимость за ед.
+  location     String?                // Примечание по месту хранения
+  minStock     Float                  @default(0) // Минимальный порог (для алертов)
+
+  transactions WarehouseTransaction[]
+}
+
+model WarehouseTransaction {
+  id              String         @id @default(uuid())
+  createdAt       DateTime       @default(now())
+  itemId          String
+  item            WarehouseItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  quantityChanged Float          // Положительное (приход) или отрицательное (списание)
+  description     String?        // "Списание под лид №123", "Поступление от поставщика"
+  leadId          String?        // Связь с лидом, если списание под проект
+}
+
+model Supplier {
+  id        String          @id @default(uuid())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  name      String          @unique // Название поставщика (напр. "Демер")
+  address   String?         // Адрес офиса/склада
+  phone     String?         // Телефонный номер
+  whatsapp  String?         // Ссылка на WhatsApp (напр. https://wa.me/...)
+  notes     String?         // Заметки, контакты менеджеров и др.
+  prices    SupplierPrice[]
+}
+
+model SupplierPrice {
+  id          String        @id @default(uuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  name        String        // Название материала/услуги
+  supplier    String        // Поставщик (текстовое имя для совместимости)
+  price       Float         // Цена за единицу
+  unit        InventoryUnit
+  
+  supplierId  String?
+  supplierObj Supplier?     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+}
+
+model LeadEstimate {
+  id        String         @id @default(uuid())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  leadId    String?        @unique
+  lead      Lead?          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  items     EstimateItem[]
+  
+  // Флаг, списывались ли уже материалы со склада под эту смету
+  isStockDeducted Boolean  @default(false)
+}
+
+model EstimateItem {
+  id         String           @id @default(uuid())
+  estimateId String
+  estimate   LeadEstimate     @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  type       EstimateItemType
+  name       String           // "Акрил 3мм молочный", "Работа монтажников"
+  quantity   Float            @default(1)
+  unit       InventoryUnit?
+  costPrice  Float            @default(0) // Себестоимость за ед.
+  sellPrice  Float            @default(0) // Цена для продажи клиенту за ед.
+  
+  // Для связи со складом при ручном списании
+  warehouseItemId String?
+}
+
+enum UserRole {
+  ADMIN     // Главный администратор (Даниил / Елисей) — полный доступ
+  MANAGER   // Менеджер по продажам — работа с лидами и клиентами (без управления финансами компании)
+  WORKER    // Цех / Монтажник — просмотр эскизов, чертежей и заказов в работе
+}
+
+model UserProfile {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  email     String   @unique
+  name      String   // ФИО сотрудника
+  role      UserRole @default(MANAGER)
+  phone     String?
+}

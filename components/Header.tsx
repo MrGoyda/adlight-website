@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { 
   Menu, 
   X, 
@@ -26,6 +27,8 @@ import { SITE_URL } from "@/config/site";
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 
 export default function Header() {
+  const pathname = usePathname();
+  const isAdminActive = pathname?.startsWith("/admin");
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -182,12 +185,19 @@ export default function Header() {
 
              {/* 5. Иконка входа в личный кабинет */}
              <Button 
+                href="/admin/leads"
                 variant="lightGlass"
-                className="w-9 h-9 p-0 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-orange-500 hover:border-orange-500/30 flex items-center justify-center group shadow-sm hover:shadow-md transition duration-300"
-                title="Личный кабинет клиента"
-                aria-label="Личный кабинет"
+                className={`w-9 h-9 p-0 rounded-xl flex items-center justify-center group shadow-sm hover:shadow-md transition duration-300 ${
+                  isAdminActive 
+                    ? "bg-orange-50 border-orange-500/50 text-orange-600 shadow-orange-100/50" 
+                    : "bg-white border-slate-200 text-slate-700 hover:text-orange-500 hover:border-orange-500/30"
+                }`}
+                title="Панель администратора"
+                aria-label="Панель администратора"
               >
-                <User className="w-4 h-4 group-hover:scale-110 group-hover:text-orange-500 transition-all duration-300"/>
+                <User className={`w-4 h-4 transition-all duration-300 group-hover:scale-110 ${
+                  isAdminActive ? "text-orange-600 scale-110" : "group-hover:text-orange-500"
+                }`}/>
              </Button>
           </div>
 

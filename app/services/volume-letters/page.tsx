@@ -58,7 +58,12 @@ export default async function VolumeLettersPage() {
     }
   });
 
-  let heroImages = [...allGalleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
+  const seed = allGalleryImages.length;
+  let heroImages = [...allGalleryImages]
+    .map((img, idx) => ({ img, sortKey: Math.sin(seed + idx) }))
+    .sort((a, b) => a.sortKey - b.sortKey)
+    .map((item) => item.img)
+    .slice(0, 15);
   if (heroImages.length === 0) {
     heroImages = VOLUME_LETTERS_CATALOG.map(item => item.images.night);
   }

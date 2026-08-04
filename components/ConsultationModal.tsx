@@ -10,6 +10,7 @@ import Input from "@/components/ui/Input";
 import Typography from "@/components/ui/Typography";
 
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+import { enrichLeadWithAnalytics } from "@/lib/utils";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -152,7 +153,7 @@ export default function ConsultationModal({
       const res = await fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, source, website: honeypot }),
+        body: JSON.stringify(enrichLeadWithAnalytics({ name, phone, source, website: honeypot })),
       });
 
       if (res.ok) {

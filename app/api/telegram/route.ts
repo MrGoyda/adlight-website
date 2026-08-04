@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getFeatureFlags } from '@/lib/featureFlags';
+import { prisma } from '@/lib/prisma';
 
 // Простой in-memory кэш для лимитирования запросов по IP (Rate Limiting)
 const rateLimitMap = new Map<string, number[]>();
@@ -154,6 +155,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, spamBlocked: true });
     }
 
+    // Сохранение лида в базу данных Supabase с UTM-метками и Client IDs
+    let leadId = '';
+    try {
+      const dbLead = await prisma.lead.create({
+        data: {
+          name,
+          phone,
+          message: customMessage || null,
+          calcDetails: body.calcDetails || null,
+          status: 'NEW',
+          utmSource: body.utmSource || null,
+          utmMedium: body.utmMedium || null,
+          utmCampaign: body.utmCampaign || null,
+          utmContent: body.utmContent || null,
+          utmTerm: body.utmTerm || null,
+          yandexClientId: body.yandexClientId || null,
+          googleClientId: body.googleClientId || null,
+          fbBrowserId: body.fbBrowserId || null,
+        },
+      });
+      leadId = dbLead.id;
+    } catch (dbError) {
+      console.error('Database lead insertion failed:', dbError);
+    }
+
     // 4. Получение приватных ключей из переменных окружения (.env.local)
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -191,6 +217,7 @@ ${parsed.title}
     }
 
     messageContent += `──────────────────
+🔗 <a href="https://adlight.kz/admin/leads?id=${leadId}">Открыть в CRM</a>
 ⏰ <i>${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })} (Астана)</i>
 `;
 
@@ -214,7 +241,7 @@ ${parsed.title}
     });
 
     const results = await Promise.all(sendPromises);
-    let failedChats = [];
+    const failedChats = [];
 
     for (const result of results) {
       if (!result.response.ok) {

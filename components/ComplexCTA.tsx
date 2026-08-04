@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send, CheckCircle, Loader2, Phone, User } from "lucide-react";
+import { enrichLeadWithAnalytics } from "@/lib/utils";
 
 interface ComplexCTAProps {
   source?: string; 
@@ -23,12 +24,12 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
       const response = await fetch("/api/telegram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: JSON.stringify(enrichLeadWithAnalytics({
           name: formData.name,
           phone: formData.phone,
           message: "Заявка с большого блока (Complex CTA)",
           source: source
-        }),
+        })),
       });
 
       if (response.ok) {

@@ -59,9 +59,14 @@ export default async function VolumeLetterSlugPage({ params }: PageProps) {
 
   // 1. ПОЛУЧАЕМ ФОТО ГАЛЕРЕИ
   const galleryImages = getImagesFromFolder(data.slug);
-
-  // 2. ФОТО ДЛЯ HERO СЛАЙДЕРА
-  const heroImages = [...galleryImages].sort(() => 0.5 - Math.random()).slice(0, 15);
+  
+  // 2. ФОТО ДЛЯ HERO СЛАЙДЕРА (Deterministic Shuffle)
+  const seed = data.slug.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const heroImages = [...galleryImages]
+    .map((img, idx) => ({ img, sortKey: Math.sin(seed + idx) }))
+    .sort((a, b) => a.sortKey - b.sortKey)
+    .map((item) => item.img)
+    .slice(0, 15);
   const displayHeroImages = heroImages.length > 0 
     ? heroImages 
     : ["/images/letters/face-lit-night.webp", "/images/letters/face-lit-day.webp"];

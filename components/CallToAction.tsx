@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import QuizModal from "@/components/QuizModal";
 import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
+import { enrichLeadWithAnalytics } from "@/lib/utils";
 
 interface CallToActionProps {
   source: string;
@@ -109,12 +110,12 @@ export default function CallToAction({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
+        body: JSON.stringify(enrichLeadWithAnalytics({
           name,
           phone,
           message: `Заявка с быстрого CTA блока. Контекст: ${serviceContext || "general"}`,
           source: source
-        }),
+        })),
       });
 
       if (response.ok) {

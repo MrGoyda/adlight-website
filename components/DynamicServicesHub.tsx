@@ -139,7 +139,7 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
               if (group.id !== activeTab) return null;
 
               return (
-                <div className="overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch w-full -mx-4 lg:mx-0">
+                <div key={group.id} className="overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch w-full -mx-4 lg:mx-0">
                   <motion.ul
                     key={group.id}
                     initial={{ opacity: 0, y: 15 }}
