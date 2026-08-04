@@ -122,17 +122,18 @@ export default function RootLayout({
           // @ts-ignore
           fetchPriority="high"
         />
-        {/* --- GOOGLE ADS TAG --- */}
+        {/* --- GOOGLE TAG (GA4 + GOOGLE ADS) --- */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=AW-17806280695"
+          src="https://www.googletagmanager.com/gtag/js?id=G-21H3S7G331"
           strategy="afterInteractive"
         />
-        <Script id="google-ads-init" strategy="afterInteractive">
+        <Script id="google-tags-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
+            gtag('config', 'G-21H3S7G331');
             gtag('config', 'AW-17806280695');
           `}
         </Script>

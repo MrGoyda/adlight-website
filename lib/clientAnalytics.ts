@@ -20,6 +20,7 @@ export function trackClientConversion(eventName: 'whatsapp' | 'phone' | 'lead_fo
           event_label: 'WhatsApp Button'
         });
         gtag('event', 'conversion', { send_to: 'AW-17806280695' });
+        gtag('event', 'conversion', { send_to: 'G-21H3S7G331' });
       }
       // 3. Meta Pixel
       if (typeof fbq !== "undefined") fbq('track', 'Contact');
