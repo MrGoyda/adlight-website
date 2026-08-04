@@ -28,10 +28,9 @@ import { getImagesFromFolder } from "@/lib/serverUtils";
 // --- НОВЫЙ ИМПОРТ: Данные для FAQ (чтобы синхронизировать SEO и картинку) ---
 import { HOME_FAQ } from "@/dictionaries/home";
 
-// --- НАСТРОЙКА КЭШИРОВАНИЯ (ISR) ---
-// Обновляем страницу и перемешиваем картинки раз в час (3600 сек),
-// чтобы сервер не нагружался при каждом заходе пользователя.
-export const revalidate = 3600;
+// --- НАСТРОЙКА КЭШИРОВАНИЯ ---
+// Динамический рендеринг без застрявшего кэша
+export const revalidate = 0;
 
 export default function Home() {
   
