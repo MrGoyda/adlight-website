@@ -1,5 +1,4 @@
-// app/contacts/_components/ContactsMap.tsx
-
+import { useState, useRef, useEffect } from "react";
 import { MapPin } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { COMPANY_NAP } from "@/dictionaries/common";
@@ -54,28 +53,62 @@ export default function ContactsMap({
   setMapInteractive
 }: ContactsMapProps) {
   const dict = CONTACTS_DICT.mapCard;
+  const [shouldLoadIframe, setShouldLoadIframe] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Подгружаем тяжелый iframe Яндекс.Карты только при появлении карты в зоне видимости
+  useEffect(() => {
+    if (shouldLoadIframe) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoadIframe(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [shouldLoadIframe]);
+
+  const onShieldClick = () => {
+    setShouldLoadIframe(true);
+    handleInteractiveClick();
+  };
 
   return (
-    <section className="py-0 bg-slate-100 border-b border-slate-200 relative h-[600px] overflow-hidden">
+    <section ref={containerRef} className="py-0 bg-slate-100 border-b border-slate-200 relative h-[600px] overflow-hidden">
       {/* Map Container */}
       <div className="absolute inset-0 bg-slate-200">
-          <iframe 
-            src={COMPANY_NAP.maps.yandexWidget} 
-            width="100%" 
-            height="100%" 
-            frameBorder="0" 
-            title="Интерактивная карта проезда к цеху ADLight" 
-            style={{ 
-              filter: 'grayscale(100%) contrast(1.1) opacity(0.95)',
-              pointerEvents: mapInteractive ? 'auto' : 'none'
-            }} 
-            className="w-full h-full"
-            loading="lazy"
-          ></iframe>
+          {shouldLoadIframe ? (
+            <iframe 
+              src={COMPANY_NAP.maps.yandexWidget} 
+              width="100%" 
+              height="100%" 
+              frameBorder="0" 
+              title="Интерактивная карта проезда к цеху ADLight" 
+              style={{ 
+                filter: 'grayscale(100%) contrast(1.1) opacity(0.95)',
+                pointerEvents: mapInteractive ? 'auto' : 'none'
+              }} 
+              className="w-full h-full"
+              loading="lazy"
+            ></iframe>
+          ) : (
+            <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs uppercase tracking-wider">
+               Загрузка интерактивной карты...
+            </div>
+          )}
           {/* Brand Interactivity Shield */}
           {!mapInteractive && (
             <div 
-              onClick={handleInteractiveClick}
+              onClick={onShieldClick}
               className="absolute inset-0 bg-gradient-to-tr from-orange-500/[0.08] via-orange-500/[0.02] to-transparent backdrop-blur-[0.5px] hover:backdrop-blur-0 transition-all duration-500 cursor-pointer flex items-center justify-center z-10"
             >
               <button className="bg-white/95 backdrop-blur-md px-6 py-3 rounded-full border border-orange-200 shadow-[0_4px_25px_rgba(249,115,22,0.12)] text-orange-600 font-extrabold text-xs tracking-widest uppercase flex items-center gap-2 hover:scale-105 active:scale-95 transition-all select-none">

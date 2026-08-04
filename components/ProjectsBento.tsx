@@ -33,13 +33,15 @@ export default function ProjectsBento({
   const sortedProjects = [...PROJECTS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const displayProjects = [...sortedProjects, ...sortedProjects]; // 20 карточек в сумме
 
-  // Вычисляем ширину контейнера для ограничений перетаскивания (bounds)
+  // Вычисляем ширину контейнера для ограничений перетаскивания (bounds) без forced reflow
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (carouselRef.current && containerRef.current) {
-        setDragWidth(Math.max(0, carouselRef.current.scrollWidth - containerRef.current.offsetWidth));
-      }
+      requestAnimationFrame(() => {
+        setIsMobile(window.innerWidth < 768);
+        if (carouselRef.current && containerRef.current) {
+          setDragWidth(Math.max(0, carouselRef.current.scrollWidth - containerRef.current.offsetWidth));
+        }
+      });
     };
     
     // Небольшая задержка, чтобы все изображения и элементы успели отрендериться

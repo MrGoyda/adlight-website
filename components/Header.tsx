@@ -1,5 +1,7 @@
 "use client";
 
+import { getCdnUrl } from "@/lib/serverUtils";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -110,6 +112,7 @@ export default function Header() {
                    className="object-contain object-left"
                    sizes="(max-width: 768px) 144px, 176px"
                    priority
+                   loading="eager"
                 />
              </div>
           </Link>

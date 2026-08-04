@@ -50,15 +50,17 @@ export default function VolumeLettersShowcase() {
     }
   };
 
-  // Измерение ограничений драга при изменении размеров
+  // Измерение ограничений драга при изменении размеров без forced reflow
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (!viewportRef.current || !innerRef.current) return;
-      const viewportWidth = viewportRef.current.offsetWidth;
-      const innerWidth = innerRef.current.scrollWidth;
-      const limit = viewportWidth - innerWidth;
-      setDragConstraints({ left: limit < 0 ? limit : 0, right: 0 });
+      requestAnimationFrame(() => {
+        setIsMobile(window.innerWidth < 768);
+        if (!viewportRef.current || !innerRef.current) return;
+        const viewportWidth = viewportRef.current.offsetWidth;
+        const innerWidth = innerRef.current.scrollWidth;
+        const limit = viewportWidth - innerWidth;
+        setDragConstraints({ left: limit < 0 ? limit : 0, right: 0 });
+      });
     };
 
     // Слушатель через ResizeObserver для точного отслеживания

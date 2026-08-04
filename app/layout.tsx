@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import YandexMetrica from "@/components/YandexMetrica";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import { getCdnUrl } from "@/lib/serverUtils";
 
 // Настройка шрифта
 const inter = Inter({ 
@@ -108,6 +109,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={`scroll-smooth ${inter.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        {/* Preconnect & DNS-Prefetch для моментального соединения с CDN */}
+        <link rel="preconnect" href="https://media.adlight.kz" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://media.adlight.kz" />
+        
+        {/* LCP Preload для логотипа */}
+        <link
+          rel="preload"
+          as="image"
+          href="/adlight-logo-full.webp"
+          // @ts-ignore
+          fetchPriority="high"
+        />
+      </head>
       <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`}>
         <AnalyticsTracker />
         
@@ -115,10 +130,10 @@ export default function RootLayout({
         {/* Загрузка библиотеки gtag.js */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17806280695"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
         {/* Инициализация gtag */}
-        <Script id="google-ads-init" strategy="afterInteractive">
+        <Script id="google-ads-init" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -134,7 +149,7 @@ export default function RootLayout({
         <YandexMetrica />
 
         {/* --- MICROSOFT CLARITY --- */}
-        <Script id="microsoft-clarity" strategy="afterInteractive">
+        <Script id="microsoft-clarity" strategy="lazyOnload">
           {`
             (function(c,l,a,r,i,t,y){
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};

@@ -71,8 +71,8 @@ export default function DesignCodeHero() {
 
             {/* RIGHT COLUMN: PRESTIGE BUILDING SPECIMEN CARD */}
             <div className="lg:col-span-5 relative w-full hidden lg:block">
-               <div className="w-full opacity-0 animate-fade-in-left-fast">
-                  <div className="relative bg-white border border-slate-200 p-4 rounded-[32px] shadow-[0_15px_40px_rgba(0,0,0,0.03)] transform hover:rotate-0 transition duration-500">
+               <div className="w-full">
+                  <div className="relative bg-white border border-slate-200 p-4 rounded-[32px] shadow-[0_15px_40px_rgba(0,0,0,0.03)] hover:scale-[1.02] transition duration-500">
                      <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden relative border border-slate-100 bg-slate-100">
                         <Image
                            src={getCdnUrl("/images/pages/design-code-hero.jpg")}

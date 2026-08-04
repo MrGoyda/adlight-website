@@ -46,10 +46,12 @@ export default function ServicesCarousel({
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (carouselRef.current && containerRef.current) {
-        setDragWidth(Math.max(0, carouselRef.current.scrollWidth - containerRef.current.offsetWidth));
-      }
+      requestAnimationFrame(() => {
+        setIsMobile(window.innerWidth < 768);
+        if (carouselRef.current && containerRef.current) {
+          setDragWidth(Math.max(0, carouselRef.current.scrollWidth - containerRef.current.offsetWidth));
+        }
+      });
     };
     
     const timer = setTimeout(handleResize, 100);
