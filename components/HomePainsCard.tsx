@@ -41,19 +41,19 @@ export default function HomePainsCard({ item, isEven }: HomePainsCardProps) {
         </div>
 
         {/* Заголовок и подзаголовок */}
-        <dt className="space-y-2">
+        <div className="space-y-2">
           <h3 className="text-2xl sm:text-3xl md:text-3.5xl font-black text-slate-950 tracking-tight leading-tight">
             {item.title}
           </h3>
           <p className="text-sm sm:text-base font-bold text-slate-500 uppercase tracking-wider">
             {item.subtitle}
           </p>
-        </dt>
+        </div>
 
         {/* Описание */}
-        <dd className="text-slate-700 text-sm sm:text-base md:text-md leading-relaxed font-medium">
+        <p className="text-slate-700 text-sm sm:text-base md:text-md leading-relaxed font-medium">
           {item.desc}
-        </dd>
+        </p>
 
         {/* Ключевые преимущества (Bullet Points) */}
         <ul className="space-y-2.5">
