@@ -50,3 +50,27 @@ export async function submitToIndexNow(urlList: string[]) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Отправка одиночного URL через легкий HTTP GET запрос с параметром keyLocation
+ */
+export async function submitSingleUrlGET(url: string) {
+  const fullUrl = url.startsWith('http') ? url : `https://${HOST_DOMAIN}${url.startsWith('/') ? '' : '/'}${url}`;
+  const keyLocation = `https://${HOST_DOMAIN}/${INDEXNOW_KEY}.txt`;
+  
+  const pingUrl = `https://www.bing.com/indexnow?url=${encodeURIComponent(fullUrl)}&key=${INDEXNOW_KEY}&keyLocation=${encodeURIComponent(keyLocation)}`;
+
+  try {
+    const response = await fetch(pingUrl, { method: 'GET' });
+    if (response.ok || response.status === 202) {
+      console.log(`✅ [IndexNow GET] Страница ${fullUrl} успешно отправлена.`);
+      return { success: true, url: fullUrl };
+    } else {
+      console.warn(`⚠️ [IndexNow GET] Ответ сервера: ${response.status}`);
+      return { success: false, status: response.status };
+    }
+  } catch (error: any) {
+    console.error('❌ [IndexNow GET] Ошибка:', error.message);
+    return { success: false, error: error.message };
+  }
+}
