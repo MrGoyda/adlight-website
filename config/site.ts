@@ -27,7 +27,7 @@ export const SITE_CONTACTS = {
     whatsapp: "https://wa.me/77071356701"
   },
   maps: {
-    yandexWidget: "https://yandex.ru/map-widget/v1/?text=Астана+Аспара+7&z=16",
+    yandexWidget: "https://yandex.ru/map-widget/v1/?ll=71.493922%2C51.157833&mode=search&oid=165842857445&ol=biz&z=17",
     yandexSearch: "https://yandex.kz/maps/?text=Астана+ул.+Аспара+7",
     googleSearch: "https://maps.app.goo.gl/omnbQzU9ALrwEU8v8",
     gisSearch: "https://2gis.kz/astana/search/%D1%83%D0%BB.%20%D0%90%D1%81%D0%BF%D0%B0%D1%80%D0%B0%2C%207"

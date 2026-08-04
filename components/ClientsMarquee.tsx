@@ -60,7 +60,7 @@ export default function ClientsMarquee() {
                      alt={client.alt}
                      fill
                      className="object-contain"
-                     sizes="144px"
+                     sizes="(max-width: 768px) 96px, 144px"
                      loading="lazy"
                   />
                </div>

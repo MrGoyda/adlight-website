@@ -121,6 +121,11 @@ export default function ReviewsCarousel() {
         {/* Schema.org AggregateRating metadata for SEO/AI engines */}
         <div className="hidden" itemScope itemType="https://schema.org/Product">
           <meta itemProp="name" content="Изготовление наружной рекламы ADLight" />
+          <div itemProp="brand" itemScope itemType="https://schema.org/Brand">
+            <meta itemProp="name" content="ADLight" />
+          </div>
+          <meta itemProp="sku" content="adlight-advertising" />
+          <meta itemProp="description" content="Услуги по изготовлению и монтажу наружной рекламы в Астане от компании ADLight." />
           <div itemProp="aggregateRating" itemScope itemType="https://schema.org/AggregateRating">
             <meta itemProp="ratingValue" content="5" />
             <meta itemProp="bestRating" content="5" />
@@ -150,6 +155,12 @@ export default function ReviewsCarousel() {
                   <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" className="hidden">
                     <meta itemProp="ratingValue" content="5" />
                     <meta itemProp="bestRating" content="5" />
+                  </div>
+                  <div itemProp="itemReviewed" itemScope itemType="https://schema.org/LocalBusiness" className="hidden">
+                    <meta itemProp="name" content="ADLight" />
+                    <meta itemProp="image" content="https://adlight.kz/icon.png" />
+                    <meta itemProp="telephone" content="+7 (707) 135-67-01" />
+                    <meta itemProp="address" content="Астана, ул. Аспара 7" />
                   </div>
                   <div>
                      {/* Golden rating stars */}

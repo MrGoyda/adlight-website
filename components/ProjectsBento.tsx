@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, MapPin, ShieldCheck, Folder, ChevronLeft, ChevronRight } from "lucide-react";
 import { PROJECTS, CATEGORIES } from "@/lib/projectsData";
@@ -200,10 +201,16 @@ export default function ProjectsBento({
                        draggable={false}
                      >
                        {/* Background Image with Zoom */}
-                       <div 
-                         className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-[1.02] rounded-3xl" 
-                         style={{ backgroundImage: `url(${project.image})` }}
-                       ></div>
+                       <div className="absolute inset-0 overflow-hidden rounded-3xl">
+                         <Image 
+                           src={project.image} 
+                           alt={project.seoAlt || project.title}
+                           fill
+                           className="object-cover transition duration-700 group-hover:scale-[1.02] rounded-3xl" 
+                           sizes="(max-width: 768px) 100vw, 380px"
+                           loading="lazy"
+                         />
+                       </div>
                        
                        {/* Dark overlay for contrast */}
                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent transition duration-300 opacity-90 group-hover:opacity-95 pointer-events-none rounded-3xl"></div>

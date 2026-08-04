@@ -19,7 +19,8 @@ export const COMPANY_NAP = {
   country: "KZ",
   workingHours: SITE_CONTACTS.workingHours,
   coordinates: SITE_CONTACTS.coordinates,
-  socials: SITE_CONTACTS.socials
+  socials: SITE_CONTACTS.socials,
+  maps: SITE_CONTACTS.maps
 };
 
 export const COMMON_NAV_LINKS = [

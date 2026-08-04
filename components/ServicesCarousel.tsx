@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef, useState, useEffect } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, useMotionValue, animate } from "framer-motion";
@@ -199,7 +200,16 @@ export default function ServicesCarousel({
                         itemProp="url"
                       >
                         {/* Картинка */}
-                        <div className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition duration-700 pointer-events-none rounded-3xl" style={{ backgroundImage: `url(${service.image})` }}></div>
+                        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                          <Image
+                            src={service.image}
+                            alt={service.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition duration-700 rounded-3xl"
+                            sizes="(max-width: 768px) 100vw, 380px"
+                            loading="lazy"
+                          />
+                        </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent opacity-90 pointer-events-none rounded-3xl"></div>
                         
                         {/* Текст */}

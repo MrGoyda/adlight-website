@@ -8,9 +8,9 @@ export const interiorDetails: ServiceDetailData = {
   price: formatPrice(SITE_PRICES_NUMERIC.services.interior),
   priceSuffix: "₸",
   badge: "Офисные логотипы",
-  seoTitle: `Интерьерные вывески в Астане | Логотипы в офис от ${formatPrice(SITE_PRICES_NUMERIC.services.interior)} тг | ADLight`,
-  seoDesc: "Изготовление вывесок для зоны ресепшн, переговорных комнат и офисов в Астане. Объемные металлические буквы, световые логотипы с контражуром, навигация. Гарантия качества.",
-  keywords: ["интерьерная вывеска астана", "логотип в офис купить", "вывеска на ресепшн астана", "офисная навигация астана", "брендирование офиса астана", "объемный логотип в офис"],
+  seoTitle: `Интерьерные вывески в Астане | Логотип на стену в офис от ${formatPrice(SITE_PRICES_NUMERIC.services.interior)} тг | ADLight`,
+  seoDesc: "Изготовление вывесок для зоны ресепшн, переговорных комнат и офисов в Астане. Объемный логотип в офис, световой логотип с подсветкой на стену, навигация. Заказать вывеску на ресепшн.",
+  keywords: ["интерьерная вывеска астана", "логотип в офис купить", "вывеска на ресепшн астана", "офисная навигация астана", "логотип на стену в офис", "логотип с подсветкой на стену", "заказать логотип на стену"],
   heroTag: "Интерьерный брендинг от производителя",
   priceColor: "purple",
   heroVisualType: "store",
@@ -25,14 +25,14 @@ export const interiorDetails: ServiceDetailData = {
   ],
   conceptVisualType: "interior",
   typesTitle: "Виды интерьерных решений",
-  typesSubtitle: "От лаконичных букв до имиджевых световых панно и навигации по СНиП",
+  typesSubtitle: "От лаконичных букв до имиджевых световых панно и навигации в Астане",
   types: [
     { 
-      title: "Логотип на Ресепшн", 
-      desc: "Имиджевая вывеска за стойкой ресепшена. Задает тон общения с клиентом и демонстрирует уровень компании с первых секунд.", 
+      title: "Логотип с подсветкой на стену", 
+      desc: "Имиджевая вывеска на ресепшн. Задает тон общения с клиентом и демонстрирует уровень компании с первых секунд.", 
       image: "/images/interior/interior-09.webp", 
       tag: "Must Have",
-      specs: "Жидкий акрил, контражурный свет, герметичные светодиодные кластеры 12V.",
+      specs: "Плотный акрил, контражурный свет, герметичные светодиодные кластеры 12V.",
       bestFor: "Фронт-офисы, зоны приема клиентов, лобби отелей и бизнес-центров."
     },
     { 
@@ -64,7 +64,7 @@ export const interiorDetails: ServiceDetailData = {
       desc: "Силиконовый гибкий неон на прозрачном акриловом заднике с возможностью плавной регулировки яркости (диммирования).", 
       image: "/images/interior/interior-07.webp", 
       tag: "Атмосфера",
-      hex: "#FF4081", // Трендовый розовый неон
+      hex: "#FF4081",
       specs: "Гибкий силиконовый LED неон 2.0 (120 диодов/метр), прозрачный Plexiglas 7-8 мм.",
       bestFor: "Кофе-поинты, переговорные комнаты, зоны отдыха IT-компаний, фотозоны."
     },
@@ -96,12 +96,12 @@ export const interiorDetails: ServiceDetailData = {
       { bold: "Фальш-панель.", normal: "Если ремонт готов, крепим буквы на стильную композитную основу, пряча провода внутри." }
     ]
   },
-  pricingTitle: "Стоимость логотипа",
-  pricingDesc: "Рассчитывается индивидуально в зависимости от высоты букв, их толщины и наличия световых элементов.",
+  pricingTitle: "Стоимость логотипа на стену",
+  pricingDesc: "Вы можете заказать логотип на стену в офис с расчетом по индивидуальному проекту под ключ.",
   pricingItems: [
     { label: "Плоский акрил 5мм (без подсветки)", value: `от ${formatPrice(SITE_PRICES_NUMERIC.services.subPrices.flatAcrylic5)} ₸` },
-    { label: "Световой логотип (контражур / лицо)", value: `от ${formatPrice(SITE_PRICES_NUMERIC.services.subPrices.litLogo)} ₸` },
-    { label: "Объемные буквы из нержавеющей стали", value: `от ${formatPrice(SITE_PRICES_NUMERIC.services.subPrices.steelLetters)} ₸` }
+    { label: "Световой логотип на ресепшн (контражур / лицо)", value: `от ${formatPrice(SITE_PRICES_NUMERIC.services.subPrices.litLogo)} ₸` },
+    { label: "Объемный металлический логотип в офис", value: `от ${formatPrice(SITE_PRICES_NUMERIC.services.subPrices.steelLetters)} ₸` }
   ],
   pricingCalculatorPlaceholder: "Логотип шириной 120 см",
   pricingActionText: "Рассчитать логотип",
