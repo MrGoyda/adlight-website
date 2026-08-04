@@ -1,63 +1,55 @@
-"use client";
+'use client';
 
-// Единая утилита отслеживания клиентских конверсий для Google Ads, Яндекс Метрики и Facebook Pixel
+import { trackEvent } from '@/lib/tracking';
 
-export function trackClientConversion(eventName: 'whatsapp' | 'phone' | 'lead_form' | 'calculator') {
-  if (typeof window === "undefined") return;
+// ─── Единая утилита конверсий ──────────────────────────────────────────────────
+// Все события идут через /api/track → GA4 Measurement Protocol + Meta CAPI.
+// Яндекс Метрика вызывается напрямую (браузерный скрипт, серверного API нет).
 
-  const ym = (window as any).ym;
-  const gtag = (window as any).gtag;
-  const fbq = (window as any).fbq;
+export function trackClientConversion(
+  eventName: 'whatsapp' | 'phone' | 'lead_form' | 'calculator'
+) {
+  if (typeof window === 'undefined') return;
+
+  const ym = (window as Window & { ym?: (...args: unknown[]) => void }).ym;
 
   switch (eventName) {
     case 'whatsapp':
-      // 1. Яндекс Метрика
-      if (typeof ym !== "undefined") ym(105671980, 'reachGoal', 'click_whatsapp');
-      // 2. Google Ads / GA4
-      if (typeof gtag !== "undefined") {
-        gtag('event', 'click_whatsapp', {
-          event_category: 'Contact',
-          event_label: 'WhatsApp Button'
-        });
-        gtag('event', 'conversion', { send_to: 'AW-17806280695' });
-        gtag('event', 'conversion', { send_to: 'G-21H3S7G331' });
-      }
-      // 3. Meta Pixel
-      if (typeof fbq !== "undefined") fbq('track', 'Contact');
+      // Яндекс Метрика остаётся браузерной (серверного варианта нет)
+      if (typeof ym === 'function') ym(105671980, 'reachGoal', 'click_whatsapp');
+      // GA4 + Meta → через наш Edge сервер
+      trackEvent('click_whatsapp', {
+        event_category: 'Contact',
+        event_label: 'WhatsApp Button',
+        value: 1,
+        currency: 'KZT',
+      });
       break;
 
     case 'phone':
-      if (typeof ym !== "undefined") ym(105671980, 'reachGoal', 'click_phone');
-      if (typeof gtag !== "undefined") {
-        gtag('event', 'click_phone', {
-          event_category: 'Contact',
-          event_label: 'Phone Call'
-        });
-      }
-      if (typeof fbq !== "undefined") fbq('track', 'Contact');
+      if (typeof ym === 'function') ym(105671980, 'reachGoal', 'click_phone');
+      trackEvent('click_phone', {
+        event_category: 'Contact',
+        event_label: 'Phone Call',
+      });
       break;
 
     case 'lead_form':
-      if (typeof ym !== "undefined") ym(105671980, 'reachGoal', 'lead_form_submit');
-      if (typeof gtag !== "undefined") {
-        gtag('event', 'generate_lead', {
-          event_category: 'Form',
-          event_label: 'Consultation Modal'
-        });
-        gtag('event', 'conversion', { send_to: 'AW-17806280695' });
-      }
-      if (typeof fbq !== "undefined") fbq('track', 'Lead');
+      if (typeof ym === 'function') ym(105671980, 'reachGoal', 'lead_form_submit');
+      trackEvent('generate_lead', {
+        event_category: 'Form',
+        event_label: 'Consultation Modal',
+        value: 1,
+        currency: 'KZT',
+      });
       break;
 
     case 'calculator':
-      if (typeof ym !== "undefined") ym(105671980, 'reachGoal', 'calculator_submit');
-      if (typeof gtag !== "undefined") {
-        gtag('event', 'generate_lead', {
-          event_category: 'Calculator',
-          event_label: 'Price Calculation'
-        });
-      }
-      if (typeof fbq !== "undefined") fbq('track', 'Lead');
+      if (typeof ym === 'function') ym(105671980, 'reachGoal', 'calculator_submit');
+      trackEvent('generate_lead', {
+        event_category: 'Calculator',
+        event_label: 'Price Calculation',
+      });
       break;
   }
 }
