@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
+import sharp from 'sharp';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 // Загружаем .env.local
@@ -29,40 +30,16 @@ const s3Client = new S3Client({
 const PUBLIC_IMAGES_DIR = path.join(process.cwd(), 'public', 'images');
 const MANIFEST_PATH = path.join(process.cwd(), 'lib', 'media-manifest.json');
 
-// Карта определения MIME-типов
-function getContentType(filePath) {
-  const ext = path.extname(filePath).toLowerCase();
-  switch (ext) {
-    case '.webp': return 'image/webp';
-    case '.jpg':
-    case '.jpeg': return 'image/jpeg';
-    case '.png': return 'image/png';
-    case '.gif': return 'image/gif';
-    case '.svg': return 'image/svg+xml';
-    case '.avif': return 'image/avif';
-    case '.txt': return 'text/plain';
-    default: return 'application/octet-stream';
-  }
-}
-
-// Преобразование локального относительного пути public/images/... в целевой ключ R2
 function getR2Key(relativePath) {
-  // Нормализуем слеши
   const normalized = relativePath.replace(/\\/g, '/');
 
-  // 1. Буквы-галереи
   if (normalized.startsWith('letters-galery/')) {
-    const subPath = normalized.replace('letters-galery/', '');
-    return `portfolio/categories/volume-letters/${subPath}`;
+    return `portfolio/categories/volume-letters/${normalized.replace('letters-galery/', '')}`;
   }
-
-  // 2. Детальные проекты портфолио
   if (normalized.startsWith('portfolio/')) {
-    const subPath = normalized.replace('portfolio/', '');
-    return `portfolio/projects/${subPath}`;
+    return `portfolio/projects/${normalized.replace('portfolio/', '')}`;
   }
 
-  // 3. Другие категории вывесок
   const categoryFolders = [
     'lightboxes', 'neon', 'panel-brackets', 'roof-installations',
     'pylons', 'entrance-groups', 'facade-decoration', 'interior',
@@ -73,30 +50,18 @@ function getR2Key(relativePath) {
 
   for (const cat of categoryFolders) {
     if (normalized.startsWith(`${cat}/`)) {
-      const subPath = normalized.replace(`${cat}/`, '');
-      return `portfolio/categories/${cat}/${subPath}`;
+      return `portfolio/categories/${cat}/${normalized.replace(`${cat}/`, '')}`;
     }
   }
 
-  // 4. Элементы интерфейса и сайта (pages, calc, clients, icons и файлы корня images)
-  if (normalized.startsWith('pages/')) {
-    return `static/pages/${normalized.replace('pages/', '')}`;
-  }
-  if (normalized.startsWith('calc/')) {
-    return `static/calc/${normalized.replace('calc/', '')}`;
-  }
-  if (normalized.startsWith('clients/')) {
-    return `static/clients/${normalized.replace('clients/', '')}`;
-  }
-  if (normalized.startsWith('icons/')) {
-    return `static/icons/${normalized.replace('icons/', '')}`;
-  }
+  if (normalized.startsWith('pages/')) return `static/pages/${normalized.replace('pages/', '')}`;
+  if (normalized.startsWith('calc/')) return `static/calc/${normalized.replace('calc/', '')}`;
+  if (normalized.startsWith('clients/')) return `static/clients/${normalized.replace('clients/', '')}`;
+  if (normalized.startsWith('icons/')) return `static/icons/${normalized.replace('icons/', '')}`;
 
-  // Дефолтно в static/
   return `static/general/${normalized}`;
 }
 
-// Рекурсивный сбор всех файлов в директории
 function getAllFiles(dirPath, arrayOfFiles = []) {
   const files = fs.readdirSync(dirPath);
 
@@ -113,7 +78,7 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
 }
 
 async function uploadFiles() {
-  console.log('🚀 Начинаем сканирование папки public/images...');
+  console.log('🚀 Начинаем оптимизацию (Sharp) и выгрузку в Cloudflare R2...');
 
   if (!fs.existsSync(PUBLIC_IMAGES_DIR)) {
     console.error('❌ Ошибка: Папка public/images не найдена.');
@@ -121,31 +86,56 @@ async function uploadFiles() {
   }
 
   const allFiles = getAllFiles(PUBLIC_IMAGES_DIR);
-  console.log(`📸 Найдено ${allFiles.length} файлов для загрузки в Cloudflare R2.\n`);
+  console.log(`📸 Найдено ${allFiles.length} файлов.\n`);
 
   const manifest = {
     generatedAt: new Date().toISOString(),
     cdnBaseUrl: publicCdnUrl,
-    categories: {}, // e.g. "volume-letters/face-lit": ["url1", "url2"]
-    projects: {},   // e.g. "arustone": ["url1", "url2"]
-    files: {},      // e.g. "relativeLocalPath": "cdnUrl"
+    categories: {},
+    projects: {},
+    files: {},
   };
 
   let uploadedCount = 0;
-  let skippedCount = 0;
+  let savedBytesTotal = 0;
   let errorCount = 0;
 
   for (const filePath of allFiles) {
     const relativePath = path.relative(PUBLIC_IMAGES_DIR, filePath);
-    const r2Key = getR2Key(relativePath);
-    const contentType = getContentType(filePath);
-    const fileBuffer = fs.readFileSync(filePath);
-    const cdnUrl = `${publicCdnUrl}/${r2Key}`;
+    let r2Key = getR2Key(relativePath);
+    const originalSize = fs.statSync(filePath).size;
+    const ext = path.extname(filePath).toLowerCase();
 
-    // Сохраняем в общем реестре
+    let uploadBuffer = fs.readFileSync(filePath);
+    let contentType = 'application/octet-stream';
+
+    // Авто-конвертация и сжатие в WebP для больших или старых тяжелых файлов
+    if (['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(ext)) {
+      try {
+        // Если PNG/JPG или изображение > 150KB — сжимаем в WebP
+        if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || originalSize > 150 * 1024) {
+          uploadBuffer = await sharp(filePath)
+            .resize({ width: 1920, height: 1920, fit: 'inside', withoutEnlargement: true })
+            .webp({ quality: 82, effort: 4 })
+            .toBuffer();
+
+          // Переименовываем расширение ключа на .webp
+          r2Key = r2Key.replace(/\.(png|jpg|jpeg|avif)$/i, '.webp');
+          contentType = 'image/webp';
+        } else {
+          contentType = ext === '.svg' ? 'image/svg+xml' : `image/${ext.replace('.', '')}`;
+        }
+      } catch (err) {
+        console.warn(`⚠️ Не удалось сжать с помощью Sharp: ${relativePath}, используем оригинал.`);
+      }
+    }
+
+    const savedBytes = Math.max(0, originalSize - uploadBuffer.length);
+    savedBytesTotal += savedBytes;
+
+    const cdnUrl = `${publicCdnUrl}/${r2Key}`;
     manifest.files[relativePath.replace(/\\/g, '/')] = cdnUrl;
 
-    // Формируем структурированные записи для категорий
     if (r2Key.startsWith('portfolio/categories/')) {
       const catKey = r2Key.replace('portfolio/categories/', '').split('/').slice(0, -1).join('/');
       if (!manifest.categories[catKey]) manifest.categories[catKey] = [];
@@ -157,15 +147,15 @@ async function uploadFiles() {
     }
 
     try {
-      console.log(`[${uploadedCount + 1}/${allFiles.length}] Загрузка: ${relativePath} ➔ R2: ${r2Key}`);
+      const savedKb = (savedBytes / 1024).toFixed(1);
+      console.log(`[${uploadedCount + 1}/${allFiles.length}] ${relativePath} ➔ ${(uploadBuffer.length / 1024).toFixed(1)} KB (сэкономлено ${savedKb} KB)`);
 
       const command = new PutObjectCommand({
         Bucket: bucketName,
         Key: r2Key,
-        Body: fileBuffer,
+        Body: uploadBuffer,
         ContentType: contentType,
         ContentDisposition: 'inline',
-        // Агрессивное кэширование Edge CDN на 1 год для статики
         CacheControl: 'public, max-age=31536000, immutable',
       });
 
@@ -177,14 +167,13 @@ async function uploadFiles() {
     }
   }
 
-  // Записываем media-manifest.json
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2), 'utf-8');
 
   console.log('\n==================================================');
-  console.log(`🎉 МИГРАЦИЯ В CLOUDFLARE R2 УСПЕШНО ЗАВЕРШЕНА!`);
-  console.log(`✅ Успешно загружено: ${uploadedCount} файлов`);
-  if (errorCount > 0) console.log(`❌ Ошибок: ${errorCount}`);
-  console.log(`📄 Манифест сохранен в: ${MANIFEST_PATH}`);
+  console.log(`🎉 ОПТИМИЗАЦИЯ И МИГРАЦИЯ В CLOUDFLARE R2 ЗАВЕРШЕНА!`);
+  console.log(`✅ Успешно обработано: ${uploadedCount} файлов`);
+  console.log(`⚡ Сэкономлено трафика и объема: ${(savedBytesTotal / (1024 * 1024)).toFixed(2)} МБ`);
+  console.log(`📄 Манифест обновлен: ${MANIFEST_PATH}`);
   console.log('==================================================\n');
 }
 
