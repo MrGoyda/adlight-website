@@ -11,32 +11,16 @@ export default function ServiceSchema({ data, imageUrl }: ServiceSchemaProps) {
   const lowPrice = cleanPrice;
   const highPrice = (parseInt(cleanPrice) * 3).toString() || "150000";
 
-  const offersObject = data.subOffers && data.subOffers.length > 0
-    ? {
-        "@type": "AggregateOffer" as const,
-        "priceCurrency": "KZT",
-        "lowPrice": lowPrice,
-        "highPrice": highPrice,
-        "priceValidUntil": "2026-12-31",
-        "offerCount": data.subOffers.length.toString(),
-        "offers": data.subOffers.map(offer => ({
-          "@type": "Offer" as const,
-          "name": offer.name,
-          "price": offer.price.replace(/\D/g, "") || cleanPrice,
-          "priceCurrency": offer.priceCurrency || "KZT",
-          "priceValidUntil": "2026-12-31",
-          "availability": "https://schema.org/InStock",
-          "url": `https://adlight.kz/services/${data.slug}`
-        }))
-      }
-    : {
-        "@type": "AggregateOffer" as const,
-        "priceCurrency": "KZT",
-        "lowPrice": lowPrice,
-        "highPrice": highPrice,
-        "priceValidUntil": "2026-12-31",
-        "offerCount": "3"
-      };
+  const offersObject = {
+    "@type": "AggregateOffer" as const,
+    "priceCurrency": "KZT",
+    "lowPrice": lowPrice,
+    "highPrice": highPrice,
+    "priceValidUntil": "2026-12-31",
+    "offerCount": (data.subOffers?.length || 3).toString(),
+    "availability": "https://schema.org/InStock",
+    "url": `https://adlight.kz/services/${data.slug}`
+  };
 
   const defaultReview = {
     "@type": "Review",
