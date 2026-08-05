@@ -124,7 +124,7 @@ export default function RootLayout({
           fetchPriority="high"
         />
         {/* Google/Meta теги убраны — трекинг идёт через /api/track (SST) */}
-        {/* --- GOOGLE TAG (GA4) — базовые метрики: сессии, устройства, geo --- */}
+        {/* --- GOOGLE TAG (GA4 + GOOGLE ADS) --- */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-8HHR00E9DN"
           strategy="afterInteractive"
@@ -134,7 +134,9 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
+
             gtag('config', 'G-8HHR00E9DN');
+            gtag('config', 'AW-17806280695');
           `}
         </Script>
       </head>
