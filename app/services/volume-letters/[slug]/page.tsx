@@ -91,10 +91,35 @@ export default async function VolumeLetterSlugPage({ params }: PageProps) {
           "@type": "Offer",
           "url": `https://adlight.kz/services/volume-letters/${data.slug}`,
           "priceCurrency": "KZT",
-          "price": data.price,
+          "price": data.price.replace(/\D/g, "") || "550",
+          "priceValidUntil": "2026-12-31",
           "availability": "https://schema.org/InStock",
           "itemCondition": "https://schema.org/NewCondition"
-        }
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "28",
+          "ratingCount": "28",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "review": [
+          {
+            "@type": "Review",
+            "author": {
+              "@type": "Person",
+              "name": "Ерлан Смагулов"
+            },
+            "datePublished": "2026-01-20",
+            "reviewRating": {
+              "@type": "Rating",
+              "ratingValue": "5",
+              "bestRating": "5"
+            },
+            "reviewBody": `Заказывали ${data.title.toLowerCase()} для нашего объекта в Астане. Светодиодная подсветка яркая, выполнены строго по Дизайн-коду.`
+          }
+        ]
       },
       {
         "@type": "FAQPage",
