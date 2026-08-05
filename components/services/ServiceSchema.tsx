@@ -22,10 +22,11 @@ export default function ServiceSchema({ data, imageUrl }: ServiceSchemaProps) {
         "offers": data.subOffers.map(offer => ({
           "@type": "Offer" as const,
           "name": offer.name,
-          "price": offer.price,
-          "priceCurrency": offer.priceCurrency,
+          "price": offer.price.replace(/\D/g, "") || cleanPrice,
+          "priceCurrency": offer.priceCurrency || "KZT",
           "priceValidUntil": "2026-12-31",
-          "availability": "https://schema.org/InStock"
+          "availability": "https://schema.org/InStock",
+          "url": `https://adlight.kz/services/${data.slug}`
         }))
       }
     : {
