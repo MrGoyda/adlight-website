@@ -103,6 +103,37 @@ model Lead {
 
   contactId       String?
   contact         Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  // Связь с физическими кликами
+  clicks          LeadClick[]
+}
+
+model LeadClick {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  code            String   @unique // Короткий реферальный код "AD-8492"
+  type            String   // "whatsapp" | "phone"
+  pageUrl         String?  // Страница захода
+
+  // Аналитика и маркетинг
+  gclid           String?  // Google Ads Click ID
+  yclid           String?  // Яндекс Директ Click ID
+  fbclid          String?  // Meta Click ID
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  utmContent      String?
+  utmTerm         String?
+  yandexClientId  String?
+  googleClientId  String?
+  fbBrowserId     String?
+  ip              String?
+  userAgent       String?
+
+  // Ручной и авто-матчинг
+  status          String   @default("PENDING") // PENDING, MATCHED, EXPIRED
+  matchedLeadId   String?
+  matchedLead     Lead?    @relation(fields: [matchedLeadId], references: [id], onDelete: SetNull)
 }
 
 model LeadFile {

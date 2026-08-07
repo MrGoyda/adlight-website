@@ -226,16 +226,33 @@ ${parsed.title}
     const chatIds = chatId.split(',').map(id => id.trim());
     
     const sendPromises = chatIds.map(async (id) => {
+      const telegramPayload: any = {
+        chat_id: id,
+        text: messageContent.trim(),
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+      };
+
+      if (leadId) {
+        telegramPayload.reply_markup = {
+          inline_keyboard: [
+            [
+              { text: "🟢 Принять (В работу)", callback_data: `lead_qualify:${leadId}:IN_PROGRESS` },
+              { text: "💰 Оплачен задаток", callback_data: `lead_qualify:${leadId}:PROCESSED` }
+            ],
+            [
+              { text: "🔴 Отказ / Спам", callback_data: `lead_qualify:${leadId}:CANCELLED` }
+            ]
+          ]
+        };
+      }
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          chat_id: id,
-          text: messageContent.trim(),
-          parse_mode: 'HTML',
-        }),
+        body: JSON.stringify(telegramPayload),
       });
       return { id, response };
     });
