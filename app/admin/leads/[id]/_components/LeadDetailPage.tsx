@@ -396,6 +396,7 @@ export default function LeadDetailPage({
         <div className="space-y-6">
           
           <LeadParamsSidebar
+            leadId={lead.id}
             name={name}
             onNameChange={setName}
             phone={phone}
