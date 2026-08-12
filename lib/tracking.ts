@@ -53,11 +53,24 @@ export const trackEvent = (
     fbp: getFbp(),
   };
 
-  // keepalive: true — запрос уйдёт даже если пользователь закрыл вкладку
+  // 1. Клиентская отправка через gtag.js (чтобы клик мгновенно виден в GA4 DebugView)
+  try {
+    if (typeof (window as any).gtag === 'function') {
+      (window as any).gtag('event', eventName, {
+        ...eventData,
+        ...utm,
+        debug_mode: true,
+      });
+    }
+  } catch (e) {
+    // Игнорируем блокировки AdBlock
+  }
+
+  // 2. Серверная непреложная отправка через /api/track (Vercel Edge)
   fetch('/api/track', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
     keepalive: true,
-  }).catch(console.error);
+  }).catch(() => {});
 };

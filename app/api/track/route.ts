@@ -40,6 +40,7 @@ export async function POST(request: Request) {
                 params: {
                   ...eventData,
                   engagement_time_msec: '1',
+                  debug_mode: 1,
                 },
               },
             ],
