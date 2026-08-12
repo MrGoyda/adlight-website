@@ -18,6 +18,12 @@ export async function POST(request: Request) {
       yandexClientId = null,
       googleClientId = null,
       fbBrowserId = null,
+      deviceType = null,
+      browser = null,
+      os = null,
+      referrerUrl = null,
+      timeOnSiteSeconds = null,
+      landingPage = null,
     } = body;
 
     // Генерируем 4-значный короткий уникальный код (например "AD-8492")
@@ -47,6 +53,12 @@ export async function POST(request: Request) {
         yandexClientId,
         googleClientId,
         fbBrowserId,
+        deviceType,
+        browser,
+        os,
+        referrerUrl,
+        timeOnSiteSeconds,
+        landingPage,
         ip,
         userAgent,
       },

@@ -130,6 +130,14 @@ model LeadClick {
   ip              String?
   userAgent       String?
 
+  // Расширенный контекст клика
+  deviceType        String?  // Mobile/Desktop/Tablet
+  browser           String?  // Chrome/Safari/Firefox/Mobile Safari
+  os                String?  // iOS/Android/Windows/macOS
+  referrerUrl       String?  // откуда пришел
+  timeOnSiteSeconds Int?     // секунд на сайте до клика
+  landingPage       String?  // первая страница входа
+
   // Ручной и авто-матчинг
   status          String   @default("PENDING") // PENDING, MATCHED, EXPIRED
   matchedLeadId   String?

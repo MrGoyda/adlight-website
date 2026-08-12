@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Link as LinkIcon, Check, MousePointer, RefreshCw } from "lucide-react";
+import { Link as LinkIcon, Check, MousePointer, RefreshCw, Smartphone, Monitor, Tablet, Globe, Clock, FileText } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 interface ClickItem {
@@ -12,6 +12,11 @@ interface ClickItem {
   pageUrl: string | null;
   utmSource: string | null;
   utmCampaign: string | null;
+  deviceType?: string | null;
+  browser?: string | null;
+  os?: string | null;
+  timeOnSiteSeconds?: number | null;
+  landingPage?: string | null;
 }
 
 interface ClickMatcherWidgetProps {
@@ -103,17 +108,45 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                 key={click.id}
                 className="bg-slate-800/80 p-3 rounded-2xl border border-slate-700/60 flex items-center justify-between text-xs hover:border-orange-500/50 transition-colors"
               >
-                <div className="space-y-0.5 min-w-0 pr-2">
+                <div className="space-y-1.5 min-w-0 pr-2 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-orange-400">{click.code}</span>
                     <span className="text-[10px] text-slate-400 font-mono">[{dateStr}]</span>
                     <span className="uppercase text-[9px] bg-slate-700 px-1.5 py-0.5 rounded text-slate-300 font-bold">
                       {click.type}
                     </span>
+                    {click.deviceType && (
+                      <span className="text-slate-400" title={`${click.deviceType} - ${click.os}`}>
+                        {click.deviceType === 'Mobile' ? <Smartphone className="w-3 h-3" /> : click.deviceType === 'Tablet' ? <Tablet className="w-3 h-3" /> : <Monitor className="w-3 h-3" />}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-[11px] text-slate-300 truncate">
-                    {click.utmSource ? `Источник: ${click.utmSource}` : "Прямой переход"}
-                  </p>
+                  
+                  <div className="text-[10px] text-slate-400 space-y-0.5">
+                    {click.pageUrl && (
+                      <div className="flex items-center gap-1.5 truncate">
+                        <Globe className="w-3 h-3 text-slate-500 shrink-0" />
+                        <span className="truncate" title={click.pageUrl}>{click.pageUrl.replace(/^https?:\/\/[^/]+/, '') || '/'}</span>
+                      </div>
+                    )}
+                    
+                    {click.timeOnSiteSeconds !== undefined && click.timeOnSiteSeconds !== null && (
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3 h-3 text-slate-500 shrink-0" />
+                        <span>Время на сайте: <strong className="text-slate-300">{Math.floor(click.timeOnSiteSeconds / 60)}м {click.timeOnSiteSeconds % 60}с</strong> до клика</span>
+                      </div>
+                    )}
+                    
+                    {(click.utmSource || click.browser) && (
+                      <div className="flex items-center gap-1.5 truncate">
+                        <FileText className="w-3 h-3 text-slate-500 shrink-0" />
+                        <span className="truncate">
+                          {click.utmSource ? `utm_source: ${click.utmSource}` : 'Прямой'} 
+                          {click.browser ? ` • ${click.browser}` : ''}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {leadId ? (

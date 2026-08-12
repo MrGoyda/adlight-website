@@ -18,6 +18,60 @@ export async function handleTrackedClick(options: ClickTrackerOptions): Promise<
     }
   };
 
+  const getDeviceType = () => {
+    const ua = navigator.userAgent;
+    if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return 'Tablet';
+    if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) return 'Mobile';
+    return 'Desktop';
+  };
+
+  const getBrowser = () => {
+    const ua = navigator.userAgent;
+    if (ua.includes('Firefox')) return 'Firefox';
+    if (ua.includes('SamsungBrowser')) return 'Samsung Browser';
+    if (ua.includes('Opera') || ua.includes('OPR')) return 'Opera';
+    if (ua.includes('Edge') || ua.includes('Edg/')) return 'Edge';
+    if (ua.includes('Chrome')) return 'Chrome';
+    if (ua.includes('Safari')) return 'Safari';
+    return 'Other';
+  };
+
+  const getOS = () => {
+    const ua = navigator.userAgent;
+    if (ua.includes('Windows')) return 'Windows';
+    if (ua.includes('Mac OS')) return 'macOS';
+    if (ua.includes('Linux')) return 'Linux';
+    if (ua.includes('Android')) return 'Android';
+    if (ua.includes('like Mac')) return 'iOS';
+    return 'Other';
+  };
+
+  const getTimeOnSite = () => {
+    try {
+      let sessionStart = sessionStorage.getItem('session_start_time');
+      if (!sessionStart) {
+        sessionStart = Date.now().toString();
+        sessionStorage.setItem('session_start_time', sessionStart);
+      }
+      return Math.floor((Date.now() - parseInt(sessionStart, 10)) / 1000);
+    } catch {
+      return 0;
+    }
+  };
+
+  const getLandingPage = () => {
+    try {
+      let lp = sessionStorage.getItem('landing_page');
+      if (!lp) {
+        lp = window.location.href;
+        sessionStorage.setItem('landing_page', lp);
+      }
+      return lp;
+    } catch {
+      return window.location.href;
+    }
+  };
+
   // Читаем маркетинг метки и ID из хранилища
   const payload = {
     type: options.type,
@@ -33,6 +87,12 @@ export async function handleTrackedClick(options: ClickTrackerOptions): Promise<
     yandexClientId: getStorage("yandexClientId"),
     googleClientId: getStorage("googleClientId"),
     fbBrowserId: getStorage("fbBrowserId"),
+    deviceType: getDeviceType(),
+    browser: getBrowser(),
+    os: getOS(),
+    referrerUrl: document.referrer || null,
+    timeOnSiteSeconds: getTimeOnSite(),
+    landingPage: getLandingPage()
   };
 
   // Параллельно слаем конверсию в системы рекламы
