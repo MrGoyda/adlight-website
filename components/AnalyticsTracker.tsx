@@ -109,7 +109,42 @@ export default function AnalyticsTracker() {
 
     const fbp = getCookie("_fbp");
     if (fbp) sessionStorage.setItem("fbBrowserId", fbp);
+
+    // 3. ГЛОБАЛЬНЫЙ CATCH-ALL ПЕРЕХВАТЧИК КЛИКОВ (100% Всеохватывающий скролл/клики)
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      // Ищем ближайший кликабельный элемент (button, a, input, data-analytics)
+      const clickable = target.closest("button, a, input[type='submit'], [data-analytics]") as HTMLElement | null;
+      if (!clickable) return;
+
+      // Если это плавающая кнопка WhatsApp или телефона — их уже обрабатывает клик-трекер
+      const href = clickable.getAttribute("href") || "";
+      if (href.includes("wa.me") || href.includes("tel:")) return;
+
+      const elementText = (clickable.innerText || clickable.getAttribute("aria-label") || clickable.getAttribute("title") || "").trim().slice(0, 50);
+      const elementId = clickable.id || clickable.getAttribute("data-analytics") || "";
+
+      // Если клик по кнопке/ссылке не обработан специально — шлем авто-событие ui_click
+      if (elementText || elementId) {
+        import("@/lib/tracking").then(({ trackEvent }) => {
+          trackEvent("ui_click", {
+            element_text: elementText,
+            element_id: elementId,
+            element_tag: clickable.tagName.toLowerCase(),
+            page_path: window.location.pathname,
+          });
+        });
+      }
+    };
+
+    document.addEventListener("click", handleGlobalClick, { capture: true, passive: true });
+
+    return () => {
+      document.removeEventListener("click", handleGlobalClick, { capture: true });
+    };
   }, []);
 
-  return null; // Компонент ничего не рендерит, работает в фоне
+  return null;
 }
