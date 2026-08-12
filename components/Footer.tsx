@@ -20,6 +20,7 @@ import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { SITE_CONTACTS, SITE_LINKS } from "@/config/site";
 import Button from "@/components/ui/Button";
 import CalculatePriceModal from "@/components/CalculatePriceModal/index";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -64,10 +65,24 @@ export default function Footer() {
             </div>
 
             <div className="flex gap-4">
-              <a href={COMPANY_NAP.socials.instagram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-pink-600 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" aria-label="Instagram">
+              <a 
+                href={COMPANY_NAP.socials.instagram} 
+                target="_blank" 
+                rel="nofollow noreferrer" 
+                onClick={() => trackClientConversion('click_instagram', { page_location: typeof window !== 'undefined' ? window.location.href : '', form_name: 'Footer Instagram' })}
+                className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-pink-600 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" 
+                aria-label="Instagram"
+              >
                 <Instagram className="w-5 h-5"/>
               </a>
-              <a href={COMPANY_NAP.socials.telegram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" aria-label="Telegram">
+              <a 
+                href={COMPANY_NAP.socials.telegram} 
+                target="_blank" 
+                rel="nofollow noreferrer" 
+                onClick={() => trackClientConversion('click_telegram', { page_location: typeof window !== 'undefined' ? window.location.href : '', form_name: 'Footer Telegram' })}
+                className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" 
+                aria-label="Telegram"
+              >
                 <Send className="w-5 h-5 ml-0.5"/>
               </a>
               <a 
@@ -77,7 +92,7 @@ export default function Footer() {
                 onClick={async (e) => {
                   e.preventDefault();
                   const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
-                  const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.");
+                  const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.", "Footer");
                   window.open(url, "_blank");
                 }}
                 className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300 cursor-pointer" 

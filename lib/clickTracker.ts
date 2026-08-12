@@ -36,7 +36,10 @@ export async function handleTrackedClick(options: ClickTrackerOptions): Promise<
   };
 
   // Параллельно слаем конверсию в системы рекламы
-  trackClientConversion(options.type === "whatsapp" ? "whatsapp" : "phone");
+  trackClientConversion(options.type === "whatsapp" ? "click_whatsapp" : "click_phone", {
+    form_name: options.source ? `${options.source} ${options.type}` : `${options.type === "whatsapp" ? "WhatsApp" : "Phone"} Link`,
+    page_location: window.location.href,
+  });
 
   try {
     const res = await fetch("/api/clicks/register", {
@@ -56,8 +59,12 @@ export async function handleTrackedClick(options: ClickTrackerOptions): Promise<
 /**
  * Генерирует прямую готовую ссылку на WhatsApp с вшитым реферальным кодом клика
  */
-export async function getTrackedWhatsappUrl(basePhone: string = "77071356701", customText?: string): Promise<string> {
-  const { code } = await handleTrackedClick({ type: "whatsapp" });
+export async function getTrackedWhatsappUrl(
+  basePhone: string = "77071356701",
+  customText?: string,
+  source?: string
+): Promise<string> {
+  const { code } = await handleTrackedClick({ type: "whatsapp", source });
   const cleanPhone = basePhone.replace(/\D/g, "");
   
   const text = customText 

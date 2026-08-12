@@ -53,10 +53,16 @@ export async function POST(request: Request) {
       // Маппинг наших событий → стандартные события Meta
       const metaEventMap: Record<string, string> = {
         generate_lead: 'Lead',
+        form_header_consultation: 'Lead',
+        form_quiz_calculator: 'Lead',
+        form_cta_bottom: 'Lead',
+        form_calculate_price: 'Lead',
         purchase:      'Purchase',
         page_view:     'PageView',
         click_whatsapp: 'Contact',
         click_phone:   'Contact',
+        click_telegram: 'Contact',
+        click_instagram: 'Contact',
         calculator_submit: 'Lead',
       };
       const metaEventName = metaEventMap[eventName] ?? 'CustomEvent';

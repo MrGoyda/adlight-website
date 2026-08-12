@@ -161,7 +161,10 @@ export default function ConsultationModal({
 
       if (res.ok) {
         setIsSuccess(true);
-        trackClientConversion('lead_form');
+        trackClientConversion('form_header_consultation', {
+          page_location: typeof window !== 'undefined' ? window.location.href : '',
+          form_name: source || 'Header Consultation Modal',
+        });
         setName("");
         setPhone("");
         // Авто-закрытие через 4 секунды
@@ -180,6 +183,10 @@ export default function ConsultationModal({
   };
 
   const handleDirectWhatsApp = () => {
+     trackClientConversion('click_whatsapp', {
+       page_location: typeof window !== 'undefined' ? window.location.href : '',
+       form_name: 'Consultation Modal Direct WhatsApp',
+     });
      window.open(`https://wa.me/77071356701`, '_blank');
      onClose();
   };

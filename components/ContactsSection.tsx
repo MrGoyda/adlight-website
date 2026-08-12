@@ -117,36 +117,46 @@ export default function ContactsSection() {
                   </div>
                   <div className="text-left">
                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Телефон для связи:</span>
-                     <a 
-                       href={`tel:${SITE_CONTACTS.phoneRaw}`} 
-                       className="text-slate-900 font-extrabold text-base hover:text-orange-600 transition block leading-tight"
-                       itemProp="telephone"
-                     >
-                        {SITE_CONTACTS.phone}
-                     </a>
-                  </div>
-               </div>
-            </div>
-            
-            {/* Quick Actions Buttons */}
-             <div className="grid grid-cols-2 gap-3 pt-2">
-                <Button 
-                  href={SITE_CONTACTS.maps.yandexSearch} 
-                  variant="lightOutline"
-                  className="w-full text-xs font-extrabold py-3.5"
-                  title="Открыть маршрут на карте"
-                >
-                   Маршрут на карте
-                </Button>
-                <Button 
-                  href={SITE_CONTACTS.socials.whatsapp} 
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-xs font-extrabold py-3.5 border-emerald-500/20 shadow-emerald-950/10"
-                  leftIcon={<MessageCircle className="w-4 h-4"/>}
-                  title="Написать в WhatsApp"
-                >
-                   Написать
-                </Button>
+                      <a 
+                        href={`tel:${SITE_CONTACTS.phoneRaw}`} 
+                        onClick={async () => {
+                          const { handleTrackedClick } = await import("@/lib/clickTracker");
+                          handleTrackedClick({ type: "phone", source: "ContactsSection" });
+                        }}
+                        className="text-slate-900 font-extrabold text-base hover:text-orange-600 transition block leading-tight"
+                        itemProp="telephone"
+                      >
+                         {SITE_CONTACTS.phone}
+                      </a>
+                   </div>
+                </div>
              </div>
+             
+             {/* Quick Actions Buttons */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                 <Button 
+                   href={SITE_CONTACTS.maps.yandexSearch} 
+                   variant="lightOutline"
+                   className="w-full text-xs font-extrabold py-3.5"
+                   title="Открыть маршрут на карте"
+                 >
+                    Маршрут на карте
+                 </Button>
+                 <Button 
+                   href={SITE_CONTACTS.socials.whatsapp} 
+                   onClick={async (e) => {
+                     e.preventDefault();
+                     const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
+                     const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу проконсультироваться по вывеске.", "ContactsSection");
+                     window.open(url, "_blank");
+                   }}
+                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-xs font-extrabold py-3.5 border-emerald-500/20 shadow-emerald-950/10 cursor-pointer"
+                   leftIcon={<MessageCircle className="w-4 h-4"/>}
+                   title="Написать в WhatsApp"
+                 >
+                    Написать
+                 </Button>
+              </div>
          </div>
       </div>
     </section>

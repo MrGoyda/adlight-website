@@ -7,6 +7,7 @@ import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import QuizModal from "@/components/QuizModal";
 import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 interface CallToActionProps {
   source: string;
@@ -120,6 +121,11 @@ export default function CallToAction({
 
       if (response.ok) {
         setIsSuccess(true);
+        trackClientConversion('form_cta_bottom', {
+          page_location: typeof window !== 'undefined' ? window.location.href : '',
+          form_name: source || 'Bottom CTA Form',
+          service_context: serviceContext || 'general',
+        });
         setName("");
         setPhone("");
         setTimeout(() => setIsSuccess(false), 5000);

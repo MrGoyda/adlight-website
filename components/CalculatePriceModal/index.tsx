@@ -19,6 +19,7 @@ import PriceDisplay from "./PriceDisplay";
 import CalculatorBanner from "./CalculatorBanner";
 
 import { enrichLeadWithAnalytics } from "@/lib/utils";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 interface CalculatePriceModalProps {
   isOpen: boolean;
@@ -293,6 +294,12 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
 
       if (res.ok) {
         setIsSuccess(true);
+        trackClientConversion('form_calculate_price', {
+          page_location: typeof window !== 'undefined' ? window.location.href : '',
+          form_name: source || 'Calculate Price Modal',
+          service_title: serviceInfo.title,
+          selected_option: selectedOption?.label || '',
+        });
         setName("");
         setPhone("");
         setTimeout(() => {
@@ -310,6 +317,10 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
   };
 
   const handleDirectWhatsApp = useCallback(() => {
+    trackClientConversion('click_whatsapp', {
+      page_location: typeof window !== 'undefined' ? window.location.href : '',
+      form_name: 'Calculate Price Modal Direct WhatsApp',
+    });
     const typeDetails = selectedOption ? `%20(${selectedOption.label})` : "";
     window.open(`https://wa.me/${SITE_CONTACTS.phoneRaw}?text=Здравствуйте!%20Хочу%20рассчитать%20стоимость%20по%20направлению:%20${encodeURIComponent(serviceInfo.title)}${typeDetails}`, '_blank');
     onClose();

@@ -11,6 +11,7 @@ import Typography from "@/components/ui/Typography";
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import { QUIZ_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 interface QuizModalProps {
   isOpen: boolean;
@@ -158,6 +159,11 @@ export default function QuizModal({ isOpen, onClose, serviceContext }: QuizModal
   
         if (res.ok) {
           setIsSuccess(true);
+          trackClientConversion('form_quiz_calculator', {
+            page_location: typeof window !== 'undefined' ? window.location.href : '',
+            form_name: `Quiz Calculator (${config.title})`,
+            quiz_context: serviceContext || 'general',
+          });
           setTimeout(() => {
             if (isOpen) onClose();
           }, 4000);

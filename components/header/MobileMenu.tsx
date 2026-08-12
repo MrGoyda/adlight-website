@@ -22,6 +22,7 @@ import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
 import { COMPANY_NAP, COMMON_NAV_LINKS } from "@/dictionaries/common";
 import Button from "@/components/ui/Button";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -338,6 +339,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
               href={COMPANY_NAP.socials.instagram}
               target="_blank"
               rel="nofollow noreferrer"
+              onClick={() => trackClientConversion('click_instagram', { page_location: typeof window !== 'undefined' ? window.location.href : '', form_name: 'Mobile Menu Instagram' })}
               className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-pink-600 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95"
               aria-label="Наш Instagram"
             >
@@ -347,6 +349,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
               href={COMPANY_NAP.socials.telegram}
               target="_blank"
               rel="nofollow noreferrer"
+              onClick={() => trackClientConversion('click_telegram', { page_location: typeof window !== 'undefined' ? window.location.href : '', form_name: 'Mobile Menu Telegram' })}
               className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95"
               aria-label="Наш Telegram"
             >
@@ -359,7 +362,7 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
               onClick={async (e) => {
                 e.preventDefault();
                 const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
-                const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.");
+                const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.", "Mobile Menu");
                 window.open(url, "_blank");
               }}
               className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"

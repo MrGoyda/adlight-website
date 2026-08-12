@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send, CheckCircle, Loader2, Phone, User } from "lucide-react";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 interface ComplexCTAProps {
   source?: string; 
@@ -34,6 +35,10 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
 
       if (response.ok) {
         setIsSuccess(true);
+        trackClientConversion('form_cta_bottom', {
+          page_location: typeof window !== 'undefined' ? window.location.href : '',
+          form_name: source || 'Complex CTA Form',
+        });
         setFormData({ name: "", phone: "" });
         setTimeout(() => setIsSuccess(false), 5000);
       } else {

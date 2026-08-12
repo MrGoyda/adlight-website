@@ -22,7 +22,7 @@ export default function WhatsAppButton({
     e.preventDefault();
     if (onClick) onClick();
 
-    const trackedUrl = await getTrackedWhatsappUrl(phone, customText);
+    const trackedUrl = await getTrackedWhatsappUrl(phone, customText, "Floating WhatsApp Button");
     window.open(trackedUrl, "_blank", "noopener,noreferrer");
   };
 

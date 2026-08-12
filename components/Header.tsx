@@ -27,6 +27,7 @@ import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { SITE_URL } from "@/config/site";
 
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+import { trackClientConversion } from "@/lib/clientAnalytics";
 
 export default function Header() {
   const pathname = usePathname();
@@ -137,6 +138,7 @@ export default function Header() {
                    href={COMPANY_NAP.socials.instagram} 
                    target="_blank" 
                    rel="nofollow noreferrer" 
+                   onClick={() => trackClientConversion('click_instagram', { page_location: typeof window !== 'undefined' ? window.location.href : '', form_name: 'Header Instagram' })}
                    className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-pink-500 hover:bg-pink-500/5 hover:border-pink-500/30 transition duration-300" 
                    aria-label="Наш Instagram"
                 >
@@ -146,6 +148,7 @@ export default function Header() {
                    href={COMPANY_NAP.socials.telegram} 
                    target="_blank" 
                    rel="nofollow noreferrer" 
+                   onClick={() => trackClientConversion('click_telegram', { page_location: typeof window !== 'undefined' ? window.location.href : '', form_name: 'Header Telegram' })}
                    className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-400 hover:bg-blue-400/5 hover:border-blue-400/30 transition duration-300" 
                    aria-label="Наш Telegram"
                 >
@@ -158,7 +161,7 @@ export default function Header() {
                    onClick={async (e) => {
                      e.preventDefault();
                      const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
-                     const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.");
+                     const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.", "Header");
                      window.open(url, "_blank");
                    }}
                    className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-green-500 hover:bg-green-500/5 hover:border-green-500/30 transition duration-300 cursor-pointer" 
