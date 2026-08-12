@@ -155,7 +155,13 @@ export default function Header() {
                    href={COMPANY_NAP.socials.whatsapp} 
                    target="_blank" 
                    rel="nofollow noreferrer" 
-                   className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-green-500 hover:bg-green-500/5 hover:border-green-500/30 transition duration-300" 
+                   onClick={async (e) => {
+                     e.preventDefault();
+                     const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
+                     const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.");
+                     window.open(url, "_blank");
+                   }}
+                   className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-green-500 hover:bg-green-500/5 hover:border-green-500/30 transition duration-300 cursor-pointer" 
                    aria-label="Наш WhatsApp"
                 >
                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -167,6 +173,10 @@ export default function Header() {
              {/* 3. Кликабельный номер телефона */}
              <a 
                 href={`tel:${COMPANY_NAP.phoneRaw}`} 
+                onClick={async () => {
+                   const { handleTrackedClick } = await import("@/lib/clickTracker");
+                   handleTrackedClick({ type: "phone", source: "Header" });
+                }}
                 className="group flex items-center gap-2.5 font-bold text-slate-800 transition duration-300 border-r border-slate-200 pr-5 whitespace-nowrap text-sm hover:scale-[1.02] active:scale-[0.98]"
              >
                 <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-orange-500 transition-all duration-300 group-hover:bg-orange-500/10 group-hover:border-orange-500/30 group-hover:text-orange-600 group-hover:rotate-[15deg]">

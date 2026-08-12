@@ -70,7 +70,19 @@ export default function Footer() {
               <a href={COMPANY_NAP.socials.telegram} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" aria-label="Telegram">
                 <Send className="w-5 h-5 ml-0.5"/>
               </a>
-              <a href={COMPANY_NAP.socials.whatsapp} target="_blank" rel="nofollow noreferrer" className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300" aria-label="WhatsApp">
+              <a 
+                href={COMPANY_NAP.socials.whatsapp} 
+                target="_blank" 
+                rel="nofollow noreferrer" 
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
+                  const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.");
+                  window.open(url, "_blank");
+                }}
+                className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent flex items-center justify-center transition-all duration-300 cursor-pointer" 
+                aria-label="WhatsApp"
+              >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                    <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.89 5.83L2.03 22l4.31-1.83c1.55.98 3.39 1.54 5.37 1.54 5.52 0 10-4.48 10-10S17.52 2 12.004 2zm5.72 13.91c-.24.68-1.2 1.24-1.93 1.39-.49.1-1.13.17-3.29-.71-2.76-1.12-4.53-3.93-4.67-4.12-.14-.19-1.14-1.51-1.14-2.87a3 3 0 01.91-2.22c.26-.26.56-.33.75-.33h.49c.16 0 .37.01.53.39.17.41.59 1.43.64 1.54.05.11.09.24.01.39-.08.15-.12.24-.24.38-.12.14-.25.31-.36.42-.12.12-.25.25-.11.49.14.24.63 1.03 1.35 1.67.92.82 1.7 1.07 1.94 1.19.24.12.38.1.52-.06.14-.16.59-.69.75-.92.16-.23.32-.19.53-.11.22.08 1.37.65 1.61.76.24.12.4.17.46.28.06.11.06.64-.18 1.32z"/>
                 </svg>
@@ -126,7 +138,17 @@ export default function Footer() {
               </div>
               <div className="flex gap-4 items-center">
                 <Phone className="w-5 h-5 text-orange-500 shrink-0"/>
-                <a href={`tel:${COMPANY_NAP.phoneRaw}`} className="text-slate-900 font-extrabold hover:text-orange-600 transition-colors text-base" itemProp="telephone">{COMPANY_NAP.phone}</a>
+                <a 
+                  href={`tel:${COMPANY_NAP.phoneRaw}`} 
+                  onClick={async () => {
+                    const { handleTrackedClick } = await import("@/lib/clickTracker");
+                    handleTrackedClick({ type: "phone", source: "Footer" });
+                  }}
+                  className="text-slate-900 font-extrabold hover:text-orange-600 transition-colors text-base" 
+                  itemProp="telephone"
+                >
+                  {COMPANY_NAP.phone}
+                </a>
               </div>
               <div className="flex gap-4 items-center">
                 <Mail className="w-5 h-5 text-orange-500 shrink-0"/>

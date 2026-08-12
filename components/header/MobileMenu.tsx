@@ -356,7 +356,13 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
               href={COMPANY_NAP.socials.whatsapp}
               target="_blank"
               rel="nofollow noreferrer"
-              className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95"
+              onClick={async (e) => {
+                e.preventDefault();
+                const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
+                const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.");
+                window.open(url, "_blank");
+              }}
+              className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
               aria-label="Наш WhatsApp"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
