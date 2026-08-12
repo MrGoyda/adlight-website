@@ -54,6 +54,12 @@ export async function POST(req: Request) {
               leadId: updatedLead.id,
             });
 
+            // Google Ads / GA4 Offline Purchase
+            if (updatedLead.googleClientId) {
+              const { sendGoogleOfflineConversion } = await import("@/lib/analytics");
+              await sendGoogleOfflineConversion(updatedLead.googleClientId, revenue);
+            }
+
             // Yandex Offline
             if (updatedLead.yandexClientId) {
               await sendYandexConversionEvent(updatedLead.yandexClientId, revenue);

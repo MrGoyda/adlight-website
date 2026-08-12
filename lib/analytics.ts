@@ -115,3 +115,38 @@ export async function sendYandexConversionEvent(yandexClientId: string, revenue:
     console.error("Failed to send Yandex Conversion event:", error);
   }
 }
+
+// Отправка офлайн-конверсии договора в Google Analytics 4 & Google Ads (Measurement Protocol)
+export async function sendGoogleOfflineConversion(googleClientId: string, revenueKzt: number) {
+  const measurementId = process.env.GA4_MEASUREMENT_ID || "G-8HHR00E9DN";
+  const apiSecret = process.env.GA4_API_SECRET;
+
+  if (!apiSecret || !googleClientId) return;
+
+  const usdValue = Math.round((revenueKzt / 490) * 100) / 100; // Авто-конвертация KZT -> USD по курсу
+
+  try {
+    await fetch(
+      `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_id: googleClientId,
+          events: [
+            {
+              name: "purchase_offline",
+              params: {
+                value: revenueKzt,
+                currency: "KZT",
+                value_usd: usdValue, // Дублируем сумму в долларах США для кабинета Google Ads
+              },
+            },
+          ],
+        }),
+      }
+    );
+  } catch (err) {
+    console.error("Failed to send GA4 Offline Purchase:", err);
+  }
+}
