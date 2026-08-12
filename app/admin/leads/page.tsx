@@ -44,6 +44,12 @@ export default async function LeadsPage({
     orderBy: { name: "asc" },
   });
 
+  const pendingClicks = await prisma.leadClick.findMany({
+    where: { status: "PENDING" },
+    orderBy: { createdAt: "desc" },
+    take: 15,
+  });
+
   const supplierPrices = await prisma.supplierPrice.findMany({
     include: {
       supplierObj: true
@@ -59,6 +65,7 @@ export default async function LeadsPage({
           initialClients={JSON.parse(JSON.stringify(clients))}
           initialWarehouseItems={JSON.parse(JSON.stringify(warehouseItems))}
           initialSupplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
+          initialPendingClicks={JSON.parse(JSON.stringify(pendingClicks))}
           selectedLeadId={selectedLeadId} 
         />
       </div>

@@ -102,6 +102,7 @@ interface LeadsDashboardProps {
   initialClients: Client[];
   initialWarehouseItems: any[];
   initialSupplierPrices: any[];
+  initialPendingClicks?: any[];
   selectedLeadId?: string;
 }
 
@@ -590,6 +591,20 @@ export default function LeadsDashboard({
       </div>
 
       {/* ── ОСНОВНОЙ КОНТЕНТ ── */}
+      <div className="bg-slate-900 text-white p-5 rounded-3xl space-y-3 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-orange-400">
+              ⚡️ Входящие клики по кнопкам сайта (WhatsApp / Телефон)
+            </h3>
+          </div>
+          <span className="text-[11px] text-slate-400 font-semibold">
+            Нажмите «Связать» в карточке лида или привяжите к новому звонку
+          </span>
+        </div>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         
         {/* ЛЕВАЯ ЧАСТЬ: СПИСОК ЛИДОВ И ФИЛЬТРЫ */}
