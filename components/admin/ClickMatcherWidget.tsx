@@ -116,16 +116,22 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                   </p>
                 </div>
 
-                <Button
-                  size="sm"
-                  variant="solid"
-                  onClick={() => handleMatch(click.id)}
-                  isLoading={matchingId === click.id}
-                  className="shrink-0 text-[11px] py-1 px-3"
-                >
-                  <LinkIcon className="w-3 h-3 mr-1" />
-                  Связать
-                </Button>
+                {leadId ? (
+                  <Button
+                    size="sm"
+                    variant="solid"
+                    onClick={() => handleMatch(click.id)}
+                    isLoading={matchingId === click.id}
+                    className="shrink-0 text-[11px] py-1 px-3"
+                  >
+                    <LinkIcon className="w-3 h-3 mr-1" />
+                    Связать
+                  </Button>
+                ) : (
+                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
+                    Ожидает сообщения с кодом {click.code}
+                  </span>
+                )}
               </div>
             );
           })}
