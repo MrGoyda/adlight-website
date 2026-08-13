@@ -9,9 +9,31 @@ interface ComplexCTAProps {
   source?: string; 
 }
 
+// Маскирование казахстанского телефона (+7 (7XX) XXX-XX-XX)
+const formatKazakhstanPhone = (value: string): string => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 0) return "";
+  let cleanDigits = digits;
+  if (digits.startsWith("7") || digits.startsWith("8")) cleanDigits = digits.substring(1);
+  cleanDigits = cleanDigits.substring(0, 10);
+  let formatted = "+7";
+  if (cleanDigits.length > 0) {
+    formatted += ` (${cleanDigits.substring(0, 3)}`;
+    if (cleanDigits.length >= 3) {
+      formatted += `) ${cleanDigits.substring(3, 6)}`;
+      if (cleanDigits.length >= 6) {
+        formatted += `-${cleanDigits.substring(6, 8)}`;
+        if (cleanDigits.length >= 8) formatted += `-${cleanDigits.substring(8, 10)}`;
+      }
+    }
+  }
+  return formatted;
+};
+
 export default function ComplexCTA({ source = "Complex CTA (По умолчанию)" }: ComplexCTAProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -19,6 +41,15 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPhoneError("");
+
+    // Валидация телефона перед отправкой
+    const digits = formData.phone.replace(/\D/g, "");
+    if (digits.length !== 11) {
+      setPhoneError("Введите полный номер телефона");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -130,11 +161,12 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
                       autoComplete="tel"
                       required
                       placeholder="+7 (777) 000-00-00"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition outline-none placeholder:text-slate-600"
+                      className={`w-full bg-slate-900 border rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition outline-none placeholder:text-slate-600 ${phoneError ? "border-red-500" : "border-slate-700"}`}
                       value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      onChange={(e) => setFormData({...formData, phone: formatKazakhstanPhone(e.target.value)})}
                     />
                   </div>
+                  {phoneError && <p className="text-red-400 text-xs mt-1">{phoneError}</p>}
                 </div>
 
                 <button 

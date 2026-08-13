@@ -142,13 +142,13 @@ export default function QuizModal({ isOpen, onClose, serviceContext }: QuizModal
         return;
       }
   
-      // Форматируем ответы в один текстовый лог
-      const answersText = config.steps.map((q, idx) => {
-        const ans = answers[idx + 1] || "Не выбрано";
-        return `[Вопрос ${idx + 1}: ${q.title}] -> [Ответ: ${ans}]`;
-      }).join(" | ");
-  
-      const source = `Квиз: ${config.title}. Контекст: ${serviceContext || "general"}. Ответы: ${answersText}`;
+      // Форматируем ответы в теги которые распознаёт parseLeadSource на бэкенде
+      const step0Answer = answers[1] || "Не выбрано"; // Что изготовить (Вывеска)
+      const step1Answer = answers[2] || "Не выбрано"; // Ниша
+      const step2Answer = answers[3] || "Не выбрано"; // Сроки
+
+      // ВАЖНО: source должен содержать "Квиз-Подбор" — именно это ищет parseLeadSource на бэкенде
+      const source = `Квиз-Подбор | ${config.title} [Вывеска: ${step0Answer}] [Ниша: ${step1Answer}] [Сроки: ${step2Answer}]`;
   
       try {
         const res = await fetch("/api/telegram", {
