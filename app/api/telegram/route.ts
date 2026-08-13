@@ -224,6 +224,8 @@ ${parsed.title}
     // 5. Отправляем запрос к API Telegram для каждого Chat ID
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
     const chatIds = chatId.split(',').map(id => id.trim());
+
+    console.log(`[Telegram] Sending to chat IDs: ${chatIds.join(', ')} | Lead: ${leadId} | Source: ${rawSource}`);
     
     const sendPromises = chatIds.map(async (id) => {
       const telegramPayload: any = {
@@ -249,33 +251,39 @@ ${parsed.title}
 
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(telegramPayload),
       });
-      return { id, response };
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        console.error(`[Telegram] ❌ FAILED for chat_id=${id} | HTTP ${response.status} | Error: ${JSON.stringify(responseData)}`);
+      } else {
+        console.log(`[Telegram] ✅ Sent OK to chat_id=${id} | message_id=${responseData?.result?.message_id}`);
+      }
+
+      return { id, response, responseData };
     });
 
     const results = await Promise.all(sendPromises);
-    const failedChats = [];
+    const failedChats: string[] = [];
 
     for (const result of results) {
       if (!result.response.ok) {
-        const errorData = await result.response.json();
-        console.error(`Telegram API Error for Chat ID ${result.id}:`, errorData);
-        failedChats.push(`${result.id}: ${errorData.description}`);
+        failedChats.push(`chat_id=${result.id}: ${result.responseData?.description || 'Unknown error'}`);
       }
     }
 
     if (failedChats.length === chatIds.length) {
-      return NextResponse.json({ error: `Ошибка Telegram для всех чатов: ${failedChats.join(', ')}` }, { status: 500 });
+      console.error(`[Telegram] ❌ ALL chats failed: ${failedChats.join(' | ')}`);
+      return NextResponse.json({ error: `Ошибка Telegram: ${failedChats.join(', ')}` }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, partialFailures: failedChats.length > 0 ? failedChats : undefined });
 
   } catch (error) {
-    console.error('Internal Server Error:', error);
+    console.error('[Telegram] ❌ Internal Server Error:', error);
     return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }
