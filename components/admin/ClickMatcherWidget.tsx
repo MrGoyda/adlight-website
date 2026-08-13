@@ -123,12 +123,22 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                   </div>
                   
                   <div className="text-[10px] text-slate-400 space-y-0.5">
-                    {click.pageUrl && (
-                      <div className="flex items-center gap-1.5 truncate">
-                        <Globe className="w-3 h-3 text-slate-500 shrink-0" />
-                        <span className="truncate" title={click.pageUrl}>{click.pageUrl.replace(/^https?:\/\/[^/]+/, '') || '/'}</span>
-                      </div>
-                    )}
+                    {click.pageUrl && (() => {
+                      let cleanPath = '/';
+                      try {
+                        // Берём только путь страницы без UTM-параметров, fbclid и прочего мусора
+                        const url = new URL(click.pageUrl);
+                        cleanPath = url.pathname || '/';
+                      } catch {
+                        cleanPath = click.pageUrl.replace(/^https?:\/\/[^/]+/, '').split('?')[0] || '/';
+                      }
+                      return (
+                        <div className="flex items-center gap-1.5 truncate">
+                          <Globe className="w-3 h-3 text-slate-500 shrink-0" />
+                          <span className="truncate" title={click.pageUrl}>{cleanPath}</span>
+                        </div>
+                      );
+                    })()}
                     
                     {click.timeOnSiteSeconds !== undefined && click.timeOnSiteSeconds !== null && (
                       <div className="flex items-center gap-1.5">
