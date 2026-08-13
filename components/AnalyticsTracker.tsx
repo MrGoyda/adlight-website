@@ -53,7 +53,36 @@ export default function AnalyticsTracker() {
           const isOwnSite = host.includes("adlight.kz") || host.includes("localhost") || host.includes("127.0.0.1");
           
           if (!isOwnSite) {
-            if (
+            // 1. Проверяем AI-ассистенты и поисковики новейшего поколения
+            if (host.includes("chatgpt.com") || host.includes("openai.com")) {
+              sessionStorage.setItem("utm_source", "chatgpt");
+              sessionStorage.setItem("utm_medium", "ai_search");
+              sessionStorage.setItem("utm_campaign", "ai_recommendation");
+            } else if (host.includes("perplexity.ai")) {
+              sessionStorage.setItem("utm_source", "perplexity");
+              sessionStorage.setItem("utm_medium", "ai_search");
+              sessionStorage.setItem("utm_campaign", "ai_recommendation");
+            } else if (host.includes("claude.ai") || host.includes("anthropic.com")) {
+              sessionStorage.setItem("utm_source", "claude");
+              sessionStorage.setItem("utm_medium", "ai_search");
+              sessionStorage.setItem("utm_campaign", "ai_recommendation");
+            } 
+            // 2. Проверяем Картографические сервисы (Google Maps, 2GIS, Yandex Maps)
+            else if (refUrl.href.includes("maps.google") || host.includes("google.com/maps")) {
+              sessionStorage.setItem("utm_source", "google_maps");
+              sessionStorage.setItem("utm_medium", "maps");
+              sessionStorage.setItem("utm_campaign", "gmb_profile");
+            } else if (host.includes("2gis") || host.includes("doublegis")) {
+              sessionStorage.setItem("utm_source", "2gis");
+              sessionStorage.setItem("utm_medium", "maps");
+              sessionStorage.setItem("utm_campaign", "2gis_profile");
+            } else if (refUrl.href.includes("yandex.") && refUrl.href.includes("maps")) {
+              sessionStorage.setItem("utm_source", "yandex_maps");
+              sessionStorage.setItem("utm_medium", "maps");
+              sessionStorage.setItem("utm_campaign", "yandex_business");
+            }
+            // 3. Органический поиск (SEO)
+            else if (
               host.includes("google.") ||
               host.includes("yandex.") ||
               host.includes("bing.com") ||
@@ -61,7 +90,6 @@ export default function AnalyticsTracker() {
               host.includes("rambler.ru") ||
               host.includes("mail.ru")
             ) {
-              // SEO / Органический поиск
               let sourceName = "organic_search";
               if (host.includes("google.")) sourceName = "google";
               else if (host.includes("yandex.")) sourceName = "yandex";
@@ -71,7 +99,7 @@ export default function AnalyticsTracker() {
               sessionStorage.setItem("utm_medium", "organic");
               sessionStorage.setItem("utm_campaign", "seo");
             } else {
-              // Реферальный переход с другого сайта (например, Instagram, 2gis, другой ресурс)
+              // Реферальный переход с другого сайта (например, Instagram)
               sessionStorage.setItem("utm_source", host);
               sessionStorage.setItem("utm_medium", "referral");
               sessionStorage.setItem("utm_campaign", "referral_visit");
