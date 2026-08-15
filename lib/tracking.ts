@@ -5,18 +5,33 @@
 
 const CLIENT_ID_KEY = 'adlight_cid';
 
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      // Fallback if crypto.randomUUID throws in insecure contexts
+    }
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export const getClientId = (): string => {
   if (typeof window === 'undefined') return '';
   try {
     let cid = localStorage.getItem(CLIENT_ID_KEY);
     if (!cid) {
-      cid = crypto.randomUUID();
+      cid = generateUUID();
       localStorage.setItem(CLIENT_ID_KEY, cid);
     }
     return cid;
   } catch {
     // Safari Private Mode блокирует localStorage
-    return crypto.randomUUID();
+    return generateUUID();
   }
 };
 
