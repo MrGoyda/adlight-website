@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { MapPin, MessageSquare, ExternalLink, Calculator } from "lucide-react";
 import { Lead } from "../../_types/leadTypes";
 import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
+import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 
 interface DrawerLocationNotesSectionProps {
   activeLead: Lead;
@@ -21,15 +22,6 @@ export default function DrawerLocationNotesSection({
   setEditComment,
 }: DrawerLocationNotesSectionProps) {
   const dict = LEADS_DICTIONARY.drawer;
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Автоматическое расширение высоты по мере наполнения текстом
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.max(64, textareaRef.current.scrollHeight)}px`;
-    }
-  }, [editComment]);
 
   return (
     <div className="bg-slate-50/70 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3.5">
@@ -72,19 +64,12 @@ export default function DrawerLocationNotesSection({
           <MessageSquare className="w-3 h-3 text-amber-500" />
           {dict.commentLabel}
         </label>
-        <textarea
-          ref={textareaRef}
+        <AutoResizeTextarea
           rows={2}
           value={editComment}
-          onChange={(e) => {
-            setEditComment(e.target.value);
-            if (textareaRef.current) {
-              textareaRef.current.style.height = "auto";
-              textareaRef.current.style.height = `${Math.max(64, textareaRef.current.scrollHeight)}px`;
-            }
-          }}
+          onChange={(e) => setEditComment(e.target.value)}
           placeholder="Укажите важные детали сделки..."
-          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-900 font-medium focus:border-orange-500 outline-none text-xs resize-none shadow-2xs transition-all overflow-hidden"
+          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-slate-900 font-medium focus:border-orange-500 outline-none text-xs shadow-2xs transition-all"
         />
       </div>
 

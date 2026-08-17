@@ -6,6 +6,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import Button from "@/components/ui/Button";
 import { LeadStatus, PartnerName } from "@prisma/client";
 import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
+import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 
 interface LeadCreateModalProps {
   onClose: () => void;
@@ -179,16 +180,12 @@ export default function LeadCreateModal({
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
               {dict.commentLabel}
             </label>
-            <textarea
+            <AutoResizeTextarea
               rows={2}
               value={comment}
-              onChange={(e) => {
-                setComment(e.target.value);
-                e.target.style.height = "auto";
-                e.target.style.height = `${Math.max(64, e.target.scrollHeight)}px`;
-              }}
+              onChange={(e) => setComment(e.target.value)}
               placeholder="Первичные пожелания клиента..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 outline-none focus:border-orange-500 resize-none transition-all overflow-hidden"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 outline-none focus:border-orange-500 shadow-2xs"
             />
           </div>
 
