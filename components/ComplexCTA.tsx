@@ -143,9 +143,10 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
                       autoComplete="name"
                       required
                       placeholder="Алексей"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition outline-none placeholder:text-slate-600"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition outline-none placeholder:text-slate-600 text-base sm:text-sm"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      suppressHydrationWarning
                     />
                   </div>
                 </div>
@@ -161,9 +162,10 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
                       autoComplete="tel"
                       required
                       placeholder="+7 (777) 000-00-00"
-                      className={`w-full bg-slate-900 border rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition outline-none placeholder:text-slate-600 ${phoneError ? "border-red-500" : "border-slate-700"}`}
+                      className={`w-full bg-slate-900 border rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition outline-none placeholder:text-slate-600 text-base sm:text-sm ${phoneError ? "border-red-500" : "border-slate-700"}`}
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: formatKazakhstanPhone(e.target.value)})}
+                      suppressHydrationWarning
                     />
                   </div>
                   {phoneError && <p className="text-red-400 text-xs mt-1">{phoneError}</p>}

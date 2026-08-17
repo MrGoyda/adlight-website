@@ -215,29 +215,97 @@ export default function Header() {
                   isAdminActive ? "text-orange-600 scale-110" : "group-hover:text-orange-500"
                 }`}/>
              </Button>
+
+             {/* 6. Кнопка меню на десктопе */}
+             <button 
+                className="flex items-center gap-2 py-2 px-4 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none active:scale-95"
+                onClick={() => {
+                  if (isOpen) {
+                    closeMobileMenuRef.current?.();
+                  } else {
+                    setIsOpen(true);
+                  }
+                }}
+                aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+             >
+                <span className="text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">МЕНЮ</span>
+                {isOpen ? (
+                   <X className="w-4 h-4 text-orange-500 transition-transform duration-300 group-hover:rotate-90"/>
+                ) : (
+                   <Menu className="w-4 h-4 text-slate-600 group-hover:text-orange-500 transition-colors duration-300"/>
+                )}
+             </button>
           </div>
 
-          {/* КНОПКА МЕНЮ (БУРГЕР) — Видна на десктопе и мобильном */}
-          <motion.button 
-             {...burgerAnimation}
-             className="flex items-center gap-2.5 py-2 px-3.5 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none"
-             onClick={() => {
-               if (isOpen) {
-                 // Закрываем через анимацию меню, не напрямую
-                 closeMobileMenuRef.current?.();
-               } else {
-                 setIsOpen(true);
-               }
-             }}
-             aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
-          >
-             <span className="hidden sm:inline text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">Меню</span>
-             {isOpen ? (
-                <X className="w-4 h-4 text-orange-500 transition-transform duration-300 group-hover:rotate-90"/>
-             ) : (
-                <Menu className="w-4 h-4 text-slate-600 group-hover:text-orange-500 transition-colors duration-300"/>
-             )}
-          </motion.button>
+          {/* МОБИЛЬНЫЕ КНОПКИ БЫСТРОЙ СВЯЗИ (WhatsApp, Instagram, Звонок) — видны до lg:hidden */}
+          <div className="flex lg:hidden items-center gap-2">
+            {/* WhatsApp */}
+            <a
+              href={COMPANY_NAP.socials.whatsapp}
+              target="_blank"
+              rel="nofollow noreferrer"
+              onClick={async (e) => {
+                e.preventDefault();
+                const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
+                const url = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Хочу заказать вывеску.", "Header Mobile Quick Icon");
+                window.open(url, "_blank");
+              }}
+              className="w-9 h-9 rounded-xl bg-green-50 border border-green-200/80 flex items-center justify-center text-green-600 hover:bg-green-500 hover:text-white transition-all active:scale-95 shadow-xs"
+              aria-label="WhatsApp"
+              title="Написать в WhatsApp"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M12.004 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.89 5.83L2.03 22l4.31-1.83c1.55.98 3.39 1.54 5.37 1.54 5.52 0 10-4.48 10-10S17.52 2 12.004 2zm5.72 13.91c-.24.68-1.2 1.24-1.93 1.39-.49.1-1.13.17-3.29-.71-2.76-1.12-4.53-3.93-4.67-4.12-.14-.19-1.14-1.51-1.14-2.87a3 3 0 01.91-2.22c.26-.26.56-.33.75-.33h.49c.16 0 .37.01.53.39.17.41.59 1.43.64 1.54.05.11.09.24.01.39-.08.15-.12.24-.24.38-.12.14-.25.31-.36.42-.12.12-.25.25-.11.49.14.24.63 1.03 1.35 1.67.92.82 1.7 1.07 1.94 1.19.24.12.38.1.52-.06.14-.16.59-.69.75-.92.16-.23.32-.19.53-.11.22.08 1.37.65 1.61.76.24.12.4.17.46.28.06.11.06.64-.18 1.32z" />
+              </svg>
+            </a>
+
+            {/* Instagram */}
+            <a
+              href={COMPANY_NAP.socials.instagram}
+              target="_blank"
+              rel="nofollow noreferrer"
+              onClick={() => trackClientConversion('click_instagram', { page_location: typeof window !== 'undefined' ? window.location.href : '', form_name: 'Header Mobile Quick Instagram' })}
+              className="w-9 h-9 rounded-xl bg-pink-50 border border-pink-200/80 flex items-center justify-center text-pink-600 hover:bg-pink-600 hover:text-white transition-all active:scale-95 shadow-xs"
+              aria-label="Instagram"
+              title="Наш Instagram"
+            >
+              <Instagram className="w-4 h-4" />
+            </a>
+
+            {/* Звонок */}
+            <a
+              href={`tel:${COMPANY_NAP.phoneRaw}`}
+              onClick={async () => {
+                const { handleTrackedClick } = await import("@/lib/clickTracker");
+                handleTrackedClick({ type: "phone", source: "Header Mobile Quick Phone" });
+              }}
+              className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-200/80 flex items-center justify-center text-orange-600 hover:bg-orange-500 hover:text-white transition-all active:scale-95 shadow-xs"
+              aria-label="Позвонить"
+              title="Позвонить"
+            >
+              <Phone className="w-4 h-4" />
+            </a>
+
+            {/* КНОПКА МЕНЮ (БУРГЕР) */}
+            <button 
+               className="flex items-center gap-2.5 py-2 px-3 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none active:scale-95 ml-1"
+               onClick={() => {
+                 if (isOpen) {
+                   closeMobileMenuRef.current?.();
+                 } else {
+                   setIsOpen(true);
+                 }
+               }}
+               aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+            >
+               <span className="hidden sm:inline text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">Меню</span>
+               {isOpen ? (
+                  <X className="w-4 h-4 text-orange-500 transition-transform duration-300 group-hover:rotate-90"/>
+               ) : (
+                  <Menu className="w-4 h-4 text-slate-600 group-hover:text-orange-500 transition-colors duration-300"/>
+               )}
+            </button>
+          </div>
         </div>
       </header>
 

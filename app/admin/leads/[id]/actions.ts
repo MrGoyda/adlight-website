@@ -23,6 +23,8 @@ export async function updateLeadMainData(leadId: string, rawJson: string) {
       appointmentDate?: string | null;
       deadline?: string | null;
       manager?: string | null;
+      offeredPrice?: number | null;
+      isDiscounted?: boolean;
       companyId?: string | null;
       projectId?: string | null;
       contactId?: string | null;
@@ -46,6 +48,12 @@ export async function updateLeadMainData(leadId: string, rawJson: string) {
         }),
         ...(data.manager !== undefined && {
           manager: (data.manager as PartnerName) || null,
+        }),
+        ...(data.offeredPrice !== undefined && {
+          offeredPrice: data.offeredPrice === null || isNaN(Number(data.offeredPrice)) ? null : Number(data.offeredPrice),
+        }),
+        ...(data.isDiscounted !== undefined && {
+          isDiscounted: Boolean(data.isDiscounted),
         }),
         ...(data.companyId !== undefined && { companyId: data.companyId }),
         ...(data.projectId !== undefined && { projectId: data.projectId }),

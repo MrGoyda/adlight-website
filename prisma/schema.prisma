@@ -13,6 +13,7 @@ enum LeadStatus {
   PROCESSED    // В производстве (предоплата)
   COMPLETED    // Выполнен (оплачен полностью)
   CANCELLED    // Отказ
+  UNPROCESSED  // Не отработан (упущенный лид)
 }
 
 enum TransactionType {
@@ -77,6 +78,8 @@ model Lead {
   fbBrowserId     String?         // fbp/fbc
 
   // Финансы сделки
+  offeredPrice    Float?          // Озвученная клиенту стоимость
+  isDiscounted    Boolean         @default(false) // Озвучено со скидкой
   revenue         Float           @default(0)
   expenses        Float           @default(0)
   prepayment      Float           @default(0)
@@ -369,3 +372,16 @@ model UserProfile {
   role      UserRole @default(MANAGER)
   phone     String?
 }
+
+model WorkOperation {
+  id           String           @id @default(uuid())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  type         EstimateItemType // ASSEMBLY или INSTALLATION
+  name         String           @unique // "Сборка лайтбокса", "Сварка кронштейна", "Закатка пленки", "Монтаж вывески", "Демонтаж"
+  unit         InventoryUnit    @default(PIECE)
+  defaultCost  Float            @default(0) // Оплата рабочим / себестоимость
+  defaultPrice Float            @default(0) // Цена для клиента
+  isCustom     Boolean          @default(false)
+}
+

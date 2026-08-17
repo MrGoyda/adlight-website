@@ -176,10 +176,11 @@ export default function CallToAction({
                 </div>
               </div>
             ) : (
-              <form
+              <form 
                 onSubmit={handleSubmit}
                 aria-label="Заявка на бесплатный дизайн-проект"
                 className="flex flex-col md:flex-row gap-4 w-full max-w-3xl mx-auto mb-6 items-end"
+                suppressHydrationWarning
               >
                 
                 {/* Input Name */}
@@ -195,8 +196,9 @@ export default function CallToAction({
                       onChange={handleNameChange}
                       aria-describedby={nameError ? "cta-name-error" : undefined}
                       aria-invalid={!!nameError}
-                      className={`w-full bg-white border ${nameError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-sm`}
+                      className={`w-full bg-white border ${nameError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-base sm:text-sm`}
                       disabled={isLoading}
+                      suppressHydrationWarning
                     />
                   </div>
                   {nameError && <p id="cta-name-error" role="alert" className="text-[10px] text-red-500 font-bold pl-1">{nameError}</p>}
@@ -215,8 +217,9 @@ export default function CallToAction({
                       onChange={handlePhoneChange}
                       aria-describedby={phoneError ? "cta-phone-error" : undefined}
                       aria-invalid={!!phoneError}
-                      className={`w-full bg-white border ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-sm`}
+                      className={`w-full bg-white border ${phoneError ? 'border-red-500 focus:border-red-500' : 'border-slate-200/80 focus:border-orange-500'} text-slate-900 rounded-2xl py-4 pl-12 pr-4 transition outline-none placeholder:text-slate-400 font-semibold text-base sm:text-sm`}
                       disabled={isLoading}
+                      suppressHydrationWarning
                     />
                   </div>
                   {phoneError && <p id="cta-phone-error" role="alert" className="text-[10px] text-red-500 font-bold pl-1">{phoneError}</p>}

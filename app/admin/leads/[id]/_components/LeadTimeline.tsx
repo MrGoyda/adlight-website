@@ -119,7 +119,7 @@ export default function LeadTimeline({
                       {act.author || "Менеджер"}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-slate-400 font-semibold">
+                      <span className="text-[10px] text-slate-400 font-semibold" suppressHydrationWarning>
                         {new Date(act.createdAt).toLocaleString("ru-RU", {
                           day: "2-digit",
                           month: "short",

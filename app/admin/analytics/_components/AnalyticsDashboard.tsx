@@ -52,66 +52,7 @@ export default function AnalyticsDashboard({ stats, summary }: AnalyticsDashboar
     : 0;
 
   return (
-    <div className="space-y-8 select-none">
-      
-      {/* ── НАВИГАЦИОННАЯ ШАПКА АДМИНКИ ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.015)]">
-        <div>
-          <span className="text-xs font-bold text-orange-500 uppercase tracking-widest">Панель управления</span>
-          <h1 className="text-2xl font-black text-slate-900 mt-1">ADLight CRM</h1>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <Button 
-            onClick={() => router.push("/admin/leads")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            Заявки
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/clients")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            Клиенты
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/warehouse")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            Склад
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/finance")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            Финансы
-          </Button>
-
-          <Button 
-            variant="lightGlass" 
-            className="text-orange-600 bg-orange-50 border-orange-200/50 text-xs font-bold py-2.5"
-          >
-            Аналитика
-          </Button>
-          
-          <div className="h-6 w-[1px] bg-slate-250 mx-2 hidden sm:block" />
-          
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50/50 hover:bg-rose-50 text-rose-600 text-xs font-extrabold transition cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Выйти
-          </button>
-        </div>
-      </div>
+    <div className="space-y-6 select-none">
 
       {/* ── ФИНАНСОВАЯ СВОДКА (KPI) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

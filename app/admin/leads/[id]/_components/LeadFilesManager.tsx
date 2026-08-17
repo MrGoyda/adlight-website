@@ -165,7 +165,7 @@ export default function LeadFilesManager({
                     <h5 className="text-xs font-extrabold text-slate-800 truncate group-hover:text-orange-600 transition">
                       {file.name}
                     </h5>
-                    <span className="text-[10px] text-slate-400 font-semibold block">
+                    <span className="text-[10px] text-slate-400 font-semibold block" suppressHydrationWarning>
                       {(file.size / 1024 / 1024).toFixed(2)} МБ •{" "}
                       {new Date(file.createdAt).toLocaleDateString("ru-RU")}
                     </span>

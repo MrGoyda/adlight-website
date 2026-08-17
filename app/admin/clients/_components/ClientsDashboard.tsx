@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Search, 
   User, 
@@ -18,15 +18,20 @@ import {
   XCircle,
   Briefcase,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  FileSpreadsheet,
+  Target
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { createClient, updateClient, deleteClient } from "../actions";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
 import Button from "@/components/ui/Button";
 import { crmDict } from "@/dictionaries/crm";
+import { BatchImportClientsModal } from "./BatchImportClientsModal";
+import { ExportAudienceModal } from "./ExportAudienceModal";
 
 interface Lead {
   id: string;
@@ -58,6 +63,7 @@ interface ClientsDashboardProps {
 
 export default function ClientsDashboard({ initialClients }: ClientsDashboardProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [clients, setClients] = useState<Client[]>(initialClients);
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,6 +71,9 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
   
   // Создание нового клиента
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showBatchImportModal, setShowBatchImportModal] = useState(false);
+  const [showExportAudienceModal, setShowExportAudienceModal] = useState(false);
+
   const [newClientType, setNewClientType] = useState<"FIZ" | "YUR">("FIZ");
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
@@ -119,6 +128,39 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
     }
   }, [activeClient]);
 
+  // Слушатель быстрого создания клиента
+  useEffect(() => {
+    const action = searchParams.get("action");
+    if (action === "create-client") {
+      setShowCreateModal(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const handleOpenCreateClient = () => {
+      triggerHaptic("light");
+      setShowCreateModal(true);
+    };
+    const handleOpenBatchImport = () => {
+      triggerHaptic("light");
+      setShowBatchImportModal(true);
+    };
+    const handleOpenExportAudience = () => {
+      triggerHaptic("light");
+      setShowExportAudienceModal(true);
+    };
+
+    window.addEventListener("crm:open-create-client", handleOpenCreateClient);
+    window.addEventListener("crm:open-batch-import", handleOpenBatchImport);
+    window.addEventListener("crm:open-export-audience", handleOpenExportAudience);
+
+    return () => {
+      window.removeEventListener("crm:open-create-client", handleOpenCreateClient);
+      window.removeEventListener("crm:open-batch-import", handleOpenBatchImport);
+      window.removeEventListener("crm:open-export-audience", handleOpenExportAudience);
+    };
+  }, []);
+
   const handleLogout = async () => {
     triggerHaptic("light");
     const supabase = createSupabaseClient();
@@ -128,8 +170,8 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newName || !newPhone) {
-      alert("Имя и телефон обязательны");
+    if (!newName.trim() || !newPhone.trim()) {
+      toast.error("Имя и номер телефона обязательны");
       return;
     }
 
@@ -150,6 +192,7 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
     });
 
     if (res.success && res.client) {
+      toast.success("Клиент успешно добавлен в базу!");
       const typedClient: Client = {
         ...res.client,
         createdAt: res.client.createdAt.toISOString(),
@@ -171,7 +214,7 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
       setNewNotes("");
       setNewClientType("FIZ");
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось создать клиента");
     }
     setIsCreating(false);
   };
@@ -197,6 +240,7 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
     });
 
     if (res.success && res.client) {
+      toast.success("Данные клиента успешно обновлены!");
       setClients((prev) =>
         prev.map((c) =>
           c.id === activeClient.id
@@ -231,9 +275,8 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
             }
           : null
       );
-      alert("Карточка клиента обновлена!");
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось сохранить изменения");
     }
     setIsSaving(false);
   };
@@ -245,6 +288,7 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
     const res = await deleteClient(clientToDeleteId);
 
     if (res.success) {
+      toast.success("Клиент удален из базы");
       setClients((prev) => prev.filter((c) => c.id !== clientToDeleteId));
       if (activeClient && activeClient.id === clientToDeleteId) {
         setActiveClient(null);
@@ -252,7 +296,7 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
       setShowDeleteConfirm(false);
       setClientToDeleteId(null);
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось удалить клиента");
     }
   };
 
@@ -269,17 +313,39 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
   }, [clients, searchTerm]);
 
   return (
-    <div className="space-y-8 select-none">
-      
-      {/* ── НАВИГАЦИОННАЯ ШАПКА АДМИНКИ ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.015)]">
-        <div>
-          <span className="text-xs font-bold text-orange-500 uppercase tracking-widest">{crmDict.navigation.dashboard}</span>
-          <h1 className="text-2xl font-black text-slate-900 mt-1">{crmDict.navigation.title}</h1>
-        </div>
+    <div className="space-y-6 select-none">
+      {/* Панель быстрого действия страницы Клиентов */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+          <User className="w-5 h-5 text-orange-500" />
+          База Клиентов и Контрагентов
+        </h2>
         
-        {/* Кнопки навигации CRM */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => {
+              triggerHaptic("light");
+              setShowBatchImportModal(true);
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition cursor-pointer active:scale-95 shadow-2xs"
+            title="Импорт контактов из списка/Excel"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-purple-600" />
+            <span>Импорт базы</span>
+          </button>
+
+          <button
+            onClick={() => {
+              triggerHaptic("light");
+              setShowExportAudienceModal(true);
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition cursor-pointer active:scale-95 shadow-2xs"
+            title="Экспорт аудиторий для Facebook/Yandex"
+          >
+            <Target className="w-4 h-4 text-emerald-600" />
+            <span>Экспорт аудиторий</span>
+          </button>
+
           <Button 
             onClick={() => { triggerHaptic("light"); setShowCreateModal(true); }}
             variant="solid"
@@ -287,56 +353,6 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
             className="text-xs font-black py-2.5 shadow-sm shadow-orange-500/10"
           >
             {crmDict.clients.newClientBtn}
-          </Button>
-          
-          <Button 
-            onClick={() => router.push("/admin/leads")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.leads}
-          </Button>
-
-          <Button 
-            variant="lightGlass" 
-            className="text-orange-600 bg-orange-50 border-orange-200/50 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.clients}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/warehouse")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.warehouse}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/finance")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.finance}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/analytics")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.analytics}
-          </Button>
-          
-          <div className="h-6 w-[1px] bg-slate-250 mx-2 hidden sm:block" />
-          
-          <Button 
-            onClick={handleLogout}
-            variant="lightOutline"
-            leftIcon={<LogOut className="w-3.5 h-3.5 text-rose-500" />}
-            className="text-rose-600 border-rose-200/60 bg-rose-50/30 hover:bg-rose-50 text-xs font-extrabold py-2.5"
-          >
-            {crmDict.navigation.logout}
           </Button>
         </div>
       </div>
@@ -657,7 +673,7 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
                           <p className="text-xs font-bold text-slate-800 truncate group-hover:text-orange-600 transition-colors">
                             {lead.name}
                           </p>
-                          <span className="text-[9px] text-slate-450">
+                          <span className="text-[9px] text-slate-450" suppressHydrationWarning>
                             {new Date(lead.createdAt).toLocaleDateString("ru-RU")}
                           </span>
                         </div>
@@ -926,6 +942,21 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
         </div>,
         document.body
       )}
+
+      {/* ── МОДАЛКА МАССОВОГО ИМПОРТА КЛИЕНТСКОЙ БАЗЫ ── */}
+      <BatchImportClientsModal
+        isOpen={showBatchImportModal}
+        onClose={() => setShowBatchImportModal(false)}
+        onSuccess={() => {
+          router.refresh();
+        }}
+      />
+
+      {/* ── МОДАЛКА ЭКСПОРТА АУДИТОРИЙ (LOOKALIKE / РЕТАРГЕТИНГ) ── */}
+      <ExportAudienceModal
+        isOpen={showExportAudienceModal}
+        onClose={() => setShowExportAudienceModal(false)}
+      />
 
     </div>
   );

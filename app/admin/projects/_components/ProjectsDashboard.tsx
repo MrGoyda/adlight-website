@@ -66,33 +66,7 @@ export default function ProjectsDashboard({ initialProjects, companies }: Projec
   });
 
   return (
-    <div className="space-y-8 select-none">
-      
-      {/* ── ШАПКА РАЗДЕЛА ПРОЕКТОВ ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <div>
-          <button 
-            onClick={() => router.push("/admin/leads")}
-            className="text-xs font-bold text-slate-450 hover:text-slate-700 flex items-center gap-1 mb-1 transition"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" /> CRM Дашборд
-          </button>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <FolderKanban className="w-6 h-6 text-purple-600" /> Все Проекты и Объекты
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={() => router.push("/admin/companies")}
-            variant="lightOutline"
-            leftIcon={<Building2 className="w-4 h-4 text-orange-500" />}
-            className="text-xs font-bold py-2.5"
-          >
-            К компаниям
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6 select-none">
 
       {/* ── ПОИСК И ФИЛЬТРЫ ── */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3">

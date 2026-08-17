@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
 import { createCompany, createContact, createProject, deleteCompany, deleteContact, linkLeadToB2B } from "../actions";
 
 interface Contact {
@@ -158,6 +159,7 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
     });
 
     if (res.success) {
+      toast.success("Компания успешно зарегистрирована!");
       setShowCreateCompanyModal(false);
       setNewCompName("");
       setNewCompBin("");
@@ -166,7 +168,7 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
       setNewCompNotes("");
       router.refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось создать компанию");
     }
     setIsCreatingCompany(false);
   };
@@ -174,7 +176,10 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
   // Обработка добавления контакта
   const handleAddContact = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeCompany || !contactName.trim() || !contactPhone.trim()) return;
+    if (!activeCompany || !contactName.trim() || !contactPhone.trim()) {
+      toast.error("Укажите имя и телефон контакта");
+      return;
+    }
 
     setIsAddingContact(true);
     triggerHaptic("success");
@@ -189,6 +194,7 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
     });
 
     if (res.success) {
+      toast.success("Контактное лицо добавлено!");
       setShowAddContactModal(false);
       setContactName("");
       setContactPosition("");
@@ -197,7 +203,7 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
       setContactIsLPR(false);
       router.refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось добавить контакт");
     }
     setIsAddingContact(false);
   };
@@ -205,7 +211,10 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
   // Обработка добавления проекта
   const handleAddProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeCompany || !projectTitle.trim()) return;
+    if (!activeCompany || !projectTitle.trim()) {
+      toast.error("Укажите название проекта");
+      return;
+    }
 
     setIsAddingProject(true);
     triggerHaptic("success");
@@ -217,6 +226,7 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
     });
 
     if (res.success) {
+      toast.success("Проект успешно создан!");
       if (selectedLeadIdForProject && res.projectId) {
         await linkLeadToB2B(selectedLeadIdForProject, {
           companyId: activeCompany.id,
@@ -229,38 +239,27 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
       setSelectedLeadIdForProject("");
       router.refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось создать проект");
     }
     setIsAddingProject(false);
   };
 
   return (
-    <div className="space-y-8 select-none">
-      
-      {/* ── НАВИГАЦИОННАЯ ШАПКА B2B CRM ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <div>
-          <button 
-            onClick={() => router.push("/admin/leads")}
-            className="text-xs font-bold text-slate-450 hover:text-slate-700 flex items-center gap-1 mb-1 transition"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" /> К списку лидов
-          </button>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-orange-500" /> B2B Компании & Объекты
-          </h1>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={() => { triggerHaptic("light"); setShowCreateCompanyModal(true); }}
-            variant="solid"
-            leftIcon={<Plus className="w-4 h-4" />}
-            className="text-xs font-black py-2.5 shadow-sm shadow-orange-500/10"
-          >
-            Добавить компанию
-          </Button>
-        </div>
+    <div className="space-y-6 select-none">
+      {/* Панель быстрого действия компании */}
+      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+        <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-orange-500" />
+          B2B Компании и Реквизиты
+        </h2>
+        <Button
+          onClick={() => { triggerHaptic("light"); setShowCreateCompanyModal(true); }}
+          variant="solid"
+          leftIcon={<Plus className="w-4 h-4" />}
+          className="text-xs font-black py-2.5 shadow-sm shadow-orange-500/10"
+        >
+          Добавить компанию
+        </Button>
       </div>
 
       {/* ── ОСНОВНОЙ КОНТЕНТ ── */}

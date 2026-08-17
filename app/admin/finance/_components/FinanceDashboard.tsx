@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { addCompanyExpense, recordPartnerWithdrawal, addCompanyIncome } from "../actions";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
 import Button from "@/components/ui/Button";
 import { crmDict } from "@/dictionaries/crm";
 
@@ -97,12 +98,13 @@ export default function FinanceDashboard({ cashbox, transactions, withdrawals, l
 
     const res = await addCompanyExpense(amount, expenseDesc);
     if (res.success) {
+      toast.success("Расход успешно зафиксирован!");
       setExpenseAmount("");
       setExpenseDesc("");
       setShowExpenseForm(false);
       router.refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось сохранить расход");
     }
     setIsSubmittingExpense(false);
   };
@@ -110,19 +112,23 @@ export default function FinanceDashboard({ cashbox, transactions, withdrawals, l
   const handleWithdrawalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(withdrawalAmount);
-    if (!amount || amount <= 0 || !withdrawalDesc) return;
+    if (!amount || amount <= 0 || !withdrawalDesc) {
+      toast.error("Укажите сумму и назначение вывода");
+      return;
+    }
 
     setIsSubmittingWithdrawal(true);
     triggerHaptic("success");
 
     const res = await recordPartnerWithdrawal(withdrawalPartner, amount, withdrawalDesc);
     if (res.success) {
+      toast.success("Вывод средств партнеру зафиксирован!");
       setWithdrawalAmount("");
       setWithdrawalDesc("");
       setShowWithdrawalForm(false);
       router.refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось зафиксировать вывод");
     }
     setIsSubmittingWithdrawal(false);
   };
@@ -130,86 +136,30 @@ export default function FinanceDashboard({ cashbox, transactions, withdrawals, l
   const handleIncomeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(incomeAmount);
-    if (!amount || amount <= 0 || !incomeDesc) return;
+    if (!amount || amount <= 0 || !incomeDesc) {
+      toast.error("Укажите сумму и источник поступления");
+      return;
+    }
 
     setIsSubmittingIncome(true);
     triggerHaptic("success");
 
     const res = await addCompanyIncome(amount, incomeDesc, incomeLeadId || null);
     if (res.success) {
+      toast.success("Поступление средств успешно проведено!");
       setIncomeAmount("");
       setIncomeDesc("");
       setIncomeLeadId("");
       setShowIncomeForm(false);
       router.refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error || "Не удалось зафиксировать доход");
     }
     setIsSubmittingIncome(false);
   };
 
   return (
-    <div className="space-y-8 select-none">
-      
-      {/* ── НАВИГАЦИОННАЯ ШАПКА АДМИНКИ ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.015)]">
-        <div>
-          <span className="text-xs font-bold text-orange-500 uppercase tracking-widest">{crmDict.navigation.dashboard}</span>
-          <h1 className="text-2xl font-black text-slate-900 mt-1">{crmDict.navigation.title}</h1>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <Button 
-            onClick={() => router.push("/admin/leads")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.leads}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/clients")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.clients}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/warehouse")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.warehouse}
-          </Button>
-
-          <Button 
-            variant="lightGlass" 
-            className="text-orange-600 bg-orange-50 border-orange-200/50 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.finance}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/analytics")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.analytics}
-          </Button>
-          
-          <div className="h-6 w-[1px] bg-slate-250 mx-2 hidden sm:block" />
-          
-          <Button 
-            onClick={handleLogout}
-            variant="lightOutline"
-            leftIcon={<LogOut className="w-3.5 h-3.5 text-rose-500" />}
-            className="text-rose-600 border-rose-200/60 bg-rose-50/30 hover:bg-rose-50 text-xs font-extrabold py-2.5"
-          >
-            {crmDict.navigation.logout}
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6 select-none">
 
       {/* ── КАРТОЧКИ ФИНАНСОВЫХ СЧЕТОВ ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -543,7 +493,7 @@ export default function FinanceDashboard({ cashbox, transactions, withdrawals, l
 
                   return (
                     <tr key={tx.id} className="border-b border-slate-100 hover:bg-slate-50/40 transition">
-                      <td className="py-4 px-6 text-slate-400 font-semibold text-xs whitespace-nowrap">
+                      <td className="py-4 px-6 text-slate-400 font-semibold text-xs whitespace-nowrap" suppressHydrationWarning>
                         {new Date(tx.createdAt).toLocaleDateString("ru-RU", {
                           day: "2-digit",
                           month: "short",

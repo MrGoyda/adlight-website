@@ -29,26 +29,41 @@ export default function ToastContainer({ toasts, onDismiss }: ToastContainerProp
         return (
           <div
             key={toast.id}
-            className={`pointer-events-auto p-4 rounded-2xl border shadow-2xl flex items-start justify-between gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 backdrop-blur-2xl ${
+            className={`pointer-events-auto p-3.5 sm:p-4 rounded-2xl border shadow-2xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 fade-in duration-200 backdrop-blur-2xl ${
               isSuccess
-                ? "bg-slate-900/95 border-emerald-500/40 text-white"
+                ? "bg-slate-900/95 border-emerald-500/40 text-white shadow-emerald-950/20"
                 : isError
-                ? "bg-slate-900/95 border-rose-500/40 text-white"
-                : "bg-slate-900/95 border-slate-700/60 text-white"
+                ? "bg-slate-900/95 border-rose-500/40 text-white shadow-rose-950/20"
+                : "bg-slate-900/95 border-slate-700/60 text-white shadow-slate-950/20"
             }`}
           >
-            <div className="flex items-start gap-3 min-w-0 flex-1">
-              {isSuccess && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />}
-              {isError && <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />}
-              {!isSuccess && !isError && <Info className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />}
-              <p className="text-xs font-bold leading-relaxed text-slate-100 break-words whitespace-pre-wrap">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="shrink-0 flex items-center justify-center">
+                {isSuccess && (
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                )}
+                {isError && (
+                  <div className="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center border border-rose-500/30 shrink-0">
+                    <AlertCircle className="w-4 h-4" />
+                  </div>
+                )}
+                {!isSuccess && !isError && (
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center border border-orange-500/30 shrink-0">
+                    <Info className="w-4 h-4" />
+                  </div>
+                )}
+              </div>
+              <p className="text-xs sm:text-[13px] font-bold leading-snug text-slate-100 break-words flex-1">
                 {toast.text}
               </p>
             </div>
 
             <button
               onClick={() => onDismiss(toast.id)}
-              className="p-1 text-slate-400 hover:text-white transition cursor-pointer shrink-0"
+              className="p-1.5 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition cursor-pointer shrink-0 flex items-center justify-center"
+              aria-label="Закрыть"
             >
               <X className="w-4 h-4" />
             </button>

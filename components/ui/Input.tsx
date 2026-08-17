@@ -57,7 +57,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             required={required}
             disabled={disabled}
             className={cn(
-              "w-full border rounded-xl py-4 transition-all outline-none focus:ring-2",
+              "w-full border rounded-xl py-4 text-base sm:text-sm transition-all outline-none focus:ring-2",
               isLight 
                 ? "bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:ring-orange-500/20" 
                 : "bg-slate-900 text-white placeholder:text-slate-600 focus:ring-orange-500/50",

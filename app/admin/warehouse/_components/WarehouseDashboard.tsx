@@ -28,6 +28,7 @@ import {
 import Button from "@/components/ui/Button";
 import { crmDict } from "@/dictionaries/crm";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
 import { InventoryUnit } from "@prisma/client";
 import { 
   createWarehouseItem, 
@@ -277,8 +278,9 @@ export default function WarehouseDashboard({
 
       if (res.error) {
         setFormError(res.error);
+        toast.error(res.error || "Ошибка при корректировке остатка");
       } else {
-        triggerHaptic("success");
+        toast.success("Остаток на складе обновлен!");
         setItemModal({ isOpen: false, mode: "create" });
         router.refresh();
       }
@@ -286,16 +288,23 @@ export default function WarehouseDashboard({
   };
 
   // Удаление со склада
-  const handleDeleteItem = async (id: string) => {
-    if (!confirm("Вы уверены, что хотите удалить этот материал?")) return;
-    triggerHaptic("light");
-    const res = await deleteWarehouseItem(id);
-    if (res.error) {
-      alert(res.error);
-    } else {
-      triggerHaptic("success");
-      router.refresh();
-    }
+  const handleDeleteItem = (id: string) => {
+    toast.confirm({
+      title: "Удалить материал со склада?",
+      message: "Позиция и история движения этого материала будут удалены.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        const res = await deleteWarehouseItem(id);
+        if (res.error) {
+          toast.error(res.error || "Не удалось удалить материал");
+        } else {
+          toast.success("Материал удален со склада");
+          router.refresh();
+        }
+      },
+    });
   };
 
   // Сохранение цены поставщика
@@ -313,8 +322,9 @@ export default function WarehouseDashboard({
 
       if (res.error) {
         setFormError(res.error);
+        toast.error(res.error || "Ошибка сохранения прайса");
       } else {
-        triggerHaptic("success");
+        toast.success("Прайс поставщика сохранен!");
         setSupplierModal({ isOpen: false, mode: "create" });
         router.refresh();
       }
@@ -322,16 +332,22 @@ export default function WarehouseDashboard({
   };
 
   // Удаление цены поставщика
-  const handleDeleteSupplier = async (id: string) => {
-    if (!confirm("Вы уверены, что хотите удалить этот прайс?")) return;
-    triggerHaptic("light");
-    const res = await deleteSupplierPrice(id);
-    if (res.error) {
-      alert(res.error);
-    } else {
-      triggerHaptic("success");
-      router.refresh();
-    }
+  const handleDeleteSupplier = (id: string) => {
+    toast.confirm({
+      title: "Удалить позицию из прайса поставщика?",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        const res = await deleteSupplierPrice(id);
+        if (res.error) {
+          toast.error(res.error || "Не удалось удалить прайс");
+        } else {
+          toast.success("Позиция удалена из прайса");
+          router.refresh();
+        }
+      },
+    });
   };
 
   // Открытие модального окна контактов поставщика
@@ -373,8 +389,9 @@ export default function WarehouseDashboard({
 
       if (res.error) {
         setFormError(res.error);
+        toast.error(res.error || "Ошибка сохранения поставщика");
       } else {
-        triggerHaptic("success");
+        toast.success("Данные поставщика сохранены!");
         setSupplierContactModal({ isOpen: false, mode: "create" });
         router.refresh();
       }
@@ -382,16 +399,23 @@ export default function WarehouseDashboard({
   };
 
   // Удаление контакта поставщика
-  const handleDeleteSupplierContact = async (id: string) => {
-    if (!confirm("Вы уверены, что хотите удалить этого поставщика? Связанные цены останутся, но потеряют привязку.")) return;
-    triggerHaptic("light");
-    const res = await deleteSupplier(id);
-    if (res.error) {
-      alert(res.error);
-    } else {
-      triggerHaptic("success");
-      router.refresh();
-    }
+  const handleDeleteSupplierContact = (id: string) => {
+    toast.confirm({
+      title: "Удалить поставщика?",
+      message: "Связанные цены останутся в справочнике, но потеряют прямую привязку.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        const res = await deleteSupplier(id);
+        if (res.error) {
+          toast.error(res.error || "Не удалось удалить поставщика");
+        } else {
+          toast.success("Поставщик удален");
+          router.refresh();
+        }
+      },
+    });
   };
 
   // Подсчет критически низких остатков
@@ -399,60 +423,6 @@ export default function WarehouseDashboard({
 
   return (
     <div className="space-y-6">
-      {/* Шапка навигации */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2.5">
-            <Package className="w-7 h-7 text-orange-500" />
-            Склад и Цены поставщиков
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Контролируйте остатки сырья, прайсы поставщиков и историю расхода
-          </p>
-        </div>
-
-        {/* Навигационные кнопки в стиле Apple */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button 
-            onClick={() => router.push("/admin/leads")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.leads}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/clients")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.clients}
-          </Button>
-
-          <Button 
-            variant="lightGlass" 
-            className="text-orange-600 bg-orange-50 border-orange-200/50 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.warehouse}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/finance")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.finance}
-          </Button>
-
-          <Button 
-            onClick={() => router.push("/admin/analytics")}
-            variant="lightOutline" 
-            className="text-slate-600 border-slate-200 text-xs font-bold py-2.5"
-          >
-            {crmDict.navigation.analytics}
-          </Button>
-        </div>
-      </div>
 
       {/* Информационные плашки */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -845,7 +815,7 @@ export default function WarehouseDashboard({
                     const isIncome = tx.quantityChanged > 0;
                     return (
                       <tr key={tx.id} className="hover:bg-slate-50/50 transition">
-                        <td className="p-4 text-slate-400 text-xs">
+                        <td className="p-4 text-slate-400 text-xs" suppressHydrationWarning>
                           {new Date(tx.createdAt).toLocaleString("ru-RU")}
                         </td>
                         <td className="p-4 font-bold text-slate-800">{tx.item.name}</td>

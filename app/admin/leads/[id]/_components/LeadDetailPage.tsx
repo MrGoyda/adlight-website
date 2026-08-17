@@ -14,9 +14,9 @@ import LeadFilesManager from "./LeadFilesManager";
 import LeadTimeline from "./LeadTimeline";
 import LeadParamsSidebar from "./LeadParamsSidebar";
 import MediaViewerModal from "./MediaViewerModal";
-import ToastContainer, { ToastMessage, ToastType } from "./ToastContainer";
 import CrmBreadcrumbs from "@/components/ui/CrmBreadcrumbs";
 import EstimateModal from "../../_components/EstimateModal";
+import { toast } from "@/lib/toast";
 import { 
   updateLeadMainData, 
   addLeadActivity, 
@@ -60,6 +60,8 @@ interface LeadData {
   appointmentDate: string | null;
   deadline: string | null;
   manager: PartnerName | null;
+  offeredPrice?: number | null;
+  isDiscounted?: boolean;
   revenue: number;
   expenses: number;
   prepayment: number;
@@ -107,6 +109,9 @@ export default function LeadDetailPage({
   const deadlineStr = lead.deadline ? new Date(lead.deadline).toISOString().slice(0, 10) : "";
   const [deadline, setDeadline] = useState(deadlineStr);
 
+  const [offeredPrice, setOfferedPrice] = useState(lead.offeredPrice !== undefined && lead.offeredPrice !== null ? String(lead.offeredPrice) : "");
+  const [isDiscounted, setIsDiscounted] = useState(Boolean(lead.isDiscounted));
+
   const [companyId, setCompanyId] = useState(lead.companyId || "");
   const [projectId, setProjectId] = useState(lead.projectId || "");
 
@@ -120,21 +125,6 @@ export default function LeadDetailPage({
   const [selectedCategory, setSelectedCategory] = useState<FileCategory>("MEASUREMENT");
   const [isUploading, setIsUploading] = useState(false);
   const [viewerFileId, setViewerFileId] = useState<string | null>(null);
-
-  // Кастомная Toast система
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
-
-  const addToast = (type: ToastType, text: string) => {
-    const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
-    setToasts((prev) => [...prev, { id, type, text }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
 
   // Быстрое сохранение реквизитов и полей
   const handleSaveMainData = async (newRating?: ClientRating, newStatus?: LeadStatus) => {
@@ -160,6 +150,8 @@ export default function LeadDetailPage({
       appointmentDate: formatSafeDate(appDate),
       deadline: formatSafeDate(deadline),
       manager: (manager as PartnerName) || null,
+      offeredPrice: offeredPrice ? parseFloat(offeredPrice) : null,
+      isDiscounted: isDiscounted,
       companyId: companyId || null,
       projectId: projectId || null,
     }));
@@ -167,10 +159,10 @@ export default function LeadDetailPage({
     if (res.success) {
       if (newRating) setRating(newRating);
       if (newStatus) setStatus(newStatus);
-      addToast("success", crmDict.leadDetail.savedSuccess);
+      toast.success(crmDict.leadDetail.savedSuccess);
       router.refresh();
     } else {
-      addToast("error", res.error || crmDict.leadDetail.saveError);
+      toast.error(res.error || crmDict.leadDetail.saveError);
     }
     setIsSaving(false);
   };
@@ -186,10 +178,10 @@ export default function LeadDetailPage({
     const res = await addLeadActivity(lead.id, newNoteText);
     if (res.success) {
       setNewNoteText("");
-      addToast("success", crmDict.leadDetail.noteAddedSuccess);
+      toast.success(crmDict.leadDetail.noteAddedSuccess);
       router.refresh();
     } else {
-      addToast("error", res.error || crmDict.leadDetail.noteAddError);
+      toast.error(res.error || crmDict.leadDetail.noteAddError);
     }
     setIsAddingNote(false);
   };
@@ -199,11 +191,11 @@ export default function LeadDetailPage({
     triggerHaptic("success");
     const res = await updateLeadActivity(activityId, text, lead.id);
     if (res.success) {
-      addToast("success", crmDict.leadDetail.noteUpdatedSuccess);
+      toast.success(crmDict.leadDetail.noteUpdatedSuccess);
       router.refresh();
       return true;
     } else {
-      addToast("error", res.error || crmDict.leadDetail.noteUpdateError);
+      toast.error(res.error || crmDict.leadDetail.noteUpdateError);
       return false;
     }
   };
@@ -213,10 +205,10 @@ export default function LeadDetailPage({
     triggerHaptic("light");
     const res = await deleteLeadActivity(activityId, lead.id);
     if (res.success) {
-      addToast("success", crmDict.leadDetail.noteDeletedSuccess);
+      toast.success(crmDict.leadDetail.noteDeletedSuccess);
       router.refresh();
     } else {
-      addToast("error", res.error || crmDict.leadDetail.noteDeleteError);
+      toast.error(res.error || crmDict.leadDetail.noteDeleteError);
     }
   };
 
@@ -242,9 +234,9 @@ export default function LeadDetailPage({
           mimeType: file.type || "application/octet-stream",
           category: selectedCategory,
         });
-        addToast("success", crmDict.leadDetail.fileUploadedSuccess);
+        toast.success(crmDict.leadDetail.fileUploadedSuccess);
       } else {
-        addToast("error", `${crmDict.leadDetail.fileUploadError}: ${file.name}`);
+        toast.error(`${crmDict.leadDetail.fileUploadError}: ${file.name}`);
       }
     }
 
@@ -259,10 +251,10 @@ export default function LeadDetailPage({
     triggerHaptic("light");
     const res = await deleteLeadFile(fileId, lead.id);
     if (res.success) {
-      addToast("success", crmDict.leadDetail.fileDeletedSuccess);
+      toast.success(crmDict.leadDetail.fileDeletedSuccess);
       router.refresh();
     } else {
-      addToast("error", res.error || crmDict.leadDetail.fileDeleteError);
+      toast.error(res.error || crmDict.leadDetail.fileDeleteError);
     }
   };
 
@@ -414,6 +406,10 @@ export default function LeadDetailPage({
             onAppDateChange={setAppDate}
             deadline={deadline}
             onDeadlineChange={setDeadline}
+            offeredPrice={offeredPrice}
+            onOfferedPriceChange={setOfferedPrice}
+            isDiscounted={isDiscounted}
+            onIsDiscountedChange={setIsDiscounted}
             onSave={handleSaveMainData}
             isSaving={isSaving}
           />
@@ -478,9 +474,6 @@ export default function LeadDetailPage({
           }}
         />
       )}
-
-      {/* ── КАСТОМНЫЕ УВЕДОМЛЕНИЯ (TOASTS) ── */}
-      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </div>
   );
 }

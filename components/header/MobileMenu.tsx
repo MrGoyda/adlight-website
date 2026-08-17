@@ -375,15 +375,20 @@ export default function MobileMenu({ isOpen, onClose, onOpenConsultation, regist
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant="lightGlass"
-              className="w-full text-slate-800 border border-slate-200 text-xs py-3.5"
+            <Link
+              href="/admin/leads"
               onClick={() => { triggerHaptic(); closeDrawer(); }}
+              className="w-full"
             >
-              <span className="flex items-center gap-2 justify-center">
-                <User className="w-4 h-4" /> Кабинет
-              </span>
-            </Button>
+              <Button
+                variant="lightGlass"
+                className="w-full text-slate-800 border border-slate-200 text-xs py-3.5"
+              >
+                <span className="flex items-center gap-2 justify-center">
+                  <User className="w-4 h-4 text-orange-500" /> CRM Панель
+                </span>
+              </Button>
+            </Link>
             <Button
               variant="solid"
               onClick={() => { triggerHaptic("medium"); closeDrawer(); onOpenConsultation(); }}

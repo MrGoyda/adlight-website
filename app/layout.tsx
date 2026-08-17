@@ -7,6 +7,7 @@ import "./globals.css";
 // Ваши компоненты
 import Header from "@/components/Header"; 
 import Footer from "@/components/Footer";
+import PublicLayoutWrapper from "@/components/PublicLayoutWrapper";
 
 // Компоненты для SEO и Аналитики
 import JsonLd from "@/components/JsonLd";
@@ -100,6 +101,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
   viewportFit: "cover",
 };
 
@@ -140,7 +142,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`}>
+      <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`} suppressHydrationWarning>
         <AnalyticsTracker />
         <PageViewTracker />
 
@@ -162,14 +164,9 @@ export default function RootLayout({
         {/* Meta Pixel убран — события идут через CAPI в /api/track (SST) */}
 
         <LazyMotion features={domAnimation} strict={false}>
-          {/* Глобальный хедер */}
-          <Header />
-
-          {/* Контент страницы */}
-          {children}
-
-          {/* Глобальный футер */}
-          <Footer />
+          <PublicLayoutWrapper>
+            {children}
+          </PublicLayoutWrapper>
         </LazyMotion>
         
       </body>

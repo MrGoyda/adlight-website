@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getFeatureFlags } from '@/lib/featureFlags';
 import { prisma } from '@/lib/prisma';
+import { normalizePhone } from '@/lib/phoneUtils';
 
 // Простой in-memory кэш для лимитирования запросов по IP (Rate Limiting)
 const rateLimitMap = new Map<string, number[]>();
@@ -157,14 +158,45 @@ export async function POST(req: Request) {
 
     // Сохранение лида в базу данных Supabase с UTM-метками и Client IDs
     let leadId = '';
+    const cleanPhone = normalizePhone(phone) || phone;
+    
     try {
+      // 1. Поиск или создание клиента
+      let clientId: string | null = null;
+      try {
+        const existingClient = await prisma.client.findFirst({
+          where: {
+            OR: [
+              { phone: cleanPhone },
+              { phone: phone }
+            ]
+          }
+        });
+        if (existingClient) {
+          clientId = existingClient.id;
+        } else {
+          const newClient = await prisma.client.create({
+            data: {
+              name,
+              phone: cleanPhone,
+              notes: `Создан из лида: ${rawSource}`,
+            }
+          });
+          clientId = newClient.id;
+        }
+      } catch (clientErr) {
+        console.error('Client auto-link error in telegram route:', clientErr);
+      }
+
+      // 2. Создание лида
       const dbLead = await prisma.lead.create({
         data: {
           name,
-          phone,
+          phone: cleanPhone,
           message: customMessage || null,
           calcDetails: body.calcDetails || null,
           status: 'NEW',
+          source: rawSource || 'Сайт',
           utmSource: body.utmSource || null,
           utmMedium: body.utmMedium || null,
           utmCampaign: body.utmCampaign || null,
@@ -173,9 +205,21 @@ export async function POST(req: Request) {
           yandexClientId: body.yandexClientId || null,
           googleClientId: body.googleClientId || null,
           fbBrowserId: body.fbBrowserId || null,
+          clientId: clientId,
         },
       });
       leadId = dbLead.id;
+
+      // 3. Если передан ID клика, связываем его
+      if (body.clickId && leadId) {
+        await prisma.leadClick.update({
+          where: { id: body.clickId },
+          data: {
+            status: 'MATCHED',
+            matchedLeadId: leadId,
+          },
+        }).catch(() => {});
+      }
     } catch (dbError) {
       console.error('Database lead insertion failed:', dbError);
     }

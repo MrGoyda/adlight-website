@@ -16,6 +16,7 @@ import CallToAction from "@/components/CallToAction";
 // --- ИМПОРТ СЛОВАРЯ ---
 import { COMPANY_NAP } from "@/dictionaries/common";
 import { CONTACTS_DICT } from "@/dictionaries/contacts";
+import { copyToClipboard } from "@/lib/clipboard";
 
 export default function ContactsClient() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -31,11 +32,13 @@ export default function ContactsClient() {
     }
   };
 
-  const copyToClipboard = (text: string, id: string) => {
+  const handleCopy = async (text: string, id: string) => {
     triggerHaptic();
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+    const ok = await copyToClipboard(text);
+    if (ok) {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
   };
 
   const handleInteractiveClick = () => {
@@ -54,7 +57,7 @@ export default function ContactsClient() {
       {/* 2. БЕНТО-СЕТКА ОСНОВНЫХ КОНТАКТОВ */}
       <ContactsBento 
         copiedId={copiedId} 
-        copyToClipboard={copyToClipboard} 
+        copyToClipboard={handleCopy} 
       />
 
       {/* 2.5. ПОПУЛЯРНЫЕ УСЛУГИ (Внутренняя перелинковка для Link Juice) */}
@@ -102,7 +105,7 @@ export default function ContactsClient() {
       {/* 5. РЕКВИЗИТЫ КОМПАНИИ */}
       <ContactsRequisites 
         copiedId={copiedId}
-        copyToClipboard={copyToClipboard}
+        copyToClipboard={handleCopy}
         requisitesText={requisitesText}
       />
 

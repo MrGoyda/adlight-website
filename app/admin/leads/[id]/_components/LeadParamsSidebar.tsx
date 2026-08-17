@@ -32,6 +32,10 @@ interface LeadParamsSidebarProps {
   onAppDateChange: (val: string) => void;
   deadline: string;
   onDeadlineChange: (val: string) => void;
+  offeredPrice: string;
+  onOfferedPriceChange: (val: string) => void;
+  isDiscounted: boolean;
+  onIsDiscountedChange: (val: boolean) => void;
   onSave: () => void;
   isSaving: boolean;
 }
@@ -55,6 +59,10 @@ export default function LeadParamsSidebar({
   onAppDateChange,
   deadline,
   onDeadlineChange,
+  offeredPrice,
+  onOfferedPriceChange,
+  isDiscounted,
+  onIsDiscountedChange,
   onSave,
   isSaving,
 }: LeadParamsSidebarProps) {
@@ -192,6 +200,29 @@ export default function LeadParamsSidebar({
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:border-orange-500/50 cursor-pointer"
               />
             </div>
+          </div>
+
+          {/* Озвученная клиенту стоимость и скидка */}
+          <div className="pt-2 border-t border-slate-100 space-y-2">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Озвученная стоимость (₸)
+            </label>
+            <input
+              type="number"
+              value={offeredPrice}
+              onChange={(e) => onOfferedPriceChange(e.target.value)}
+              placeholder="Сумма в тенге..."
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 font-extrabold focus:outline-none focus:border-orange-500/50"
+            />
+            <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer select-none hover:bg-slate-100/60 transition">
+              <input
+                type="checkbox"
+                checked={isDiscounted}
+                onChange={(e) => onIsDiscountedChange(e.target.checked)}
+                className="w-3.5 h-3.5 rounded text-orange-600 focus:ring-orange-500 border-slate-300 cursor-pointer accent-orange-500"
+              />
+              <span className="text-xs font-bold text-slate-700">🏷️ Озвучено со скидкой</span>
+            </label>
           </div>
         </div>
 

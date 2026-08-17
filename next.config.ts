@@ -3,6 +3,20 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
+    serverActions: {
+      allowedOrigins: [
+        "172.20.10.5:3000",
+        "172.20.10.1:3000",
+        "172.20.10.2:3000",
+        "172.20.10.3:3000",
+        "172.20.10.4:3000",
+        "172.20.10.5",
+        "192.168.0.15:3000",
+        "192.168.0.15",
+        "localhost:3000",
+        "127.0.0.1:3000",
+      ],
+    },
   },
   images: {
     unoptimized: true,
