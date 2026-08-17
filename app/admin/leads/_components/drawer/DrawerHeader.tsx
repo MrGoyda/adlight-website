@@ -68,11 +68,26 @@ export default function DrawerHeader({
 
   return (
     <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 sticky top-0 bg-white/95 backdrop-blur-md z-20">
-      {/* Левая часть: статус и кнопка квалификации */}
+      {/* Левая часть: интерактивный выбор этапа сделки и кнопка квалификации */}
       <div className="flex items-center gap-2 flex-wrap min-w-0">
-        <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border shadow-2xs ${status.bg} ${status.color}`}>
-          {status.label}
-        </span>
+        <div className="relative">
+          <select
+            value={activeLead.status}
+            onChange={(e) => {
+              triggerHaptic("medium");
+              onStatusChange(activeLead.id, e.target.value as LeadStatus);
+            }}
+            className={`appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider border shadow-2xs cursor-pointer outline-none transition ${status.bg} ${status.color}`}
+            title="Сменить этап сделки"
+          >
+            {Object.entries(STATUS_MAP).map(([key, val]) => (
+              <option key={key} value={key} className="bg-white text-slate-900 font-bold py-1">
+                {val.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="w-3.5 h-3.5 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
+        </div>
 
         {activeLead.status !== "PROCESSED" && activeLead.status !== "COMPLETED" && (
           <button
