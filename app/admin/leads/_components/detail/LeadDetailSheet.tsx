@@ -173,28 +173,28 @@ function LeadDetailSheetContent({
         </div>
 
         {/* 4. Фиксированный футер сохранения / редактирования */}
-        <div className="p-3 sm:px-6 sm:py-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 sticky bottom-0 z-30 flex items-center justify-between gap-3 shrink-0">
-          <div className="text-xs font-black text-slate-700 truncate">
+        <div className="p-2.5 sm:px-6 sm:py-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 sticky bottom-0 z-30 flex items-center justify-between gap-2 shrink-0">
+          <div className="text-[11px] sm:text-xs font-black text-slate-700 truncate min-w-0 flex-1">
             {state.offeredPrice ? (
-              <span>
+              <span className="truncate block">
                 Озвучено:{" "}
                 <b className="text-slate-900 font-extrabold">
                   {Number(state.offeredPrice).toLocaleString()} ₸
                 </b>
-                {state.isDiscounted && <span className="text-orange-600 ml-1">(со скидкой)</span>}
+                {state.isDiscounted && <span className="text-orange-600 ml-1">(скидка)</span>}
               </span>
             ) : (
-              <span className="text-slate-400">Стоимость не озвучена</span>
+              <span className="text-slate-400">Не озвучена</span>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {!state.isEditing ? (
               <>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-3.5 py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-xs transition cursor-pointer active:scale-95"
+                  className="px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-[11px] sm:text-xs transition cursor-pointer active:scale-95"
                 >
                   Закрыть
                 </button>
@@ -205,7 +205,7 @@ function LeadDetailSheetContent({
                     triggerHaptic("light");
                     state.setIsEditing(true);
                   }}
-                  className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-extrabold text-xs shadow-sm transition cursor-pointer active:scale-95"
+                  className="inline-flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-extrabold text-[11px] sm:text-xs shadow-sm transition cursor-pointer active:scale-95"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-slate-300" />
                   <span>Редактировать</span>

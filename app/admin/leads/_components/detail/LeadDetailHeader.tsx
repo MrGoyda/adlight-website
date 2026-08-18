@@ -73,18 +73,18 @@ export default function LeadDetailHeader({
   }, []);
 
   return (
-    <div className="p-3.5 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between gap-3 sticky top-0 bg-white/95 backdrop-blur-md z-30 shrink-0">
+    <div className="p-2.5 sm:px-6 sm:py-3.5 border-b border-slate-100 flex items-center justify-between gap-1.5 sm:gap-3 sticky top-0 bg-white/95 backdrop-blur-md z-30 shrink-0">
       {/* Левая часть: Статус + Рейтинг */}
-      <div className="flex items-center gap-2 flex-wrap min-w-0">
+      <div className="flex items-center gap-1.5 min-w-0 shrink">
         {/* Интерактивный этап сделки */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <select
             value={lead.status}
             onChange={(e) => {
               triggerHaptic("medium");
               onStatusChange(e.target.value as LeadStatus);
             }}
-            className={`appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider border shadow-2xs cursor-pointer outline-none transition ${status.bg} ${status.color}`}
+            className={`appearance-none pl-2.5 pr-6 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold uppercase tracking-wider border shadow-2xs cursor-pointer outline-none transition max-w-[130px] sm:max-w-none truncate ${status.bg} ${status.color}`}
             title="Сменить этап сделки"
           >
             {Object.entries(STATUS_MAP).map(([key, val]) => (
@@ -93,27 +93,27 @@ export default function LeadDetailHeader({
               </option>
             ))}
           </select>
-          <ChevronDown className="w-3.5 h-3.5 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
+          <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
         </div>
 
         {/* Рейтинг клиента */}
-        <div className="relative" ref={ratingRef}>
+        <div className="relative shrink-0" ref={ratingRef}>
           <button
             type="button"
             onClick={() => {
               triggerHaptic("light");
               setShowRatingMenu((prev) => !prev);
             }}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-black shadow-2xs transition cursor-pointer active:scale-95 ${currentRating.badgeClass}`}
+            className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border text-[11px] sm:text-xs font-black shadow-2xs transition cursor-pointer active:scale-95 ${currentRating.badgeClass}`}
             title="Оценка сложности клиента"
           >
             <span>{currentRating.icon}</span>
-            <span className="hidden sm:inline">{currentRating.shortLabel}</span>
-            <ChevronDown className="w-3 h-3 opacity-60" />
+            <span className="hidden md:inline">{currentRating.shortLabel}</span>
+            <ChevronDown className="w-2.5 h-2.5 opacity-60" />
           </button>
 
           {showRatingMenu && (
-            <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+            <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:left-0 sm:top-full sm:mt-2 w-auto sm:w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
               <span className="block px-2.5 py-1 text-[10px] font-black text-slate-400 uppercase tracking-wider">
                 Категория клиента
               </span>
@@ -143,7 +143,7 @@ export default function LeadDetailHeader({
       </div>
 
       {/* Правая часть: WhatsApp, Редактировать, Смета, Закрыть */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         {/* Кнопка WhatsApp */}
         <div className="relative" ref={whatsappRef}>
           <button
@@ -152,16 +152,16 @@ export default function LeadDetailHeader({
               triggerHaptic("light");
               setShowWhatsAppMenu((prev) => !prev);
             }}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
+            className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
             title="Быстрый WhatsApp"
           >
             <WhatsAppIcon className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">WhatsApp</span>
-            <ChevronDown className="w-3 h-3 opacity-80" />
+            <ChevronDown className="w-3 h-3 opacity-80 hidden sm:inline" />
           </button>
 
           {showWhatsAppMenu && (
-            <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
+            <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1">
               <span className="block px-3 py-1 text-[10px] font-black text-slate-400 uppercase tracking-wider">
                 Быстрые шаблоны
               </span>
@@ -197,7 +197,7 @@ export default function LeadDetailHeader({
               triggerHaptic("light");
               onToggleEditing();
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-extrabold text-xs transition cursor-pointer active:scale-95 shadow-2xs ${
+            className={`flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl font-extrabold text-[11px] sm:text-xs transition cursor-pointer active:scale-95 shadow-2xs ${
               isEditing
                 ? "bg-slate-900 text-white hover:bg-black"
                 : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/80"
@@ -225,7 +225,7 @@ export default function LeadDetailHeader({
             triggerHaptic("light");
             onOpenEstimate();
           }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs transition cursor-pointer shadow-md shadow-orange-500/20 active:scale-95"
+          className="flex items-center gap-1 p-2 sm:px-3 sm:py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs transition cursor-pointer shadow-md shadow-orange-500/20 active:scale-95"
           title="Открыть смету"
         >
           <Calculator className="w-3.5 h-3.5" />
@@ -236,10 +236,10 @@ export default function LeadDetailHeader({
         <button
           type="button"
           onClick={onClose}
-          className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition cursor-pointer active:scale-90"
+          className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition cursor-pointer active:scale-90"
           title="Закрыть (Esc)"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
     </div>
