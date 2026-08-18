@@ -6,9 +6,12 @@ import { triggerHaptic } from "@/lib/haptics";
 import { STATUS_MAP } from "../_data/leadsDictionary";
 import { Lead } from "../_types/leadTypes";
 import { getLeadTimingInfo } from "../_utils/leadTimelineUtils";
+import { DEFAULT_CHECKLIST_ITEMS } from "../_data/leadDetailDictionary";
+import { LeadTechSpec, LeadChecklistState } from "../_types/leadDetailTypes";
 
 import LeadCardHeader from "./card/LeadCardHeader";
 import LeadCardTimingBadges from "./card/LeadCardTimingBadges";
+import LeadCardTechSpecChips from "./card/LeadCardTechSpecChips";
 import LeadCardContactRow from "./card/LeadCardContactRow";
 import LeadCardHudBar from "./card/LeadCardHudBar";
 import LeadCardAccordionContent from "./card/LeadCardAccordionContent";
@@ -56,11 +59,44 @@ export default function LeadCard({
     lead.deadline
   );
 
-  const imagesCount =
-    lead.files?.filter((f) => f.mimeType.startsWith("image/")).length || 0;
-  const docsCount =
-    lead.files?.filter((f) => !f.mimeType.startsWith("image/")).length || 0;
+  // Парсинг метаданных (TechSpec, Checklist)
+  const meta = (() => {
+    try {
+      if (lead.calcDetails && typeof lead.calcDetails === "string" && lead.calcDetails.startsWith("{")) {
+        return JSON.parse(lead.calcDetails);
+      }
+    } catch {}
+    return {};
+  })();
+
+  const techSpec: LeadTechSpec = meta.techSpec || {};
+  const checklist: LeadChecklistState = meta.checklist || {};
+
+  // Расчет прогресса чек-листа
+  const completedChecklistCount = DEFAULT_CHECKLIST_ITEMS.filter((item) => Boolean(checklist[item.id])).length;
+  const checklistProgress = completedChecklistCount > 0
+    ? {
+        completed: completedChecklistCount,
+        total: DEFAULT_CHECKLIST_ITEMS.length,
+        percent: Math.round((completedChecklistCount / DEFAULT_CHECKLIST_ITEMS.length) * 100),
+      }
+    : null;
+
+  // Категоризация файлов
+  const allFiles = lead.files || [];
+  const designCount = allFiles.filter((f) => f.category === "SKETCH").length;
+  const imagesCount = allFiles.filter(
+    (f) => f.category === "MEASUREMENT" || (f.mimeType?.startsWith("image/") && f.category !== "SKETCH")
+  ).length;
+  const docsCount = allFiles.filter(
+    (f) =>
+      f.category === "CONTRACT" ||
+      f.category === "INVOICE" ||
+      (!f.mimeType?.startsWith("image/") && f.category !== "SKETCH")
+  ).length;
+
   const estimateItemsCount = lead.estimate?.items?.length || 0;
+  const commentsCount = (lead.comment ? 1 : 0) + (lead.activities?.length || 0);
 
   const toggleExpand = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -81,7 +117,7 @@ export default function LeadCard({
           : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
       }`}
     >
-      {/* Акцентная левая полоска при горящем замере сегодня или просрочке */}
+      {/* Акцентная левая полоска при горящем замере сегодня или остывающем лиде */}
       {timing.isAppointmentToday && (
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-500 to-amber-500" />
       )}
@@ -89,9 +125,10 @@ export default function LeadCard({
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-500" />
       )}
 
-      {/* ── Этаж 1: Шапка (Имя + Время + Кнопка Раскрытия) ── */}
+      {/* ── Этаж 1: Шапка (Имя + Рейтинг VIP/Стандарт + Время + Кнопка Раскрытия) ── */}
       <LeadCardHeader
         name={lead.name}
+        rating={lead.rating}
         createdAt={lead.createdAt}
         isExpanded={isExpanded}
         onToggleExpand={toggleExpand}
@@ -100,22 +137,30 @@ export default function LeadCard({
       {/* ── Смарт-бейджи внимания (Замер сегодня / Остывающий лид / Свежий / Дедлайн) ── */}
       <LeadCardTimingBadges timing={timing} />
 
-      {/* ── Этаж 2: Статус + Телефон + WhatsApp + Озвучено со скидкой + Выручка ── */}
+      {/* ── Лейблы тех-спецификации (Буквы / Короб, Размеры, Стена, Высота, 220V, Ночной монтаж) ── */}
+      <LeadCardTechSpecChips techSpec={techSpec} />
+
+      {/* ── Этаж 2: Статус + Телефон + WhatsApp + Озвучено со скидкой + Аванс / Остаток / 100% ── */}
       <LeadCardContactRow
         status={status}
         source={lead.source}
         phone={lead.phone}
         offeredPrice={lead.offeredPrice}
         isDiscounted={lead.isDiscounted}
+        prepayment={lead.prepayment}
+        isPrepaymentPaid={lead.isPrepaymentPaid}
+        isBalancePaid={lead.isBalancePaid}
         revenue={lead.revenue}
       />
 
-      {/* ── Этаж 3: Полоса 6 индикаторов (HUD) в 1 ряд ── */}
+      {/* ── Этаж 3: Полоса умных индикаторов (HUD): Чек-лист, Макеты, Фото, Документы, Смета, Заметки ── */}
       <LeadCardHudBar
         imagesCount={imagesCount}
         docsCount={docsCount}
+        designCount={designCount}
         estimateItemsCount={estimateItemsCount}
-        hasComment={Boolean(lead.comment)}
+        checklistProgress={checklistProgress}
+        commentsCount={commentsCount}
         hasAddress={Boolean(lead.address)}
         manager={lead.manager}
       />

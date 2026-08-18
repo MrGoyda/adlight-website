@@ -3,9 +3,12 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { ClientRating } from "@prisma/client";
+import { CLIENT_RATINGS } from "../../_data/leadDetailDictionary";
 
 interface LeadCardHeaderProps {
   name: string;
+  rating?: ClientRating | null;
   createdAt: string | Date;
   isExpanded: boolean;
   onToggleExpand: (e: React.MouseEvent) => void;
@@ -13,16 +16,28 @@ interface LeadCardHeaderProps {
 
 export default function LeadCardHeader({
   name,
+  rating,
   createdAt,
   isExpanded,
   onToggleExpand,
 }: LeadCardHeaderProps) {
+  const ratingObj = rating ? CLIENT_RATINGS[rating] : null;
+
   return (
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0 flex-1">
+    <div className="flex items-start justify-between gap-2.5">
+      <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
         <h3 className="font-extrabold text-slate-900 text-base leading-snug break-words">
           {name}
         </h3>
+        {ratingObj && rating !== "STANDARD" && (
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-black shadow-2xs ${ratingObj.badgeClass}`}
+            title={ratingObj.label}
+          >
+            <span>{ratingObj.icon}</span>
+            <span>{ratingObj.shortLabel}</span>
+          </span>
+        )}
       </div>
 
       <div className="flex items-center gap-2 shrink-0">

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Phone, DollarSign } from "lucide-react";
+import { Phone, DollarSign, CheckCircle2, Clock } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { StatusConfig } from "../../_data/leadsDictionary";
 
@@ -11,6 +11,9 @@ interface LeadCardContactRowProps {
   phone: string;
   offeredPrice?: number | null;
   isDiscounted?: boolean;
+  prepayment?: number | null;
+  isPrepaymentPaid?: boolean;
+  isBalancePaid?: boolean;
   revenue?: number | null;
 }
 
@@ -20,9 +23,16 @@ export default function LeadCardContactRow({
   phone,
   offeredPrice,
   isDiscounted,
+  prepayment,
+  isPrepaymentPaid,
+  isBalancePaid,
   revenue,
 }: LeadCardContactRowProps) {
   const cleanPhone = phone.replace(/[^0-9+]/g, "");
+
+  const numOffered = offeredPrice ? Number(offeredPrice) : 0;
+  const numPrepayment = prepayment ? Number(prepayment) : 0;
+  const balanceDue = numOffered > 0 && numPrepayment > 0 ? numOffered - numPrepayment : 0;
 
   return (
     <div className="flex items-center gap-2 flex-wrap text-xs">
@@ -63,10 +73,10 @@ export default function LeadCardContactRow({
       </div>
 
       {/* 4. Озвученная стоимость */}
-      {offeredPrice && offeredPrice > 0 ? (
+      {numOffered > 0 && (
         <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 font-extrabold border border-amber-200 shadow-2xs">
           <span className="text-[10px] text-amber-600 font-medium">Озвучено:</span>
-          <span>{Number(offeredPrice).toLocaleString("ru-RU")} ₸</span>
+          <span>{numOffered.toLocaleString("ru-RU")} ₸</span>
           {isDiscounted && (
             <span
               className="text-[9px] px-1 py-0.2 bg-amber-200 text-amber-800 rounded font-black uppercase tracking-tight ml-0.5"
@@ -76,10 +86,33 @@ export default function LeadCardContactRow({
             </span>
           )}
         </div>
-      ) : null}
+      )}
 
-      {/* 5. Выручка (если зафиксирована) */}
-      {revenue && revenue > 0 ? (
+      {/* 5. Статус оплат и предоплаты */}
+      {isBalancePaid ? (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-800 font-black border border-blue-200 shadow-2xs">
+          <CheckCircle2 className="w-3 h-3 text-blue-600" />
+          <span>Оплачено 100%</span>
+        </span>
+      ) : isPrepaymentPaid && numPrepayment > 0 ? (
+        <>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 font-black border border-emerald-200 shadow-2xs text-[11px]">
+            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+            <span>Аванс {numPrepayment.toLocaleString("ru-RU")} ₸</span>
+          </span>
+          {balanceDue > 0 && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold border border-slate-200 text-[11px]">
+              <Clock className="w-3 h-3 text-slate-400" />
+              <span>Остаток {balanceDue.toLocaleString("ru-RU")} ₸</span>
+            </span>
+          )}
+        </>
+      ) : numPrepayment > 0 ? (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50/80 text-amber-800 font-bold border border-amber-200 text-[11px]">
+          <Clock className="w-3 h-3 text-amber-500" />
+          <span>Аванс {numPrepayment.toLocaleString("ru-RU")} ₸ (ожидается)</span>
+        </span>
+      ) : revenue && revenue > 0 ? (
         <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-black border border-emerald-200">
           <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
           <span>{Number(revenue).toLocaleString("ru-RU")} ₸</span>
