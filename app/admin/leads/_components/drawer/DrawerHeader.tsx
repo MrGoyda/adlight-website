@@ -4,11 +4,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { 
   X, 
   FolderOpen, 
-  MessageCircle, 
   ChevronDown, 
   Send, 
   Briefcase 
 } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus } from "@prisma/client";
 import { STATUS_MAP, LEADS_DICTIONARY } from "../../_data/leadsDictionary";
@@ -115,10 +115,10 @@ export default function DrawerHeader({
               triggerHaptic("light");
               setShowWhatsAppMenu((prev) => !prev);
             }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition cursor-pointer shadow-md shadow-emerald-500/20 active:scale-95"
             title="Быстрый WhatsApp"
           >
-            <MessageCircle className="w-3.5 h-3.5" />
+            <WhatsAppIcon className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">WhatsApp</span>
             <ChevronDown className="w-3 h-3 opacity-80" />
           </button>
