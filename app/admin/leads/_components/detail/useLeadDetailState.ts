@@ -239,7 +239,16 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
         });
 
         if (saveRes.data) {
-          setFiles((prev) => [saveRes.data, ...prev]);
+          setFiles((prev) => {
+            const nextFiles = [saveRes.data, ...prev];
+            if (onUpdateLead) {
+              onUpdateLead({
+                ...lead,
+                files: nextFiles,
+              });
+            }
+            return nextFiles;
+          });
         }
       }
       toast.success("Файлы успешно загружены в хранилище!");
@@ -257,7 +266,16 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
     if (res.error) {
       toast.error(res.error);
     } else {
-      setFiles((prev) => prev.filter((f) => f.id !== fileId));
+      setFiles((prev) => {
+        const nextFiles = prev.filter((f) => f.id !== fileId);
+        if (onUpdateLead) {
+          onUpdateLead({
+            ...lead,
+            files: nextFiles,
+          });
+        }
+        return nextFiles;
+      });
       toast.success("Файл удален");
     }
   };
