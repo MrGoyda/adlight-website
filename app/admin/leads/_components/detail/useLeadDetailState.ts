@@ -174,19 +174,30 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
   };
 
   // Переключение чек-листа
-  const handleToggleChecklistItem = (itemId: string) => {
-    setChecklist((prev) => {
-      const next = { ...prev, [itemId]: !prev[itemId] };
-      // Автосохранение чек-листа в фоне
-      const calcDetailsPayload = JSON.stringify({
-        techSpec,
-        checklist: next,
-        cancellationReason,
-        originalMessage: lead.message,
-      });
-      updateLeadMainData(lead.id, JSON.stringify({ calcDetails: calcDetailsPayload }));
-      return next;
+  const handleToggleChecklistItem = async (itemId: string) => {
+    triggerHaptic("light");
+    const next = { ...checklist, [itemId]: !checklist[itemId] };
+    setChecklist(next);
+
+    // Фоновое автосохранение чек-листа
+    const calcDetailsPayload = JSON.stringify({
+      techSpec,
+      checklist: next,
+      cancellationReason,
+      originalMessage: lead.message,
     });
+
+    try {
+      await updateLeadMainData(lead.id, JSON.stringify({ calcDetails: calcDetailsPayload }));
+      if (onUpdateLead) {
+        onUpdateLead({
+          ...lead,
+          checklist: next,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to auto-save checklist:", err);
+    }
   };
 
   // Быстрая смена статуса в шапке
