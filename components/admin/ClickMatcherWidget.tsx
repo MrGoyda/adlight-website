@@ -267,11 +267,11 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                     triggerHaptic("light");
                     setExpandedId(isExpanded ? null : click.id);
                   }}
-                  className="p-3 flex items-center justify-between gap-3 cursor-pointer"
+                  className="p-2.5 sm:p-3 flex items-center justify-between gap-2 cursor-pointer select-none"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-wrap sm:flex-nowrap">
                     {/* Код клика */}
-                    <span className="px-2.5 py-1 rounded-xl bg-orange-500 text-white font-black text-xs tracking-tight shadow-xs shrink-0">
+                    <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl bg-orange-500 text-white font-black text-xs tracking-tight shadow-xs shrink-0">
                       {click.code}
                     </span>
 
@@ -289,24 +289,25 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                       {timeStr} <span className="text-[10px] font-medium text-slate-400">({dateStr})</span>
                     </span>
 
-                    {/* Иконка устройства */}
-                    <div className="text-slate-400 shrink-0 flex items-center gap-1" title={`Устройство: ${click.deviceType || "Desktop"}`}>
-                      {isMobile ? (
-                        <Smartphone className="w-3.5 h-3.5 text-slate-500" />
-                      ) : isTablet ? (
-                        <Tablet className="w-3.5 h-3.5 text-slate-500" />
-                      ) : (
-                        <Monitor className="w-3.5 h-3.5 text-slate-500" />
-                      )}
-                    </div>
-
                     {/* Путь кликнутой страницы */}
-                    <span className="text-xs text-slate-500 font-medium truncate hidden sm:inline" title={click.pageUrl || ""}>
+                    <span className="text-xs text-slate-500 font-medium truncate hidden md:inline max-w-[200px]" title={click.pageUrl || ""}>
                       {cleanPath}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  {/* Правая часть: Устройство + Удалить + Развернуть */}
+                  <div className="flex items-center gap-1 sm:gap-2 shrink-0 ml-1">
+                    {/* Иконка устройства */}
+                    <div className="p-1 rounded-lg bg-slate-100 text-slate-600 shrink-0 flex items-center justify-center" title={`Устройство: ${click.deviceType || "Desktop"}`}>
+                      {isMobile ? (
+                        <Smartphone className="w-3.5 h-3.5 text-slate-600" />
+                      ) : isTablet ? (
+                        <Tablet className="w-3.5 h-3.5 text-slate-600" />
+                      ) : (
+                        <Monitor className="w-3.5 h-3.5 text-slate-600" />
+                      )}
+                    </div>
+
                     {/* Кнопка быстрого отклонения спам-клика с кастомным диалогом */}
                     <button
                       type="button"
@@ -322,13 +323,13 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                           onConfirm: () => handleDiscard(click.id),
                         });
                       }}
-                      className="p-1 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition"
+                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer active:scale-90"
                       title="Убрать как спам/неактуальный"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
 
-                    <span className="text-[11px] font-bold text-orange-600 hidden xs:inline">
+                    <span className="text-[11px] font-bold text-orange-600 hidden sm:inline">
                       {isExpanded ? "Свернуть" : "Открыть"}
                     </span>
                     <ChevronDown
