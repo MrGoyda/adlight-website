@@ -22,6 +22,7 @@ import { toast } from "@/lib/toast";
 import { PartnerName, LeadStatus } from "@prisma/client";
 import { CANCELLATION_REASONS } from "../../../_data/leadDetailDictionary";
 import { formatManagerName } from "../../../_data/leadsDictionary";
+import InitialMessageAccordion from "@/components/admin/InitialMessageAccordion";
 
 interface LeadParametersTabProps {
   isEditing: boolean;
@@ -308,43 +309,7 @@ export default function LeadParametersTab({
         )}
 
         {/* Исходный запрос с сайта (раскрывающийся аккордеон) */}
-        {initialMessage && (
-          <div className="bg-orange-50/70 rounded-2xl border border-orange-200/80 w-full min-w-0 max-w-full overflow-hidden transition shadow-2xs">
-            <button
-              type="button"
-              onClick={() => {
-                triggerHaptic("light");
-                setIsMessageExpanded((prev) => !prev);
-              }}
-              className="w-full p-3.5 flex items-center justify-between text-left cursor-pointer select-none hover:bg-orange-100/60 transition"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <MessageSquareQuote className="w-4 h-4 text-orange-600 shrink-0" />
-                <span className="text-[11px] font-black text-orange-950 uppercase tracking-wider">
-                  Исходный запрос с сайта
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                <span className="text-[10px] font-bold text-orange-700">
-                  {isMessageExpanded ? "Свернуть" : "Показать"}
-                </span>
-                <ChevronDown
-                  className={`w-4 h-4 text-orange-600 transition-transform duration-200 ${
-                    isMessageExpanded ? "rotate-180" : ""
-                  }`}
-                />
-              </div>
-            </button>
-
-            {isMessageExpanded && (
-              <div className="px-3.5 pb-3.5 pt-1 border-t border-orange-200/60 animate-in fade-in duration-150">
-                <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] leading-relaxed max-w-full">
-                  {initialMessage}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+        <InitialMessageAccordion message={initialMessage} />
       </div>
     );
   }

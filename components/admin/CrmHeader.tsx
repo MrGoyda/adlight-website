@@ -25,6 +25,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { triggerHaptic } from "@/lib/haptics";
+import { CRM_EVENTS, dispatchCrmEvent } from "@/lib/crmEvents";
 
 const MAIN_NAV_ITEMS = [
   { label: "Заявки", href: "/admin/leads", icon: Inbox },
@@ -84,19 +85,19 @@ export default function CrmHeader() {
 
     if (action === "lead") {
       if (pathname === "/admin/leads") {
-        window.dispatchEvent(new CustomEvent("crm:open-create-lead"));
+        dispatchCrmEvent(CRM_EVENTS.OPEN_CREATE_LEAD);
       } else {
         router.push("/admin/leads?action=create-lead");
       }
     } else if (action === "estimate") {
       if (pathname === "/admin/leads") {
-        window.dispatchEvent(new CustomEvent("crm:open-estimate"));
+        dispatchCrmEvent(CRM_EVENTS.OPEN_ESTIMATE);
       } else {
         router.push("/admin/leads?action=estimate");
       }
     } else if (action === "client") {
       if (pathname === "/admin/leads" || pathname === "/admin/clients") {
-        window.dispatchEvent(new CustomEvent("crm:open-create-client"));
+        dispatchCrmEvent(CRM_EVENTS.OPEN_CREATE_CLIENT);
       } else {
         router.push("/admin/clients?action=create-client");
       }

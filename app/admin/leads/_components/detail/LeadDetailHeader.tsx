@@ -6,9 +6,10 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus, ClientRating } from "@prisma/client";
 import { STATUS_MAP } from "../../_data/leadsDictionary";
-import { CLIENT_RATINGS } from "../../_data/leadDetailDictionary";
+import { CLIENT_RATINGS, getQuickWhatsAppTemplates } from "../../_data/leadDetailDictionary";
 import { Lead } from "../../_types/leadTypes";
 import { LeadFullDetails } from "../../_types/leadDetailTypes";
+import { getWhatsAppUrl } from "@/lib/phoneUtils";
 
 interface LeadDetailHeaderProps {
   lead: LeadFullDetails | Lead;
@@ -39,19 +40,12 @@ export default function LeadDetailHeader({
 
   const status = STATUS_MAP[lead.status] || { label: lead.status, color: "", bg: "" };
   const currentRating = CLIENT_RATINGS[rating] || CLIENT_RATINGS.STANDARD;
-  const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "").replace("+", "");
-
-  const quickMessages = [
-    { title: "👋 Приветствие", text: `Здравствуйте, ${lead.name || "Клиент"}! Вас приветствует компания ADLight.` },
-    { title: "📐 Замер и встреча", text: `Здравствуйте, ${lead.name || "Клиент"}! Хотим согласовать время бесплатного выезда специалиста на замер.` },
-    { title: "📄 Смета готова", text: `Здравствуйте, ${lead.name || "Клиент"}! Подготовили детальный расчет сметы по вашему запросу.` },
-    { title: "🏢 Реквизиты компании", text: "Здравствуйте! Направляем реквизиты компании ADLight для оформления договора." },
-  ];
+  const quickMessages = getQuickWhatsAppTemplates(lead.name || "Клиент");
 
   const handleSendWhatsApp = (customText?: string) => {
     triggerHaptic("light");
-    const textParam = customText ? `?text=${encodeURIComponent(customText)}` : "";
-    window.open(`https://wa.me/${cleanPhone}${textParam}`, "_blank");
+    const waUrl = getWhatsAppUrl(lead.phone || "", customText);
+    if (waUrl) window.open(waUrl, "_blank");
     setShowWhatsAppMenu(false);
   };
 

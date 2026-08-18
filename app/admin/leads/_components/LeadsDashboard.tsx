@@ -20,6 +20,7 @@ import {
   AlertCircle 
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { CRM_EVENTS } from "@/lib/crmEvents";
 import ClickMatcherWidget from "@/components/admin/ClickMatcherWidget";
 import { LEADS_DICTIONARY, STATUS_MAP } from "../_data/leadsDictionary";
 import { Lead, Client, Company, WarehouseItem, SupplierPrice } from "../_types/leadTypes";
@@ -87,9 +88,9 @@ export default function LeadsDashboard({
       setShowCreateClientModal(true);
     };
 
-    window.addEventListener("crm:open-create-lead", handleOpenCreateLead);
-    window.addEventListener("crm:open-estimate", handleOpenEstimate);
-    window.addEventListener("crm:open-create-client", handleOpenCreateClient);
+    window.addEventListener(CRM_EVENTS.OPEN_CREATE_LEAD, handleOpenCreateLead);
+    window.addEventListener(CRM_EVENTS.OPEN_ESTIMATE, handleOpenEstimate);
+    window.addEventListener(CRM_EVENTS.OPEN_CREATE_CLIENT, handleOpenCreateClient);
 
     // Проверка URL query параметров (при переходе с других страниц)
     if (typeof window !== "undefined") {
@@ -106,9 +107,9 @@ export default function LeadsDashboard({
     }
 
     return () => {
-      window.removeEventListener("crm:open-create-lead", handleOpenCreateLead);
-      window.removeEventListener("crm:open-estimate", handleOpenEstimate);
-      window.removeEventListener("crm:open-create-client", handleOpenCreateClient);
+      window.removeEventListener(CRM_EVENTS.OPEN_CREATE_LEAD, handleOpenCreateLead);
+      window.removeEventListener(CRM_EVENTS.OPEN_ESTIMATE, handleOpenEstimate);
+      window.removeEventListener(CRM_EVENTS.OPEN_CREATE_CLIENT, handleOpenCreateClient);
     };
   }, []);
 

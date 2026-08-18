@@ -71,3 +71,22 @@ export function formatPhoneForMeta(rawPhone: string): string {
 export function formatPhoneForE164(rawPhone: string): string {
   return normalizePhone(rawPhone);
 }
+
+/**
+ * Очищает телефон от скобок, пробелов и дефисов для кликабельной ссылки tel:...
+ */
+export function getCleanPhone(rawPhone: string): string {
+  if (!rawPhone) return "";
+  return rawPhone.replace(/[^0-9+]/g, "");
+}
+
+/**
+ * Генерирует прямую ссылку на диалог WhatsApp
+ */
+export function getWhatsAppUrl(rawPhone: string, messageText?: string): string {
+  if (!rawPhone) return "";
+  const digits = rawPhone.replace(/\D/g, "");
+  const normalizedDigits = digits.length === 11 && digits.startsWith("8") ? `7${digits.slice(1)}` : digits;
+  const textParam = messageText ? `?text=${encodeURIComponent(messageText)}` : "";
+  return `https://wa.me/${normalizedDigits}${textParam}`;
+}

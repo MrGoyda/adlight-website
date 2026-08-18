@@ -28,6 +28,7 @@ import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { createClient, updateClient, deleteClient } from "../actions";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import { CRM_EVENTS } from "@/lib/crmEvents";
 import Button from "@/components/ui/Button";
 import { crmDict } from "@/dictionaries/crm";
 import { BatchImportClientsModal } from "./BatchImportClientsModal";
@@ -150,9 +151,9 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
       setShowExportAudienceModal(true);
     };
 
-    window.addEventListener("crm:open-create-client", handleOpenCreateClient);
-    window.addEventListener("crm:open-batch-import", handleOpenBatchImport);
-    window.addEventListener("crm:open-export-audience", handleOpenExportAudience);
+    window.addEventListener(CRM_EVENTS.OPEN_CREATE_CLIENT, handleOpenCreateClient);
+    window.addEventListener(CRM_EVENTS.OPEN_BATCH_IMPORT, handleOpenBatchImport);
+    window.addEventListener(CRM_EVENTS.OPEN_EXPORT_AUDIENCE, handleOpenExportAudience);
 
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -162,9 +163,9 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
     }
 
     return () => {
-      window.removeEventListener("crm:open-create-client", handleOpenCreateClient);
-      window.removeEventListener("crm:open-batch-import", handleOpenBatchImport);
-      window.removeEventListener("crm:open-export-audience", handleOpenExportAudience);
+      window.removeEventListener(CRM_EVENTS.OPEN_CREATE_CLIENT, handleOpenCreateClient);
+      window.removeEventListener(CRM_EVENTS.OPEN_BATCH_IMPORT, handleOpenBatchImport);
+      window.removeEventListener(CRM_EVENTS.OPEN_EXPORT_AUDIENCE, handleOpenExportAudience);
     };
   }, []);
 

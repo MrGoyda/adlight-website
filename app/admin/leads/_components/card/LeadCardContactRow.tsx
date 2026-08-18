@@ -4,6 +4,7 @@ import React from "react";
 import { Phone, DollarSign, CheckCircle2, Clock } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { StatusConfig } from "../../_data/leadsDictionary";
+import { getCleanPhone, getWhatsAppUrl } from "@/lib/phoneUtils";
 
 interface LeadCardContactRowProps {
   status: StatusConfig;
@@ -28,7 +29,8 @@ export default function LeadCardContactRow({
   isBalancePaid,
   revenue,
 }: LeadCardContactRowProps) {
-  const cleanPhone = phone.replace(/[^0-9+]/g, "");
+  const cleanPhone = getCleanPhone(phone);
+  const waUrl = getWhatsAppUrl(phone);
 
   const numOffered = offeredPrice ? Number(offeredPrice) : 0;
   const numPrepayment = prepayment ? Number(prepayment) : 0;
@@ -61,7 +63,7 @@ export default function LeadCardContactRow({
           {phone}
         </a>
         <a
-          href={`https://wa.me/${cleanPhone.replace("+", "")}`}
+          href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}

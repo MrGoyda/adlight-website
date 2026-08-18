@@ -8,6 +8,7 @@ import { Lead } from "../_types/leadTypes";
 import { getLeadTimingInfo } from "../_utils/leadTimelineUtils";
 import { DEFAULT_CHECKLIST_ITEMS } from "../_data/leadDetailDictionary";
 import { LeadTechSpec, LeadChecklistState } from "../_types/leadDetailTypes";
+import { parseLeadMetadata } from "../_utils/leadMetaUtils";
 
 import LeadCardHeader from "./card/LeadCardHeader";
 import LeadCardTimingBadges from "./card/LeadCardTimingBadges";
@@ -60,17 +61,9 @@ export default function LeadCard({
   );
 
   // Парсинг метаданных (TechSpec, Checklist)
-  const meta = (() => {
-    try {
-      if (lead.calcDetails && typeof lead.calcDetails === "string" && lead.calcDetails.startsWith("{")) {
-        return JSON.parse(lead.calcDetails);
-      }
-    } catch {}
-    return {};
-  })();
-
-  const techSpec: LeadTechSpec = meta.techSpec || {};
-  const checklist: LeadChecklistState = meta.checklist || {};
+  const meta = parseLeadMetadata(lead.calcDetails);
+  const techSpec: LeadTechSpec = (meta.raw?.techSpec || meta.techSpec || {}) as LeadTechSpec;
+  const checklist: LeadChecklistState = (meta.raw?.checklist || meta.checklist || {}) as LeadChecklistState;
 
   // Расчет прогресса чек-листа
   const completedChecklistCount = DEFAULT_CHECKLIST_ITEMS.filter((item) => Boolean(checklist[item.id])).length;
