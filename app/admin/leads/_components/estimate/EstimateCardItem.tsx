@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { EstimateItem, WarehouseItem, SupplierPrice } from "./types";
 import { 
   ITEM_TYPE_LABELS, 
@@ -10,7 +10,7 @@ import {
   STANDARD_TRUCK_PRESETS 
 } from "./constants";
 import { calcLongTruckRates, calcStandardTruckRates } from "./utils";
-import { Trash2, Wrench } from "lucide-react";
+import { Trash2, Wrench, Check, ChevronDown, ChevronUp, Edit3 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { InventoryUnit } from "@prisma/client";
 
@@ -19,6 +19,7 @@ interface EstimateCardItemProps {
   index: number;
   warehouseItems: WarehouseItem[];
   supplierPrices: SupplierPrice[];
+  defaultCollapsed?: boolean;
   onRemove: (index: number) => void;
   onUpdateField: (index: number, field: keyof EstimateItem, value: any) => void;
   onOpenSupplierPicker: (index: number) => void;
@@ -30,11 +31,14 @@ export const EstimateCardItem: React.FC<EstimateCardItemProps> = ({
   index: idx,
   warehouseItems,
   supplierPrices,
+  defaultCollapsed = false,
   onRemove,
   onUpdateField,
   onOpenSupplierPicker,
   onOpenWorkOperationPicker,
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(defaultCollapsed);
+
   const typeInfo = ITEM_TYPE_LABELS[item.type];
   const TypeIcon = typeInfo.icon;
   const itemCostTotal = Number(item.costPrice || 0) * Number(item.quantity || 0);
@@ -48,6 +52,63 @@ export const EstimateCardItem: React.FC<EstimateCardItemProps> = ({
       item.name.toLowerCase().includes("6-м") ||
       item.name.toLowerCase().includes("длинномер"));
 
+  /* ── 1. СВЕРНУТЫЙ (КОМПАКТНЫЙ) РЕЖИМ В ОДНУ СТРОКУ ── */
+  if (isCollapsed) {
+    return (
+      <div
+        id={`estimate-item-${idx}`}
+        onClick={() => {
+          triggerHaptic("light");
+          setIsCollapsed(false);
+        }}
+        className="bg-white hover:bg-slate-50/90 p-3 rounded-2xl border border-slate-200/90 shadow-2xs transition-all cursor-pointer flex flex-wrap items-center justify-between gap-2.5 animate-in fade-in duration-150 group scroll-mt-3"
+      >
+        {/* Левая часть: Категория + Название (без обрезания текста) */}
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-black border shrink-0 ${typeInfo.bg}`}
+          >
+            <TypeIcon className="w-3 h-3 shrink-0" />
+            <span>{typeInfo.label}</span>
+          </span>
+
+          <span className="font-extrabold text-slate-900 text-xs leading-snug break-words">
+            {item.name || "Новая позиция"}
+          </span>
+        </div>
+
+        {/* Правая часть: Кол-во + Цена продажи + Кнопки */}
+        <div className="flex items-center gap-2 shrink-0 ml-auto flex-wrap">
+          <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">
+            {Number(item.quantity) || 0} {UNIT_LABELS[item.unit || "PIECE"]}
+          </span>
+
+          <span className="text-[11px] font-black text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+            {itemSellTotal.toLocaleString()} ₸
+          </span>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              triggerHaptic("medium");
+              onRemove(idx);
+            }}
+            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+            title="Удалить позицию"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+
+          <span className="p-1 text-slate-400 group-hover:text-orange-500 transition">
+            <Edit3 className="w-3.5 h-3.5" />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── 2. РАЗВЕРНУТЫЙ (ПОЛНЫЙ) РЕЖИМ РЕДАКТИРОВАНИЯ ── */
   return (
     <div
       id={`estimate-item-${idx}`}
@@ -62,14 +123,28 @@ export const EstimateCardItem: React.FC<EstimateCardItemProps> = ({
           <span>{typeInfo.label}</span>
         </span>
 
-        <button
-          type="button"
-          onClick={() => onRemove(idx)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer active:scale-90"
-          title="Удалить строку"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("light");
+              setIsCollapsed(true);
+            }}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition cursor-pointer"
+            title="Свернуть"
+          >
+            <ChevronUp className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onRemove(idx)}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer active:scale-90"
+            title="Удалить строку"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Наименование / Селектор */}
@@ -369,6 +444,21 @@ export const EstimateCardItem: React.FC<EstimateCardItemProps> = ({
             {itemProfit >= 0 ? `+${itemProfit.toLocaleString()}` : itemProfit.toLocaleString()} ₸
           </span>
         </div>
+      </div>
+
+      {/* ── Кнопка сохранения и сворачивания позиции с зеленой галочкой ── */}
+      <div className="pt-1 border-t border-slate-200/60">
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic("success");
+            setIsCollapsed(true);
+          }}
+          className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition active:scale-98 cursor-pointer"
+        >
+          <Check className="w-4 h-4 stroke-[3]" />
+          <span>Сохранить и свернуть позицию</span>
+        </button>
       </div>
     </div>
   );
