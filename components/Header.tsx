@@ -35,8 +35,6 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  // Ref на функцию закрытия меню (с анимацией) из дочернего компонента
-  const closeMobileMenuRef = React.useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -217,15 +215,10 @@ export default function Header() {
              </Button>
 
              {/* 6. Кнопка меню на десктопе */}
+             {/* 6. Кнопка меню на десктопе */}
              <button 
                 className="flex items-center gap-2 py-2 px-4 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none active:scale-95"
-                onClick={() => {
-                  if (isOpen) {
-                    closeMobileMenuRef.current?.();
-                  } else {
-                    setIsOpen(true);
-                  }
-                }}
+                onClick={() => setIsOpen((prev) => !prev)}
                 aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
              >
                 <span className="text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">МЕНЮ</span>
@@ -289,13 +282,7 @@ export default function Header() {
             {/* КНОПКА МЕНЮ (БУРГЕР) */}
             <button 
                className="flex items-center gap-2.5 py-2 px-3 sm:py-2.5 sm:px-5 bg-white border border-slate-200 text-slate-800 hover:text-orange-600 hover:border-orange-500/30 rounded-xl transition-colors duration-300 group shadow-sm hover:shadow-md cursor-pointer select-none active:scale-95 ml-1"
-               onClick={() => {
-                 if (isOpen) {
-                   closeMobileMenuRef.current?.();
-                 } else {
-                   setIsOpen(true);
-                 }
-               }}
+               onClick={() => setIsOpen((prev) => !prev)}
                aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
             >
                <span className="hidden sm:inline text-xs font-extrabold uppercase tracking-wider transition-colors duration-300 group-hover:text-orange-600">Меню</span>
@@ -314,7 +301,6 @@ export default function Header() {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onOpenConsultation={() => setIsModalOpen(true)}
-        registerClose={(fn) => { closeMobileMenuRef.current = fn; }}
       />
 
       {/* МОДАЛЬНОЕ ОКНО */}
