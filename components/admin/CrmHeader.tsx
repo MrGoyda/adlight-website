@@ -19,6 +19,7 @@ import {
   Plus,
   UserPlus,
   FileText,
+  Tags,
   X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,7 +39,8 @@ const SECTION_NAMES: Record<string, string> = {
   "/admin/finance": "Финансы и Касса",
   "/admin/projects": "Проекты и Монтажи",
   "/admin/analytics": "Сквозная Аналитика",
-  "/admin/warehouse": "Склад и Материалы",
+  "/admin/warehouse": "Склад материалов",
+  "/admin/pricing": "База товаров и Тарифы",
   "/admin/clients": "База Клиентов",
   "/admin/companies": "Компании и Реквизиты",
 };
@@ -270,6 +272,17 @@ export default function CrmHeader() {
                   </Link>
 
                   <Link
+                    href="/admin/pricing"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition ${
+                      pathname === "/admin/pricing" ? "bg-orange-50 text-orange-600 font-bold" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <Tags className="w-4 h-4 text-orange-500" />
+                    <span>База товаров и Тарифы</span>
+                  </Link>
+
+                  <Link
                     href="/admin/warehouse"
                     onClick={() => setIsDropdownOpen(false)}
                     className={`flex items-center gap-2.5 px-3 py-2 rounded-xl transition ${
@@ -287,7 +300,7 @@ export default function CrmHeader() {
                       pathname === "/admin/clicks" ? "bg-orange-50 text-orange-600 font-bold" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
-                    <MousePointer className="w-4 h-4 text-orange-500" />
+                    <MousePointer className="w-4 h-4 text-purple-500" />
                     <span>Входящие клики</span>
                   </Link>
 
