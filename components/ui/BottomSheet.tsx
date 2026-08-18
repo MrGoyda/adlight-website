@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
 
 export interface BottomSheetProps {
@@ -27,6 +27,7 @@ export default function BottomSheet({
   zIndex = "z-[9999]",
 }: BottomSheetProps) {
   const [mounted, setMounted] = useState(false);
+  const dragControls = useDragControls();
 
   useEffect(() => {
     setMounted(true);
@@ -72,7 +73,7 @@ export default function BottomSheet({
             className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs cursor-pointer z-10"
           />
 
-          {/* Нативная шторка снизу вверх с поддержкой свайпа вниз (60 FPS) */}
+          {/* Нативная шторка снизу вверх (60 FPS) */}
           <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -84,11 +85,13 @@ export default function BottomSheet({
               mass: 0.8,
             }}
             drag="y"
+            dragListener={false}
+            dragControls={dragControls}
             dragDirectionLock
             dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
             dragElastic={{ top: 0, bottom: 0.6 }}
             onDragEnd={(_, info) => {
-              if (info.offset.y > 120 || info.velocity.y > 600) {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
                 triggerHaptic("light");
                 onClose();
               }
@@ -97,12 +100,15 @@ export default function BottomSheet({
           >
             {/* Ручка для свайпа вниз (iOS Handle Bar) */}
             {showHandleBar && (
-              <div className="pt-2.5 pb-1 flex justify-center shrink-0 cursor-grab active:cursor-grabbing bg-white select-none">
-                <div className="w-12 h-1.5 bg-slate-300 hover:bg-slate-400 rounded-full transition-colors" />
+              <div
+                onPointerDown={(e) => dragControls.start(e)}
+                className="pt-2.5 pb-1 flex justify-center shrink-0 cursor-grab active:cursor-grabbing bg-white select-none touch-none"
+              >
+                <div className="w-12 h-1.5 bg-slate-300 hover:bg-slate-400 rounded-full transition-colors pointer-events-none" />
               </div>
             )}
 
-            {/* Контент шторки */}
+            {/* Контент шторки с независимым скроллом */}
             {children}
           </motion.div>
         </div>

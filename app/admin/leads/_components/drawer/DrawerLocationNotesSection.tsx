@@ -84,19 +84,6 @@ export default function DrawerLocationNotesSection({
           </p>
         </div>
       )}
-
-      {/* Детали калькулятора с сайта */}
-      {activeLead.calcDetails && (
-        <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/60 w-full min-w-0 max-w-full overflow-hidden">
-          <span className="block text-[10px] font-extrabold text-purple-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-            <Calculator className="w-3 h-3 shrink-0" />
-            Параметры онлайн-калькулятора
-          </span>
-          <p className="text-xs text-slate-700 leading-relaxed font-mono break-words break-all [overflow-wrap:anywhere] whitespace-pre-wrap max-w-full">
-            {activeLead.calcDetails}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

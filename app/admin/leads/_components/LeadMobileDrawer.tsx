@@ -289,9 +289,16 @@ export default function LeadMobileDrawer({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-white p-3 rounded-xl border border-slate-200/80">
                       <span className="text-[10px] text-slate-400 font-bold block mb-0.5">Озвучено</span>
-                      <span className="text-xs font-black text-slate-900">
-                        {activeLead.offeredPrice ? `${Number(activeLead.offeredPrice).toLocaleString()} ₸` : "Не озвучена"}
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs font-black text-slate-900">
+                          {activeLead.offeredPrice ? `${Number(activeLead.offeredPrice).toLocaleString()} ₸` : "Не озвучена"}
+                        </span>
+                        {activeLead.isDiscounted && (
+                          <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">
+                            🏷️ Со скидкой
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="bg-white p-3 rounded-xl border border-slate-200/80">
