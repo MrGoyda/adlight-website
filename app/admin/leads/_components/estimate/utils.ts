@@ -183,3 +183,72 @@ export function calcEstimateBreakdown(items: EstimateItem[]): EstimateCategoryBr
 export function calcEstimateTotals(items: EstimateItem[]) {
   return calcEstimateBreakdown(items);
 }
+
+/* ─────────────────────────────────────────────────────────────
+ * КЭШИРОВАНИЕ И АВТОСОХРАНЕНИЕ ЧЕРНОВИКОВ СМЕТЫ (LocalStorage)
+ * ───────────────────────────────────────────────────────────── */
+const DRAFT_PREFIX = "adlight_estimate_draft_";
+const MAX_DRAFT_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 дней хранения черновика
+
+export interface EstimateDraftData {
+  items: EstimateItem[];
+  leadId: string | null;
+  timestamp: number;
+  timeStr: string;
+}
+
+/**
+ * Сохраняет черновик сметы в локальный кэш
+ */
+export function saveEstimateDraft(key: string, items: EstimateItem[], leadId: string | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!items || items.length === 0) {
+      localStorage.removeItem(`${DRAFT_PREFIX}${key}`);
+      return;
+    }
+    const draft: EstimateDraftData = {
+      items,
+      leadId,
+      timestamp: Date.now(),
+      timeStr: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+    localStorage.setItem(`${DRAFT_PREFIX}${key}`, JSON.stringify(draft));
+  } catch (err) {
+    console.error("Ошибка сохранения черновика сметы:", err);
+  }
+}
+
+/**
+ * Считывает черновик сметы из локального кэша
+ */
+export function loadEstimateDraft(key: string): EstimateDraftData | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(`${DRAFT_PREFIX}${key}`);
+    if (!raw) return null;
+    const draft: EstimateDraftData = JSON.parse(raw);
+    if (!draft || !Array.isArray(draft.items) || draft.items.length === 0) {
+      localStorage.removeItem(`${DRAFT_PREFIX}${key}`);
+      return null;
+    }
+    if (Date.now() - draft.timestamp > MAX_DRAFT_AGE_MS) {
+      localStorage.removeItem(`${DRAFT_PREFIX}${key}`);
+      return null;
+    }
+    return draft;
+  } catch (err) {
+    return null;
+  }
+}
+
+/**
+ * Очищает сохраненный черновик сметы
+ */
+export function clearEstimateDraft(key: string) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(`${DRAFT_PREFIX}${key}`);
+  } catch (err) {}
+}
+

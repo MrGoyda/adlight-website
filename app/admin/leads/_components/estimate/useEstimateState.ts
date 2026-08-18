@@ -19,6 +19,10 @@ import {
   calcEquipmentRates,
   calcLongTruckRates,
   calcStandardTruckRates,
+  saveEstimateDraft,
+  loadEstimateDraft,
+  clearEstimateDraft,
+  EstimateDraftData
 } from "./utils";
 import { DEFAULT_MARGIN_MULTIPLIER } from "./constants";
 
@@ -55,6 +59,7 @@ export function useEstimateState({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [restoredDraftInfo, setRestoredDraftInfo] = useState<{ time: string; count: number } | null>(null);
 
   // Справочник видов работ из БД
   const [workOperations, setWorkOperations] = useState<WorkOperationItem[]>([]);
@@ -62,6 +67,9 @@ export function useEstimateState({
   // Состояния для кастомных выпадающих списков
   const [activePickerIdx, setActivePickerIdx] = useState<number | null>(null);
   const [activeWorkOperationPickerIdx, setActiveWorkOperationPickerIdx] = useState<number | null>(null);
+
+  // Ключ для черновика
+  const draftKey = leadId || "general";
 
   // Каскадный парсер прайсов поставщиков
   const parsedPrices = useMemo<ParsedSupplierPrice[]>(() => {
@@ -75,7 +83,7 @@ export function useEstimateState({
       setCurrentEstimateId(estimateId ?? null);
       setIsAtBottom(false);
 
-      const mapped = initialItems.map((item) => {
+      const mappedInitial = initialItems.map((item) => {
         if (item.type === "MATERIAL_SUPPLIER" && !item.supplierPriceId) {
           const found = supplierPrices.find((p) => `${p.supplier}: ${p.name}` === item.name);
           if (found) {
@@ -85,7 +93,20 @@ export function useEstimateState({
         return item;
       });
 
-      setItems(mapped);
+      // ── ПРОВЕРКА ЛОКАЛЬНОГО КЭША ЧЕРНОВИКА ──
+      const cachedDraft = loadEstimateDraft(draftKey);
+      if (cachedDraft && cachedDraft.items.length > 0) {
+        // Если в БД пусто или черновик имеет несохраненные изменения
+        setItems(cachedDraft.items);
+        setRestoredDraftInfo({
+          time: cachedDraft.timeStr,
+          count: cachedDraft.items.length,
+        });
+      } else {
+        setItems(mappedInitial);
+        setRestoredDraftInfo(null);
+      }
+
       setStockDeducted(isStockDeducted);
 
       getWorkOperations().then((res) => {
@@ -94,7 +115,17 @@ export function useEstimateState({
         }
       });
     }
-  }, [isOpen, initialItems, isStockDeducted, leadId, estimateId, supplierPrices]);
+  }, [isOpen, initialItems, isStockDeducted, leadId, estimateId, supplierPrices, draftKey]);
+
+  // ── АВТОМАТИЧЕСКОЕ СОХРАНЕНИЕ ЧЕРНОВИКА В КЭШ ПРИ ЛЮБЫХ ИЗМЕНЕНИЯХ ──
+  useEffect(() => {
+    if (!isOpen) return;
+    if (items.length > 0) {
+      saveEstimateDraft(draftKey, items, selectedLeadId);
+    } else {
+      clearEstimateDraft(draftKey);
+    }
+  }, [items, isOpen, draftKey, selectedLeadId]);
 
   // Обработка Escape с каскадным закрытием
   useEffect(() => {
@@ -292,11 +323,20 @@ export function useEstimateState({
         setError(res.error);
         toast.error(res.error || "Ошибка сохранения сметы");
       } else {
+        clearEstimateDraft(draftKey);
+        setRestoredDraftInfo(null);
         toast.success("Смета сохранена и зафиксирована!");
         onSaveSuccess(totalSell, totalCost, res.data);
         onClose();
       }
     });
+  };
+
+  const handleDiscardDraft = () => {
+    clearEstimateDraft(draftKey);
+    setItems(initialItems);
+    setRestoredDraftInfo(null);
+    toast.info("Черновик сметы сброшен");
   };
 
   const handleDeductStock = () => {
@@ -334,6 +374,7 @@ export function useEstimateState({
     error,
     isPending,
     isAtBottom,
+    restoredDraftInfo,
     scrollContainerRef,
     itemsEndRef,
     workOperations,
@@ -349,6 +390,7 @@ export function useEstimateState({
     handleRemoveItem,
     handleUpdateItemField,
     handleSave,
+    handleDiscardDraft,
     handleDeductStock,
   };
 }

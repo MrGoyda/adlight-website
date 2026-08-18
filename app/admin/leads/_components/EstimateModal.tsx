@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Calculator, AlertTriangle } from "lucide-react";
+import { X, Calculator, AlertTriangle, Clock } from "lucide-react";
 import { EstimateModalProps } from "./estimate/types";
 import { useEstimateState } from "./estimate/useEstimateState";
 import { EstimateTopBar } from "./estimate/EstimateTopBar";
@@ -35,6 +35,7 @@ export default function EstimateModal({
     error,
     isPending,
     isAtBottom,
+    restoredDraftInfo,
     scrollContainerRef,
     itemsEndRef,
     workOperations,
@@ -50,6 +51,7 @@ export default function EstimateModal({
     handleRemoveItem,
     handleUpdateItemField,
     handleSave,
+    handleDiscardDraft,
     handleDeductStock,
   } = useEstimateState({
     isOpen,
@@ -80,9 +82,17 @@ export default function EstimateModal({
             <Calculator className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-black text-slate-900 text-sm sm:text-base leading-tight">
-              Калькулятор сметы
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-black text-slate-900 text-sm sm:text-base leading-tight">
+                Калькулятор сметы
+              </h3>
+              {items.length > 0 && (
+                <span className="hidden sm:inline-flex items-center gap-1 text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Автосохранение
+                </span>
+              )}
+            </div>
             <p className="text-[11px] text-slate-500 font-medium truncate max-w-[240px] sm:max-w-md">
               {leadName ? `Сделка: ${leadName}` : "Расчет себестоимости и маржинальности"}
             </p>
@@ -101,6 +111,25 @@ export default function EstimateModal({
 
       {/* Топ-бар кнопок добавления категорий */}
       <EstimateTopBar onAddItem={handleAddItem} />
+
+      {/* Оповещение о восстановлении несохраненного черновика из кэша */}
+      {restoredDraftInfo && (
+        <div className="mx-4 sm:mx-6 mt-2.5 p-2.5 sm:px-4 bg-amber-50/90 border border-amber-200/90 rounded-2xl flex items-center justify-between gap-3 text-amber-900 text-xs font-bold shrink-0 animate-in fade-in">
+          <div className="flex items-center gap-2 min-w-0">
+            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="truncate">
+              Восстановлен черновик ({restoredDraftInfo.count} поз., автосохранен в {restoredDraftInfo.time})
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleDiscardDraft}
+            className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline font-black cursor-pointer shrink-0"
+          >
+            Сбросить
+          </button>
+        </div>
+      )}
 
       {/* Ошибка */}
       {error && (
