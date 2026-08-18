@@ -1,64 +1,90 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
-import CrmBreadcrumbs from "@/components/ui/CrmBreadcrumbs";
-import LeadDetailHeader from "../../_components/detail/LeadDetailHeader";
-import LeadDetailTabs from "../../_components/detail/LeadDetailTabs";
-import LeadParametersTab from "../../_components/detail/tabs/LeadParametersTab";
-import LeadTechSpecTab from "../../_components/detail/tabs/LeadTechSpecTab";
-import LeadMediaFilesTab from "../../_components/detail/tabs/LeadMediaFilesTab";
-import LeadTimelineTab from "../../_components/detail/tabs/LeadTimelineTab";
-import MediaViewerModal from "./MediaViewerModal";
-import EstimateModal from "../../_components/EstimateModal";
-import { useLeadDetailState } from "../../_components/detail/useLeadDetailState";
+import BottomSheet from "@/components/ui/BottomSheet";
+import LeadDetailHeader from "./LeadDetailHeader";
+import LeadDetailTabs from "./LeadDetailTabs";
+import LeadParametersTab from "./tabs/LeadParametersTab";
+import LeadTechSpecTab from "./tabs/LeadTechSpecTab";
+import LeadMediaFilesTab from "./tabs/LeadMediaFilesTab";
+import LeadTimelineTab from "./tabs/LeadTimelineTab";
+import MediaViewerModal from "../../[id]/_components/MediaViewerModal";
+import EstimateModal from "../EstimateModal";
+import { useLeadDetailState } from "./useLeadDetailState";
 import { LeadFullDetails } from "../../_types/leadDetailTypes";
+import { triggerHaptic } from "@/lib/haptics";
+import { Save, X } from "lucide-react";
 
-interface LeadDetailPageProps {
-  lead: LeadFullDetails;
-  companies?: any[];
+interface LeadDetailSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  lead: LeadFullDetails | null;
+  onUpdateLead?: (updated: LeadFullDetails) => void;
   warehouseItems?: any[];
   supplierPrices?: any[];
+  leads?: any[];
 }
 
-export default function LeadDetailPage({
+export default function LeadDetailSheet({
+  isOpen,
+  onClose,
   lead,
-  companies = [],
+  onUpdateLead,
   warehouseItems = [],
   supplierPrices = [],
-}: LeadDetailPageProps) {
-  const router = useRouter();
+  leads = [],
+}: LeadDetailSheetProps) {
   const [showEstimateModal, setShowEstimateModal] = useState(false);
 
-  const state = useLeadDetailState({
-    lead,
-    onClose: () => router.push("/admin/leads"),
-  });
+  // Если лид не передан, не рендерим
+  if (!lead) return null;
 
   return (
-    <div className="space-y-4 max-w-5xl mx-auto pb-20">
-      {/* Breadcrumbs и Назад */}
-      <div className="flex items-center justify-between gap-3">
-        <CrmBreadcrumbs
-          items={[
-            { label: "CRM", href: "/admin" },
-            { label: "Заявки", href: "/admin/leads" },
-            { label: lead.name || "Карточка лида" },
-          ]}
-        />
-        <button
-          type="button"
-          onClick={() => router.push("/admin/leads")}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>К списку заявок</span>
-        </button>
-      </div>
+    <LeadDetailSheetContent
+      isOpen={isOpen}
+      onClose={onClose}
+      lead={lead}
+      onUpdateLead={onUpdateLead}
+      showEstimateModal={showEstimateModal}
+      setShowEstimateModal={setShowEstimateModal}
+      warehouseItems={warehouseItems}
+      supplierPrices={supplierPrices}
+      leads={leads}
+    />
+  );
+}
 
-      {/* Основная карточка */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+function LeadDetailSheetContent({
+  isOpen,
+  onClose,
+  lead,
+  onUpdateLead,
+  showEstimateModal,
+  setShowEstimateModal,
+  warehouseItems,
+  supplierPrices,
+  leads,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  lead: LeadFullDetails;
+  onUpdateLead?: (updated: LeadFullDetails) => void;
+  showEstimateModal: boolean;
+  setShowEstimateModal: (val: boolean) => void;
+  warehouseItems: any[];
+  supplierPrices: any[];
+  leads: any[];
+}) {
+  const state = useLeadDetailState({ lead, onUpdateLead, onClose });
+
+  return (
+    <>
+      <BottomSheet
+        isOpen={isOpen}
+        onClose={onClose}
+        maxWidth="max-w-5xl"
+        maxHeight="max-h-[92dvh]"
+      >
         {/* 1. Синхронизированная шапка */}
         <LeadDetailHeader
           lead={lead}
@@ -66,7 +92,7 @@ export default function LeadDetailPage({
           onRatingChange={state.handleRatingChange}
           onStatusChange={state.handleStatusChange}
           onOpenEstimate={() => setShowEstimateModal(true)}
-          onClose={() => router.push("/admin/leads")}
+          onClose={onClose}
         />
 
         {/* 2. Apple Segmented Control табы */}
@@ -78,7 +104,7 @@ export default function LeadDetailPage({
         />
 
         {/* 3. Контент активной вкладки */}
-        <div className="p-4 sm:p-6">
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 pb-24 overscroll-contain">
           {state.activeTab === "params" && (
             <LeadParametersTab
               name={state.name}
@@ -142,7 +168,7 @@ export default function LeadDetailPage({
         </div>
 
         {/* 4. Фиксированный футер сохранения */}
-        <div className="p-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border-t border-slate-200/80 sticky bottom-0 z-20 flex items-center justify-between gap-3 shrink-0">
+        <div className="p-3 sm:px-6 sm:py-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 sticky bottom-0 z-30 flex items-center justify-between gap-3 shrink-0">
           <div className="text-xs font-black text-slate-700 truncate">
             {state.offeredPrice ? (
               <span>
@@ -160,8 +186,8 @@ export default function LeadDetailPage({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => router.push("/admin/leads")}
-              className="px-4 py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-xs transition cursor-pointer active:scale-95"
+              onClick={onClose}
+              className="px-3.5 py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-xs transition cursor-pointer active:scale-95"
             >
               Отмена
             </button>
@@ -170,14 +196,14 @@ export default function LeadDetailPage({
               type="button"
               disabled={state.isSaving}
               onClick={() => state.handleSave()}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-95 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
-              <span>{state.isSaving ? "Сохранение..." : "Сохранить изменения"}</span>
+              <span>{state.isSaving ? "Сохранение..." : "Сохранить карточку"}</span>
             </button>
           </div>
         </div>
-      </div>
+      </BottomSheet>
 
       {/* Модалка просмотра файлов / медиа */}
       {state.viewerFile && (
@@ -200,10 +226,19 @@ export default function LeadDetailPage({
           isStockDeducted={lead.estimate?.isStockDeducted || false}
           warehouseItems={warehouseItems}
           supplierPrices={supplierPrices}
-          leads={companies}
-          onSaveSuccess={() => router.refresh()}
+          leads={leads}
+          onSaveSuccess={(revenue, expenses, newEstimate) => {
+            if (onUpdateLead) {
+              onUpdateLead({
+                ...lead,
+                revenue,
+                expenses,
+                estimate: newEstimate,
+              });
+            }
+          }}
         />
       )}
-    </div>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { LeadStatus } from "@prisma/client";
+import { LeadStatus, ClientRating, FileCategory } from "@prisma/client";
 
 export interface LeadFile {
   id: string;
@@ -6,13 +6,17 @@ export interface LeadFile {
   name: string;
   size: number;
   mimeType: string;
+  fileKey?: string;
+  category?: FileCategory;
+  createdAt?: string;
 }
 
 export interface LeadActivity {
   id: string;
   type: string;
-  title: string;
-  comment: string | null;
+  text?: string;
+  title?: string;
+  comment?: string | null;
   author: string | null;
   createdAt: string;
 }
@@ -22,6 +26,7 @@ export interface Lead {
   name: string;
   phone: string;
   status: LeadStatus;
+  rating?: ClientRating | null;
   offeredPrice?: number | null;
   isDiscounted?: boolean;
   revenue: number;
@@ -101,23 +106,22 @@ export interface Client {
   name: string;
   phone: string;
   companyName: string | null;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface SupplierPrice {
+  id: string;
+  name: string;
+  supplier: string;
+  price: number;
+  unit: any;
 }
 
 export interface WarehouseItem {
   id: string;
   name: string;
-  sku?: string;
-  unit?: string;
-  category?: string;
-  quantity: number;
-  price?: number;
-  avgPurchasePrice?: number;
-}
-
-export interface SupplierPrice {
-  id: string;
-  itemName: string;
-  supplierName: string;
   price: number;
-  unit: string;
+  quantity: number;
+  unit: any;
 }

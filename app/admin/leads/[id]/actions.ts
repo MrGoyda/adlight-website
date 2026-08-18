@@ -28,6 +28,10 @@ export async function updateLeadMainData(leadId: string, rawJson: string) {
       companyId?: string | null;
       projectId?: string | null;
       contactId?: string | null;
+      calcDetails?: string | null;
+      prepayment?: number | null;
+      isPrepaymentPaid?: boolean;
+      isBalancePaid?: boolean;
     };
 
     await prisma.lead.update({
@@ -40,6 +44,7 @@ export async function updateLeadMainData(leadId: string, rawJson: string) {
         ...(data.source   !== undefined && { source:  data.source }),
         ...(data.comment  !== undefined && { comment: data.comment }),
         ...(data.address  !== undefined && { address: data.address }),
+        ...(data.calcDetails !== undefined && { calcDetails: data.calcDetails }),
         ...(data.appointmentDate !== undefined && {
           appointmentDate: data.appointmentDate ? new Date(data.appointmentDate) : null,
         }),
@@ -54,6 +59,15 @@ export async function updateLeadMainData(leadId: string, rawJson: string) {
         }),
         ...(data.isDiscounted !== undefined && {
           isDiscounted: Boolean(data.isDiscounted),
+        }),
+        ...(data.prepayment !== undefined && {
+          prepayment: data.prepayment === null || isNaN(Number(data.prepayment)) ? 0 : Number(data.prepayment),
+        }),
+        ...(data.isPrepaymentPaid !== undefined && {
+          isPrepaymentPaid: Boolean(data.isPrepaymentPaid),
+        }),
+        ...(data.isBalancePaid !== undefined && {
+          isBalancePaid: Boolean(data.isBalancePaid),
         }),
         ...(data.companyId !== undefined && { companyId: data.companyId }),
         ...(data.projectId !== undefined && { projectId: data.projectId }),

@@ -32,6 +32,7 @@ import LeadCreateModal from "./dashboard/LeadCreateModal";
 import LeadFinanceModal from "./dashboard/LeadFinanceModal";
 import LeadDeleteConfirmModal from "./dashboard/LeadDeleteConfirmModal";
 import EstimateModal from "./EstimateModal";
+import LeadDetailSheet from "./detail/LeadDetailSheet";
 import { CreateClientModal } from "../../clients/_components/CreateClientModal";
 import { BatchImportClientsModal } from "../../clients/_components/BatchImportClientsModal";
 import { ExportAudienceModal } from "../../clients/_components/ExportAudienceModal";
@@ -65,6 +66,7 @@ export default function LeadsDashboard({
   // Модальные окна сметы и клиентов
   const [showEstimateModal, setShowEstimateModal] = useState(false);
   const [estimateLead, setEstimateLead] = useState<Lead | null>(null);
+  const [detailLead, setDetailLead] = useState<any | null>(null);
   const [showCreateClientModal, setShowCreateClientModal] = useState(false);
   const [showBatchImportModal, setShowBatchImportModal] = useState(false);
   const [showExportAudienceModal, setShowExportAudienceModal] = useState(false);
@@ -267,7 +269,15 @@ export default function LeadsDashboard({
                 isGloballyExpanded={filters.isGlobalExpanded}
                 onSelect={(selected) => ops.setActiveLead(selected)}
                 onOpenEstimate={(selected) => { setEstimateLead(selected); setShowEstimateModal(true); }}
-                onOpenFullCard={(id) => router.push(`/admin/leads/${id}`)}
+                onOpenFullCard={(id) => {
+                  const found = ops.leads.find((l) => l.id === id);
+                  if (found) {
+                    setDetailLead(found);
+                    ops.setActiveLead(null);
+                  } else {
+                    router.push(`/admin/leads/${id}`);
+                  }
+                }}
                 onDeleteClick={ops.handleDeleteClick}
                 onRestoreLead={ops.handleRestoreLead}
               />
@@ -308,7 +318,15 @@ export default function LeadsDashboard({
             if (ops.activeLead) setEstimateLead(ops.activeLead);
             setShowEstimateModal(true);
           }}
-          onOpenFullCard={(id) => router.push(`/admin/leads/${id}`)}
+          onOpenFullCard={(id) => {
+            const found = ops.leads.find((l) => l.id === id);
+            if (found) {
+              setDetailLead(found);
+              ops.setActiveLead(null);
+            } else {
+              router.push(`/admin/leads/${id}`);
+            }
+          }}
           onLinkLeadToClient={ops.handleLinkLeadToClient}
           onCreateClientFromLead={ops.handleCreateClientFromLead}
           onOpenClientsPage={() => router.push("/admin/clients")}
@@ -338,6 +356,27 @@ export default function LeadsDashboard({
         <LeadDeleteConfirmModal
           onClose={() => ops.setShowDeleteConfirm(false)}
           onConfirm={ops.handleDeleteConfirm}
+        />
+      )}
+
+      {/* ── ПОДРОБНАЯ КАРТОЧКА ЛИДА (ШТОРКА 60 FPS) ── */}
+      {detailLead && (
+        <LeadDetailSheet
+          isOpen={Boolean(detailLead)}
+          onClose={() => setDetailLead(null)}
+          lead={detailLead}
+          onUpdateLead={(updated) => {
+            ops.setLeads((prev) =>
+              prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
+            );
+            if (ops.activeLead && ops.activeLead.id === updated.id) {
+              ops.setActiveLead((prev) => (prev ? { ...prev, ...updated } : null));
+            }
+            setDetailLead(updated);
+          }}
+          warehouseItems={initialWarehouseItems}
+          supplierPrices={initialSupplierPrices}
+          leads={ops.leads}
         />
       )}
 
