@@ -207,7 +207,30 @@ export default function MobileMenu({
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Drag handle (визуальный) */}
+        {/* ── Вертикальная полоска-хватка по левому краю (только мобильные) ── */}
+        <div
+          className="sm:hidden absolute left-0 top-0 bottom-0 w-5 flex items-center justify-center z-10"
+          aria-hidden="true"
+        >
+          {/* Фоновая зона для удобного захвата — невидимая, но широкая */}
+          <div className="relative flex items-center justify-center h-full w-full">
+            {/* Сама полоска */}
+            <div
+              className={`w-1 rounded-full bg-slate-300 transition-all duration-500 ${
+                isOpen ? "h-16 opacity-100" : "h-8 opacity-0"
+              }`}
+            >
+              {/* Пульсирующая точка-подсказка сверху */}
+              <div
+                className={`absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-orange-400 transition-opacity duration-700 ${
+                  isOpen ? "opacity-100 animate-pulse" : "opacity-0"
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Drag handle сверху (горизонтальный, для совместимости) */}
         <div className="sm:hidden flex justify-center pt-2.5 pb-0 shrink-0">
           <div className="w-10 h-1 rounded-full bg-slate-300" aria-hidden="true" />
         </div>
