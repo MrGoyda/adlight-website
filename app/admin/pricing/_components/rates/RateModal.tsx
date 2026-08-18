@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Save, Calculator } from "lucide-react";
+import { X, Save, Calculator, TrendingUp } from "lucide-react";
 import { EstimateItemType, InventoryUnit } from "@prisma/client";
 import { WorkOperationItem } from "../../_types/pricingTypes";
 import { INVENTORY_UNITS, RATE_CATEGORIES } from "../../_data/pricingDictionary";
 import { triggerHaptic } from "@/lib/haptics";
+import BottomSheet from "@/components/ui/BottomSheet";
 
 interface RateModalProps {
   isOpen: boolean;
@@ -52,8 +53,6 @@ export default function RateModal({
     }
   }, [editingRate, defaultType, isOpen]);
 
-  if (!isOpen) return null;
-
   const costNum = Number(defaultCost) || 0;
   const priceNum = Number(defaultPrice) || 0;
   const marginNum = priceNum - costNum;
@@ -81,36 +80,43 @@ export default function RateModal({
     }
   };
 
-  const currentCategory = RATE_CATEGORIES[type];
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      maxWidth="max-w-md"
+      maxHeight="max-h-[92dvh]"
+      className="bg-white"
+    >
+      <div className="flex flex-col h-full w-full max-w-full overflow-hidden overflow-x-hidden">
         {/* Шапка */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-20 shrink-0 w-full">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
               <Calculator className="w-4 h-4" />
             </div>
-            <div>
-              <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">
+            <div className="min-w-0">
+              <h3 className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight truncate">
                 {editingRate ? "Редактировать тариф" : "Новый тариф сметы"}
               </h3>
-              <p className="text-[11px] text-slate-400">Ставки работ, логистики или спецтехники</p>
+              <p className="text-[11px] text-slate-400 font-semibold truncate">Ставки работ, логистики или спецтехники</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Форма */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 sm:p-6 space-y-4 overflow-y-auto overflow-x-hidden w-full max-w-full touch-pan-y [touch-action:pan-y] overscroll-contain flex-1"
+        >
           <div>
             <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
               Категория тарифа
@@ -118,7 +124,7 @@ export default function RateModal({
             <select
               value={type}
               onChange={(e) => setType(e.target.value as EstimateItemType)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-900 focus:border-indigo-500 outline-none bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black text-slate-900 focus:bg-white focus:border-indigo-500 outline-none cursor-pointer box-border"
             >
               <option value="LOGISTICS">🚚 Газель и Доставка (Логистика)</option>
               <option value="EQUIPMENT">🏗️ Автовышка и Спецтехника</option>
@@ -138,7 +144,7 @@ export default function RateModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Напр. Сборка объемных световых букв"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:bg-white focus:border-indigo-500 outline-none transition box-border"
             />
           </div>
 
@@ -149,7 +155,7 @@ export default function RateModal({
             <select
               value={unit}
               onChange={(e) => setUnit(e.target.value as InventoryUnit)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 focus:border-indigo-500 outline-none bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-indigo-500 outline-none cursor-pointer box-border"
             >
               {Object.entries(INVENTORY_UNITS).map(([key, val]) => (
                 <option key={key} value={key}>
@@ -159,10 +165,11 @@ export default function RateModal({
             </select>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-black text-rose-600 uppercase tracking-wider mb-1.5">
-                Себестоимость (ЗП) *
+          {/* Ставки: ЗП и В смете */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+            <div className="min-w-0 w-full">
+              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
+                ЗП мастера (Себестоимость)
               </label>
               <div className="relative">
                 <input
@@ -173,18 +180,17 @@ export default function RateModal({
                   value={defaultCost}
                   onChange={(e) => setDefaultCost(e.target.value ? Number(e.target.value) : "")}
                   placeholder="0"
-                  className="w-full pl-3 pr-8 py-2.5 rounded-xl border border-rose-200 bg-rose-50/30 text-sm font-black text-slate-900 focus:border-rose-500 outline-none transition"
+                  className="w-full pl-3.5 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-black text-slate-900 focus:bg-white focus:border-indigo-500 outline-none transition box-border"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 pointer-events-none">
                   ₸
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400">Оплата работникам</span>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-black text-emerald-600 uppercase tracking-wider mb-1.5">
-                Цена в смете *
+            <div className="min-w-0 w-full">
+              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
+                Цена в смете (Клиенту)
               </label>
               <div className="relative">
                 <input
@@ -195,43 +201,50 @@ export default function RateModal({
                   value={defaultPrice}
                   onChange={(e) => setDefaultPrice(e.target.value ? Number(e.target.value) : "")}
                   placeholder="0"
-                  className="w-full pl-3 pr-8 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/30 text-sm font-black text-slate-900 focus:border-emerald-500 outline-none transition"
+                  className="w-full pl-3.5 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm font-black text-emerald-600 focus:bg-white focus:border-emerald-500 outline-none transition box-border"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 pointer-events-none">
                   ₸
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400">Для заказчика</span>
             </div>
           </div>
 
-          {/* Плашка маржинальности */}
-          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs font-bold">
-            <span className="text-slate-500">Маржа компании:</span>
-            <span className={marginNum >= 0 ? "text-emerald-700 font-black" : "text-rose-600 font-black"}>
-              +{marginNum.toLocaleString()} ₸ ({markupPercent}%)
-            </span>
+          {/* Плашка маржи */}
+          <div className="bg-indigo-50/70 border border-indigo-200/80 p-3 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-indigo-600 shrink-0" />
+              <span className="text-xs font-bold text-indigo-950">Маржа компании:</span>
+            </div>
+            <div className="text-right">
+              <span className="text-sm font-black text-indigo-700">
+                +{Number(marginNum).toLocaleString("ru-RU")} ₸
+              </span>
+              <span className="text-[10px] text-indigo-500 font-bold ml-1">
+                (+{markupPercent}%)
+              </span>
+            </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-bold text-xs transition"
+              className="px-4 py-2.5 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-bold text-xs transition cursor-pointer active:scale-95"
             >
               Отмена
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-600/20 transition active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-600/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{isSubmitting ? "Сохранение..." : editingRate ? "Обновить" : "Создать тариф"}</span>
+              <span>{isSubmitting ? "Сохранение..." : editingRate ? "Обновить тариф" : "Сохранить тариф"}</span>
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </BottomSheet>
   );
 }

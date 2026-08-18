@@ -45,6 +45,10 @@ export default function MaterialFiltersBar({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Живой поиск материалов (акрил, пвх, диоды, 12V, oracal, профиль)..."
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          suppressHydrationWarning
           className="w-full pl-10 pr-9 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none transition"
         />
         {searchQuery && (
