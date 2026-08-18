@@ -26,7 +26,8 @@ import {
   Copy, 
   MessageSquareQuote,
   Calculator,
-  Save
+  Save,
+  ChevronDown
 } from "lucide-react";
 import { formatManagerName } from "../_data/leadsDictionary";
 
@@ -110,6 +111,7 @@ export default function LeadMobileDrawer({
   const dict = LEADS_DICTIONARY.drawer;
   const [showCompanyConvert, setShowCompanyConvert] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isMessageExpanded, setIsMessageExpanded] = useState(false);
 
   const handleCopyAddress = (addr: string) => {
     if (!addr) return;
@@ -322,16 +324,42 @@ export default function LeadMobileDrawer({
                   </div>
                 )}
 
-                {/* Исходный запрос с сайта */}
+                {/* Исходный запрос с сайта (раскрывающийся аккордеон) */}
                 {activeLead.message && (
-                  <div className="bg-orange-50/70 p-3.5 rounded-2xl border border-orange-200/80 space-y-1.5 w-full min-w-0 max-w-full overflow-hidden">
-                    <span className="text-[10px] font-black text-orange-900 uppercase tracking-wider flex items-center gap-1.5">
-                      <MessageSquareQuote className="w-3.5 h-3.5 text-orange-600 shrink-0" />
-                      Исходный запрос с сайта:
-                    </span>
-                    <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] leading-relaxed max-w-full">
-                      {activeLead.message}
-                    </p>
+                  <div className="bg-orange-50/70 rounded-2xl border border-orange-200/80 w-full min-w-0 max-w-full overflow-hidden transition shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        setIsMessageExpanded((prev) => !prev);
+                      }}
+                      className="w-full p-3.5 flex items-center justify-between text-left cursor-pointer select-none hover:bg-orange-100/60 transition"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <MessageSquareQuote className="w-4 h-4 text-orange-600 shrink-0" />
+                        <span className="text-[11px] font-black text-orange-950 uppercase tracking-wider">
+                          Исходный запрос с сайта
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        <span className="text-[10px] font-bold text-orange-700">
+                          {isMessageExpanded ? "Свернуть" : "Показать"}
+                        </span>
+                        <ChevronDown
+                          className={`w-4 h-4 text-orange-600 transition-transform duration-200 ${
+                            isMessageExpanded ? "rotate-180" : ""
+                          }`}
+                        />
+                      </div>
+                    </button>
+
+                    {isMessageExpanded && (
+                      <div className="px-3.5 pb-3.5 pt-1 border-t border-orange-200/60 animate-in fade-in duration-150">
+                        <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] leading-relaxed max-w-full">
+                          {activeLead.message}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
