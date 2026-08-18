@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
@@ -32,6 +32,9 @@ interface MobileMenuProps {
   registerClose?: (fn: () => void) => void;
 }
 
+const SWIPE_CLOSE_THRESHOLD = 80; // px правее — закрыть
+const SWIPE_CLOSE_VELOCITY = 0.4; // px/ms — быстрый свайп
+
 export default function MobileMenu({
   isOpen,
   onClose,
@@ -42,29 +45,129 @@ export default function MobileMenu({
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isLettersOpen, setIsLettersOpen] = useState(false);
 
+  // Ref на саму шторку — для нативного свайпа
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchStartTime = useRef(0);
+  const isDragging = useRef(false);
+  const isHorizontalSwipe = useRef<boolean | null>(null); // null = ещё не определено
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Передаем родителю функцию закрытия для обратной совместимости
   useEffect(() => {
-    if (registerClose) {
-      registerClose(onClose);
-    }
+    if (registerClose) registerClose(onClose);
   }, [registerClose, onClose]);
+
+  // Блокировка скролла страницы при открытом меню
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   // Закрытие по Escape
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        triggerHaptic("light");
         onClose();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
+
+  // ── Нативный свайп закрытия (без framer-motion) ──
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStartX.current = t.clientX;
+    touchStartY.current = t.clientY;
+    touchStartTime.current = Date.now();
+    isDragging.current = false;
+    isHorizontalSwipe.current = null;
+    if (drawerRef.current) {
+      drawerRef.current.style.transition = "none";
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const t = e.touches[0];
+    const dx = t.clientX - touchStartX.current;
+    const dy = Math.abs(t.clientY - touchStartY.current);
+
+    // Определяем направление свайпа один раз
+    if (isHorizontalSwipe.current === null) {
+      if (Math.abs(dx) > 8 || dy > 8) {
+        isHorizontalSwipe.current = Math.abs(dx) > dy;
+      }
+      return;
+    }
+
+    // Если вертикальный скролл — не трогаем шторку
+    if (!isHorizontalSwipe.current) return;
+
+    // Разрешаем только вправо
+    if (dx <= 0) {
+      if (drawerRef.current) drawerRef.current.style.transform = "";
+      return;
+    }
+
+    isDragging.current = true;
+    e.preventDefault(); // предотвращаем bounce страницы
+    if (drawerRef.current) {
+      drawerRef.current.style.transform = `translateX(${dx}px)`;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!isDragging.current) {
+      if (drawerRef.current) {
+        drawerRef.current.style.transition = "";
+        drawerRef.current.style.transform = "";
+      }
+      return;
+    }
+
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX.current;
+    const dt = Date.now() - touchStartTime.current;
+    const velocity = dx / dt;
+
+    if (drawerRef.current) {
+      drawerRef.current.style.transition = "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)";
+    }
+
+    if (dx > SWIPE_CLOSE_THRESHOLD || velocity > SWIPE_CLOSE_VELOCITY) {
+      // Закрыть
+      triggerHaptic("medium");
+      if (drawerRef.current) {
+        drawerRef.current.style.transform = "translateX(100%)";
+      }
+      setTimeout(() => {
+        if (drawerRef.current) {
+          drawerRef.current.style.transform = "";
+          drawerRef.current.style.transition = "";
+        }
+        onClose();
+      }, 300);
+    } else {
+      // Snap back
+      if (drawerRef.current) {
+        drawerRef.current.style.transform = "";
+        drawerRef.current.style.transition = "";
+      }
+    }
+
+    isDragging.current = false;
+  }, [onClose]);
 
   const handleLinkClick = useCallback(() => {
     triggerHaptic("light");
@@ -74,34 +177,43 @@ export default function MobileMenu({
   if (!mounted) return null;
 
   return createPortal(
+    // Всегда в DOM, управляется CSS-классами — нет задержки монтирования
     <div
-      className={`fixed inset-0 z-[9990] transition-all duration-300 ${
-        isOpen ? "visible pointer-events-auto" : "invisible pointer-events-none delay-300"
-      }`}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Навигационное меню"
+      className={`fixed inset-0 z-[9990] pointer-events-none`}
+      aria-hidden={!isOpen}
     >
-      {/* ── Затемняющий оверлей ── */}
+      {/* ── Затемняющий оверлей (без backdrop-blur — он убивает производительность) ── */}
       <div
         onClick={() => {
           triggerHaptic("light");
           onClose();
         }}
-        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300 ease-out cursor-pointer ${
-          isOpen ? "opacity-100" : "opacity-0"
+        className={`absolute inset-0 bg-slate-900/50 transition-opacity duration-300 ease-out cursor-pointer ${
+          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
       />
 
-      {/* ── Выдвижная шторка навигации (120 FPS GPU-ускоренная) ── */}
+      {/* ── Выдвижная шторка ── */}
       <div
-        className={`fixed top-0 right-0 bottom-0 h-dvh w-full sm:w-[460px] bg-white border-l border-slate-200 shadow-2xl flex flex-col transform-gpu will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-10 ${
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Навигационное меню"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className={`absolute top-0 right-0 bottom-0 h-dvh w-full sm:w-[460px] bg-white border-l border-slate-200 shadow-2xl flex flex-col will-change-transform pointer-events-auto transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* ── Шапка меню ── */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white shrink-0">
+        {/* Drag handle (визуальный) */}
+        <div className="sm:hidden flex justify-center pt-2.5 pb-0 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-slate-300" aria-hidden="true" />
+        </div>
+
+        {/* ── Шапка ── */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0">
           <span className="text-sm font-black text-slate-900 tracking-widest uppercase">
             Навигация по сайту
           </span>
@@ -119,8 +231,8 @@ export default function MobileMenu({
         </div>
 
         {/* ── Прокручиваемый контент ── */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-7 scrollbar-thin scrollbar-thumb-slate-200 touch-pan-y [touch-action:pan-y]">
-          {/* Основные страницы — из COMMON_NAV_LINKS */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-5 space-y-6">
+          {/* Основные страницы */}
           <div className="space-y-2.5">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
               Основные страницы
@@ -140,7 +252,7 @@ export default function MobileMenu({
           </div>
 
           {/* Каталог конструкций */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
               Каталог конструкций
             </h4>
@@ -214,7 +326,7 @@ export default function MobileMenu({
             <div
               className={`transition-all duration-300 ease-in-out overflow-hidden ${
                 isLettersOpen
-                  ? "max-h-[500px] opacity-100 border-t border-slate-200"
+                  ? "max-h-[600px] opacity-100 border-t border-slate-200"
                   : "max-h-0 opacity-0"
               }`}
             >
@@ -261,18 +373,16 @@ export default function MobileMenu({
           </div>
 
           {/* Контактные данные */}
-          <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-3.5 text-left">
+          <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-3 text-left">
             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
               Контактная информация
             </h4>
-            <div className="space-y-3 text-xs font-semibold text-slate-700">
+            <div className="space-y-2.5 text-xs font-semibold text-slate-700">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
                 <div>
                   <span className="text-slate-900 font-extrabold block">Наше производство:</span>
-                  <span>
-                    г. {COMPANY_NAP.locality}, {COMPANY_NAP.address}
-                  </span>
+                  <span>г. {COMPANY_NAP.locality}, {COMPANY_NAP.address}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
@@ -305,7 +415,7 @@ export default function MobileMenu({
         </div>
 
         {/* ── Footer: Соцсети + CTA ── */}
-        <div className="p-5 pb-safe-6 bg-slate-50 border-t border-slate-200 space-y-3.5 shrink-0">
+        <div className="px-5 py-4 pb-safe-4 bg-white border-t border-slate-100 space-y-3 shrink-0">
           <div className="flex justify-center gap-4">
             <a
               href={COMPANY_NAP.socials.instagram}
@@ -317,7 +427,7 @@ export default function MobileMenu({
                   form_name: "Mobile Menu Instagram",
                 })
               }
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-pink-600 hover:text-white hover:border-transparent transition-all duration-300 shadow-xs active:scale-95"
+              className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-pink-600 hover:text-white hover:border-transparent transition-all duration-200 active:scale-90"
               aria-label="Наш Instagram"
             >
               <Instagram className="w-4 h-4" />
@@ -332,7 +442,7 @@ export default function MobileMenu({
                   form_name: "Mobile Menu Telegram",
                 })
               }
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-xs active:scale-95"
+              className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-blue-500 hover:text-white hover:border-transparent transition-all duration-200 active:scale-90"
               aria-label="Наш Telegram"
             >
               <Send className="w-4 h-4 ml-0.5" />
@@ -351,7 +461,7 @@ export default function MobileMenu({
                 );
                 window.open(url, "_blank");
               }}
-              className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-xs active:scale-95 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-green-500 hover:text-white hover:border-transparent transition-all duration-200 active:scale-90 cursor-pointer"
               aria-label="Наш WhatsApp"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
