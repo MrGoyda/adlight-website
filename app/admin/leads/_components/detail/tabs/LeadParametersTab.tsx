@@ -307,12 +307,12 @@ export default function LeadParametersTab({
 
         {/* Исходный запрос с сайта */}
         {initialMessage && (
-          <div className="bg-orange-50/60 p-3.5 rounded-2xl border border-orange-200/60 space-y-1.5">
+          <div className="bg-orange-50/70 p-3.5 rounded-2xl border border-orange-200/80 space-y-1.5 w-full min-w-0 max-w-full overflow-hidden">
             <span className="text-[10px] font-black text-orange-900 uppercase tracking-wider flex items-center gap-1.5">
-              <MessageSquareQuote className="w-3.5 h-3.5 text-orange-600" />
+              <MessageSquareQuote className="w-3.5 h-3.5 text-orange-600 shrink-0" />
               Исходный запрос с сайта:
             </span>
-            <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap leading-relaxed">
+            <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] leading-relaxed max-w-full">
               {initialMessage}
             </p>
           </div>
@@ -556,12 +556,12 @@ export default function LeadParametersTab({
 
       {/* Исходный запрос с сайта (если есть) */}
       {initialMessage && (
-        <div className="bg-orange-50/60 p-3.5 rounded-2xl border border-orange-200/60 space-y-1.5">
+        <div className="bg-orange-50/70 p-3.5 rounded-2xl border border-orange-200/80 space-y-1.5 w-full min-w-0 max-w-full overflow-hidden">
           <span className="text-[10px] font-black text-orange-900 uppercase tracking-wider flex items-center gap-1.5">
-            <MessageSquareQuote className="w-3.5 h-3.5 text-orange-600" />
+            <MessageSquareQuote className="w-3.5 h-3.5 text-orange-600 shrink-0" />
             Исходный запрос с сайта:
           </span>
-          <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap leading-relaxed">
+          <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] leading-relaxed max-w-full">
             {initialMessage}
           </p>
         </div>

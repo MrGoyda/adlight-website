@@ -91,11 +91,11 @@ export default function LeadCardAccordionContent({
 
           {/* Запрос с сайта */}
           {message && (
-            <div className="bg-orange-50/40 p-2.5 rounded-xl border border-orange-200/60">
+            <div className="bg-orange-50/40 p-2.5 rounded-xl border border-orange-200/60 w-full min-w-0 max-w-full overflow-hidden">
               <span className="block text-[10px] font-black uppercase tracking-wider text-orange-600 mb-0.5">
                 Запрос с сайта:
               </span>
-              <p className="text-slate-700 font-medium leading-relaxed break-words">
+              <p className="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] max-w-full">
                 {message}
               </p>
             </div>
@@ -103,12 +103,12 @@ export default function LeadCardAccordionContent({
 
           {/* Заметка менеджера */}
           {comment && (
-            <div className="bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/70">
+            <div className="bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/70 w-full min-w-0 max-w-full overflow-hidden">
               <span className="block text-[10px] font-black uppercase tracking-wider text-amber-700 mb-0.5 flex items-center gap-1">
-                <MessageSquare className="w-3 h-3" />
+                <MessageSquare className="w-3 h-3 shrink-0" />
                 Заметка:
               </span>
-              <p className="text-slate-800 font-semibold leading-relaxed break-words">
+              <p className="text-slate-800 font-semibold leading-relaxed whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] max-w-full">
                 {comment}
               </p>
             </div>
