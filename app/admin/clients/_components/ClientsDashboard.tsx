@@ -154,6 +154,13 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
     window.addEventListener("crm:open-batch-import", handleOpenBatchImport);
     window.addEventListener("crm:open-export-audience", handleOpenExportAudience);
 
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("action") === "create-client") {
+        setShowCreateModal(true);
+      }
+    }
+
     return () => {
       window.removeEventListener("crm:open-create-client", handleOpenCreateClient);
       window.removeEventListener("crm:open-batch-import", handleOpenBatchImport);

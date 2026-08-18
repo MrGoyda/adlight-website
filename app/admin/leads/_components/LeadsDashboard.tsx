@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Search, 
@@ -70,6 +70,47 @@ export default function LeadsDashboard({
   const [showCreateClientModal, setShowCreateClientModal] = useState(false);
   const [showBatchImportModal, setShowBatchImportModal] = useState(false);
   const [showExportAudienceModal, setShowExportAudienceModal] = useState(false);
+
+  // Слушатели глобальных быстрых действий из CrmHeader и CrmBottomBar
+  useEffect(() => {
+    const handleOpenCreateLead = () => {
+      triggerHaptic("light");
+      ops.setShowCreateModal(true);
+    };
+    const handleOpenEstimate = () => {
+      triggerHaptic("light");
+      setEstimateLead(null);
+      setShowEstimateModal(true);
+    };
+    const handleOpenCreateClient = () => {
+      triggerHaptic("light");
+      setShowCreateClientModal(true);
+    };
+
+    window.addEventListener("crm:open-create-lead", handleOpenCreateLead);
+    window.addEventListener("crm:open-estimate", handleOpenEstimate);
+    window.addEventListener("crm:open-create-client", handleOpenCreateClient);
+
+    // Проверка URL query параметров (при переходе с других страниц)
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const action = params.get("action");
+      if (action === "create-lead") {
+        ops.setShowCreateModal(true);
+      } else if (action === "estimate") {
+        setEstimateLead(null);
+        setShowEstimateModal(true);
+      } else if (action === "create-client") {
+        setShowCreateClientModal(true);
+      }
+    }
+
+    return () => {
+      window.removeEventListener("crm:open-create-lead", handleOpenCreateLead);
+      window.removeEventListener("crm:open-estimate", handleOpenEstimate);
+      window.removeEventListener("crm:open-create-client", handleOpenCreateClient);
+    };
+  }, []);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
