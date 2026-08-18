@@ -96,13 +96,13 @@ export default function BottomSheet({
                 onClose();
               }
             }}
-            className={`relative w-full ${maxWidth} bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} h-auto z-20 overflow-hidden overflow-x-hidden touch-pan-y border-t border-slate-200/80 transform-gpu will-change-transform ${className}`}
+            className={`relative w-full ${maxWidth} max-w-full bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} h-auto z-20 overflow-hidden overflow-x-hidden touch-pan-y [touch-action:pan-y] border-t border-slate-200/80 transform-gpu will-change-transform ${className}`}
           >
             {/* Ручка для свайпа вниз (iOS Handle Bar) */}
             {showHandleBar && (
               <div
                 onPointerDown={(e) => dragControls.start(e)}
-                className="pt-2.5 pb-1 flex justify-center shrink-0 cursor-grab active:cursor-grabbing bg-white select-none touch-none"
+                className="pt-2.5 pb-1 flex justify-center shrink-0 cursor-grab active:cursor-grabbing bg-white select-none touch-none w-full max-w-full"
               >
                 <div className="w-12 h-1.5 bg-slate-300 hover:bg-slate-400 rounded-full transition-colors pointer-events-none" />
               </div>
