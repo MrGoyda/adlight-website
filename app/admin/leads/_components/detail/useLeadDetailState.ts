@@ -29,6 +29,7 @@ interface UseLeadDetailStateProps {
 
 export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetailStateProps) {
   const [activeTab, setActiveTab] = useState<DetailTabType>("params");
+  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -155,6 +156,7 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
       toast.error(res.error);
     } else {
       toast.success("Данные заявки сохранены!");
+      setIsEditing(false);
       if (onUpdateLead) {
         onUpdateLead({
           ...lead,
@@ -277,6 +279,8 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
   return {
     activeTab,
     setActiveTab,
+    isEditing,
+    setIsEditing,
     isSaving,
     isPending,
     rating,

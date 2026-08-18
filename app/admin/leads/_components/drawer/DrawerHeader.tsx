@@ -13,9 +13,12 @@ import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus } from "@prisma/client";
 import { STATUS_MAP, LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 import { Lead } from "../../_types/leadTypes";
+import { Edit3, Check } from "lucide-react";
 
 interface DrawerHeaderProps {
   activeLead: Lead;
+  isEditing?: boolean;
+  onToggleEditing?: () => void;
   onClose: () => void;
   onStatusChange: (leadId: string, newStatus: LeadStatus) => void;
   onOpenFullCard: (leadId: string) => void;
@@ -24,6 +27,8 @@ interface DrawerHeaderProps {
 
 export default function DrawerHeader({
   activeLead,
+  isEditing = false,
+  onToggleEditing,
   onClose,
   onStatusChange,
   onOpenFullCard,
@@ -151,6 +156,25 @@ export default function DrawerHeader({
             </div>
           )}
         </div>
+
+        {/* Кнопка переключения режима Редактирования / Просмотра */}
+        {onToggleEditing && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("light");
+              onToggleEditing();
+            }}
+            className={`p-2 rounded-xl transition cursor-pointer active:scale-95 ${
+              isEditing
+                ? "bg-slate-900 text-white hover:bg-black"
+                : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+            }`}
+            title={isEditing ? "Режим просмотра" : "Редактировать сделку"}
+          >
+            {isEditing ? <Check className="w-4 h-4 text-emerald-400" /> : <Edit3 className="w-4 h-4" />}
+          </button>
+        )}
 
         {/* Кнопка перехода в полную карточку */}
         <button

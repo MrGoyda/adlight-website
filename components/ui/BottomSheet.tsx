@@ -84,7 +84,8 @@ export default function BottomSheet({
               mass: 0.8,
             }}
             drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
+            dragDirectionLock
+            dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
             dragElastic={{ top: 0, bottom: 0.6 }}
             onDragEnd={(_, info) => {
               if (info.offset.y > 120 || info.velocity.y > 600) {
@@ -92,7 +93,7 @@ export default function BottomSheet({
                 onClose();
               }
             }}
-            className={`relative w-full ${maxWidth} bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} h-auto z-20 overflow-hidden border-t border-slate-200/80 transform-gpu will-change-transform ${className}`}
+            className={`relative w-full ${maxWidth} bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} h-auto z-20 overflow-hidden overflow-x-hidden touch-pan-y border-t border-slate-200/80 transform-gpu will-change-transform ${className}`}
           >
             {/* Ручка для свайпа вниз (iOS Handle Bar) */}
             {showHandleBar && (

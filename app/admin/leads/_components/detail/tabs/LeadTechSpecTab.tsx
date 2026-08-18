@@ -10,14 +10,15 @@ import {
 } from "../../../_data/leadDetailDictionary";
 import { LeadTechSpec } from "../../../_types/leadDetailTypes";
 import { triggerHaptic } from "@/lib/haptics";
-import { Wrench, ShieldCheck, Zap, Maximize, Moon } from "lucide-react";
+import { Wrench, ShieldCheck, Zap, Maximize, Moon, Sparkles, Layers } from "lucide-react";
 
 interface LeadTechSpecTabProps {
+  isEditing: boolean;
   techSpec: LeadTechSpec;
   setTechSpec: (val: LeadTechSpec | ((prev: LeadTechSpec) => LeadTechSpec)) => void;
 }
 
-export default function LeadTechSpecTab({ techSpec, setTechSpec }: LeadTechSpecTabProps) {
+export default function LeadTechSpecTab({ isEditing, techSpec, setTechSpec }: LeadTechSpecTabProps) {
   const selectedTypes = techSpec.signTypes || [];
 
   const handleToggleSignType = (id: string) => {
@@ -36,6 +37,171 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec }: LeadTechSpecT
     }));
   };
 
+  const selectedSignTypeLabels = selectedTypes
+    .map((id) => SIGN_TYPES.find((st) => st.id === id)?.label)
+    .filter(Boolean);
+
+  const mountingHeightLabel = MOUNTING_HEIGHTS.find((h) => h.id === techSpec.mountingHeight)?.label;
+  const facadeTypeLabel = FACADE_WALL_TYPES.find((w) => w.id === techSpec.facadeType)?.label;
+  const powerSupplyLabel = POWER_SUPPLY_OPTIONS.find((p) => p.id === techSpec.powerSupply)?.label;
+  const approvalStatusLabel = APPROVAL_STATUSES.find((a) => a.id === techSpec.approvalStatus)?.label;
+
+  const hasAnyData =
+    selectedTypes.length > 0 ||
+    techSpec.lengthMeters ||
+    techSpec.heightMeters ||
+    techSpec.letterHeightCm ||
+    techSpec.mountingHeight ||
+    techSpec.facadeType ||
+    techSpec.powerSupply ||
+    techSpec.approvalStatus ||
+    techSpec.nightMountingOnly;
+
+  // ═══════════════════════════════════════════════════════════════
+  // РЕЖИМ ПРОСМОТРА (View Mode) — Читаемый аккуратный вид
+  // ═══════════════════════════════════════════════════════════════
+  if (!isEditing) {
+    if (!hasAnyData) {
+      return (
+        <div className="p-8 text-center bg-slate-50/70 border border-dashed border-slate-200 rounded-3xl space-y-2 animate-in fade-in duration-150">
+          <Layers className="w-8 h-8 text-slate-300 mx-auto" />
+          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+            Тех-спецификация не заполнена
+          </h4>
+          <p className="text-xs text-slate-400 font-medium max-w-sm mx-auto">
+            Нажмите кнопку «Изменить» внизу или в шапке, чтобы указать тип конструкции, размеры, фасад и параметры монтажа.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4 animate-in fade-in duration-150">
+        {/* Типы конструкций */}
+        {selectedSignTypeLabels.length > 0 && (
+          <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+              Тип конструкции
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {selectedSignTypeLabels.map((lbl, idx) => (
+                <span
+                  key={idx}
+                  className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-orange-500 text-white shadow-2xs"
+                >
+                  {lbl}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Размеры и габариты */}
+        {(techSpec.lengthMeters || techSpec.heightMeters || techSpec.letterHeightCm) && (
+          <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <Maximize className="w-3.5 h-3.5 text-orange-500" />
+              Габариты и размеры
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {techSpec.lengthMeters && (
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
+                    Длина
+                  </span>
+                  <span className="text-sm font-black text-slate-900">
+                    {techSpec.lengthMeters} м
+                  </span>
+                </div>
+              )}
+
+              {techSpec.heightMeters && (
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
+                    Высота
+                  </span>
+                  <span className="text-sm font-black text-slate-900">
+                    {techSpec.heightMeters} м
+                  </span>
+                </div>
+              )}
+
+              {techSpec.letterHeightCm && (
+                <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
+                    Высота букв
+                  </span>
+                  <span className="text-sm font-black text-slate-900">
+                    {techSpec.letterHeightCm} см
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Монтажные условия */}
+        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+            <Wrench className="w-3.5 h-3.5 text-indigo-500" />
+            Условия монтажа и фасад
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+              <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
+                Высота от земли
+              </span>
+              <span className="text-xs font-black text-slate-900">
+                {mountingHeightLabel || "Не указана"}
+              </span>
+            </div>
+
+            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+              <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
+                Материал фасада
+              </span>
+              <span className="text-xs font-black text-slate-900">
+                {facadeTypeLabel || "Не указан"}
+              </span>
+            </div>
+
+            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+              <span className="text-[10px] text-slate-400 font-bold block mb-0.5 flex items-center gap-1">
+                <Zap className="w-3 h-3 text-amber-500" />
+                Питание 220V
+              </span>
+              <span className="text-xs font-black text-slate-900">
+                {powerSupplyLabel || "Не указано"}
+              </span>
+            </div>
+
+            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+              <span className="text-[10px] text-slate-400 font-bold block mb-0.5 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-500" />
+                Согласование
+              </span>
+              <span className="text-xs font-black text-slate-900">
+                {approvalStatusLabel || "Не указано"}
+              </span>
+            </div>
+          </div>
+
+          {techSpec.nightMountingOnly && (
+            <div className="pt-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-indigo-50 text-indigo-900 border border-indigo-200">
+                <Moon className="w-3.5 h-3.5 text-indigo-600" />
+                Строго ночной монтаж (требование ТРЦ)
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // РЕЖИМ РЕДАКТИРОВАНИЯ (Edit Mode) — Полный редактор
+  // ═══════════════════════════════════════════════════════════════
   return (
     <div className="space-y-4 animate-in fade-in duration-150">
       {/* 1. Тип рекламной конструкции (Мультивыбор) */}

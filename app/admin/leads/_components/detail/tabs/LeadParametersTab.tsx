@@ -10,17 +10,20 @@ import {
   DollarSign, 
   Tag, 
   Copy, 
-  Navigation, 
   AlertCircle,
-  MessageSquareQuote
+  MessageSquareQuote,
+  Clock,
+  ExternalLink
 } from "lucide-react";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { PartnerName, LeadStatus } from "@prisma/client";
 import { CANCELLATION_REASONS } from "../../../_data/leadDetailDictionary";
+import { formatManagerName } from "../../../_data/leadsDictionary";
 
 interface LeadParametersTabProps {
+  isEditing: boolean;
   name: string;
   setName: (val: string) => void;
   phone: string;
@@ -49,9 +52,11 @@ interface LeadParametersTabProps {
   cancellationReason: string;
   setCancellationReason: (val: string) => void;
   initialMessage?: string | null;
+  source?: string | null;
 }
 
 export default function LeadParametersTab({
+  isEditing,
   name,
   setName,
   phone,
@@ -80,6 +85,7 @@ export default function LeadParametersTab({
   cancellationReason,
   setCancellationReason,
   initialMessage,
+  source,
 }: LeadParametersTabProps) {
   const handleCopyAddress = () => {
     if (!address) return;
@@ -100,6 +106,224 @@ export default function LeadParametersTab({
     window.open(`https://yandex.kz/maps/?text=${encodeURIComponent(address)}`, "_blank");
   };
 
+  const reasonObj = CANCELLATION_REASONS.find((r) => r.id === cancellationReason);
+
+  // ═══════════════════════════════════════════════════════════════
+  // РЕЖИМ ПРОСМОТРА (View Mode) — Читаемый, легкий Apple-интерфейс
+  // ═══════════════════════════════════════════════════════════════
+  if (!isEditing) {
+    return (
+      <div className="space-y-4 animate-in fade-in duration-150">
+        {/* Причина отказа при статусе CANCELLED */}
+        {status === "CANCELLED" && (
+          <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-2xl flex items-center gap-2.5">
+            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+            <div>
+              <span className="text-[10px] font-black text-rose-500 uppercase tracking-wider block">
+                Причина срыва сделки
+              </span>
+              <p className="text-xs font-black text-rose-900">
+                {reasonObj?.label || "Причина не указана"}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Карточка контактов заказчика */}
+        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+              Заказчик
+            </span>
+            {source && (
+              <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">
+                {source}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-base font-black text-slate-900">
+                {name || "Имя не указано"}
+              </h3>
+              {phone ? (
+                <a
+                  href={`tel:${phone}`}
+                  onClick={() => triggerHaptic("light")}
+                  className="inline-flex items-center gap-1.5 text-xs font-extrabold text-orange-600 hover:text-orange-700 mt-1 transition"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>{phone}</span>
+                </a>
+              ) : (
+                <span className="text-xs text-slate-400 font-medium">Телефон не указан</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Карточка адреса объекта */}
+        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-orange-500" />
+              Адрес объекта
+            </span>
+            {address && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleCopyAddress}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg transition cursor-pointer"
+                  title="Копировать адрес"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpen2Gis}
+                  className="px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer"
+                >
+                  2GIS
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenYandex}
+                  className="px-2 py-1 rounded-lg text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition cursor-pointer"
+                >
+                  Яндекс
+                </button>
+              </div>
+            )}
+          </div>
+          <p className="text-xs font-extrabold text-slate-800">
+            {address || <span className="text-slate-400 font-normal">Адрес не указан</span>}
+          </p>
+        </div>
+
+        {/* Сетка сроков и ответственности */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Дата замера */}
+          <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+              <Calendar className="w-3 h-3 text-orange-500" />
+              Замер / Встреча
+            </span>
+            <p className="text-xs font-black text-slate-900">
+              {appDate ? new Date(appDate).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "Не назначена"}
+            </p>
+          </div>
+
+          {/* Дедлайн */}
+          <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+              <CalendarCheck className="w-3 h-3 text-emerald-600" />
+              Дедлайн сдачи
+            </span>
+            <p className="text-xs font-black text-slate-900">
+              {deadline ? new Date(deadline).toLocaleDateString() : "Не установлен"}
+            </p>
+          </div>
+
+          {/* Ответственный менеджер */}
+          <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
+              <UserCheck className="w-3 h-3 text-indigo-500" />
+              Ответственный
+            </span>
+            <p className="text-xs font-black text-slate-900">
+              {formatManagerName(manager) || "Не назначен"}
+            </p>
+          </div>
+        </div>
+
+        {/* Финансовый блок */}
+        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+            Финансы сделки
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+              <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
+                Озвученная стоимость
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-black text-slate-900">
+                  {offeredPrice ? `${Number(offeredPrice).toLocaleString()} ₸` : "Не озвучена"}
+                </span>
+                {isDiscounted && (
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">
+                    Скидка
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
+              <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
+                Предоплата
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-black text-slate-900">
+                  {prepayment ? `${Number(prepayment).toLocaleString()} ₸` : "0 ₸"}
+                </span>
+                {isPrepaymentPaid ? (
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                    ✓ Внесена
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
+                    Ожидается
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-1">
+            {isBalancePaid ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black bg-blue-50 text-blue-800 border border-blue-200">
+                ✓ Сделка полностью оплачена (100%)
+              </span>
+            ) : (
+              <span className="text-xs text-slate-500 font-bold">
+                Статус расчета: Полная оплата ожидается после монтажа
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Заметка по сделке */}
+        {comment && (
+          <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1.5">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+              Заметка по сделке
+            </span>
+            <p className="text-xs font-medium text-slate-800 whitespace-pre-wrap leading-relaxed">
+              {comment}
+            </p>
+          </div>
+        )}
+
+        {/* Исходный запрос с сайта */}
+        {initialMessage && (
+          <div className="bg-orange-50/60 p-3.5 rounded-2xl border border-orange-200/60 space-y-1.5">
+            <span className="text-[10px] font-black text-orange-900 uppercase tracking-wider flex items-center gap-1.5">
+              <MessageSquareQuote className="w-3.5 h-3.5 text-orange-600" />
+              Исходный запрос с сайта:
+            </span>
+            <p className="text-xs font-semibold text-slate-800 whitespace-pre-wrap leading-relaxed">
+              {initialMessage}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // РЕЖИМ РЕДАКТИРОВАНИЯ (Edit Mode) — Поля ввода данных
+  // ═══════════════════════════════════════════════════════════════
   return (
     <div className="space-y-4 animate-in fade-in duration-150">
       {/* Причина отказа (если статус CANCELLED) */}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { X, ChevronDown, Calculator, Send } from "lucide-react";
+import { X, ChevronDown, Calculator, Send, Edit3, Check } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus, ClientRating } from "@prisma/client";
@@ -13,6 +13,8 @@ import { LeadFullDetails } from "../../_types/leadDetailTypes";
 interface LeadDetailHeaderProps {
   lead: LeadFullDetails | Lead;
   rating: ClientRating;
+  isEditing?: boolean;
+  onToggleEditing?: () => void;
   onRatingChange: (newRating: ClientRating) => void;
   onStatusChange: (newStatus: LeadStatus) => void;
   onOpenEstimate: () => void;
@@ -22,6 +24,8 @@ interface LeadDetailHeaderProps {
 export default function LeadDetailHeader({
   lead,
   rating,
+  isEditing = false,
+  onToggleEditing,
   onRatingChange,
   onStatusChange,
   onOpenEstimate,
@@ -138,7 +142,7 @@ export default function LeadDetailHeader({
         </div>
       </div>
 
-      {/* Правая часть: WhatsApp, Смета, Закрыть */}
+      {/* Правая часть: WhatsApp, Редактировать, Смета, Закрыть */}
       <div className="flex items-center gap-1.5 shrink-0">
         {/* Кнопка WhatsApp */}
         <div className="relative" ref={whatsappRef}>
@@ -184,6 +188,35 @@ export default function LeadDetailHeader({
             </div>
           )}
         </div>
+
+        {/* Кнопка переключения режима Редактирования / Просмотра */}
+        {onToggleEditing && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("light");
+              onToggleEditing();
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-extrabold text-xs transition cursor-pointer active:scale-95 shadow-2xs ${
+              isEditing
+                ? "bg-slate-900 text-white hover:bg-black"
+                : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/80"
+            }`}
+            title={isEditing ? "Завершить редактирование" : "Редактировать поля"}
+          >
+            {isEditing ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Просмотр</span>
+              </>
+            ) : (
+              <>
+                <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                <span>Изменить</span>
+              </>
+            )}
+          </button>
+        )}
 
         {/* Кнопка сметы */}
         <button
