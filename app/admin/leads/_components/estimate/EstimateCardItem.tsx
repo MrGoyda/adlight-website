@@ -9,6 +9,7 @@ import {
   LONG_TRUCK_PRESETS, 
   STANDARD_TRUCK_PRESETS 
 } from "./constants";
+import { calcLongTruckRates, calcStandardTruckRates } from "./utils";
 import { Trash2, Wrench } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { InventoryUnit } from "@prisma/client";
@@ -195,15 +196,17 @@ export const EstimateCardItem: React.FC<EstimateCardItemProps> = ({
                 triggerHaptic("light");
                 const is6m = e.target.checked;
                 if (is6m) {
-                  onUpdateField(idx, "name", "Аренда 6-метровой газели (2 ч)");
+                  const rate = calcLongTruckRates(2);
+                  onUpdateField(idx, "name", rate.name);
                   onUpdateField(idx, "quantity", 2);
-                  onUpdateField(idx, "costPrice", 10000);
-                  onUpdateField(idx, "sellPrice", 13000);
+                  onUpdateField(idx, "costPrice", rate.costPrice);
+                  onUpdateField(idx, "sellPrice", rate.sellPrice);
                 } else {
-                  onUpdateField(idx, "name", "Аренда газели (город 1 рейс)");
+                  const rate = calcStandardTruckRates(1);
+                  onUpdateField(idx, "name", rate.name);
                   onUpdateField(idx, "quantity", 1);
-                  onUpdateField(idx, "costPrice", 15000);
-                  onUpdateField(idx, "sellPrice", 20000);
+                  onUpdateField(idx, "costPrice", rate.costPrice);
+                  onUpdateField(idx, "sellPrice", rate.sellPrice);
                 }
               }}
               className="w-4 h-4 rounded text-amber-600 border-amber-300 focus:ring-amber-500 cursor-pointer"

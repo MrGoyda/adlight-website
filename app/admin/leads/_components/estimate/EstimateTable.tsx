@@ -8,6 +8,7 @@ import {
   EQUIPMENT_PRESETS, 
   LONG_TRUCK_PRESETS 
 } from "./constants";
+import { calcEquipmentRates, calcLongTruckRates, calcStandardTruckRates } from "./utils";
 import { Trash2 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { InventoryUnit } from "@prisma/client";
@@ -128,10 +129,11 @@ export const EstimateTable: React.FC<EstimateTableProps> = ({
                             type="button"
                             onClick={() => {
                               triggerHaptic("light");
+                              const rate = calcEquipmentRates(p.h);
                               onUpdateField(idx, "quantity", p.h);
-                              onUpdateField(idx, "costPrice", 10000);
-                              onUpdateField(idx, "sellPrice", 13000);
-                              onUpdateField(idx, "name", `Аренда автовышки (${p.h} ч)`);
+                              onUpdateField(idx, "costPrice", rate.costPrice);
+                              onUpdateField(idx, "sellPrice", rate.sellPrice);
+                              onUpdateField(idx, "name", rate.name);
                             }}
                             className={`px-1.5 py-0.5 text-[10px] font-black rounded-md border cursor-pointer transition ${
                               Number(item.quantity) === p.h
@@ -156,15 +158,17 @@ export const EstimateTable: React.FC<EstimateTableProps> = ({
                               triggerHaptic("light");
                               const checked = e.target.checked;
                               if (checked) {
-                                onUpdateField(idx, "name", "Аренда 6-метровой газели (2 ч)");
+                                const rate = calcLongTruckRates(2);
+                                onUpdateField(idx, "name", rate.name);
                                 onUpdateField(idx, "quantity", 2);
-                                onUpdateField(idx, "costPrice", 10000);
-                                onUpdateField(idx, "sellPrice", 13000);
+                                onUpdateField(idx, "costPrice", rate.costPrice);
+                                onUpdateField(idx, "sellPrice", rate.sellPrice);
                               } else {
-                                onUpdateField(idx, "name", "Аренда газели (город 1 рейс)");
+                                const rate = calcStandardTruckRates(1);
+                                onUpdateField(idx, "name", rate.name);
                                 onUpdateField(idx, "quantity", 1);
-                                onUpdateField(idx, "costPrice", 15000);
-                                onUpdateField(idx, "sellPrice", 20000);
+                                onUpdateField(idx, "costPrice", rate.costPrice);
+                                onUpdateField(idx, "sellPrice", rate.sellPrice);
                               }
                             }}
                             className="w-3.5 h-3.5 rounded text-amber-600 border-amber-300 focus:ring-amber-500 cursor-pointer"

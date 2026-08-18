@@ -13,7 +13,14 @@ import {
   WarehouseItem,
   SupplierPrice,
 } from "./types";
-import { parseSupplierPrices, calcEstimateBreakdown } from "./utils";
+import { 
+  parseSupplierPrices, 
+  calcEstimateBreakdown,
+  calcEquipmentRates,
+  calcLongTruckRates,
+  calcStandardTruckRates,
+} from "./utils";
+import { DEFAULT_MARGIN_MULTIPLIER } from "./constants";
 
 interface UseEstimateStateProps {
   isOpen: boolean;
@@ -126,24 +133,26 @@ export function useEstimateState({
     if (type === "MATERIAL_STOCK" && warehouseItems.length > 0) {
       name = warehouseItems[0].name;
       costPrice = warehouseItems[0].price;
-      sellPrice = warehouseItems[0].price * 1.3;
+      sellPrice = warehouseItems[0].price * DEFAULT_MARGIN_MULTIPLIER;
       unit = warehouseItems[0].unit;
       warehouseItemId = warehouseItems[0].id;
     } else if (type === "MATERIAL_SUPPLIER" && supplierPrices.length > 0) {
       name = `${supplierPrices[0].supplier}: ${supplierPrices[0].name}`;
       costPrice = supplierPrices[0].price;
-      sellPrice = supplierPrices[0].price * 1.3;
+      sellPrice = supplierPrices[0].price * DEFAULT_MARGIN_MULTIPLIER;
       unit = supplierPrices[0].unit;
       supplierPriceId = supplierPrices[0].id;
     } else if (type === "LOGISTICS") {
-      name = "Аренда газели (город 1 рейс)";
-      costPrice = 15000;
-      sellPrice = 20000;
+      const rate = calcStandardTruckRates(1);
+      name = rate.name;
+      costPrice = rate.costPrice;
+      sellPrice = rate.sellPrice;
       unit = "PIECE";
     } else if (type === "EQUIPMENT") {
-      name = "Аренда автовышки (2 ч)";
-      costPrice = 10000;
-      sellPrice = 13000;
+      const rate = calcEquipmentRates(2);
+      name = rate.name;
+      costPrice = rate.costPrice;
+      sellPrice = rate.sellPrice;
       quantity = 2;
       unit = "PIECE";
     } else if (type === "ASSEMBLY") {
@@ -166,7 +175,7 @@ export function useEstimateState({
       quantity,
       unit,
       costPrice,
-      sellPrice: sellPrice || costPrice * 1.3,
+      sellPrice: sellPrice || costPrice * DEFAULT_MARGIN_MULTIPLIER,
       warehouseItemId,
       supplierPriceId,
     };
@@ -199,7 +208,7 @@ export function useEstimateState({
         updated[index].name = selectedItem.name;
         updated[index].costPrice = selectedItem.price;
         updated[index].unit = selectedItem.unit;
-        updated[index].sellPrice = selectedItem.price * 1.3;
+        updated[index].sellPrice = selectedItem.price * DEFAULT_MARGIN_MULTIPLIER;
       }
     } else if (field === "supplierPriceId") {
       const selectedPrice = supplierPrices.find((p) => p.id === value);
@@ -208,34 +217,32 @@ export function useEstimateState({
         updated[index].name = `${selectedPrice.supplier}: ${selectedPrice.name}`;
         updated[index].costPrice = selectedPrice.price;
         updated[index].unit = selectedPrice.unit;
-        updated[index].sellPrice = selectedPrice.price * 1.3;
+        updated[index].sellPrice = selectedPrice.price * DEFAULT_MARGIN_MULTIPLIER;
       }
     } else if (field === "quantity") {
       updated[index].quantity = value;
       const numVal = Number(value) || 0;
 
       if (updated[index].type === "EQUIPMENT" && numVal > 0) {
-        const hours = numVal;
-        updated[index].costPrice = hours <= 1 ? 20000 : 10000;
-        updated[index].sellPrice = hours <= 1 ? 26000 : 13000;
-        updated[index].name = `Аренда автовышки (${hours} ч)`;
+        const rate = calcEquipmentRates(numVal);
+        updated[index].costPrice = rate.costPrice;
+        updated[index].sellPrice = rate.sellPrice;
+        updated[index].name = rate.name;
       } else if (updated[index].type === "LOGISTICS" && numVal > 0) {
         const is6m =
           updated[index].name.toLowerCase().includes("6м") ||
           updated[index].name.toLowerCase().includes("6-м") ||
           updated[index].name.toLowerCase().includes("длинномер");
         if (is6m) {
-          const hours = numVal;
-          updated[index].costPrice = hours <= 1 ? 20000 : 10000;
-          updated[index].sellPrice = hours <= 1 ? 26000 : 13000;
-          updated[index].name = `Аренда 6-метровой газели (${hours} ч)`;
+          const rate = calcLongTruckRates(numVal);
+          updated[index].costPrice = rate.costPrice;
+          updated[index].sellPrice = rate.sellPrice;
+          updated[index].name = rate.name;
         } else {
-          const trips = numVal;
-          updated[index].costPrice = 15000;
-          updated[index].sellPrice = 20000;
-          updated[index].name = `Аренда газели (${trips} ${
-            trips === 1 ? "рейс" : trips < 5 ? "рейса" : "рейсов"
-          })`;
+          const rate = calcStandardTruckRates(numVal);
+          updated[index].costPrice = rate.costPrice;
+          updated[index].sellPrice = rate.sellPrice;
+          updated[index].name = rate.name;
         }
       }
     } else {
