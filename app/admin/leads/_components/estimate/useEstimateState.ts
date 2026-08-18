@@ -22,7 +22,6 @@ import {
   saveEstimateDraft,
   loadEstimateDraft,
   clearEstimateDraft,
-  EstimateDraftData
 } from "./utils";
 import { DEFAULT_MARGIN_MULTIPLIER } from "./constants";
 
@@ -52,14 +51,36 @@ export function useEstimateState({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const itemsEndRef = useRef<HTMLDivElement>(null);
 
-  const [items, setItems] = useState<EstimateItem[]>(initialItems);
+  // Ключ для черновика
+  const draftKey = leadId || "general";
+  const isInitializedRef = useRef(false);
+
+  // Ленивая инициализация из кэша
+  const [items, setItems] = useState<EstimateItem[]>(() => {
+    if (typeof window !== "undefined") {
+      const cached = loadEstimateDraft(draftKey);
+      if (cached && cached.items && cached.items.length > 0) {
+        return cached.items;
+      }
+    }
+    return initialItems || [];
+  });
+
   const [stockDeducted, setStockDeducted] = useState(isStockDeducted);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(leadId ?? null);
   const [currentEstimateId, setCurrentEstimateId] = useState<string | null>(estimateId ?? null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isAtBottom, setIsAtBottom] = useState(false);
-  const [restoredDraftInfo, setRestoredDraftInfo] = useState<{ time: string; count: number } | null>(null);
+  const [restoredDraftInfo, setRestoredDraftInfo] = useState<{ time: string; count: number } | null>(() => {
+    if (typeof window !== "undefined") {
+      const cached = loadEstimateDraft(draftKey);
+      if (cached && cached.items && cached.items.length > 0) {
+        return { time: cached.timeStr, count: cached.items.length };
+      }
+    }
+    return null;
+  });
 
   // Справочник видов работ из БД
   const [workOperations, setWorkOperations] = useState<WorkOperationItem[]>([]);
@@ -67,9 +88,6 @@ export function useEstimateState({
   // Состояния для кастомных выпадающих списков
   const [activePickerIdx, setActivePickerIdx] = useState<number | null>(null);
   const [activeWorkOperationPickerIdx, setActiveWorkOperationPickerIdx] = useState<number | null>(null);
-
-  // Ключ для черновика
-  const draftKey = leadId || "general";
 
   // Каскадный парсер прайсов поставщиков
   const parsedPrices = useMemo<ParsedSupplierPrice[]>(() => {
@@ -83,43 +101,44 @@ export function useEstimateState({
       setCurrentEstimateId(estimateId ?? null);
       setIsAtBottom(false);
 
-      const mappedInitial = initialItems.map((item) => {
-        if (item.type === "MATERIAL_SUPPLIER" && !item.supplierPriceId) {
-          const found = supplierPrices.find((p) => `${p.supplier}: ${p.name}` === item.name);
-          if (found) {
-            return { ...item, supplierPriceId: found.id };
-          }
-        }
-        return item;
-      });
-
-      // ── ПРОВЕРКА ЛОКАЛЬНОГО КЭША ЧЕРНОВИКА ──
+      // ── 1. ПРОВЕРКА ЛОКАЛЬНОГО КЭША ЧЕРНОВИКА ──
       const cachedDraft = loadEstimateDraft(draftKey);
-      if (cachedDraft && cachedDraft.items.length > 0) {
-        // Если в БД пусто или черновик имеет несохраненные изменения
+      if (cachedDraft && cachedDraft.items && cachedDraft.items.length > 0) {
         setItems(cachedDraft.items);
         setRestoredDraftInfo({
           time: cachedDraft.timeStr,
           count: cachedDraft.items.length,
         });
       } else {
+        const mappedInitial = (initialItems || []).map((item) => {
+          if (item.type === "MATERIAL_SUPPLIER" && !item.supplierPriceId) {
+            const found = supplierPrices.find((p) => `${p.supplier}: ${p.name}` === item.name);
+            if (found) {
+              return { ...item, supplierPriceId: found.id };
+            }
+          }
+          return item;
+        });
         setItems(mappedInitial);
         setRestoredDraftInfo(null);
       }
 
       setStockDeducted(isStockDeducted);
+      isInitializedRef.current = true;
 
       getWorkOperations().then((res) => {
         if (res?.data) {
           setWorkOperations(res.data as WorkOperationItem[]);
         }
       });
+    } else {
+      isInitializedRef.current = false;
     }
-  }, [isOpen, initialItems, isStockDeducted, leadId, estimateId, supplierPrices, draftKey]);
+  }, [isOpen, leadId, draftKey]);
 
-  // ── АВТОМАТИЧЕСКОЕ СОХРАНЕНИЕ ЧЕРНОВИКА В КЭШ ПРИ ЛЮБЫХ ИЗМЕНЕНИЯХ ──
+  // ── 2. АВТОМАТИЧЕСКОЕ СОХРАНЕНИЕ ЧЕРНОВИКА В КЭШ ПРИ ЛЮБЫХ ИЗМЕНЕНИЯХ ──
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !isInitializedRef.current) return;
     if (items.length > 0) {
       saveEstimateDraft(draftKey, items, selectedLeadId);
     } else {
@@ -152,7 +171,8 @@ export function useEstimateState({
   };
 
   const handleAddItem = (type: EstimateItemType) => {
-    triggerHaptic("light");
+    triggerHaptic("medium");
+
     let name = "Новая позиция";
     let costPrice = 0;
     let sellPrice = 0;
@@ -212,7 +232,9 @@ export function useEstimateState({
     };
 
     const newIdx = items.length;
-    setItems((prev) => [...prev, newItem]);
+    const nextItems = [...items, newItem];
+    setItems(nextItems);
+    saveEstimateDraft(draftKey, nextItems, selectedLeadId);
 
     setTimeout(() => {
       const el = document.getElementById(`estimate-item-${newIdx}`) || document.getElementById(`estimate-row-${newIdx}`);
@@ -226,7 +248,13 @@ export function useEstimateState({
 
   const handleRemoveItem = (index: number) => {
     triggerHaptic("light");
-    setItems(items.filter((_, i) => i !== index));
+    const filtered = items.filter((_, i) => i !== index);
+    setItems(filtered);
+    if (filtered.length > 0) {
+      saveEstimateDraft(draftKey, filtered, selectedLeadId);
+    } else {
+      clearEstimateDraft(draftKey);
+    }
   };
 
   const handleUpdateItemField = (index: number, field: keyof EstimateItem, value: any) => {
@@ -283,6 +311,7 @@ export function useEstimateState({
       };
     }
     setItems(updated);
+    saveEstimateDraft(draftKey, updated, selectedLeadId);
   };
 
   const breakdown = useMemo(() => {
@@ -334,7 +363,7 @@ export function useEstimateState({
 
   const handleDiscardDraft = () => {
     clearEstimateDraft(draftKey);
-    setItems(initialItems);
+    setItems(initialItems || []);
     setRestoredDraftInfo(null);
     toast.info("Черновик сметы сброшен");
   };
