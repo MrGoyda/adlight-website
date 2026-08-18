@@ -26,7 +26,7 @@ export default function LeadTimelineTab({
 }: LeadTimelineTabProps) {
   const [noteText, setNoteText] = useState("");
 
-  const completedCount = DEFAULT_CHECKLIST_ITEMS.filter((item) => checklist[item.id]).length;
+  const completedCount = DEFAULT_CHECKLIST_ITEMS.filter((item) => Boolean(checklist?.[item.id])).length;
   const progressPercent = Math.round((completedCount / DEFAULT_CHECKLIST_ITEMS.length) * 100);
 
   const handleSubmitNote = async (e: React.FormEvent) => {
@@ -66,7 +66,7 @@ export default function LeadTimelineTab({
         {/* Список шагов */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {DEFAULT_CHECKLIST_ITEMS.map((item) => {
-            const isDone = Boolean(checklist[item.id]);
+            const isDone = Boolean(checklist?.[item.id]);
 
             return (
               <button
@@ -123,10 +123,10 @@ export default function LeadTimelineTab({
       {/* 3. Список активностей / Таймлайн */}
       <div className="space-y-2">
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block px-1">
-          История событий ({activities.length})
+          История событий ({activities?.length || 0})
         </span>
 
-        {activities.length === 0 ? (
+        {!activities || activities.length === 0 ? (
           <div className="p-8 text-center bg-slate-50/50 border border-dashed border-slate-200 rounded-2xl text-slate-400 text-xs font-bold">
             В истории пока нет записей. Добавьте первую заметку выше.
           </div>

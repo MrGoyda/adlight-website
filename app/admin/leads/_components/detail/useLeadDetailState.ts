@@ -78,14 +78,15 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
   );
 
   // Файлы и активности
-  const [files, setFiles] = useState<LeadFileItem[]>(lead.files || []);
-  const [activities, setActivities] = useState<LeadActivityItem[]>(lead.activities || []);
+  const [files, setFiles] = useState<LeadFileItem[]>(lead?.files || []);
+  const [activities, setActivities] = useState<LeadActivityItem[]>(lead?.activities || []);
   const [isUploading, setIsUploading] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [viewerFile, setViewerFile] = useState<LeadFileItem | null>(null);
 
   // Синхронизация при смене входящего лида
   useEffect(() => {
+    if (!lead) return;
     setRating(lead.rating || "STANDARD");
     setStatus(lead.status || "NEW");
     setName(lead.name || "");
@@ -102,7 +103,7 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
     setIsBalancePaid(Boolean(lead.isBalancePaid));
 
     try {
-      if (lead.calcDetails && lead.calcDetails.startsWith("{")) {
+      if (lead.calcDetails && typeof lead.calcDetails === "string" && lead.calcDetails.startsWith("{")) {
         const p = JSON.parse(lead.calcDetails);
         setTechSpec(p.techSpec || { signTypes: [] });
         setChecklist(p.checklist || {});

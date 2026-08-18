@@ -35,12 +35,12 @@ export default function LeadDetailHeader({
 
   const status = STATUS_MAP[lead.status] || { label: lead.status, color: "", bg: "" };
   const currentRating = CLIENT_RATINGS[rating] || CLIENT_RATINGS.STANDARD;
-  const cleanPhone = lead.phone.replace(/[^0-9+]/g, "").replace("+", "");
+  const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "").replace("+", "");
 
   const quickMessages = [
-    { title: "👋 Приветствие", text: `Здравствуйте, ${lead.name}! Вас приветствует компания ADLight.` },
-    { title: "📐 Замер и встреча", text: `Здравствуйте, ${lead.name}! Хотим согласовать время бесплатного выезда специалиста на замер.` },
-    { title: "📄 Смета готова", text: `Здравствуйте, ${lead.name}! Подготовили детальный расчет сметы по вашему запросу.` },
+    { title: "👋 Приветствие", text: `Здравствуйте, ${lead.name || "Клиент"}! Вас приветствует компания ADLight.` },
+    { title: "📐 Замер и встреча", text: `Здравствуйте, ${lead.name || "Клиент"}! Хотим согласовать время бесплатного выезда специалиста на замер.` },
+    { title: "📄 Смета готова", text: `Здравствуйте, ${lead.name || "Клиент"}! Подготовили детальный расчет сметы по вашему запросу.` },
     { title: "🏢 Реквизиты компании", text: "Здравствуйте! Направляем реквизиты компании ADLight для оформления договора." },
   ];
 

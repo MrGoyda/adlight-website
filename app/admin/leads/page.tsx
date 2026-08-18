@@ -25,7 +25,11 @@ export default async function LeadsPage({
           category: true,
           name: true,
           url: true,
+          fileKey: true,
+          size: true,
+          createdAt: true,
         },
+        orderBy: { createdAt: "desc" },
       },
       activities: {
         select: {

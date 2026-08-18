@@ -134,8 +134,8 @@ export default function LeadMediaFilesTab({
           </div>
         ) : (
           currentFiles.map((file) => {
-            const isImage = file.mimeType.startsWith("image/");
-            const isPdf = file.mimeType === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+            const isImage = file.mimeType?.startsWith("image/") || false;
+            const isPdf = file.mimeType === "application/pdf" || file.name?.toLowerCase().endsWith(".pdf") || false;
 
             return (
               <div
@@ -148,11 +148,11 @@ export default function LeadMediaFilesTab({
               >
                 {/* Превью / Иконка */}
                 <div className="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center relative">
-                  {isImage ? (
+                  {isImage && file.url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={file.url}
-                      alt={file.name}
+                      alt={file.name || "Файл"}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -168,10 +168,11 @@ export default function LeadMediaFilesTab({
                 {/* Инфо о файле */}
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold text-slate-900 text-xs truncate group-hover:text-orange-600 transition">
-                    {file.name}
+                    {file.name || "Документ"}
                   </p>
                   <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-                    {(file.size / 1024).toFixed(0)} KB • {new Date(file.createdAt).toLocaleDateString()}
+                    {file.size ? `${(file.size / 1024).toFixed(0)} KB` : ""}
+                    {file.createdAt ? ` • ${new Date(file.createdAt).toLocaleDateString()}` : ""}
                   </p>
                 </div>
 
