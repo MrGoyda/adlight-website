@@ -239,16 +239,8 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
         });
 
         if (saveRes.data) {
-          setFiles((prev) => {
-            const nextFiles = [saveRes.data, ...prev];
-            if (onUpdateLead) {
-              onUpdateLead({
-                ...lead,
-                files: nextFiles,
-              });
-            }
-            return nextFiles;
-          });
+          const uploadedFile = saveRes.data;
+          setFiles((prev) => [uploadedFile, ...prev]);
         }
       }
       toast.success("Файлы успешно загружены в хранилище!");
@@ -266,16 +258,7 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
     if (res.error) {
       toast.error(res.error);
     } else {
-      setFiles((prev) => {
-        const nextFiles = prev.filter((f) => f.id !== fileId);
-        if (onUpdateLead) {
-          onUpdateLead({
-            ...lead,
-            files: nextFiles,
-          });
-        }
-        return nextFiles;
-      });
+      setFiles((prev) => prev.filter((f) => f.id !== fileId));
       toast.success("Файл удален");
     }
   };
