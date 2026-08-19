@@ -23,7 +23,7 @@ export default function HeroSlider({ sliderImages }: HeroSliderProps) {
       {sliderImages.map((src, idx) => (
         <div
           key={src}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out transform-gpu will-change-[opacity] ${
+          className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
             idx === currentSlide
               ? "opacity-100 z-10"
               : "opacity-0 z-0 pointer-events-none"
@@ -33,7 +33,7 @@ export default function HeroSlider({ sliderImages }: HeroSliderProps) {
             src={src}
             alt="Выполненные проекты ADLight наружная реклама"
             fill
-            className="object-cover rounded-3xl transform-gpu"
+            className="object-cover rounded-3xl"
             sizes="(max-width: 1024px) 100vw, 35vw"
             priority={idx === 0}
             loading={idx === 0 ? "eager" : "lazy"}

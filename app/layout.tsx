@@ -129,9 +129,9 @@ export default function RootLayout({
         {/* --- GOOGLE TAG (GA4 + GOOGLE ADS) --- */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-8HHR00E9DN"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-ga4-init" strategy="afterInteractive">
+        <Script id="google-ga4-init" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

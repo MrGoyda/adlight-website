@@ -74,14 +74,10 @@ body {
   scrollbar-width: none;
 }
 
-/* Базовый фикс для мобилок: заставляем GPU обрабатывать сложные слои */
+/* Оптимизация аппаратного ускорения без перегрузки VRAM на мобилках */
 .gpu-layer {
-  -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  perspective: 1000;
-  will-change: transform, opacity;
 }
 
 /* Оптимизация для доступности: отключение блюра при системном снижении прозрачности */
