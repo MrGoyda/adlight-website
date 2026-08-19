@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
-import * as Icons from "lucide-react";
+import { Store, Zap, Building, Wrench } from "lucide-react";
 
 interface DynamicServicesHubProps {
   defaultTab?: string;
@@ -98,10 +98,10 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
               const isActive = activeTab === group.id;
               
               // Dynamic category icon loading
-              let IconComponent = Icons.Store;
-              if (group.iconName === "Zap") IconComponent = Icons.Zap;
-              if (group.iconName === "Building") IconComponent = Icons.Building;
-              if (group.iconName === "Wrench") IconComponent = Icons.Wrench;
+              let IconComponent = Store;
+              if (group.iconName === "Zap") IconComponent = Zap;
+              if (group.iconName === "Building") IconComponent = Building;
+              if (group.iconName === "Wrench") IconComponent = Wrench;
 
               return (
                 <button

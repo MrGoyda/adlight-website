@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { BadgePercent, MapPin, CheckCircle2, ShieldCheck } from "lucide-react";
 import Button from "@/components/ui/Button";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
-import QuizModal from "@/components/QuizModal";
-import ConsultationModal from "@/components/ConsultationModal";
+import { useModalStore } from "@/lib/store/useModalStore";
 
 import { SITE_CONTACTS } from "@/config/site";
 import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
@@ -27,8 +25,7 @@ export default function HomeOfferBanner({
   discountValue = "-10%",
   serviceContext
 }: HomeOfferBannerProps) {
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { openConsultation, openQuiz } = useModalStore();
 
   const configKey = getQuizContextKey(serviceContext);
   const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
@@ -117,7 +114,7 @@ export default function HomeOfferBanner({
             {/* ПРАВАЯ ЧАСТЬ: КРУПНЫЕ ПРУЖИННЫЕ КНОПКИ ДЕЙСТВИЯ (5 колонок) */}
             <div className="lg:col-span-5 flex flex-col justify-center space-y-4 lg:pl-6">
               <Button 
-                onClick={() => setIsQuizOpen(true)}
+                onClick={() => openQuiz({ serviceContext, source: "Промо-баннер (Квиз)" })}
                 variant="solid"
                 size="xl"
                 className="w-full h-[64px] bg-gradient-to-r from-orange-600 via-orange-500 to-red-500 hover:from-orange-500 hover:to-red-400 border border-orange-500/20 shadow-xl shadow-orange-500/10 rounded-2xl text-base px-8 text-white font-extrabold"
@@ -126,41 +123,29 @@ export default function HomeOfferBanner({
               </Button>
               
               <Button 
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => openConsultation({
+                  source,
+                  title: `Зафиксировать скидку ${discountValue}`,
+                  subtitle: `Оставьте заявку сейчас, и мы закрепим за вашим номером телефона скидку ${discountValue} на любое производство наружной рекламы.`,
+                  buttonText: "Зафиксировать скидку"
+                })}
                 variant="lightOutline"
                 size="xl"
                 className="w-full h-[64px] rounded-2xl text-base px-8 font-bold"
               >
                 Быстрая консультация
               </Button>
- 
+
               <div className="flex items-center justify-center gap-2 text-xs text-slate-500 font-medium pt-2">
                 <ShieldCheck className="w-4 h-4 text-slate-400"/>
                 <span>Предложение действительно до конца месяца</span>
               </div>
             </div>
- 
+
           </div>
         </div>
- 
+
       </div>
- 
-      {/* КВИЗ-ПОДБОР УСЛУГИ СО СКИДКОЙ */}
-      <QuizModal 
-        isOpen={isQuizOpen} 
-        onClose={() => setIsQuizOpen(false)} 
-        serviceContext={serviceContext}
-      />
- 
-      {/* КЛАССИЧЕСКАЯ ФОРМА СВЯЗИ */}
-      <ConsultationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        source={source}
-        title={`Зафиксировать скидку ${discountValue}`}
-        subtitle={`Оставьте заявку сейчас, и мы закрепим за вашим номером телефона скидку ${discountValue} на любое производство наружной рекламы.`}
-        buttonText="Зафиксировать скидку"
-      />
     </section>
   );
 }

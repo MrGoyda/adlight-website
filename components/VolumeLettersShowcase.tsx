@@ -224,7 +224,7 @@ export default function VolumeLettersShowcase() {
                             "object-cover rounded-2xl transition-all duration-700 ease-in-out",
                             isNightMode ? "opacity-0 scale-98" : "opacity-100 scale-100"
                           )}
-                          sizes="(max-width: 768px) 100vw, 30vw"
+                          sizes="(max-width: 768px) 82vw, (max-width: 1200px) 350px, 350px"
                           loading="lazy"
                         />
                         {/* Ночная картинка */}
@@ -236,7 +236,7 @@ export default function VolumeLettersShowcase() {
                             "object-cover rounded-2xl transition-all duration-700 ease-in-out",
                             isNightMode ? "opacity-100 scale-100" : "opacity-0 scale-98"
                           )}
-                          sizes="(max-width: 768px) 100vw, 30vw"
+                          sizes="(max-width: 768px) 82vw, (max-width: 1200px) 350px, 350px"
                           loading="lazy"
                         />
                         {/* Мягкий контур */}

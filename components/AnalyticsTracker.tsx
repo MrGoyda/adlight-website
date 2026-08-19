@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { trackEvent } from "@/lib/tracking";
 
 export default function AnalyticsTracker() {
   useEffect(() => {
@@ -156,13 +157,11 @@ export default function AnalyticsTracker() {
 
       // Если клик по кнопке/ссылке не обработан специально — шлем авто-событие ui_click
       if (elementText || elementId) {
-        import("@/lib/tracking").then(({ trackEvent }) => {
-          trackEvent("ui_click", {
-            element_text: elementText,
-            element_id: elementId,
-            element_tag: clickable.tagName.toLowerCase(),
-            page_path: window.location.pathname,
-          });
+        trackEvent("ui_click", {
+          element_text: elementText,
+          element_id: elementId,
+          element_tag: clickable.tagName.toLowerCase(),
+          page_path: window.location.pathname,
         });
       }
     };

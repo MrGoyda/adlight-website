@@ -18,7 +18,6 @@ import HomeOfferBanner from "@/components/HomeOfferBanner";
 import VolumeLettersShowcase from "@/components/VolumeLettersShowcase";
 import DynamicServicesHub from "@/components/DynamicServicesHub";
 import SpecializedServicesGrid from "@/components/SpecializedServicesGrid";
-import FadeIn from "@/components/ui/FadeIn";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 
@@ -29,8 +28,8 @@ import { getImagesFromFolder } from "@/lib/serverUtils";
 import { HOME_FAQ } from "@/dictionaries/home";
 
 // --- НАСТРОЙКА КЭШИРОВАНИЯ ---
-// Динамический рендеринг без застрявшего кэша
-export const revalidate = 0;
+// ISR кэширование (1 час) для мгновенной отдачи HTML с Edge CDN
+export const revalidate = 3600;
 
 export default function Home() {
   
@@ -55,12 +54,6 @@ export default function Home() {
     ...getImagesFromFolder("interior"),
     ...getImagesFromFolder("loft-lamps"),
     ...getImagesFromFolder("wood-style"),
-  ]).slice(0, 8);
-
-  const navImages = shuffle([
-    ...getImagesFromFolder("navigation"),
-    ...getImagesFromFolder("lightboxes"),
-    ...getImagesFromFolder("panel-brackets"),
   ]).slice(0, 8);
 
   // --- НОВОЕ: ГЕНЕРАЦИЯ SCHEMA.ORG ---
@@ -104,97 +97,64 @@ export default function Home() {
          lettersImages={lettersImages}
          largeImages={largeImages}
          interiorImages={interiorImages}
-         navImages={navImages}
       />
 
       {/* 1.5. СЕКЦИЯ БОЛЕЙ И РЕШЕНИЙ (SEO / AI ОПТИМИЗИРОВАННАЯ) */}
-      <FadeIn direction="up">
-        <HomePainsSection />
-      </FadeIn>
+      <HomePainsSection />
 
       {/* 1.5.5. ШОУКЕЙС ТЕХНОЛОГИЙ ОБЪЕМНЫХ БУКВ (ИНТЕРАКТИВНЫЙ ДЕНЬ/НОЧЬ) */}
-      <FadeIn direction="up">
-        <VolumeLettersShowcase />
-      </FadeIn>
+      <VolumeLettersShowcase />
 
       {/* 1.6. СЕКЦИЯ ОФФЕРА (СКИДКА 10% И БЕСПЛАТНЫЙ ЗАМЕР) */}
-      <FadeIn direction="up">
-        <HomeOfferBanner />
-      </FadeIn>
+      <HomeOfferBanner />
 
       {/* 2. БЕГУЩАЯ СТРОКА */}
-      <FadeIn direction="up">
-        <ClientsMarquee />
-      </FadeIn>
+      <ClientsMarquee />
 
       {/* 3. СТАТИСТИКА */}
-      <FadeIn direction="up">
-        <StatsSection />
-      </FadeIn>
+      <StatsSection />
 
       {/* 4. ДИНАМИЧЕСКИЙ ХАБ УСЛУГ (iOS SEGMENTED TABS) */}
       {/* Добавил id="services" чтобы сохранить работоспособность навигационных ссылок adlight.kz/#services */}
       <section id="services">
-        <FadeIn direction="up">
-          <DynamicServicesHub />
-        </FadeIn>
+        <DynamicServicesHub />
       </section>
 
       {/* 4.3. СПЕЦИАЛИЗИРОВАННЫЕ УСЛУГИ (АВТО, РЕМОНТ, EVENT) */}
-      <FadeIn direction="up">
-        <SpecializedServicesGrid />
-      </FadeIn>
+      <SpecializedServicesGrid />
 
       {/* 4.5. РЕШЕНИЯ ПО НИШАМ БИЗНЕСА (SEO / AI ОПТИМИЗИРОВАННЫЙ БЛОК) */}
-      <FadeIn direction="up">
-        <NicheServices />
-      </FadeIn>
+      <NicheServices />
 
       {/* 5. ДИЗАЙН-КОД АСТАНЫ */}
-      <FadeIn direction="up">
-        <DesignCodeBlock />
-      </FadeIn>
+      <DesignCodeBlock />
 
       {/* 6. ЭТАПЫ РАБОТЫ */}
-      <FadeIn direction="up">
-        <StepsSection />
-      </FadeIn>
+      <StepsSection />
 
       {/* 7. ПОРТФОЛИО */}
       <section id="portfolio">
-        <FadeIn direction="up">
-          <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства в Астане" />
-        </FadeIn>
+        <ProjectsBento title="Последние проекты" subtitle="Гордость нашего производства в Астане" />
       </section>
 
       {/* 8. ПРОИЗВОДСТВЕННЫЙ БЛОК (E-E-A-T) */}
-      <FadeIn direction="up">
-        <ProductionSection />
-      </FadeIn>
+      <ProductionSection />
 
       {/* 9. FAQ */}
       <section id="faq">
-        <FadeIn direction="up">
-          <FaqSection />
-        </FadeIn>
+        <FaqSection />
       </section>
 
       {/* 10. ОТЗЫВЫ */}
-      <FadeIn direction="up">
-        <ReviewsCarousel />
-      </FadeIn>
+      <ReviewsCarousel />
 
       {/* 11. КАРТА И КОНТАКТЫ */}
       <section id="contacts">
-        <FadeIn direction="up">
-          <ContactsSection />
-        </FadeIn>
+        <ContactsSection />
       </section>
 
       {/* 12. CTA */}
-      <FadeIn direction="up">
-        <CallToAction source="Главная страница" />
-      </FadeIn>
+      <CallToAction source="Главная страница" />
       
     </main>
   );

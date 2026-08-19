@@ -4,6 +4,7 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import GlobalModals from "@/components/modals/GlobalModals";
 
 export default function PublicLayoutWrapper({
   children,
@@ -22,6 +23,7 @@ export default function PublicLayoutWrapper({
       <Header />
       {children}
       <Footer />
+      <GlobalModals />
     </>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, MessageSquare, Star } from "lucide-react";
-import FadeIn from "@/components/ui/FadeIn";
 import { ALL_REVIEWS } from "@/dictionaries/reviews";
 
 export default function ReviewsCarousel() {
@@ -143,12 +142,9 @@ export default function ReviewsCarousel() {
         >
           <ul className="flex gap-6 snap-x snap-mandatory w-max md:w-full">
              {ALL_REVIEWS.map((rev, i) => (
-               <FadeIn
+               <li
                  key={i}
-                 delay={i * 50}
-                 threshold={0.1}
-                 as="li"
-                 className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between snap-center animate-in fade-in"
+                 className="relative group flex-none w-[85vw] sm:w-[420px] bg-slate-50/50 hover:bg-white p-8 rounded-3xl border border-slate-200/50 hover:border-slate-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md transition duration-300 select-none flex flex-col justify-between snap-center"
                  itemScope
                  itemType="https://schema.org/Review"
                >
@@ -187,7 +183,7 @@ export default function ReviewsCarousel() {
                         <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{rev.role}</div>
                      </div>
                   </div>
-               </FadeIn>
+               </li>
              ))}
           </ul>
         </div>

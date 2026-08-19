@@ -1,10 +1,18 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import * as Icons from "lucide-react";
+import { Factory, Settings, Printer, Users, Maximize2, ArrowRight } from "lucide-react";
 import { PRODUCTION_DETAILS } from "@/dictionaries/production";
 import Button from "@/components/ui/Button";
 import { getCdnUrl } from "@/lib/serverUtils";
+
+const ICON_COMPONENTS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Settings,
+  Printer,
+  Users,
+  Maximize2,
+  Factory,
+};
 
 export default function ProductionSection() {
   return (
@@ -19,7 +27,7 @@ export default function ProductionSection() {
           <div className="lg:col-span-7 space-y-8 text-left">
              <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-200/40 text-orange-600 text-xs font-black uppercase tracking-wider">
-                   <Icons.Factory className="w-4 h-4"/> Собственное производство в Астане
+                   <Factory className="w-4 h-4"/> Собственное производство в Астане
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
                    Мы не перекупщики. <br/>
@@ -32,10 +40,7 @@ export default function ProductionSection() {
   
              <div className="grid sm:grid-cols-2 gap-4">
                 {PRODUCTION_DETAILS.map((item, i) => {
-                    const IconName = item.iconName as keyof typeof Icons;
-                    const IconComponent = Icons[IconName]
-                      ? React.createElement(Icons[IconName] as React.ComponentType<{ className?: string }>, { className: "w-5 h-5" })
-                      : React.createElement(Icons.Settings, { className: "w-5 h-5" });
+                    const IconComponent = ICON_COMPONENTS[item.iconName] || Settings;
 
                    return (
                       <div 
@@ -43,7 +48,7 @@ export default function ProductionSection() {
                          className="p-6 rounded-2xl bg-white border border-slate-200/70 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-300 transition duration-300 group"
                       >
                          <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 group-hover:scale-105 transition-transform ${item.color}`}>
-                            {IconComponent}
+                            <IconComponent className="w-5 h-5" />
                          </div>
                          <h4 className="text-slate-950 font-extrabold text-sm mb-1.5">{item.title}</h4>
                          <p className="text-slate-500 text-xs font-semibold leading-relaxed">
@@ -59,7 +64,7 @@ export default function ProductionSection() {
                 <Button 
                    href="/calculator" 
                    variant="solid"
-                   rightIcon={<Icons.ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>}
+                   rightIcon={<ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"/>}
                 >
                    Рассчитать вывеску
                 </Button>

@@ -1,7 +1,4 @@
-"use client";
-
 import Image from "next/image";
-import Marquee from "react-fast-marquee";
 import { getCdnUrl } from "@/lib/serverUtils";
 
 const CLIENTS = [
@@ -39,18 +36,12 @@ export default function ClientsMarquee() {
          </p>
       </div>
       
-      <div className="relative flex items-center">
+      <div className="relative flex items-center overflow-hidden group">
          {/* Subtle side shading fades for seamless premium look */}
          <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-white via-white/50 to-transparent z-10 pointer-events-none"></div>
          <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-white via-white/50 to-transparent z-10 pointer-events-none"></div>
 
-         <Marquee 
-           gradient={false} 
-           speed={35} 
-           autoFill={true} 
-           className="overflow-hidden py-3" 
-           style={{ overflowY: 'hidden' }}
-         >
+         <div className="flex w-max shrink-0 animate-marquee group-hover:[animation-play-state:paused] py-3">
             {CLIENTS.map((client, index) => (
                <div 
                  key={`${client.name}-${index}`} 
@@ -66,7 +57,25 @@ export default function ClientsMarquee() {
                   />
                </div>
             ))}
-         </Marquee>
+         </div>
+
+         <div aria-hidden="true" className="flex w-max shrink-0 animate-marquee group-hover:[animation-play-state:paused] py-3">
+            {CLIENTS.map((client, index) => (
+               <div 
+                 key={`clone-${client.name}-${index}`} 
+                 className="relative h-11 md:h-12 w-32 md:w-36 mx-8 md:mx-12 shrink-0 flex items-center justify-center filter grayscale contrast-125 opacity-40 hover:grayscale-0 hover:contrast-100 hover:opacity-100 transition-all duration-300 ease-in-out cursor-default"
+               >
+                  <Image 
+                     src={getCdnUrl(client.src)} 
+                     alt={client.alt}
+                     fill
+                     className="object-contain"
+                     sizes="(max-width: 768px) 96px, 144px"
+                     loading="lazy"
+                  />
+               </div>
+            ))}
+         </div>
       </div>
     </section>
   );

@@ -17,9 +17,11 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-import ConsultationModal from "@/components/ConsultationModal";
+import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button";
-import MobileMenu from "@/components/header/MobileMenu";
+import { useModalStore } from "@/lib/store/useModalStore";
+
+const MobileMenu = dynamic(() => import("@/components/header/MobileMenu"), { ssr: false });
 
 // --- ИМПОРТ СЛОВАРЕЙ И КОНФИГА ---
 import { COMPANY_NAP } from "@/dictionaries/common";
@@ -33,8 +35,8 @@ export default function Header() {
   const pathname = usePathname();
   const isAdminActive = pathname?.startsWith("/admin");
   const [isOpen, setIsOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { openConsultation } = useModalStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -190,7 +192,12 @@ export default function Header() {
              </a>
 
              <Button 
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => openConsultation({
+                  source: "Хедер (Кнопка заявки)",
+                  title: "Быстрая консультация",
+                  subtitle: "Оставьте ваши контакты. Наш специалист перезвонит в течение 15 минут для консультации.",
+                  buttonText: "Получить консультацию"
+                })}
                 variant="solid"
                 className="py-2.5 px-5 text-xs uppercase tracking-wider whitespace-nowrap font-extrabold"
              >
@@ -300,17 +307,6 @@ export default function Header() {
       <MobileMenu 
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        onOpenConsultation={() => setIsModalOpen(true)}
-      />
-
-      {/* МОДАЛЬНОЕ ОКНО */}
-      <ConsultationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        source="Хедер (Кнопка заявки)"
-        title="Быстрая консультация"
-        subtitle="Оставьте ваши контакты. Наш специалист перезвонит в течение 15 минут для консультации."
-        buttonText="Получить консультацию"
       />
     </>
   );

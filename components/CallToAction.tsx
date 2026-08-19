@@ -4,7 +4,6 @@ import { useState } from "react";
 import { ShieldCheck, XCircle, Ruler, CheckCircle, User, Phone } from "lucide-react";
 import Button from "@/components/ui/Button";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
-import QuizModal from "@/components/QuizModal";
 import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
 import { trackClientConversion } from "@/lib/clientAnalytics";
@@ -31,7 +30,6 @@ export default function CallToAction({
   const [nameError, setNameError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
 
   const configKey = getQuizContextKey(serviceContext);
   const ctaConfig = CTA_CONFIGS[configKey] || CTA_CONFIGS["general"];
@@ -245,12 +243,6 @@ export default function CallToAction({
           </div>
         </div>
       </div>
-
-      <QuizModal 
-        isOpen={isQuizOpen}
-        onClose={() => setIsQuizOpen(false)}
-        serviceContext={serviceContext}
-      />
     </section>
   );
 }

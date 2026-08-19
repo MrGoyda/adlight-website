@@ -1,7 +1,4 @@
-"use client";
-
 import Image from "next/image";
-import { CheckCircle2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 

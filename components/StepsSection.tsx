@@ -1,8 +1,5 @@
-"use client";
-
 import React from "react";
-import * as Icons from "lucide-react";
-import FadeIn from "@/components/ui/FadeIn";
+import { ClipboardList, ArrowRight } from "lucide-react";
 
 interface StepItem {
   step: string;
@@ -79,7 +76,7 @@ export default function StepsSection({
         {/* Header Block with Outfit premium typography */}
         <div className="text-center mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-wider">
-             <Icons.ClipboardList className="w-3.5 h-3.5 text-orange-500"/> Наша технология работы
+             <ClipboardList className="w-3.5 h-3.5 text-orange-500"/> Наша технология работы
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
              {title.includes(" идеальной ") ? (
@@ -128,7 +125,7 @@ export default function StepsSection({
                 {/* Connecting line / arrow indicator for flow direction */}
                 <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest pt-2 border-t border-slate-100">
                    <span>Шаг {item.step} из 0{steps.length}</span>
-                   {i < steps.length - 1 && <Icons.ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-0.5 transition-transform"/>}
+                   {i < steps.length - 1 && <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-0.5 transition-transform"/>}
                 </div>
               </li>
             );

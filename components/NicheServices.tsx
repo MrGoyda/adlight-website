@@ -4,25 +4,24 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HOME_B2B_NICHES } from "@/dictionaries/home";
 import { cn } from "@/lib/utils";
-import ConsultationModal from "./ConsultationModal";
 import NicheCard from "@/components/services/NicheCard";
-import * as Icons from "lucide-react";
+import { Scissors, Heart, Wrench, Store, Coffee } from "lucide-react";
+import { useModalStore } from "@/lib/store/useModalStore";
 
 export default function NicheServices() {
   const [activeNiche, setActiveNiche] = useState<string>("cafe");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalSource, setModalSource] = useState("Блок нишевых решений");
+  const { openConsultation: openGlobalConsultation } = useModalStore();
 
   const currentNiche = HOME_B2B_NICHES.find(n => n.id === activeNiche) || HOME_B2B_NICHES[0];
 
   // Dynamic Lucide icon mapping to support all niches safely
   const getIcon = (iconName: string) => {
     switch (iconName) {
-      case "Scissors": return Icons.Scissors;
-      case "Heart": return Icons.Heart;
-      case "Wrench": return Icons.Wrench;
-      case "Store": return Icons.Store;
-      default: return Icons.Coffee;
+      case "Scissors": return Scissors;
+      case "Heart": return Heart;
+      case "Wrench": return Wrench;
+      case "Store": return Store;
+      default: return Coffee;
     }
   };
 
@@ -59,8 +58,12 @@ export default function NicheServices() {
   };
 
   const openConsultation = (nicheTitle: string) => {
-    setModalSource(`Блок решений: ${nicheTitle}`);
-    setIsModalOpen(true);
+    openGlobalConsultation({
+      source: `Блок решений: ${nicheTitle}`,
+      title: `Вывески для: ${nicheTitle}`,
+      subtitle: "Оставьте контакты. Разработаем индивидуальную концепцию оформления и вывески под ваш бизнес.",
+      buttonText: "Получить предложение",
+    });
   };
 
   return (
@@ -144,16 +147,6 @@ export default function NicheServices() {
         </div>
 
       </div>
-
-      {/* CONSULTATION POPUP */}
-      <ConsultationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        source={modalSource}
-        title={`Вывески для: ${modalSource.replace("Блок решений: ", "")}`}
-        subtitle={`Оставьте контакты. Разработаем индивидуальную концепцию оформления и вывески под ваш бизнес.`}
-        buttonText="Получить предложение"
-      />
     </section>
   );
 }

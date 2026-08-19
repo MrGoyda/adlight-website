@@ -1,5 +1,3 @@
-"use client";
-
 import { HOME_PILLARS } from "@/dictionaries/home";
 import HomePainsCard from "@/components/HomePainsCard";
 

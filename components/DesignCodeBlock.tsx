@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CheckCircle, FileCheck, BookOpen, ShieldCheck } from "lucide-react";
 import { getCdnUrl } from "@/lib/serverUtils";
-import ConsultationModal from "./ConsultationModal";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import Button from "@/components/ui/Button";
+import { triggerHaptic } from "@/lib/haptics";
+import { useModalStore } from "@/lib/store/useModalStore";
 
 interface DesignCodeBlockProps {
   title?: string;
@@ -20,17 +20,16 @@ export default function DesignCodeBlock({
   description = "Вам не нужно изучать СНиПы и ходить по кабинетам. Мы берем на себя весь цикл согласования: от разработки фотопривязки до подачи документов. Вы получаете 100% законную вывеску по Дизайн-коду Астаны.",
   source = "Форма: Бесплатное согласование вывески"
 }: DesignCodeBlockProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { openConsultation } = useModalStore();
 
-  const triggerHaptic = () => {
-    if (typeof window !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(10);
-    }
-  };
-
-  const openConsultation = () => {
-    triggerHaptic();
-    setIsModalOpen(true);
+  const handleOpenConsultation = () => {
+    triggerHaptic("light");
+    openConsultation({
+      source,
+      title: "Согласование вывески",
+      subtitle: "Проверим вашу вывеску на соответствие Дизайн-коду Астаны и поможем получить разрешение.",
+      buttonText: "Проверить вывеску",
+    });
   };
 
   return (
@@ -91,7 +90,7 @@ export default function DesignCodeBlock({
 
               <div className="flex flex-wrap items-center gap-4 pt-4">
                 <Button 
-                  onClick={openConsultation}
+                  onClick={handleOpenConsultation}
                   variant="solid"
                   className="bg-orange-600 hover:bg-orange-700"
                   leftIcon={<ShieldCheck className="w-5 h-5"/>}
@@ -102,7 +101,7 @@ export default function DesignCodeBlock({
 
                 <Button 
                   href="/design-code" 
-                  onClick={triggerHaptic}
+                  onClick={() => triggerHaptic("light")}
                   variant="lightOutline"
                   leftIcon={<BookOpen className="w-5 h-5 text-slate-400"/>}
                 >
@@ -146,15 +145,6 @@ export default function DesignCodeBlock({
 
         </div>
       </div>
-
-      <ConsultationModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        source={source}
-        title="Согласование вывески"
-        subtitle="Проверим вашу вывеску на соответствие Дизайн-коду Астаны и поможем получить разрешение."
-        buttonText="Проверить вывеску"
-      />
     </section>
   );
 }

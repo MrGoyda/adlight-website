@@ -1,12 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { MapPin, Clock, Phone, MessageCircle } from "lucide-react";
 import { SITE_CONTACTS } from "@/config/site";
 import Button from "@/components/ui/Button";
 
 export default function ContactsSection() {
   const [mapInteractive, setMapInteractive] = useState(false);
+  const [isMapVisible, setIsMapVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsMapVisible(true);
+            if (sectionRef.current) observer.unobserve(sectionRef.current);
+          }
+        });
+      },
+      { rootMargin: "300px" } // Начинаем подгрузку карты за 300px до скролла к секции
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, []);
 
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && navigator.vibrate) {
@@ -20,27 +43,33 @@ export default function ContactsSection() {
   };
 
   return (
-    <section data-aos="fade-up" id="contacts" className="py-0 bg-slate-50 border-t border-slate-200 relative h-[600px] overflow-hidden">
+    <section ref={sectionRef} id="contacts" className="py-0 bg-slate-50 border-t border-slate-200 relative h-[600px] overflow-hidden">
       
       {/* Map (Layer 1) - Light Premium Grayscale */}
       <div 
         className="absolute inset-0 bg-slate-100"
         onMouseLeave={() => setMapInteractive(false)}
       >
-        <iframe 
-            src={SITE_CONTACTS.maps.yandexWidget} 
-            width="100%" 
-            height="100%" 
-            frameBorder="0" 
-            title="Карта проезда к офису ADLight"
-            style={{ 
-              filter: 'grayscale(100%) contrast(1.15) opacity(0.9)',
-              pointerEvents: mapInteractive ? 'auto' : 'none'
-            }} 
-            className="w-full h-full"
-            loading="lazy"
-            suppressHydrationWarning
-        ></iframe>
+        {isMapVisible ? (
+          <iframe 
+              src={SITE_CONTACTS.maps.yandexWidget} 
+              width="100%" 
+              height="100%" 
+              frameBorder="0" 
+              title="Карта проезда к офису ADLight"
+              style={{ 
+                filter: 'grayscale(100%) contrast(1.15) opacity(0.9)',
+                pointerEvents: mapInteractive ? 'auto' : 'none'
+              }} 
+              className="w-full h-full"
+              loading="lazy"
+              suppressHydrationWarning
+          ></iframe>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs font-semibold">
+            Загрузка карты...
+          </div>
+        )}
 
       {/* Warm Orange Brand Interactivity Overlay */}
         {!mapInteractive && (

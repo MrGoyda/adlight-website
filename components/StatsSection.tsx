@@ -1,4 +1,3 @@
-import FadeIn from "@/components/ui/FadeIn";
 import { HOME_STATS } from "@/dictionaries/home";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
@@ -12,9 +11,8 @@ export default function StatsSection() {
         {/* Grid Container с тонкими границами (gap-px создает эффект тонких линий) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200 border border-slate-200 rounded-2xl overflow-hidden shadow-xl shadow-slate-200/30">
           {HOME_STATS.map((stat, index) => (
-            <FadeIn
+            <div
               key={index}
-              delay={index * 100}
               className="group bg-white p-8 hover:bg-slate-50/50 transition-colors duration-300 flex flex-col justify-between min-h-[220px]"
             >
               {/* Верхняя строка: только порядковый номер в инженерном моноширинном стиле (иконки убраны) */}
@@ -39,7 +37,7 @@ export default function StatsSection() {
                   {stat.desc}
                 </p>
               </div>
-            </FadeIn>
+            </div>
           ))}
         </div>
       </div>

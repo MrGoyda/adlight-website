@@ -6,7 +6,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, MapPin, ShieldCheck, Folder, ChevronLeft, ChevronRight } from "lucide-react";
 import { PROJECTS, CATEGORIES } from "@/lib/projectsData";
-import FadeIn from "@/components/ui/FadeIn";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 interface ProjectsBentoProps {
@@ -29,9 +28,9 @@ export default function ProjectsBento({
   const [positionX, setPositionX] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Сортируем и дублируем проекты для бесконечной наполненности
+  // Сортируем проекты по дате
   const sortedProjects = [...PROJECTS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const displayProjects = [...sortedProjects, ...sortedProjects]; // 20 карточек в сумме
+  const displayProjects = sortedProjects;
 
   // Вычисляем ширину контейнера для ограничений перетаскивания (bounds) без forced reflow
   useEffect(() => {
@@ -188,11 +187,8 @@ export default function ProjectsBento({
                  const completionDate = project.date || "2026-01-01";
 
                  return (
-                   <FadeIn
+                   <li
                      key={`${project.id}-${i}`}
-                     delay={(i % sortedProjects.length) * 40}
-                     threshold={0.05}
-                     as="li"
                      className="relative group flex-none w-[82vw] sm:w-[380px] h-[460px] bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:shadow-lg hover:border-slate-350 transition duration-500 select-none flex flex-col justify-end snap-center"
                    >
                      <Link
@@ -258,10 +254,10 @@ export default function ProjectsBento({
                           </div>
 
                        </div>
-                     </Link>
-                   </FadeIn>
-                 );
-               })}
+                      </Link>
+                    </li>
+                  );
+                })}
             </motion.ul>
         </div>
       </div>
