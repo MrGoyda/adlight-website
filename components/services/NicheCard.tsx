@@ -106,7 +106,7 @@ export default function NicheCard({
       {/* Right Column: Key Configurations and Forms */}
       <div className="lg:col-span-5 space-y-6 h-full flex flex-col justify-between self-stretch">
         <div className="space-y-4">
-          <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 text-left">Рекомендуемые конструкции:</h4>
+          <p className="text-xs font-black text-slate-500 uppercase tracking-widest pl-1 text-left">Рекомендуемые конструкции:</p>
 
           <div className="space-y-3">
             {currentNiche.optimalSigns.map((sign: any, idx: number) => (

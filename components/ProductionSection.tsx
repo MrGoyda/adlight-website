@@ -50,7 +50,7 @@ export default function ProductionSection() {
                          <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 group-hover:scale-105 transition-transform ${item.color}`}>
                             <IconComponent className="w-5 h-5" />
                          </div>
-                         <h4 className="text-slate-950 font-extrabold text-sm mb-1.5">{item.title}</h4>
+                         <h3 className="text-slate-950 font-extrabold text-sm mb-1.5">{item.title}</h3>
                          <p className="text-slate-500 text-xs font-semibold leading-relaxed">
                             {item.desc}
                          </p>
