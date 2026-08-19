@@ -133,7 +133,7 @@ export default function NicheServices() {
             {/* Gentle background gradient mapped to active niche */}
             <div className={cn("absolute inset-0 bg-gradient-to-br transition-all duration-500", currentNiche.gradient, "pointer-events-none -z-10")} />
             
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               <NicheCard
                 key={activeNiche}
                 activeNiche={activeNiche}

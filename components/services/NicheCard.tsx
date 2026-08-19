@@ -24,7 +24,7 @@ export default function NicheCard({
   return (
     <motion.div
       key={activeNiche}
-      initial={{ opacity: 0, y: 15 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}

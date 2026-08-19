@@ -134,7 +134,7 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
         <div className="relative min-h-[480px] sm:min-h-[500px] lg:min-h-[460px]">
           <div id="dynamic-services-hub-content-anchor" className="absolute -top-[140px] sm:-top-[160px] lg:-top-[190px]" />
 
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             {CATALOG_SERVICES.map((group) => {
               if (group.id !== activeTab) return null;
 
@@ -142,10 +142,10 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
                 <div key={group.id} className="overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch w-full -mx-4 lg:mx-0">
                   <motion.ul
                     key={group.id}
-                    initial={{ opacity: 0, y: 15 }}
+                    initial={false}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 snap-x snap-mandatory px-4 lg:px-0 w-max lg:w-full"
                   >
                     {group.items.map((item, index) => {
