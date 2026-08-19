@@ -33,28 +33,25 @@ export const revalidate = 3600;
 
 export default function Home() {
   
-  // --- СБОР КОНТЕНТА (Твой старый код перемешивания) ---
-  const shuffle = (arr: string[]) => arr.sort(() => 0.5 - Math.random());
-
-  const lettersImages = shuffle([
+  const lettersImages = [
     ...getImagesFromFolder("face-lit"),
     ...getImagesFromFolder("full-lit"),
     ...getImagesFromFolder("combo-lit"),
     ...getImagesFromFolder("side-lit"),
-  ]).slice(0, 8);
+  ].slice(0, 8);
 
-  const largeImages = shuffle([
+  const largeImages = [
     ...getImagesFromFolder("roof-installations"),
     ...getImagesFromFolder("entrance-groups"),
     ...getImagesFromFolder("pylons"),
-  ]).slice(0, 8);
+  ].slice(0, 8);
 
-  const interiorImages = shuffle([
+  const interiorImages = [
     ...getImagesFromFolder("neon"),
     ...getImagesFromFolder("interior"),
     ...getImagesFromFolder("loft-lamps"),
     ...getImagesFromFolder("wood-style"),
-  ]).slice(0, 8);
+  ].slice(0, 8);
 
   // --- НОВОЕ: ГЕНЕРАЦИЯ SCHEMA.ORG ---
   // Создаем JSON-LD автоматически из тех же данных, что и в блоке FAQ
