@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import { LazyMotion, domAnimation } from "framer-motion";
 import Script from "next/script";
 import "./globals.css";
+
 
 // Ваши компоненты
 import Header from "@/components/Header"; 
@@ -165,11 +165,9 @@ export default function RootLayout({
 
         {/* Meta Pixel убран — события идут через CAPI в /api/track (SST) */}
 
-        <LazyMotion features={domAnimation} strict={false}>
-          <PublicLayoutWrapper>
-            {children}
-          </PublicLayoutWrapper>
-        </LazyMotion>
+        <PublicLayoutWrapper>
+          {children}
+        </PublicLayoutWrapper>
         
       </body>
     </html>

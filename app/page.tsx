@@ -12,15 +12,18 @@ const DesignCodeBlock = dynamic(() => import("@/components/DesignCodeBlock"));
 const StepsSection = dynamic(() => import("@/components/StepsSection"));
 const FaqSection = dynamic(() => import("@/components/FaqSection"));
 const ContactsSection = dynamic(() => import("@/components/ContactsSection"));
+// Framer-motion components wrapped in a "use client" component with ssr:false
+// so the 587KB framer-motion bundle is NOT included in the initial page JS payload.
+import {
+  VolumeLettersShowcaseClient as VolumeLettersShowcase,
+  DynamicServicesHubClient as DynamicServicesHub,
+  SpecializedServicesGridClient as SpecializedServicesGrid,
+} from "@/components/ClientSections";
 
-// Наш новый Hero (Client Component)
+// Above-the-fold components — statically imported for instant SSR render
 import HeroSection from "@/components/HeroSection";
 import HomePainsSection from "@/components/HomePainsSection";
 import HomeOfferBanner from "@/components/HomeOfferBanner";
-import VolumeLettersShowcase from "@/components/VolumeLettersShowcase";
-import DynamicServicesHub from "@/components/DynamicServicesHub";
-import SpecializedServicesGrid from "@/components/SpecializedServicesGrid";
-import BlueprintGrid from "@/components/ui/BlueprintGrid";
 
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
