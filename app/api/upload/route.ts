@@ -3,6 +3,30 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2";
 
+function detectMimeType(fileName: string, clientMime?: string | null): string {
+  if (clientMime && clientMime !== "application/octet-stream" && clientMime.trim() !== "") {
+    return clientMime;
+  }
+  const ext = fileName.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "pdf": return "application/pdf";
+    case "xlsx": return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    case "xls": return "application/vnd.ms-excel";
+    case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    case "doc": return "application/msword";
+    case "pptx": return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    case "ppt": return "application/vnd.ms-powerpoint";
+    case "csv": return "text/csv; charset=utf-8";
+    case "png": return "image/png";
+    case "jpg":
+    case "jpeg": return "image/jpeg";
+    case "webp": return "image/webp";
+    case "svg": return "image/svg+xml";
+    case "mp4": return "video/mp4";
+    default: return "application/octet-stream";
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const contentType = req.headers.get("content-type") || "";
@@ -22,12 +46,13 @@ export async function POST(req: Request) {
 
       const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
       const fileKey = `${folder}/${Date.now()}-${cleanFileName}`;
+      const resolvedMime = detectMimeType(file.name, file.type);
 
       const command = new PutObjectCommand({
         Bucket: R2_BUCKET_NAME,
         Key: fileKey,
         Body: buffer,
-        ContentType: file.type || "application/octet-stream",
+        ContentType: resolvedMime,
         ContentDisposition: "inline",
       });
 

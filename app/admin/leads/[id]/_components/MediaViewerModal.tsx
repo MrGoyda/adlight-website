@@ -46,6 +46,8 @@ export default function MediaViewerModal({
   const [zoomLevel, setZoomLevel] = React.useState<number>(1);
   const [rotation, setRotation] = React.useState<number>(0);
 
+  const [viewerEngine, setViewerEngine] = React.useState<"google" | "office">("google");
+
   useEffect(() => {
     if (isOpen) {
       lockScroll("mediaViewer");
@@ -90,7 +92,9 @@ export default function MediaViewerModal({
   const isExcel = ["xls", "xlsx", "xlsm", "xlsb", "csv"].includes(ext);
   const isOfficeDoc = isWord || isExcel;
 
+  const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(currentFile.url)}&embedded=true`;
   const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(currentFile.url)}`;
+  const currentDocViewerUrl = viewerEngine === "google" ? googleViewerUrl : officeViewerUrl;
 
   const handlePrev = () => {
     triggerHaptic("light");
@@ -123,10 +127,10 @@ export default function MediaViewerModal({
   return createPortal(
     <div className="fixed inset-0 z-[999999] flex flex-col bg-slate-950/95 backdrop-blur-2xl animate-in fade-in duration-200 overflow-hidden">
       {/* ── ШАПКА ── */}
-      <div className="flex items-center justify-between px-6 py-4 bg-slate-900/80 border-b border-white/10 text-white shrink-0 shadow-lg">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-slate-900/90 border-b border-white/10 text-white shrink-0 shadow-lg">
         <div className="flex items-center gap-3 min-w-0">
           <div className="min-w-0">
-            <h4 className="font-black text-sm text-white truncate max-w-md">{currentFile.name}</h4>
+            <h4 className="font-black text-xs sm:text-sm text-white truncate max-w-[200px] sm:max-w-md">{currentFile.name}</h4>
             <p className="text-[10px] text-slate-400 font-semibold">
               {(currentFile.size / 1024 / 1024).toFixed(2)} МБ • {currentIndex + 1} из {files.length}
             </p>
@@ -136,7 +140,7 @@ export default function MediaViewerModal({
         {/* Элементы управления шапки */}
         <div className="flex items-center gap-2">
           {isImage && (
-            <div className="hidden sm:flex items-center gap-1 mr-4 bg-white/10 rounded-xl p-1">
+            <div className="hidden sm:flex items-center gap-1 mr-2 bg-white/10 rounded-xl p-1">
               <button
                 onClick={() => setZoomLevel((z) => Math.max(0.5, z - 0.25))}
                 className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition cursor-pointer"
@@ -164,12 +168,39 @@ export default function MediaViewerModal({
             </div>
           )}
 
+          {(isOfficeDoc || isPdf) && (
+            <div className="flex items-center bg-white/10 rounded-xl p-0.5 mr-1 text-[11px] font-bold">
+              <button
+                onClick={() => setViewerEngine("google")}
+                className={`px-2.5 py-1 rounded-lg transition ${
+                  viewerEngine === "google"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-300 hover:text-white"
+                }`}
+                title="Google Docs Viewer (быстрый и стабильный на смартфонах)"
+              >
+                Google
+              </button>
+              <button
+                onClick={() => setViewerEngine("office")}
+                className={`px-2.5 py-1 rounded-lg transition ${
+                  viewerEngine === "office"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-300 hover:text-white"
+                }`}
+                title="Microsoft Office Viewer"
+              >
+                Office
+              </button>
+            </div>
+          )}
+
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-lg shadow-orange-500/20 active:scale-95 transition cursor-pointer"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-lg shadow-orange-500/20 active:scale-95 transition cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>Скачать</span>
+            <span className="hidden sm:inline">Скачать</span>
           </button>
 
           <a
@@ -184,7 +215,7 @@ export default function MediaViewerModal({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/10 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 transition cursor-pointer ml-2"
+            className="p-2 rounded-xl bg-white/10 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 transition cursor-pointer ml-1"
             title="Закрыть (Esc)"
           >
             <X className="w-5 h-5" />
@@ -193,15 +224,15 @@ export default function MediaViewerModal({
       </div>
 
       {/* ── ОСНОВНОЙ КОНТЕНТ ── */}
-      <div className="flex-1 relative flex items-center justify-center p-4 sm:p-8 overflow-hidden select-none">
+      <div className="flex-1 relative flex items-center justify-center p-2 sm:p-6 overflow-hidden select-none">
         {/* Кнопка «Назад» */}
         {files.length > 1 && (
           <button
             onClick={handlePrev}
-            className="absolute left-6 z-20 p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-lg border border-white/10 shadow-2xl transition cursor-pointer active:scale-90"
+            className="absolute left-3 sm:left-6 z-20 p-2.5 sm:p-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-lg border border-white/10 shadow-2xl transition cursor-pointer active:scale-90"
             title="Предыдущий файл (←)"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 h-6" />
           </button>
         )}
 
@@ -231,17 +262,19 @@ export default function MediaViewerModal({
           )}
 
           {isPdf && (
-            <iframe
-              src={`${currentFile.url}#toolbar=1&navpanes=0`}
-              className="w-full h-full rounded-2xl border border-white/10 bg-white shadow-2xl"
-              title={currentFile.name}
-            />
+            <div className="w-full h-full flex flex-col bg-white rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+              <iframe
+                src={viewerEngine === "google" ? googleViewerUrl : `${currentFile.url}#toolbar=1&navpanes=0`}
+                className="w-full h-full border-none"
+                title={currentFile.name}
+              />
+            </div>
           )}
 
           {isOfficeDoc && (
             <div className="w-full h-full flex flex-col bg-white rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
               <iframe
-                src={officeViewerUrl}
+                src={currentDocViewerUrl}
                 className="w-full h-full border-none"
                 title={currentFile.name}
               />
@@ -249,20 +282,32 @@ export default function MediaViewerModal({
           )}
 
           {!isImage && !isVideo && !isPdf && !isOfficeDoc && (
-            <div className="p-12 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/10 text-center space-y-4 max-w-sm">
-              <FileText className="w-16 h-16 text-orange-400 mx-auto" />
+            <div className="p-8 sm:p-12 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/10 text-center space-y-4 max-w-sm">
+              <FileText className="w-14 h-14 sm:w-16 sm:h-16 text-orange-400 mx-auto" />
               <div>
-                <h4 className="text-base font-extrabold text-white">{currentFile.name}</h4>
+                <h4 className="text-sm sm:text-base font-extrabold text-white">{currentFile.name}</h4>
                 <p className="text-xs text-slate-400 mt-1 font-medium">
-                  Предпросмотр недоступен для данного типа файла. Вы можете скачать его напрямую.
+                  Предпросмотр недоступен для данного типа файла. Вы можете открыть или скачать его напрямую.
                 </p>
               </div>
-              <button
-                onClick={handleDownload}
-                className="w-full py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-lg transition cursor-pointer"
-              >
-                Скачать файл
-              </button>
+              <div className="flex gap-2 justify-center pt-2">
+                <a
+                  href={currentFile.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs transition inline-flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Открыть
+                </a>
+                <button
+                  onClick={handleDownload}
+                  className="px-4 py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs shadow-lg transition cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Скачать
+                </button>
+              </div>
             </div>
           )}
         </div>
