@@ -21,6 +21,8 @@ const inter = Inter({
   subsets: ["latin", "cyrillic"], 
   display: "swap",
   variable: "--font-inter",
+  preload: true,
+  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
 });
 
 // Расширенные метаданные
@@ -113,8 +115,8 @@ export default function RootLayout({
   return (
     <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <head>
-        {/* Preconnect & DNS-Prefetch для моментального соединения с CDN */}
-        <link rel="preconnect" href="https://media.adlight.kz" crossOrigin="anonymous" />
+        {/* Preconnect & DNS-Prefetch для моментального соединения с CDN (без crossOrigin для совпадения с non-cors img) */}
+        <link rel="preconnect" href="https://media.adlight.kz" />
         <link rel="dns-prefetch" href="https://media.adlight.kz" />
         
         {/* LCP Preload для логотипа */}

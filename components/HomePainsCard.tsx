@@ -82,7 +82,7 @@ export default function HomePainsCard({ item, isEven }: HomePainsCardProps) {
             alt={item.imageAlt}
             fill
             className="object-cover rounded-3xl group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
+            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 50vw, 550px"
             loading="lazy"
           />
           {/* Тонкий блик по контуру */}

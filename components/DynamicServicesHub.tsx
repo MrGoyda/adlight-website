@@ -45,23 +45,25 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
     
     // Smooth horizontal scroll tabs alignment for mobile screens
     const clickedButton = event.currentTarget;
-    clickedButton.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center"
-    });
+    window.requestAnimationFrame(() => {
+      clickedButton.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center"
+      });
 
-    // Smart Scroll: Scroll viewport ONLY if the tab container is scrolled past the top of the viewport
-    const section = document.getElementById("dynamic-services-hub-section");
-    if (section) {
-      const rect = section.getBoundingClientRect();
-      if (rect.top < 60) {
-        window.scrollTo({
-          top: window.scrollY + rect.top - 80, // Offset for sticky navbar
-          behavior: "smooth"
-        });
+      // Smart Scroll: Scroll viewport ONLY if the tab container is scrolled past the top of the viewport
+      const section = document.getElementById("dynamic-services-hub-section");
+      if (section) {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < 60) {
+          window.scrollTo({
+            top: window.scrollY + rect.top - 80, // Offset for sticky navbar
+            behavior: "smooth"
+          });
+        }
       }
-    }
+    });
   };
 
   return (
