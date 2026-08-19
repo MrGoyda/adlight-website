@@ -1,20 +1,23 @@
-import ClientsMarquee from "@/components/ClientsMarquee";
-import StatsSection from "@/components/StatsSection";
-import ProductionSection from "@/components/ProductionSection";
-import ProjectsBento from "@/components/ProjectsBento";
-import NicheServices from "@/components/NicheServices";
-import ReviewsCarousel from "@/components/ReviewsCarousel";
-import CallToAction from "@/components/CallToAction";
-import DesignCodeBlock from "@/components/DesignCodeBlock";
-import StepsSection from "@/components/StepsSection";
-import FaqSection from "@/components/FaqSection";
-import ContactsSection from "@/components/ContactsSection";
+import dynamic from "next/dynamic";
 import HeroSection from "@/components/HeroSection";
 import HomePainsSection from "@/components/HomePainsSection";
-import HomeOfferBanner from "@/components/HomeOfferBanner";
-import VolumeLettersShowcase from "@/components/VolumeLettersShowcase";
-import DynamicServicesHub from "@/components/DynamicServicesHub";
-import SpecializedServicesGrid from "@/components/SpecializedServicesGrid";
+
+// --- ДИНАМИЧЕСКИЙ КОД-СПЛИТТИНГ СЕКЦИЙ НИЖЕ СГИБА (SSR=true: 100% SEO, 0% стартового JS) ---
+const VolumeLettersShowcase = dynamic(() => import("@/components/VolumeLettersShowcase"), { ssr: true });
+const HomeOfferBanner = dynamic(() => import("@/components/HomeOfferBanner"), { ssr: true });
+const ClientsMarquee = dynamic(() => import("@/components/ClientsMarquee"), { ssr: true });
+const StatsSection = dynamic(() => import("@/components/StatsSection"), { ssr: true });
+const DynamicServicesHub = dynamic(() => import("@/components/DynamicServicesHub"), { ssr: true });
+const SpecializedServicesGrid = dynamic(() => import("@/components/SpecializedServicesGrid"), { ssr: true });
+const NicheServices = dynamic(() => import("@/components/NicheServices"), { ssr: true });
+const DesignCodeBlock = dynamic(() => import("@/components/DesignCodeBlock"), { ssr: true });
+const StepsSection = dynamic(() => import("@/components/StepsSection"), { ssr: true });
+const ProjectsBento = dynamic(() => import("@/components/ProjectsBento"), { ssr: true });
+const ProductionSection = dynamic(() => import("@/components/ProductionSection"), { ssr: true });
+const FaqSection = dynamic(() => import("@/components/FaqSection"), { ssr: true });
+const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"), { ssr: true });
+const ContactsSection = dynamic(() => import("@/components/ContactsSection"), { ssr: true });
+const CallToAction = dynamic(() => import("@/components/CallToAction"), { ssr: true });
 
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---
