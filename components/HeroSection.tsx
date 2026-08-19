@@ -32,7 +32,7 @@ export default function HeroSection({
   }
 
   return (
-    <section className="relative w-full py-16 lg:py-28 overflow-hidden border-b border-slate-200 flex items-center min-h-[calc(100vh-80px)] bg-white">
+    <section className="relative w-full py-12 lg:py-24 overflow-hidden border-b border-slate-200 flex items-center min-h-[calc(100dvh-80px)] bg-white">
       {/* Чертежная сетка и фоновые Apple-градиенты */}
       <BlueprintGrid showGradients={true} />
 

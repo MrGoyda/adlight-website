@@ -9,16 +9,17 @@
   }
 }
 
-body {
+html, body {
+  margin: 0;
+  padding: 0;
   position: relative;
   width: 100%;
-  /* overflow-x: clip — обрезает вылеты по ширине, не ломая sticky */
-  overflow-x: clip; 
+  overflow-x: clip;
 }
 
 /* Фоллбэк для старых браузеров */
 @supports not (overflow-x: clip) {
-  body {
+  html, body {
     overflow-x: hidden;
   }
 }

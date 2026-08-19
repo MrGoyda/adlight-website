@@ -66,7 +66,7 @@ export default function Home() {
 
   return (
     // Заменили <div> на <main> для лучшего понимания роботами структуры
-    <main className="min-h-screen bg-white font-sans overflow-x-clip">
+    <main className="min-h-screen bg-white font-sans">
 
       
       {/* Вставляем невидимый скрипт для нейросетей */}

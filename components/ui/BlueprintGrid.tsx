@@ -13,9 +13,9 @@ export default function BlueprintGrid({
     <div className={cn("absolute inset-0 pointer-events-none select-none overflow-hidden", className)}>
       {showGradients && (
         <>
-          {/* Приглушенные Apple-градиенты */}
-          <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-orange-500/[0.06] blur-[160px] rounded-full" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/[0.04] blur-[160px] rounded-full" />
+          {/* Приглушенные Apple-градиенты (аппаратно быстрые radial-gradient без тяжелого blur-фильтра) */}
+          <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.06)_0%,transparent_70%)] rounded-full" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.04)_0%,transparent_70%)] rounded-full" />
         </>
       )}
 

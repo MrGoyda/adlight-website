@@ -142,7 +142,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className={`${inter.className} bg-white text-slate-900 antialiased overflow-x-clip`} suppressHydrationWarning>
+      <body className={`${inter.className} bg-white text-slate-900 antialiased`} suppressHydrationWarning>
         <AnalyticsTracker />
         <PageViewTracker />
 
