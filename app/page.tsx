@@ -1,15 +1,17 @@
 import ClientsMarquee from "@/components/ClientsMarquee";
-import StatsSection from "@/components/StatsSection";
-import ProductionSection from "@/components/ProductionSection";
-import ProjectsBento from "@/components/ProjectsBento";
-import NicheServices from "@/components/NicheServices";
+import dynamic from "next/dynamic";
 
-import ReviewsCarousel from "@/components/ReviewsCarousel";
-import CallToAction from "@/components/CallToAction";
-import DesignCodeBlock from "@/components/DesignCodeBlock";
-import StepsSection from "@/components/StepsSection";
-import FaqSection from "@/components/FaqSection";
-import ContactsSection from "@/components/ContactsSection";
+// Heavy below-the-fold sections are dynamically imported to significantly reduce initial HTML size and unblock mobile main thread
+const StatsSection = dynamic(() => import("@/components/StatsSection"));
+const ProductionSection = dynamic(() => import("@/components/ProductionSection"));
+const ProjectsBento = dynamic(() => import("@/components/ProjectsBento"));
+const NicheServices = dynamic(() => import("@/components/NicheServices"));
+const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"));
+const CallToAction = dynamic(() => import("@/components/CallToAction"));
+const DesignCodeBlock = dynamic(() => import("@/components/DesignCodeBlock"));
+const StepsSection = dynamic(() => import("@/components/StepsSection"));
+const FaqSection = dynamic(() => import("@/components/FaqSection"));
+const ContactsSection = dynamic(() => import("@/components/ContactsSection"));
 
 // Наш новый Hero (Client Component)
 import HeroSection from "@/components/HeroSection";
