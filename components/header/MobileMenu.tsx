@@ -66,8 +66,11 @@ export default function MobileMenu({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9990] pointer-events-none"
+      className={`fixed inset-0 z-[9990] pointer-events-none transition-[visibility] duration-300 ${
+        isOpen ? "visible" : "invisible"
+      }`}
       aria-hidden={!isOpen}
+      inert={!isOpen ? true : undefined}
     >
       {/* Затемняющий оверлей */}
       <div
