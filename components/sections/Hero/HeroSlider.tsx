@@ -40,13 +40,15 @@ export default function HeroSlider({ sliderImages }: HeroSliderProps) {
             }`}
           >
             <Image
-              src={src}
+              src={idx === 0 ? "/images/hero-first.webp" : src}
               alt="Выполненные проекты ADLight наружная реклама"
               fill
               className="object-cover rounded-3xl"
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 450px, 550px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 450px, 550px"
               priority={idx === 0}
               loading={idx === 0 ? "eager" : "lazy"}
+              // @ts-ignore
+              fetchPriority={idx === 0 ? "high" : "auto"}
             />
           </div>
         );

@@ -16,13 +16,14 @@ import AnalyticsTracker from "@/components/AnalyticsTracker";
 import PageViewTracker from "@/components/PageViewTracker";
 import { getCdnUrl } from "@/lib/serverUtils";
 
-// Настройка шрифта
+// Настройка шрифта: display: "optional" для мгновенного первого рендера без задержки LCP
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"], 
-  display: "swap",
+  display: "optional",
   variable: "--font-inter",
   preload: true,
   fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+  adjustFontFallback: true,
 });
 
 // Расширенные метаданные
@@ -119,11 +120,18 @@ export default function RootLayout({
         <link rel="preconnect" href="https://media.adlight.kz" />
         <link rel="dns-prefetch" href="https://media.adlight.kz" />
         
-        {/* LCP Preload для логотипа */}
+        {/* LCP Preload для логотипа и первого кадра Hero */}
         <link
           rel="preload"
           as="image"
           href="/adlight-logo-full.webp"
+          // @ts-ignore
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero-first.webp"
           // @ts-ignore
           fetchPriority="high"
         />

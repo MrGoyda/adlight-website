@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ["lucide-react", "framer-motion"],
+    optimizePackageImports: ["lucide-react", "framer-motion", "clsx", "tailwind-merge"],
     serverActions: {
       allowedOrigins: [
         "172.20.10.5:3000",
@@ -18,6 +18,11 @@ const nextConfig: NextConfig = {
       ],
     },
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+  },
+  poweredByHeader: false,
+  compress: true,
   images: {
     unoptimized: true,
     remotePatterns: [
