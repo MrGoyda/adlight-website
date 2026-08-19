@@ -29,6 +29,7 @@
     "react-fast-marquee": "^1.6.5",
     "sharp": "^0.35.3",
     "tailwind-merge": "^3.4.0",
+    "xlsx": "^0.18.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {

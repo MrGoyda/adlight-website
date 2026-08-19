@@ -19,6 +19,8 @@ import { createPortal } from "react-dom";
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import { triggerHaptic } from "@/lib/haptics";
 
+import ExcelPreview from "./ExcelPreview";
+
 export interface MediaFileItem {
   id: string;
   name: string;
@@ -89,8 +91,8 @@ export default function MediaViewerModal({
   
   const ext = currentFile.name.split(".").pop()?.toLowerCase() || "";
   const isWord = ["doc", "docx", "docm", "rtf", "txt"].includes(ext);
-  const isExcel = ["xls", "xlsx", "xlsm", "xlsb", "csv"].includes(ext);
-  const isOfficeDoc = isWord || isExcel;
+  const isExcel = ["xls", "xlsx", "xlsm", "xlsb", "csv"].includes(ext) || currentFile.mimeType.includes("spreadsheet") || currentFile.mimeType.includes("excel");
+  const isOfficeDoc = isWord;
 
   const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(currentFile.url)}&embedded=true`;
   const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(currentFile.url)}`;
@@ -177,7 +179,7 @@ export default function MediaViewerModal({
                     ? "bg-white text-slate-900 shadow-sm"
                     : "text-slate-300 hover:text-white"
                 }`}
-                title="Google Docs Viewer (быстрый и стабильный на смартфонах)"
+                title="Google Docs Viewer"
               >
                 Google
               </button>
@@ -271,6 +273,14 @@ export default function MediaViewerModal({
             </div>
           )}
 
+          {isExcel && (
+            <ExcelPreview
+              fileUrl={currentFile.url}
+              fileName={currentFile.name}
+              onDownload={handleDownload}
+            />
+          )}
+
           {isOfficeDoc && (
             <div className="w-full h-full flex flex-col bg-white rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
               <iframe
@@ -281,7 +291,7 @@ export default function MediaViewerModal({
             </div>
           )}
 
-          {!isImage && !isVideo && !isPdf && !isOfficeDoc && (
+          {!isImage && !isVideo && !isPdf && !isExcel && !isOfficeDoc && (
             <div className="p-8 sm:p-12 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/10 text-center space-y-4 max-w-sm">
               <FileText className="w-14 h-14 sm:w-16 sm:h-16 text-orange-400 mx-auto" />
               <div>
