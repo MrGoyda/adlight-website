@@ -1,7 +1,18 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  const host = request.headers.get("host") || "";
+
+  // 1. Защита от дублирования SEO: 301 редирект с технических доменов vercel.app на основной домен
+  if (host.endsWith(".vercel.app") || host.includes("vercel.app")) {
+    const url = request.nextUrl.clone();
+    url.protocol = "https:";
+    url.host = "adlight.kz";
+    url.port = "";
+    return NextResponse.redirect(url, 301);
+  }
+
   return await updateSession(request);
 }
 
