@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface GlassLayerProps {
@@ -15,18 +14,17 @@ export default function GlassLayer({
   intensity = "light"
 }: GlassLayerProps) {
   return (
-    <motion.div
+    <div
       style={{ isolation: "isolate" }}
       className={cn(
-        "absolute inset-0 z-[-1] rounded-inherit pointer-events-none gpu-layer",
+        "absolute inset-0 z-[-1] rounded-inherit pointer-events-none gpu-layer transition-opacity duration-200",
         "bg-white/60 dark:bg-black/40",
         isAnimating
           ? "backdrop-filter-none bg-white/95 dark:bg-black/90"
           : "backdrop-blur-apple backdrop-saturate-apple apple-glass-heavy",
         className
       )}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
     />
   );
 }
+

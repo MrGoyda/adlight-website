@@ -111,7 +111,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`scroll-smooth ${inter.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Preconnect & DNS-Prefetch для моментального соединения с CDN */}
         <link rel="preconnect" href="https://media.adlight.kz" crossOrigin="anonymous" />

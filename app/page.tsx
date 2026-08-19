@@ -1,29 +1,20 @@
 import ClientsMarquee from "@/components/ClientsMarquee";
-import dynamic from "next/dynamic";
-
-// Heavy below-the-fold sections are dynamically imported to significantly reduce initial HTML size and unblock mobile main thread
-const StatsSection = dynamic(() => import("@/components/StatsSection"));
-const ProductionSection = dynamic(() => import("@/components/ProductionSection"));
-const ProjectsBento = dynamic(() => import("@/components/ProjectsBento"));
-const NicheServices = dynamic(() => import("@/components/NicheServices"));
-const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"));
-const CallToAction = dynamic(() => import("@/components/CallToAction"));
-const DesignCodeBlock = dynamic(() => import("@/components/DesignCodeBlock"));
-const StepsSection = dynamic(() => import("@/components/StepsSection"));
-const FaqSection = dynamic(() => import("@/components/FaqSection"));
-const ContactsSection = dynamic(() => import("@/components/ContactsSection"));
-// Framer-motion components wrapped in a "use client" component with ssr:false
-// so the 587KB framer-motion bundle is NOT included in the initial page JS payload.
-import {
-  VolumeLettersShowcaseClient as VolumeLettersShowcase,
-  DynamicServicesHubClient as DynamicServicesHub,
-  SpecializedServicesGridClient as SpecializedServicesGrid,
-} from "@/components/ClientSections";
-
-// Above-the-fold components — statically imported for instant SSR render
+import StatsSection from "@/components/StatsSection";
+import ProductionSection from "@/components/ProductionSection";
+import ProjectsBento from "@/components/ProjectsBento";
+import NicheServices from "@/components/NicheServices";
+import ReviewsCarousel from "@/components/ReviewsCarousel";
+import CallToAction from "@/components/CallToAction";
+import DesignCodeBlock from "@/components/DesignCodeBlock";
+import StepsSection from "@/components/StepsSection";
+import FaqSection from "@/components/FaqSection";
+import ContactsSection from "@/components/ContactsSection";
 import HeroSection from "@/components/HeroSection";
 import HomePainsSection from "@/components/HomePainsSection";
 import HomeOfferBanner from "@/components/HomeOfferBanner";
+import VolumeLettersShowcase from "@/components/VolumeLettersShowcase";
+import DynamicServicesHub from "@/components/DynamicServicesHub";
+import SpecializedServicesGrid from "@/components/SpecializedServicesGrid";
 
 
 // --- СЕРВЕРНАЯ УТИЛИТА ---

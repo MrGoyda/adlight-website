@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { HOME_B2B_NICHES } from "@/dictionaries/home";
 import { cn } from "@/lib/utils";
 import NicheCard from "@/components/services/NicheCard";
@@ -109,10 +108,8 @@ export default function NicheServices() {
                   )}
                 >
                   {isActive && (
-                    <motion.span
-                      layoutId="activeNicheIndicator"
-                      className="absolute inset-0 bg-white border border-slate-250/60 shadow-[0_4px_14px_rgba(15,23,42,0.06)] rounded-xl z-0"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    <span
+                      className="absolute inset-0 bg-white border border-slate-250/60 shadow-[0_4px_14px_rgba(15,23,42,0.06)] rounded-xl z-0 transition-all duration-300"
                     />
                   )}
                   <span className="relative z-10 flex items-center gap-2">
@@ -133,16 +130,14 @@ export default function NicheServices() {
             {/* Gentle background gradient mapped to active niche */}
             <div className={cn("absolute inset-0 bg-gradient-to-br transition-all duration-500", currentNiche.gradient, "pointer-events-none -z-10")} />
             
-            <AnimatePresence mode="wait" initial={false}>
-              <NicheCard
-                key={activeNiche}
-                activeNiche={activeNiche}
-                currentNiche={currentNiche}
-                IconComponent={IconComponent}
-                triggerHaptic={triggerHaptic}
-                openConsultation={openConsultation}
-              />
-            </AnimatePresence>
+            <NicheCard
+              key={activeNiche}
+              activeNiche={activeNiche}
+              currentNiche={currentNiche}
+              IconComponent={IconComponent}
+              triggerHaptic={triggerHaptic}
+              openConsultation={openConsultation}
+            />
           </div>
         </div>
 

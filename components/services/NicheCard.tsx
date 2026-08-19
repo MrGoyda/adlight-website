@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ShieldCheck, ChevronRight, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
@@ -22,13 +21,9 @@ export default function NicheCard({
   openConsultation
 }: NicheCardProps) {
   return (
-    <motion.div
+    <div
       key={activeNiche}
-      initial={false}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -15 }}
-      transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start relative z-10"
+      className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start relative z-10 transition-opacity duration-300 ease-out"
       itemScope
       itemType="https://schema.org/Service"
     >
@@ -195,6 +190,6 @@ export default function NicheCard({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -3,7 +3,6 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { CATALOG_SERVICES } from "@/dictionaries/services/catalog-services";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
@@ -114,10 +113,8 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
                 >
                   {/* Sliding active indicator */}
                   {isActive && (
-                    <motion.span
-                      layoutId="activeTabIndicator"
-                      className="absolute inset-0 bg-white border border-slate-200 shadow-[0_4px_12px_rgba(15,23,42,0.06)] rounded-xl z-0"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    <span
+                      className="absolute inset-0 bg-white border border-slate-200 shadow-[0_4px_12px_rgba(15,23,42,0.06)] rounded-xl z-0 transition-all duration-300"
                     />
                   )}
                   <span className="relative z-10 flex items-center gap-2">
@@ -134,20 +131,15 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
         <div className="relative min-h-[480px] sm:min-h-[500px] lg:min-h-[460px]">
           <div id="dynamic-services-hub-content-anchor" className="absolute -top-[140px] sm:-top-[160px] lg:-top-[190px]" />
 
-          <AnimatePresence mode="wait" initial={false}>
-            {CATALOG_SERVICES.map((group) => {
-              if (group.id !== activeTab) return null;
+          {CATALOG_SERVICES.map((group) => {
+            if (group.id !== activeTab) return null;
 
-              return (
-                <div key={group.id} className="overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch w-full -mx-4 lg:mx-0">
-                  <motion.ul
-                    key={group.id}
-                    initial={false}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 snap-x snap-mandatory px-4 lg:px-0 w-max lg:w-full"
-                  >
+            return (
+              <div key={group.id} className="overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 scrollbar-hide -webkit-overflow-scrolling-touch w-full -mx-4 lg:mx-0">
+                <ul
+                  key={group.id}
+                  className="flex lg:grid lg:grid-cols-4 gap-6 lg:gap-8 snap-x snap-mandatory px-4 lg:px-0 w-max lg:w-full transition-opacity duration-300 ease-out"
+                >
                     {group.items.map((item, index) => {
                       // Extract numeric price for Schema Offer
                       const priceMatch = item.price.replace(/[^\d]/g, "");
@@ -232,11 +224,10 @@ export default function DynamicServicesHub({ defaultTab = "facade" }: DynamicSer
                         </li>
                       );
                     })}
-                  </motion.ul>
-                </div>
-              );
-            })}
-          </AnimatePresence>
+                </ul>
+              </div>
+            );
+          })}
         </div>
 
       </div>

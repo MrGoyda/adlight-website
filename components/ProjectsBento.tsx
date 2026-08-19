@@ -1,9 +1,8 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { ArrowRight, Clock, MapPin, ShieldCheck, Folder, ChevronLeft, ChevronRight } from "lucide-react";
 import { PROJECTS, CATEGORIES } from "@/lib/projectsData";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
@@ -20,38 +19,15 @@ export default function ProjectsBento({
   className = ""
 }: ProjectsBentoProps) {
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLUListElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   const clickStartCoords = useRef({ x: 0, y: 0 });
-  
-  const [dragWidth, setDragWidth] = useState(0);
-  const [positionX, setPositionX] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
 
   // Сортируем проекты по дате
   const sortedProjects = [...PROJECTS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const displayProjects = sortedProjects;
-
-  // Вычисляем ширину контейнера для ограничений перетаскивания (bounds) без forced reflow
-  useEffect(() => {
-    const handleResize = () => {
-      requestAnimationFrame(() => {
-        setIsMobile(window.innerWidth < 768);
-        if (carouselRef.current && containerRef.current) {
-          setDragWidth(Math.max(0, carouselRef.current.scrollWidth - containerRef.current.offsetWidth));
-        }
-      });
-    };
-    
-    // Небольшая задержка, чтобы все изображения и элементы успели отрендериться
-    const timer = setTimeout(handleResize, 100);
-    
-    window.addEventListener("resize", handleResize);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [displayProjects]);
 
   // Получить название категории
   const getCategoryLabel = (catId: string) => {
@@ -59,37 +35,14 @@ export default function ProjectsBento({
     return cat ? cat.label : "Вывеска";
   };
 
-  // Клик по кнопкам навигации с чтением текущей матрицы трансформации (работает синхронно с ручным драгом!)
-  const handleScrollClick = (direction: 'left' | 'right') => {
-    triggerHaptic();
-    if (!containerRef.current) return;
-    
-    if (isMobile) {
-      const scrollAmount = 300;
-      containerRef.current.scrollBy({
+  const scroll = (direction: 'left' | 'right') => {
+    if (sliderRef.current) {
+      const scrollAmount = 420;
+      sliderRef.current.scrollBy({
         left: direction === 'right' ? scrollAmount : -scrollAmount,
         behavior: 'smooth'
       });
-      return;
     }
-
-    if (!carouselRef.current) return;
-    const step = 400;
-    
-    // Считываем текущее положение x из матрицы трансформации
-    const style = window.getComputedStyle(carouselRef.current);
-    const matrix = style.transform && style.transform !== 'none' 
-      ? new DOMMatrix(style.transform) 
-      : { m41: 0 };
-    
-    const currentX = matrix.m41;
-    let newX = direction === 'right' ? currentX - step : currentX + step;
-    
-    // Ограничение движения по границам слайдера
-    if (newX > 0) newX = 0;
-    if (newX < -dragWidth) newX = -dragWidth;
-    
-    setPositionX(newX);
   };
 
   const triggerHaptic = () => {
@@ -99,7 +52,40 @@ export default function ProjectsBento({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (!sliderRef.current) return;
+    isDown.current = true;
+    sliderRef.current.style.cursor = 'grabbing';
+    sliderRef.current.style.scrollBehavior = 'auto';
+    sliderRef.current.style.scrollSnapType = 'none';
+    startX.current = e.pageX - sliderRef.current.offsetLeft;
+    scrollLeft.current = sliderRef.current.scrollLeft;
     clickStartCoords.current = { x: e.screenX, y: e.screenY };
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+    if (sliderRef.current) {
+      sliderRef.current.style.cursor = 'grab';
+      sliderRef.current.style.scrollBehavior = 'smooth';
+      sliderRef.current.style.scrollSnapType = 'x mandatory';
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+    if (sliderRef.current) {
+      sliderRef.current.style.cursor = 'grab';
+      sliderRef.current.style.scrollBehavior = 'smooth';
+      sliderRef.current.style.scrollSnapType = 'x mandatory';
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDown.current || !sliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -112,21 +98,26 @@ export default function ProjectsBento({
     }
   };
 
+  const handleScrollClick = (direction: 'left' | 'right') => {
+    triggerHaptic();
+    scroll(direction);
+  };
+
   return (
     <section className={`py-20 lg:py-28 bg-slate-50/50 relative overflow-hidden border-t border-slate-200/60 ${className}`}>
       {/* Чертежная сетка на фоне (Blueprint Grid) */}
       <BlueprintGrid showGradients={false} className="opacity-80" />
 
       {/* Decorative ambient light glow */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-orange-500/[0.01] rounded-full pointer-events-none -z-10" />
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/[0.015] rounded-full pointer-events-none -z-10" />
       
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 relative z-10">
         
         {/* Header Block with Navigation Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="text-left space-y-4">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-black uppercase tracking-wider">
-               <Folder className="w-3.5 h-3.5 text-orange-500"/> Галерея работ
+               <Folder className="w-3.5 h-3.5 text-orange-500"/> Портфолио проектов
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5.5xl font-black text-slate-950 tracking-tight leading-none">
                {title}
@@ -167,21 +158,16 @@ export default function ProjectsBento({
           </div>
         </div>
 
-         {/* Framer Motion Draggable Slider Container with Inertia Physics */}
+         {/* Draggable Slider Container with Native Scroll */}
          <div 
-           ref={containerRef}
-           className="overflow-x-auto md:overflow-hidden -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing scroll-smooth snap-x snap-mandatory hide-scrollbar"
+           ref={sliderRef}
+           onMouseDown={handleMouseDown}
+           onMouseLeave={handleMouseLeave}
+           onMouseUp={handleMouseUp}
+           onMouseMove={handleMouseMove}
+           className="overflow-x-auto pb-8 hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory"
          >
-            <motion.ul
-               ref={carouselRef}
-               drag={isMobile ? false : "x"}
-               dragConstraints={{ right: 0, left: -dragWidth }}
-               dragElastic={0.15}
-               dragTransition={{ power: 0.2, timeConstant: 300 }} // Мягкая инерция (momentum скролл)
-               animate={isMobile ? undefined : { x: positionX }}
-               transition={{ type: "spring", stiffness: 220, damping: 28 }}
-               className="flex gap-6 pb-8 w-max"
-            >
+            <ul className="flex gap-6 pb-8 w-max">
                {displayProjects.map((project, i) => {
                  const mainCategoryLabel = getCategoryLabel(project.categories[0]);
                  const completionDate = project.date || "2026-01-01";
@@ -258,7 +244,7 @@ export default function ProjectsBento({
                     </li>
                   );
                 })}
-            </motion.ul>
+            </ul>
         </div>
       </div>
     </section>

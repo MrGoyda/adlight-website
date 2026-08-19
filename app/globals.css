@@ -2,7 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* УДАЛИЛ html { scroll-behavior: smooth; } - это теперь в layout.tsx */
+/* Плавный скролл только на десктопе для исключения фризов и задержек на мобильных устройствах */
+@media (min-width: 768px) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 
 body {
   position: relative;

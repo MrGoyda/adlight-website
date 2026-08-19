@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Moon, Sun, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, useMotionValue, animate } from "framer-motion";
 import { VOLUME_LETTERS_CATALOG } from "@/dictionaries/services/volume-letters";
 import { cn } from "@/lib/utils";
 import BlueprintGrid from "@/components/ui/BlueprintGrid";
@@ -12,14 +11,11 @@ import BlueprintGrid from "@/components/ui/BlueprintGrid";
 export default function VolumeLettersShowcase() {
   const [isNightMode, setIsNightMode] = useState<boolean>(true);
   
-  // Рефы для расчета ограничений перетаскивания во Framer Motion
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
-  const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
-  const [isMobile, setIsMobile] = useState(false);
-
-  // MotionValue для плавных пружинных перемещений карусели
-  const x = useMotionValue(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const clickStartCoords = useRef({ x: 0, y: 0 });
 
   // Тактильный отклик (iOS)
   const triggerHaptic = (type: "light" | "medium" = "light") => {
@@ -29,15 +25,46 @@ export default function VolumeLettersShowcase() {
     }
   };
 
-  const clickStartCoords = useRef({ x: 0, y: 0 });
-
   const handleToggle = () => {
     setIsNightMode((prev) => !prev);
     triggerHaptic("medium");
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (!sliderRef.current) return;
+    isDown.current = true;
+    sliderRef.current.style.cursor = 'grabbing';
+    sliderRef.current.style.scrollBehavior = 'auto';
+    sliderRef.current.style.scrollSnapType = 'none';
+    startX.current = e.pageX - sliderRef.current.offsetLeft;
+    scrollLeft.current = sliderRef.current.scrollLeft;
     clickStartCoords.current = { x: e.screenX, y: e.screenY };
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+    if (sliderRef.current) {
+      sliderRef.current.style.cursor = 'grab';
+      sliderRef.current.style.scrollBehavior = 'smooth';
+      sliderRef.current.style.scrollSnapType = 'x mandatory';
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+    if (sliderRef.current) {
+      sliderRef.current.style.cursor = 'grab';
+      sliderRef.current.style.scrollBehavior = 'smooth';
+      sliderRef.current.style.scrollSnapType = 'x mandatory';
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDown.current || !sliderRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    sliderRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -50,63 +77,13 @@ export default function VolumeLettersShowcase() {
     }
   };
 
-  // Измерение ограничений драга при изменении размеров без forced reflow
-  useEffect(() => {
-    const handleResize = () => {
-      requestAnimationFrame(() => {
-        setIsMobile(window.innerWidth < 768);
-        if (!viewportRef.current || !innerRef.current) return;
-        const viewportWidth = viewportRef.current.offsetWidth;
-        const innerWidth = innerRef.current.scrollWidth;
-        const limit = viewportWidth - innerWidth;
-        setDragConstraints({ left: limit < 0 ? limit : 0, right: 0 });
-      });
-    };
-
-    // Слушатель через ResizeObserver для точного отслеживания
-    const resizeObserver = new ResizeObserver(() => {
-      handleResize();
-    });
-
-    if (viewportRef.current) resizeObserver.observe(viewportRef.current);
-    if (innerRef.current) resizeObserver.observe(innerRef.current);
-
-    // Дополнительный вызов для первоначальной засечки
-    handleResize();
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
-
-  // Функция для прокрутки карусели кнопками (с помощью пружинной анимации Framer Motion)
   const scroll = (direction: "left" | "right") => {
-    if (!viewportRef.current) return;
+    if (!sliderRef.current) return;
     triggerHaptic("light");
-    
-    if (isMobile) {
-      const scrollAmount = viewportRef.current.offsetWidth * 0.75;
-      viewportRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth"
-      });
-      return;
-    }
-    
-    const viewportWidth = viewportRef.current.offsetWidth;
-    const currentX = x.get();
-    const scrollAmount = viewportWidth * 0.75; // Сдвиг на 75% экрана
-    let targetX = direction === "left" ? currentX + scrollAmount : currentX - scrollAmount;
-
-    // Ограничение по границам перетаскивания
-    if (targetX > 0) targetX = 0;
-    if (targetX < dragConstraints.left) targetX = dragConstraints.left;
-
-    animate(x, targetX, {
-      type: "spring",
-      stiffness: 150,
-      damping: 22,
-      mass: 0.8,
+    const scrollAmount = 380;
+    sliderRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth"
     });
   };
 
@@ -186,17 +163,16 @@ export default function VolumeLettersShowcase() {
           </div>
         </div>
 
-        {/* ГОРИЗОНТАЛЬНАЯ КАРУСЕЛЬ: нативный скролл на мобиле, Framer Motion drag на десктопе */}
+        {/* ГОРИЗОНТАЛЬНАЯ КАРУСЕЛЬ: нативный скролл и перетаскивание мыши */}
         <div 
-          ref={viewportRef}
-          className="w-full overflow-x-auto md:overflow-hidden pb-8 cursor-grab active:cursor-grabbing select-none scroll-smooth snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0"
+          ref={sliderRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="w-full overflow-x-auto pb-8 cursor-grab active:cursor-grabbing select-none snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0"
         >
-          <motion.div
-            ref={innerRef}
-            drag={isMobile ? false : "x"}
-            dragConstraints={dragConstraints}
-            dragElastic={0.08}
-            style={isMobile ? undefined : { x }}
+          <div
             className="flex gap-6 md:gap-8 w-max md:px-8"
           >
             {VOLUME_LETTERS_CATALOG.map((tech) => {
@@ -207,7 +183,6 @@ export default function VolumeLettersShowcase() {
                 >
                   <Link
                     href={`/services/volume-letters/${tech.slug}`}
-                    onMouseDown={handleMouseDown}
                     onClick={handleCardClick}
                     className="flex flex-col justify-between p-5 md:p-6 w-full h-full text-left relative"
                     draggable={false}
@@ -283,7 +258,7 @@ export default function VolumeLettersShowcase() {
                 </div>
               );
             })}
-          </motion.div>
+          </div>
         </div>
 
         {/* Навигационные кнопки снизу только на мобилках */}
