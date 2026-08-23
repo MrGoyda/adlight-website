@@ -11,6 +11,7 @@ export interface BottomSheetProps {
   children: React.ReactNode;
   maxWidth?: string;
   maxHeight?: string;
+  height?: string;
   showHandleBar?: boolean;
   className?: string;
   zIndex?: string;
@@ -22,6 +23,7 @@ export default function BottomSheet({
   children,
   maxWidth = "max-w-2xl",
   maxHeight = "max-h-[90dvh]",
+  height = "h-auto",
   showHandleBar = true,
   className = "",
   zIndex = "z-[9999]",
@@ -109,7 +111,7 @@ export default function BottomSheet({
                 onClose();
               }
             }}
-            className={`relative w-full ${maxWidth} max-w-full bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} h-auto z-20 overflow-hidden overflow-x-hidden touch-pan-y [touch-action:pan-y] border-t border-slate-200/80 transform-gpu will-change-transform ${className}`}
+            className={`relative w-full ${maxWidth} max-w-full bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} ${height} z-20 overflow-hidden overflow-x-hidden touch-pan-y [touch-action:pan-y] border-t border-slate-200/80 transform-gpu will-change-transform ${className}`}
           >
             {/* Ручка для свайпа вниз (iOS Handle Bar) */}
             {showHandleBar && (

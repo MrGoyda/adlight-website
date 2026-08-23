@@ -8,7 +8,7 @@ import {
   POWER_SUPPLY_OPTIONS, 
   APPROVAL_STATUSES 
 } from "../../_data/leadDetailDictionary";
-import { LeadTechSpec } from "../../_types/leadDetailTypes";
+import { LeadTechSpec, LeadConstructionItem } from "../../_types/leadDetailTypes";
 import { Wrench, Zap, Moon, ShieldCheck, Maximize, Layers } from "lucide-react";
 
 interface LeadCardTechSpecChipsProps {
@@ -19,20 +19,27 @@ export default function LeadCardTechSpecChips({ techSpec }: LeadCardTechSpecChip
   if (!techSpec) return null;
 
   // Список конструкций из items или signTypes
-  const items = techSpec.items && techSpec.items.length > 0
+  const items: LeadConstructionItem[] = techSpec.items && techSpec.items.length > 0
     ? techSpec.items
-    : (techSpec.signTypes || []).map((st) => ({
+    : (techSpec.signTypes || []).map((st, idx) => ({
+        id: `legacy-${idx}`,
         signType: st,
         title: SIGN_TYPES.find((s) => s.id === st)?.label,
         lengthMm: techSpec.lengthMm || (techSpec.lengthMeters ? Math.round(techSpec.lengthMeters * 1000) : null),
         heightMm: techSpec.heightMm || (techSpec.heightMeters ? Math.round(techSpec.heightMeters * 1000) : null),
         letterHeightMm: techSpec.letterHeightMm || (techSpec.letterHeightCm ? Math.round(techSpec.letterHeightCm * 10) : null),
+        mountingHeight: techSpec.mountingHeight || null,
+        facadeType: techSpec.facadeType || null,
+        powerSupply: techSpec.powerSupply || null,
+        approvalStatus: techSpec.approvalStatus || null,
+        nightMountingOnly: techSpec.nightMountingOnly || false,
       }));
 
-  const mountingHeightObj = MOUNTING_HEIGHTS.find((h) => h.id === techSpec.mountingHeight);
-  const facadeTypeObj = FACADE_WALL_TYPES.find((w) => w.id === techSpec.facadeType);
-  const powerSupplyObj = POWER_SUPPLY_OPTIONS.find((p) => p.id === techSpec.powerSupply);
-  const approvalStatusObj = APPROVAL_STATUSES.find((a) => a.id === techSpec.approvalStatus);
+  const mountingHeightObj = MOUNTING_HEIGHTS.find((h) => h.id === (items[0]?.mountingHeight || techSpec.mountingHeight));
+  const facadeTypeObj = FACADE_WALL_TYPES.find((w) => w.id === (items[0]?.facadeType || techSpec.facadeType));
+  const powerSupplyObj = POWER_SUPPLY_OPTIONS.find((p) => p.id === (items[0]?.powerSupply || techSpec.powerSupply));
+  const approvalStatusObj = APPROVAL_STATUSES.find((a) => a.id === (items[0]?.approvalStatus || techSpec.approvalStatus));
+  const nightMounting = Boolean(items.some((i) => i.nightMountingOnly) || techSpec.nightMountingOnly);
 
   const hasSpec =
     items.length > 0 ||
@@ -40,7 +47,7 @@ export default function LeadCardTechSpecChips({ techSpec }: LeadCardTechSpecChip
     facadeTypeObj ||
     powerSupplyObj ||
     approvalStatusObj ||
-    techSpec.nightMountingOnly;
+    nightMounting;
 
   if (!hasSpec) return null;
 
@@ -90,7 +97,7 @@ export default function LeadCardTechSpecChips({ techSpec }: LeadCardTechSpecChip
       )}
 
       {/* Ночной монтаж */}
-      {techSpec.nightMountingOnly && (
+      {nightMounting && (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-purple-50 text-purple-800 border border-purple-200">
           <Moon className="w-2.5 h-2.5 text-purple-600" />
           Ночной монтаж

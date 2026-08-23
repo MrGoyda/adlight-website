@@ -11,31 +11,19 @@ interface LeadTimelineTabProps {
   checklist: LeadChecklistState;
   onToggleChecklistItem: (itemId: string) => void;
   activities: LeadActivityItem[];
-  onAddNote: (text: string) => Promise<void>;
-  onDeleteActivity: (activityId: string) => void;
-  isAddingNote: boolean;
+  onDeleteActivity?: (activityId: string) => void;
+  onAddNote?: (text: string) => Promise<void>;
+  isAddingNote?: boolean;
 }
 
 export default function LeadTimelineTab({
   checklist,
   onToggleChecklistItem,
   activities,
-  onAddNote,
   onDeleteActivity,
-  isAddingNote,
 }: LeadTimelineTabProps) {
-  const [noteText, setNoteText] = useState("");
-
   const completedCount = DEFAULT_CHECKLIST_ITEMS.filter((item) => Boolean(checklist?.[item.id])).length;
   const progressPercent = Math.round((completedCount / DEFAULT_CHECKLIST_ITEMS.length) * 100);
-
-  const handleSubmitNote = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!noteText.trim()) return;
-    triggerHaptic("medium");
-    await onAddNote(noteText.trim());
-    setNoteText("");
-  };
 
   return (
     <div className="space-y-4 animate-in fade-in duration-150">
@@ -94,33 +82,7 @@ export default function LeadTimelineTab({
         </div>
       </div>
 
-      {/* 2. Добавление новой заметки в таймлайн */}
-      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-          Новая запись в историю сделки
-        </label>
-        <form onSubmit={handleSubmitNote} className="space-y-2">
-          <AutoResizeTextarea
-            value={noteText}
-            onChange={(e) => setNoteText(e.target.value)}
-            placeholder="Результат звонка, договоренность по встрече, замечания по макету..."
-            minHeight={64}
-            className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition"
-          />
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isAddingNote || !noteText.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-black text-xs transition cursor-pointer disabled:opacity-50 shadow-sm active:scale-95"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>{isAddingNote ? "Добавление..." : "Добавить заметку"}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* 3. Список активностей / Таймлайн */}
+      {/* 2. Список активностей / Таймлайн событий сделки */}
       <div className="space-y-2">
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block px-1">
           История событий ({activities?.length || 0})
@@ -148,7 +110,7 @@ export default function LeadTimelineTab({
                     type="button"
                     onClick={() => {
                       triggerHaptic("medium");
-                      onDeleteActivity(act.id);
+                      if (onDeleteActivity) onDeleteActivity(act.id);
                     }}
                     className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition cursor-pointer"
                     title="Удалить запись"

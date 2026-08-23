@@ -24,7 +24,8 @@ import {
   Trash2,
   CheckCircle2,
   Sparkles,
-  User
+  User,
+  X
 } from "lucide-react";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 import { triggerHaptic } from "@/lib/haptics";
@@ -406,42 +407,78 @@ export default function LeadParametersTab({
 
           {/* Дата и время замера */}
           <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
-            <label className="block text-[10px] text-slate-500 font-bold flex items-center justify-between">
-              <span>Дата и время замера</span>
-              {appDate && (
-                <span className="text-[10px] text-orange-600 font-extrabold">Назначен</span>
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] text-slate-500 font-bold">
+                Дата и время замера
+              </label>
+              {appDate ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic("light");
+                    setAppDate("");
+                    onAutoSave?.({ appDate: null });
+                  }}
+                  className="inline-flex items-center gap-0.5 text-[10px] text-rose-500 hover:text-rose-700 font-black cursor-pointer hover:bg-rose-50 px-1.5 py-0.5 rounded transition"
+                  title="Очистить дату замера"
+                >
+                  <X className="w-2.5 h-2.5" />
+                  <span>Сбросить</span>
+                </button>
+              ) : (
+                <span className="text-[10px] text-slate-400 font-medium">Не назначен</span>
               )}
-            </label>
-            <input
-              type="datetime-local"
-              value={appDate}
-              onChange={(e) => {
-                const val = e.target.value;
-                setAppDate(val);
-                onAutoSave?.({ appDate: val });
-              }}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[42px]"
-            />
+            </div>
+            <div className="relative flex items-center">
+              <input
+                type="datetime-local"
+                value={appDate}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setAppDate(val);
+                  onAutoSave?.({ appDate: val || null });
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[42px]"
+              />
+            </div>
           </div>
 
           {/* Срок сдачи (Дедлайн) */}
           <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
-            <label className="block text-[10px] text-slate-500 font-bold flex items-center justify-between">
-              <span>Крайний срок (Дедлайн)</span>
-              {deadline && (
-                <span className="text-[10px] text-rose-600 font-extrabold">Установлен</span>
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] text-slate-500 font-bold">
+                Крайний срок (Дедлайн)
+              </label>
+              {deadline ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic("light");
+                    setDeadline("");
+                    onAutoSave?.({ deadline: null });
+                  }}
+                  className="inline-flex items-center gap-0.5 text-[10px] text-rose-500 hover:text-rose-700 font-black cursor-pointer hover:bg-rose-50 px-1.5 py-0.5 rounded transition"
+                  title="Очистить дедлайн"
+                >
+                  <X className="w-2.5 h-2.5" />
+                  <span>Сбросить</span>
+                </button>
+              ) : (
+                <span className="text-[10px] text-slate-400 font-medium">Не установлен</span>
               )}
-            </label>
-            <input
-              type="date"
-              value={deadline}
-              onChange={(e) => {
-                const val = e.target.value;
-                setDeadline(val);
-                onAutoSave?.({ deadline: val });
-              }}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[42px]"
-            />
+            </div>
+            <div className="relative flex items-center">
+              <input
+                type="date"
+                value={deadline}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setDeadline(val);
+                  onAutoSave?.({ deadline: val || null });
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[42px]"
+              />
+            </div>
           </div>
         </div>
       </div>

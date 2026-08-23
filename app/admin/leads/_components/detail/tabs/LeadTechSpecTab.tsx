@@ -20,8 +20,7 @@ import {
   ChevronDown, 
   Check, 
   Trash2,
-  Plus,
-  Edit3
+  Plus
 } from "lucide-react";
 
 interface LeadTechSpecTabProps {
@@ -42,6 +41,11 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
           lengthMm: techSpec.lengthMm || (techSpec.lengthMeters ? Math.round(techSpec.lengthMeters * 1000) : null),
           heightMm: techSpec.heightMm || (techSpec.heightMeters ? Math.round(techSpec.heightMeters * 1000) : null),
           letterHeightMm: techSpec.letterHeightMm || (techSpec.letterHeightCm ? Math.round(techSpec.letterHeightCm * 10) : null),
+          mountingHeight: techSpec.mountingHeight || null,
+          facadeType: techSpec.facadeType || null,
+          powerSupply: techSpec.powerSupply || null,
+          approvalStatus: techSpec.approvalStatus || null,
+          nightMountingOnly: techSpec.nightMountingOnly || false,
         }))
       : [
           {
@@ -52,6 +56,11 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
             heightMm: null,
             letterHeightMm: null,
             depthMm: null,
+            mountingHeight: techSpec.mountingHeight || null,
+            facadeType: techSpec.facadeType || null,
+            powerSupply: techSpec.powerSupply || null,
+            approvalStatus: techSpec.approvalStatus || null,
+            nightMountingOnly: techSpec.nightMountingOnly || false,
             comment: null,
           }
         ];
@@ -80,6 +89,11 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
       lengthMm: newItems[0]?.lengthMm || null,
       heightMm: newItems[0]?.heightMm || null,
       letterHeightMm: newItems[0]?.letterHeightMm || null,
+      mountingHeight: newItems[0]?.mountingHeight || null,
+      facadeType: newItems[0]?.facadeType || null,
+      powerSupply: newItems[0]?.powerSupply || null,
+      approvalStatus: newItems[0]?.approvalStatus || null,
+      nightMountingOnly: newItems[0]?.nightMountingOnly || false,
     };
     setTechSpec(updated);
     if (onAutoSave) onAutoSave({ techSpec: updated });
@@ -96,6 +110,11 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
       heightMm: null,
       letterHeightMm: null,
       depthMm: null,
+      mountingHeight: null,
+      facadeType: null,
+      powerSupply: null,
+      approvalStatus: null,
+      nightMountingOnly: false,
       comment: null,
     };
     const nextItems = [...items, newItem];
@@ -107,7 +126,6 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
     e.stopPropagation();
     triggerHaptic("medium");
     if (items.length <= 1) {
-      // Очищаем единственную конструкцию
       const resetItem: LeadConstructionItem = {
         id: `item-${Date.now()}`,
         signType: null,
@@ -148,18 +166,9 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
     handleUpdateItems(nextItems);
   };
 
-  const handleMountingFieldChange = (field: keyof LeadTechSpec, value: any) => {
-    const updated = {
-      ...techSpec,
-      [field]: value,
-    };
-    setTechSpec(updated);
-    if (onAutoSave) onAutoSave({ techSpec: updated });
-  };
-
   return (
     <div className="space-y-4 animate-in fade-in duration-150">
-      {/* ── 1. БЛОК КОНСТРУКЦИЙ И ЗАДАЧ (СЖАТЫЙ РЕЖИМ + МУЛЬТИ-КОНСТРУКЦИИ) ── */}
+      {/* ── БЛОК КОНСТРУКЦИЙ И ЗАДАЧ (СЖАТЫЙ РЕЖИМ + ИНДИВИДУАЛЬНЫЙ МОНТАЖ) ── */}
       <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -183,6 +192,8 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
             const isExpanded = expandedItemIds.includes(item.id);
             const stObj = SIGN_TYPES.find((s) => s.id === item.signType);
             const hasDimensions = item.lengthMm || item.heightMm || item.letterHeightMm;
+            const mountingHeightObj = MOUNTING_HEIGHTS.find((h) => h.id === item.mountingHeight);
+            const facadeTypeObj = FACADE_WALL_TYPES.find((w) => w.id === item.facadeType);
 
             return (
               <div
@@ -214,16 +225,18 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
                         )}
                       </div>
 
-                      {/* Краткая сводка габаритов в сжатом виде */}
+                      {/* Краткая сводка габаритов и монтажа в сжатом виде */}
                       <p className="text-[11px] text-slate-500 font-bold mt-0.5 truncate">
-                        {hasDimensions ? (
+                        {hasDimensions || mountingHeightObj || facadeTypeObj ? (
                           <span>
                             {item.lengthMm ? `${item.lengthMm} мм (Д)` : ""}
                             {item.heightMm ? ` × ${item.heightMm} мм (В)` : ""}
                             {item.letterHeightMm ? ` • Буквы: ${item.letterHeightMm} мм` : ""}
+                            {mountingHeightObj ? ` • ${mountingHeightObj.label}` : ""}
+                            {facadeTypeObj ? ` • ${facadeTypeObj.label}` : ""}
                           </span>
                         ) : (
-                          <span className="text-slate-400 font-normal">Размеры не указаны</span>
+                          <span className="text-slate-400 font-normal">Параметры не заполнены</span>
                         )}
                       </p>
                     </div>
@@ -249,10 +262,10 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
                   </div>
                 </div>
 
-                {/* Развернутый вид: форма редактирования конструкции */}
+                {/* Развернутый вид: форма редактирования конструкции и ее монтажа */}
                 {isExpanded && (
-                  <div className="p-3.5 sm:p-4 border-t border-slate-100 space-y-3.5 bg-white animate-in fade-in duration-150">
-                    {/* Выбор типа конструкции */}
+                  <div className="p-3.5 sm:p-4 border-t border-slate-100 space-y-4 bg-white animate-in fade-in duration-150">
+                    {/* 1. Выбор типа конструкции */}
                     <div className="relative">
                       <label className="block text-[10px] text-slate-500 font-bold mb-1">
                         Тип рекламной конструкции
@@ -303,14 +316,14 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
                       )}
                     </div>
 
-                    {/* Габариты и размеры в миллиметрах (16px шрифт для iOS Safari) */}
-                    <div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-2">
+                    {/* 2. Габариты и размеры в миллиметрах */}
+                    <div className="bg-slate-50/60 p-3 rounded-xl border border-slate-200/80 space-y-2">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
                         <Maximize className="w-3 h-3 text-orange-500" />
                         Размеры конструкции (в миллиметрах, мм)
                       </span>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         {/* Длина (мм) */}
                         <div>
                           <label className="block text-[10px] text-slate-500 font-bold mb-1">
@@ -322,7 +335,7 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
                             value={item.lengthMm ?? ""}
                             onChange={(e) => handleUpdateItemField(item.id, "lengthMm", parseInt(e.target.value, 10) || null)}
                             placeholder="например: 3500"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[40px]"
                           />
                         </div>
 
@@ -337,14 +350,14 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
                             value={item.heightMm ?? ""}
                             onChange={(e) => handleUpdateItemField(item.id, "heightMm", parseInt(e.target.value, 10) || null)}
                             placeholder="например: 800"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[40px]"
                           />
                         </div>
 
                         {/* Высота букв (мм) */}
                         <div>
                           <label className="block text-[10px] text-slate-500 font-bold mb-1">
-                            Высота букв / знака (мм)
+                            Высота букв (мм)
                           </label>
                           <input
                             type="number"
@@ -352,13 +365,114 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
                             value={item.letterHeightMm ?? ""}
                             onChange={(e) => handleUpdateItemField(item.id, "letterHeightMm", parseInt(e.target.value, 10) || null)}
                             placeholder="например: 450"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[40px]"
                           />
                         </div>
                       </div>
                     </div>
 
-                    {/* Дополнительное описание задачи / конструкции */}
+                    {/* 3. Монтажные условия этой конструкции */}
+                    <div className="bg-slate-50/60 p-3 rounded-xl border border-slate-200/80 space-y-2.5">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <Wrench className="w-3 h-3 text-indigo-500" />
+                        Монтажные условия для этой конструкции
+                      </span>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-[10px] text-slate-500 font-bold mb-1">
+                            Высота монтажа от земли
+                          </label>
+                          <select
+                            value={item.mountingHeight || ""}
+                            onChange={(e) => handleUpdateItemField(item.id, "mountingHeight", e.target.value || null)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
+                          >
+                            <option value="">Не указано</option>
+                            {MOUNTING_HEIGHTS.map((h) => (
+                              <option key={h.id} value={h.id}>
+                                {h.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] text-slate-500 font-bold mb-1">
+                            Материал фасада / стены
+                          </label>
+                          <select
+                            value={item.facadeType || ""}
+                            onChange={(e) => handleUpdateItemField(item.id, "facadeType", e.target.value || null)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
+                          >
+                            <option value="">Не указано</option>
+                            {FACADE_WALL_TYPES.map((w) => (
+                              <option key={w.id} value={w.id}>
+                                {w.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="block text-[10px] text-slate-500 font-bold mb-1 flex items-center gap-1">
+                            <Zap className="w-3 h-3 text-amber-500" />
+                            Питание 220V (подключение)
+                          </label>
+                          <select
+                            value={item.powerSupply || ""}
+                            onChange={(e) => handleUpdateItemField(item.id, "powerSupply", e.target.value || null)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
+                          >
+                            <option value="">Не указано</option>
+                            {POWER_SUPPLY_OPTIONS.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] text-slate-500 font-bold mb-1 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3 text-emerald-500" />
+                            Согласование вывески
+                          </label>
+                          <select
+                            value={item.approvalStatus || ""}
+                            onChange={(e) => handleUpdateItemField(item.id, "approvalStatus", e.target.value || null)}
+                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
+                          >
+                            <option value="">Не указано</option>
+                            {APPROVAL_STATUSES.map((a) => (
+                              <option key={a.id} value={a.id}>
+                                {a.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="pt-1">
+                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(item.nightMountingOnly)}
+                            onChange={(e) => handleUpdateItemField(item.id, "nightMountingOnly", e.target.checked)}
+                            className="w-4 h-4 rounded text-orange-600 border-slate-300 focus:ring-orange-500 cursor-pointer"
+                          />
+                          <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                            <Moon className="w-3.5 h-3.5 text-indigo-600" />
+                            Строго ночной монтаж
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* 4. Дополнительное описание задачи / конструкции */}
                     <div>
                       <label className="block text-[10px] text-slate-500 font-bold mb-1">
                         Примечание / тех. особенности по этой конструкции
@@ -368,7 +482,7 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
                         value={item.comment || ""}
                         onChange={(e) => handleUpdateItemField(item.id, "comment", e.target.value || null)}
                         placeholder="например: Лицевое свечение, акрил 3мм, подсветка контурная..."
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition min-h-[40px]"
                       />
                     </div>
                   </div>
@@ -376,107 +490,6 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* ── 2. МОНТАЖНЫЕ УСЛОВИЯ И ТРЕБОВАНИЯ ОБЪЕКТА ── */}
-      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Wrench className="w-3.5 h-3.5 text-indigo-500" />
-          Монтажные условия и требования объекта
-        </span>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
-              Высота монтажа от земли
-            </label>
-            <select
-              value={techSpec.mountingHeight || ""}
-              onChange={(e) => handleMountingFieldChange("mountingHeight", e.target.value || null)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer"
-            >
-              <option value="">Не указано</option>
-              {MOUNTING_HEIGHTS.map((h) => (
-                <option key={h.id} value={h.id}>
-                  {h.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
-              Материал фасада / стены
-            </label>
-            <select
-              value={techSpec.facadeType || ""}
-              onChange={(e) => handleMountingFieldChange("facadeType", e.target.value || null)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer"
-            >
-              <option value="">Не указано</option>
-              {FACADE_WALL_TYPES.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1 flex items-center gap-1">
-              <Zap className="w-3 h-3 text-amber-500" />
-              Питание 220V (подключение)
-            </label>
-            <select
-              value={techSpec.powerSupply || ""}
-              onChange={(e) => handleMountingFieldChange("powerSupply", e.target.value || null)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer"
-            >
-              <option value="">Не указано</option>
-              {POWER_SUPPLY_OPTIONS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1 flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-emerald-500" />
-              Согласование вывески
-            </label>
-            <select
-              value={techSpec.approvalStatus || ""}
-              onChange={(e) => handleMountingFieldChange("approvalStatus", e.target.value || null)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer"
-            >
-              <option value="">Не указано</option>
-              {APPROVAL_STATUSES.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="pt-2 border-t border-slate-200/60">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={Boolean(techSpec.nightMountingOnly)}
-              onChange={(e) => handleMountingFieldChange("nightMountingOnly", e.target.checked)}
-              className="w-4 h-4 rounded text-orange-600 border-slate-300 focus:ring-orange-500 cursor-pointer"
-            />
-            <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
-              <Moon className="w-3.5 h-3.5 text-indigo-600" />
-              Строго ночной монтаж (требование ТРЦ / Бизнес-центра)
-            </span>
-          </label>
         </div>
       </div>
     </div>

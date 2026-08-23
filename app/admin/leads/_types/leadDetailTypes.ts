@@ -9,6 +9,11 @@ export interface LeadConstructionItem {
   heightMm?: number | null;
   letterHeightMm?: number | null;
   depthMm?: number | null;
+  mountingHeight?: string | null;
+  facadeType?: string | null;
+  powerSupply?: string | null;
+  approvalStatus?: string | null;
+  nightMountingOnly?: boolean;
   comment?: string | null;
 }
 
