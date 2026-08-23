@@ -130,17 +130,17 @@ export default function LeadTimeline({
                       </span>
 
                       {!isEditingThis && (
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                        <div className="flex items-center gap-1 transition">
                           <button
                             onClick={() => startEditing(act)}
-                            className="p-1 text-slate-400 hover:text-orange-600 transition cursor-pointer"
+                            className="p-1 text-slate-400 hover:text-orange-600 rounded-md transition cursor-pointer active:scale-90"
                             title={crmDict.leadDetail.editNoteTitle}
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => onDeleteNote(act.id)}
-                            className="p-1 text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                            className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition cursor-pointer active:scale-90"
                             title={crmDict.leadDetail.deleteNoteTitle}
                           >
                             <Trash2 className="w-3.5 h-3.5" />

@@ -618,10 +618,10 @@ export default function LeadParametersTab({
                           triggerHaptic("medium");
                           onDeleteActivity(act.id);
                         }}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-rose-600 transition cursor-pointer"
-                        title="Удалить"
+                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition cursor-pointer active:scale-90 ml-1"
+                        title="Удалить заметку"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>

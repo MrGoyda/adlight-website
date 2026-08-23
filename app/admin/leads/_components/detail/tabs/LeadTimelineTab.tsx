@@ -112,10 +112,10 @@ export default function LeadTimelineTab({
                       triggerHaptic("medium");
                       if (onDeleteActivity) onDeleteActivity(act.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition cursor-pointer"
+                    className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition cursor-pointer active:scale-90 ml-1"
                     title="Удалить запись"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
