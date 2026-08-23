@@ -68,8 +68,7 @@ export default function LeadDetailPage({
         <LeadDetailHeader
           lead={lead}
           rating={state.rating}
-          isEditing={state.isEditing}
-          onToggleEditing={() => state.setIsEditing(!state.isEditing)}
+          saveStatus={state.saveStatus}
           onRatingChange={state.handleRatingChange}
           onStatusChange={state.handleStatusChange}
           onOpenEstimate={() => setShowEstimateModal(true)}
@@ -85,10 +84,9 @@ export default function LeadDetailPage({
         />
 
         {/* 3. Контент активной вкладки */}
-        <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6 pb-8">
           {state.activeTab === "params" && (
             <LeadParametersTab
-              isEditing={state.isEditing}
               name={state.name}
               setName={state.setName}
               phone={state.phone}
@@ -122,6 +120,11 @@ export default function LeadDetailPage({
               client={state.client}
               clients={clients}
               companies={companies}
+              activities={state.activities}
+              onAddNote={state.handleAddNote}
+              onDeleteActivity={state.handleDeleteActivity}
+              isAddingNote={state.isAddingNote}
+              onAutoSave={state.autoSaveLead}
               onLinkLeadToClient={state.handleLinkLeadToClient}
               onCreateClientFromLead={state.handleCreateClientFromLead}
               onConvertToCompanyAndProject={state.handleConvertToCompanyAndProject}
@@ -130,9 +133,9 @@ export default function LeadDetailPage({
 
           {state.activeTab === "tech" && (
             <LeadTechSpecTab
-              isEditing={state.isEditing}
               techSpec={state.techSpec}
               setTechSpec={state.setTechSpec}
+              onAutoSave={state.autoSaveLead}
             />
           )}
 
@@ -156,72 +159,6 @@ export default function LeadDetailPage({
               isAddingNote={state.isAddingNote}
             />
           )}
-        </div>
-
-        {/* 4. Фиксированный футер сохранения / редактирования */}
-        <div className="p-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border-t border-slate-200/80 sticky bottom-0 z-20 flex items-center justify-between gap-3 shrink-0">
-          <div className="text-xs font-black text-slate-700 truncate">
-            {state.offeredPrice ? (
-              <span>
-                Озвучено:{" "}
-                <b className="text-slate-900 font-extrabold">
-                  {Number(state.offeredPrice).toLocaleString()} ₸
-                </b>
-                {state.isDiscounted && <span className="text-orange-600 ml-1">(со скидкой)</span>}
-              </span>
-            ) : (
-              <span className="text-slate-400">Стоимость не озвучена</span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            {!state.isEditing ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => router.push("/admin/leads")}
-                  className="px-4 py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-xs transition cursor-pointer active:scale-95"
-                >
-                  К заявкам
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic("light");
-                    state.setIsEditing(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-extrabold text-xs shadow-sm transition cursor-pointer active:scale-95"
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-slate-300" />
-                  <span>Редактировать</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic("light");
-                    state.setIsEditing(false);
-                  }}
-                  className="px-4 py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-xs transition cursor-pointer active:scale-95"
-                >
-                  Отмена
-                </button>
-
-                <button
-                  type="button"
-                  disabled={state.isSaving}
-                  onClick={() => state.handleSave()}
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-95 disabled:opacity-50"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>{state.isSaving ? "Сохранение..." : "Сохранить изменения"}</span>
-                </button>
-              </>
-            )}
-          </div>
         </div>
       </div>
 

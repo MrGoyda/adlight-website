@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { DETAIL_TABS, DetailTabType } from "../../_data/leadDetailDictionary";
 import { triggerHaptic } from "@/lib/haptics";
+import { SlidersHorizontal, Layers, FolderOpen, ListChecks } from "lucide-react";
 
 interface LeadDetailTabsProps {
   activeTab: DetailTabType;
@@ -11,17 +12,41 @@ interface LeadDetailTabsProps {
   activitiesCount?: number;
 }
 
+const TAB_ICONS: Record<DetailTabType, any> = {
+  params: SlidersHorizontal,
+  tech: Layers,
+  files: FolderOpen,
+  timeline: ListChecks,
+};
+
 export default function LeadDetailTabs({
   activeTab,
   onChangeTab,
   filesCount = 0,
   activitiesCount = 0,
 }: LeadDetailTabsProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (activeTabRef.current) {
+      activeTabRef.current.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  }, [activeTab]);
+
   return (
     <div className="px-2.5 sm:px-6 pt-2 sm:pt-3 pb-2 bg-slate-50/90 border-b border-slate-200/80 sticky top-[48px] sm:top-[57px] z-20 backdrop-blur-md">
-      <div className="flex items-center gap-1.5 p-1 bg-slate-200/70 rounded-2xl overflow-x-auto no-scrollbar shadow-inner">
+      <div 
+        ref={containerRef}
+        className="flex items-center gap-1.5 p-1 bg-slate-200/70 rounded-2xl overflow-x-auto no-scrollbar shadow-inner"
+      >
         {DETAIL_TABS.map((tab) => {
           const isActive = activeTab === tab.id;
+          const Icon = TAB_ICONS[tab.id];
           const badgeCount =
             tab.id === "files" && filesCount > 0
               ? filesCount
@@ -32,6 +57,7 @@ export default function LeadDetailTabs({
           return (
             <button
               key={tab.id}
+              ref={isActive ? activeTabRef : null}
               type="button"
               onClick={() => {
                 triggerHaptic("light");
@@ -43,7 +69,7 @@ export default function LeadDetailTabs({
                   : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
               }`}
             >
-              <span>{tab.icon}</span>
+              <Icon className={`w-3.5 h-3.5 ${isActive ? "text-orange-600" : "text-slate-500"}`} />
               <span>{tab.label}</span>
               {badgeCount !== null && (
                 <span

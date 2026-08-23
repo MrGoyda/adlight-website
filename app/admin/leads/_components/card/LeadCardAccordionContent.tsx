@@ -16,6 +16,7 @@ interface LeadCardAccordionContentProps {
   appointmentDate?: string | Date | null;
   deadline?: string | Date | null;
   manager?: string | null;
+  activities?: any[];
 }
 
 export default function LeadCardAccordionContent({
@@ -26,6 +27,7 @@ export default function LeadCardAccordionContent({
   appointmentDate,
   deadline,
   manager,
+  activities = [],
 }: LeadCardAccordionContentProps) {
   const [copiedAddress, setCopiedAddress] = useState(false);
 
@@ -111,6 +113,29 @@ export default function LeadCardAccordionContent({
               <p className="text-slate-800 font-semibold leading-relaxed whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] max-w-full">
                 {comment}
               </p>
+            </div>
+          )}
+
+          {/* Быстрые пометки из истории */}
+          {activities && activities.length > 0 && (
+            <div className="bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/80 space-y-1.5 w-full min-w-0">
+              <span className="block text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+                <MessageSquare className="w-3 h-3 text-orange-500 shrink-0" />
+                Последние пометки ({activities.length}):
+              </span>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {activities.slice(-2).map((act: any) => (
+                  <div key={act.id} className="bg-white p-2 rounded-lg border border-slate-200/60 shadow-2xs">
+                    <div className="flex items-center justify-between text-[9px] text-slate-400 font-bold mb-0.5">
+                      <span className="text-slate-700 font-black">{act.author || "Менеджер"}</span>
+                      <span>{new Date(act.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-800 font-medium whitespace-pre-wrap leading-tight">
+                      {act.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

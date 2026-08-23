@@ -87,6 +87,7 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
   const [files, setFiles] = useState<LeadFileItem[]>(lead?.files || []);
   const [activities, setActivities] = useState<LeadActivityItem[]>(lead?.activities || []);
   const [isUploading, setIsUploading] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [viewerFile, setViewerFile] = useState<LeadFileItem | null>(null);
 
@@ -122,100 +123,103 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
     setActivities(lead.activities || []);
   }, [lead]);
 
-  // Сохранение всех данных карточки
-  const handleSave = async (customRating?: ClientRating, customStatus?: LeadStatus) => {
-    setIsSaving(true);
-    triggerHaptic("success");
+  // Универсальное фоновое автосохранение полей лида
+  const autoSaveLead = async (overrides?: any) => {
+    setSaveStatus("saving");
 
-    const targetRating = customRating || rating;
-    const targetStatus = customStatus || status;
+    const targetRating = overrides?.rating ?? rating;
+    const targetStatus = overrides?.status ?? status;
+    const targetName = overrides?.name ?? name;
+    const targetPhone = overrides?.phone ?? phone;
+    const targetAddress = overrides?.address ?? address;
+    const targetComment = overrides?.comment ?? comment;
+    const targetManager = overrides?.manager ?? manager;
+    const targetAppDate = overrides?.appDate ?? appDate;
+    const targetDeadline = overrides?.deadline ?? deadline;
+    const targetOfferedPrice = overrides?.offeredPrice ?? offeredPrice;
+    const targetIsDiscounted = overrides?.isDiscounted ?? isDiscounted;
+    const targetPrepayment = overrides?.prepayment ?? prepayment;
+    const targetIsPrepaymentPaid = overrides?.isPrepaymentPaid ?? isPrepaymentPaid;
+    const targetIsBalancePaid = overrides?.isBalancePaid ?? isBalancePaid;
+    const targetTechSpec = overrides?.techSpec ?? techSpec;
+    const targetChecklist = overrides?.checklist ?? checklist;
+    const targetCancellationReason = overrides?.cancellationReason ?? cancellationReason;
 
     const calcDetailsPayload = JSON.stringify({
-      techSpec,
-      checklist,
-      cancellationReason,
+      techSpec: targetTechSpec,
+      checklist: targetChecklist,
+      cancellationReason: targetCancellationReason,
       originalMessage: lead.message,
     });
 
     const payload = {
-      name: name.trim(),
-      phone: phone.trim(),
-      address: address.trim() || null,
-      comment: comment.trim() || null,
-      manager: manager || null,
+      name: (targetName || "").trim(),
+      phone: (targetPhone || "").trim(),
+      address: (targetAddress || "").trim() || null,
+      comment: (targetComment || "").trim() || null,
+      manager: targetManager || null,
       rating: targetRating,
       status: targetStatus,
-      appointmentDate: appDate ? new Date(appDate).toISOString() : null,
-      deadline: deadline ? new Date(deadline).toISOString() : null,
-      offeredPrice: offeredPrice ? parseFloat(offeredPrice) : null,
-      isDiscounted,
-      prepayment: prepayment ? parseFloat(prepayment) : 0,
-      isPrepaymentPaid,
-      isBalancePaid,
+      appointmentDate: targetAppDate ? new Date(targetAppDate).toISOString() : null,
+      deadline: targetDeadline ? new Date(targetDeadline).toISOString() : null,
+      offeredPrice: targetOfferedPrice ? parseFloat(targetOfferedPrice) : null,
+      isDiscounted: targetIsDiscounted,
+      prepayment: targetPrepayment ? parseFloat(targetPrepayment) : 0,
+      isPrepaymentPaid: targetIsPrepaymentPaid,
+      isBalancePaid: targetIsBalancePaid,
       calcDetails: calcDetailsPayload,
     };
 
-    const res = await updateLeadMainData(lead.id, JSON.stringify(payload));
-    setIsSaving(false);
-
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      toast.success("Данные заявки сохранены!");
-      setIsEditing(false);
-      if (onUpdateLead) {
-        onUpdateLead({
-          ...lead,
-          ...payload,
-          appointmentDate: payload.appointmentDate,
-          deadline: payload.deadline,
-          techSpec,
-          checklist,
-          cancellationReason,
-          files,
-          activities,
-        });
+    try {
+      const res = await updateLeadMainData(lead.id, JSON.stringify(payload));
+      if (res.error) {
+        setSaveStatus("error");
+        toast.error(res.error);
+      } else {
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2500);
+        if (onUpdateLead) {
+          onUpdateLead({
+            ...lead,
+            ...payload,
+            appointmentDate: payload.appointmentDate,
+            deadline: payload.deadline,
+            techSpec: targetTechSpec,
+            checklist: targetChecklist,
+            cancellationReason: targetCancellationReason,
+            files,
+            activities,
+          });
+        }
       }
+    } catch {
+      setSaveStatus("error");
     }
   };
 
-  // Переключение чек-листа
+  // Сохранение всех данных карточки (совместимость)
+  const handleSave = async (customRating?: ClientRating, customStatus?: LeadStatus) => {
+    await autoSaveLead({ rating: customRating, status: customStatus });
+  };
+
+  // Переключение чек-листа с моментальным автосохранением
   const handleToggleChecklistItem = async (itemId: string) => {
     triggerHaptic("light");
     const next = { ...checklist, [itemId]: !checklist[itemId] };
     setChecklist(next);
-
-    // Фоновое автосохранение чек-листа
-    const calcDetailsPayload = JSON.stringify({
-      techSpec,
-      checklist: next,
-      cancellationReason,
-      originalMessage: lead.message,
-    });
-
-    try {
-      await updateLeadMainData(lead.id, JSON.stringify({ calcDetails: calcDetailsPayload }));
-      if (onUpdateLead) {
-        onUpdateLead({
-          ...lead,
-          checklist: next,
-        });
-      }
-    } catch (err) {
-      console.error("Failed to auto-save checklist:", err);
-    }
+    await autoSaveLead({ checklist: next });
   };
 
   // Быстрая смена статуса в шапке
-  const handleStatusChange = (newStatus: LeadStatus) => {
+  const handleStatusChange = async (newStatus: LeadStatus) => {
     setStatus(newStatus);
-    handleSave(rating, newStatus);
+    await autoSaveLead({ status: newStatus });
   };
 
   // Быстрая смена рейтинга в шапке
-  const handleRatingChange = (newRating: ClientRating) => {
+  const handleRatingChange = async (newRating: ClientRating) => {
     setRating(newRating);
-    handleSave(newRating, status);
+    await autoSaveLead({ rating: newRating });
   };
 
   // Загрузка файлов в R2
@@ -416,6 +420,8 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
     isAddingNote,
     viewerFile,
     setViewerFile,
+    saveStatus,
+    autoSaveLead,
     handleSave,
     handleStatusChange,
     handleRatingChange,

@@ -6,6 +6,7 @@ import { triggerHaptic } from "@/lib/haptics";
 
 interface InitialMessageAccordionProps {
   message?: string | null;
+  source?: string | null;
   title?: string;
   className?: string;
 }
@@ -16,6 +17,7 @@ interface InitialMessageAccordionProps {
  */
 export default function InitialMessageAccordion({
   message,
+  source,
   title = "Исходный запрос с сайта",
   className = "",
 }: InitialMessageAccordionProps) {

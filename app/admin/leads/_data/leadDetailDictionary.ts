@@ -14,7 +14,7 @@ export const CLIENT_RATINGS: Record<ClientRating, RatingOption> = {
     value: "EASY",
     label: "VIP / Лояльный клиент",
     shortLabel: "VIP",
-    icon: "👑",
+    icon: "VIP",
     badgeClass: "bg-emerald-50 text-emerald-800 border-emerald-200",
     borderClass: "border-emerald-500",
   },
@@ -22,7 +22,7 @@ export const CLIENT_RATINGS: Record<ClientRating, RatingOption> = {
     value: "STANDARD",
     label: "Стандартный клиент",
     shortLabel: "Стандарт",
-    icon: "🟢",
+    icon: "STD",
     badgeClass: "bg-blue-50 text-blue-800 border-blue-200",
     borderClass: "border-blue-500",
   },
@@ -30,7 +30,7 @@ export const CLIENT_RATINGS: Record<ClientRating, RatingOption> = {
     value: "PROBLEM",
     label: "Сложный / Торгуется",
     shortLabel: "Сложный",
-    icon: "🟡",
+    icon: "ATTN",
     badgeClass: "bg-amber-50 text-amber-800 border-amber-200",
     borderClass: "border-amber-500",
   },
@@ -101,11 +101,11 @@ export const DEFAULT_CHECKLIST_ITEMS = [
 
 export type DetailTabType = "params" | "tech" | "files" | "timeline";
 
-export const DETAIL_TABS: { id: DetailTabType; label: string; icon: string }[] = [
-  { id: "params", label: "Параметры", icon: "📌" },
-  { id: "tech", label: "Тех-спецификация", icon: "📐" },
-  { id: "files", label: "Файлы и Фото", icon: "📁" },
-  { id: "timeline", label: "Таймлайн и Чеклист", icon: "⏱" },
+export const DETAIL_TABS: { id: DetailTabType; label: string }[] = [
+  { id: "params", label: "Параметры" },
+  { id: "tech", label: "Тех-спецификация" },
+  { id: "files", label: "Файлы и Фото" },
+  { id: "timeline", label: "Таймлайн и Чеклист" },
 ];
 
 export const getQuickWhatsAppTemplates = (clientName: string) => [

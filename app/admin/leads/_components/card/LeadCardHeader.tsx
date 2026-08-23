@@ -34,7 +34,6 @@ export default function LeadCardHeader({
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-black shadow-2xs ${ratingObj.badgeClass}`}
             title={ratingObj.label}
           >
-            <span>{ratingObj.icon}</span>
             <span>{ratingObj.shortLabel}</span>
           </span>
         )}

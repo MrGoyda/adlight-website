@@ -167,6 +167,7 @@ export default function LeadCard({
         appointmentDate={lead.appointmentDate}
         deadline={lead.deadline}
         manager={lead.manager}
+        activities={lead.activities}
       />
 
       {/* ── Этаж 5: Нижняя панель действий (Смета, Карточка, Удаление) ── */}

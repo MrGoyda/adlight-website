@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { X, ChevronDown, Calculator, Send, Edit3, Check } from "lucide-react";
+import { X, ChevronDown, Calculator, Send, Check, Crown, User, AlertCircle, Loader2 } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus, ClientRating } from "@prisma/client";
@@ -14,19 +14,23 @@ import { getWhatsAppUrl } from "@/lib/phoneUtils";
 interface LeadDetailHeaderProps {
   lead: LeadFullDetails | Lead;
   rating: ClientRating;
-  isEditing?: boolean;
-  onToggleEditing?: () => void;
+  saveStatus?: "idle" | "saving" | "saved" | "error";
   onRatingChange: (newRating: ClientRating) => void;
   onStatusChange: (newStatus: LeadStatus) => void;
   onOpenEstimate: () => void;
   onClose: () => void;
 }
 
+const RATING_ICONS: Record<ClientRating, any> = {
+  EASY: Crown,
+  STANDARD: User,
+  PROBLEM: AlertCircle,
+};
+
 export default function LeadDetailHeader({
   lead,
   rating,
-  isEditing = false,
-  onToggleEditing,
+  saveStatus = "idle",
   onRatingChange,
   onStatusChange,
   onOpenEstimate,
@@ -40,6 +44,7 @@ export default function LeadDetailHeader({
 
   const status = STATUS_MAP[lead.status] || { label: lead.status, color: "", bg: "" };
   const currentRating = CLIENT_RATINGS[rating] || CLIENT_RATINGS.STANDARD;
+  const RatingIcon = RATING_ICONS[rating] || User;
   const quickMessages = getQuickWhatsAppTemplates(lead.name || "Клиент");
 
   const handleSendWhatsApp = (customText?: string) => {
@@ -68,7 +73,7 @@ export default function LeadDetailHeader({
 
   return (
     <div className="p-2.5 sm:px-6 sm:py-3.5 border-b border-slate-100 flex items-center justify-between gap-1.5 sm:gap-3 sticky top-0 bg-white/95 backdrop-blur-md z-30 shrink-0">
-      {/* Левая часть: Статус + Рейтинг */}
+      {/* Левая часть: Статус + Рейтинг + Индикатор сохранения */}
       <div className="flex items-center gap-1.5 min-w-0 shrink">
         {/* Интерактивный этап сделки */}
         <div className="relative shrink-0">
@@ -101,7 +106,7 @@ export default function LeadDetailHeader({
             className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border text-[11px] sm:text-xs font-black shadow-2xs transition cursor-pointer active:scale-95 ${currentRating.badgeClass}`}
             title="Оценка сложности клиента"
           >
-            <span>{currentRating.icon}</span>
+            <RatingIcon className="w-3.5 h-3.5 shrink-0" />
             <span className="hidden md:inline">{currentRating.shortLabel}</span>
             <ChevronDown className="w-2.5 h-2.5 opacity-60" />
           </button>
@@ -111,32 +116,49 @@ export default function LeadDetailHeader({
               <span className="block px-2.5 py-1 text-[10px] font-black text-slate-400 uppercase tracking-wider">
                 Категория клиента
               </span>
-              {Object.values(CLIENT_RATINGS).map((r) => (
-                <button
-                  key={r.value}
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic("medium");
-                    onRatingChange(r.value);
-                    setShowRatingMenu(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition cursor-pointer ${
-                    rating === r.value ? "bg-slate-100 text-slate-900" : "hover:bg-slate-50 text-slate-700"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span>{r.icon}</span>
-                    <span>{r.label}</span>
-                  </span>
-                  {rating === r.value && <span className="text-orange-600 font-black">✓</span>}
-                </button>
-              ))}
+              {Object.values(CLIENT_RATINGS).map((r) => {
+                const Icon = RATING_ICONS[r.value] || User;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("medium");
+                      onRatingChange(r.value);
+                      setShowRatingMenu(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold flex items-center justify-between transition cursor-pointer ${
+                      rating === r.value ? "bg-slate-100 text-slate-900" : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Icon className="w-3.5 h-3.5 text-slate-600" />
+                      <span>{r.label}</span>
+                    </span>
+                    {rating === r.value && <Check className="w-3.5 h-3.5 text-orange-600 stroke-[3]" />}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
+
+        {/* Индикатор автосохранения */}
+        {saveStatus === "saving" && (
+          <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 animate-pulse">
+            <Loader2 className="w-3 h-3 animate-spin text-amber-600" />
+            <span>Сохранение...</span>
+          </span>
+        )}
+        {saveStatus === "saved" && (
+          <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 animate-in fade-in duration-150">
+            <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+            <span>Сохранено</span>
+          </span>
+        )}
       </div>
 
-      {/* Правая часть: WhatsApp, Редактировать, Смета, Закрыть */}
+      {/* Правая часть: WhatsApp, Смета, Закрыть */}
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         {/* Кнопка WhatsApp */}
         <div className="relative" ref={whatsappRef}>
@@ -176,41 +198,12 @@ export default function LeadDetailHeader({
                   onClick={() => handleSendWhatsApp()}
                   className="w-full text-center px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black transition"
                 >
-                  💬 Открыть пустой чат
+                  Открыть пустой чат
                 </button>
               </div>
             </div>
           )}
         </div>
-
-        {/* Кнопка переключения режима Редактирования / Просмотра */}
-        {onToggleEditing && (
-          <button
-            type="button"
-            onClick={() => {
-              triggerHaptic("light");
-              onToggleEditing();
-            }}
-            className={`flex items-center gap-1 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl font-extrabold text-[11px] sm:text-xs transition cursor-pointer active:scale-95 shadow-2xs ${
-              isEditing
-                ? "bg-slate-900 text-white hover:bg-black"
-                : "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200/80"
-            }`}
-            title={isEditing ? "Завершить редактирование" : "Редактировать поля"}
-          >
-            {isEditing ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Просмотр</span>
-              </>
-            ) : (
-              <>
-                <Edit3 className="w-3.5 h-3.5 text-slate-600" />
-                <span>Изменить</span>
-              </>
-            )}
-          </button>
-        )}
 
         {/* Кнопка сметы */}
         <button

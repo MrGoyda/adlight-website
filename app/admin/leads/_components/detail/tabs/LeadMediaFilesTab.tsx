@@ -11,6 +11,7 @@ import {
   FileText, 
   CheckSquare, 
   Folder,
+  FolderOpen,
   Camera
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
@@ -24,7 +25,8 @@ interface LeadMediaFilesTabProps {
   isUploading: boolean;
 }
 
-const FILE_CATEGORIES: { id: FileCategory; label: string; icon: any }[] = [
+const FILE_CATEGORIES: { id: FileCategory | "ALL"; label: string; icon: any }[] = [
+  { id: "ALL", label: "Все файлы", icon: FolderOpen },
   { id: "MEASUREMENT", label: "Замеры и Объект", icon: ImageIcon },
   { id: "SKETCH", label: "Дизайн и Макеты", icon: CheckSquare },
   { id: "CONTRACT", label: "Договоры", icon: FileText },
@@ -39,9 +41,11 @@ export default function LeadMediaFilesTab({
   onOpenFile,
   isUploading,
 }: LeadMediaFilesTabProps) {
-  const [selectedCategory, setSelectedCategory] = useState<FileCategory>("MEASUREMENT");
+  const [selectedCategory, setSelectedCategory] = useState<FileCategory | "ALL">("ALL");
 
-  const currentFiles = files.filter((f) => f.category === selectedCategory);
+  const currentFiles = selectedCategory === "ALL" 
+    ? files 
+    : files.filter((f) => f.category === selectedCategory);
 
   const handleDownload = async (file: LeadFileItem, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -97,7 +101,7 @@ export default function LeadMediaFilesTab({
                 type="file"
                 multiple
                 disabled={isUploading}
-                onChange={(e) => onUploadFiles(e, selectedCategory)}
+                onChange={(e) => onUploadFiles(e, selectedCategory === "ALL" ? "MEASUREMENT" : selectedCategory)}
                 className="hidden"
               />
             </label>
@@ -109,7 +113,7 @@ export default function LeadMediaFilesTab({
           {FILE_CATEGORIES.map((cat) => {
             const Icon = cat.icon;
             const isActive = selectedCategory === cat.id;
-            const count = files.filter((f) => f.category === cat.id).length;
+            const count = cat.id === "ALL" ? files.length : files.filter((f) => f.category === cat.id).length;
 
             return (
               <button

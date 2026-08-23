@@ -105,8 +105,7 @@ function LeadDetailSheetContent({
         <LeadDetailHeader
           lead={lead}
           rating={state.rating}
-          isEditing={state.isEditing}
-          onToggleEditing={() => state.setIsEditing(!state.isEditing)}
+          saveStatus={state.saveStatus}
           onRatingChange={state.handleRatingChange}
           onStatusChange={state.handleStatusChange}
           onOpenEstimate={() => setShowEstimateModal(true)}
@@ -122,10 +121,9 @@ function LeadDetailSheetContent({
         />
 
         {/* 3. Контент активной вкладки */}
-        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 pb-24 overscroll-contain">
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 pb-8 overscroll-contain">
           {state.activeTab === "params" && (
             <LeadParametersTab
-              isEditing={state.isEditing}
               name={state.name}
               setName={state.setName}
               phone={state.phone}
@@ -159,6 +157,11 @@ function LeadDetailSheetContent({
               client={state.client}
               clients={clients}
               companies={companies}
+              activities={state.activities}
+              onAddNote={state.handleAddNote}
+              onDeleteActivity={state.handleDeleteActivity}
+              isAddingNote={state.isAddingNote}
+              onAutoSave={state.autoSaveLead}
               onLinkLeadToClient={state.handleLinkLeadToClient}
               onCreateClientFromLead={state.handleCreateClientFromLead}
               onConvertToCompanyAndProject={state.handleConvertToCompanyAndProject}
@@ -167,9 +170,9 @@ function LeadDetailSheetContent({
 
           {state.activeTab === "tech" && (
             <LeadTechSpecTab
-              isEditing={state.isEditing}
               techSpec={state.techSpec}
               setTechSpec={state.setTechSpec}
+              onAutoSave={state.autoSaveLead}
             />
           )}
 
@@ -193,72 +196,6 @@ function LeadDetailSheetContent({
               isAddingNote={state.isAddingNote}
             />
           )}
-        </div>
-
-        {/* 4. Фиксированный футер сохранения / редактирования */}
-        <div className="p-2.5 sm:px-6 sm:py-3.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 sticky bottom-0 z-30 flex items-center justify-between gap-2 shrink-0">
-          <div className="text-[11px] sm:text-xs font-black text-slate-700 truncate min-w-0 flex-1">
-            {state.offeredPrice ? (
-              <span className="truncate block">
-                Озвучено:{" "}
-                <b className="text-slate-900 font-extrabold">
-                  {Number(state.offeredPrice).toLocaleString()} ₸
-                </b>
-                {state.isDiscounted && <span className="text-orange-600 ml-1">(скидка)</span>}
-              </span>
-            ) : (
-              <span className="text-slate-400">Не озвучена</span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {!state.isEditing ? (
-              <>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-[11px] sm:text-xs transition cursor-pointer active:scale-95"
-                >
-                  Закрыть
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic("light");
-                    state.setIsEditing(true);
-                  }}
-                  className="inline-flex items-center gap-1 px-3 py-2 sm:px-4 sm:py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-extrabold text-[11px] sm:text-xs shadow-sm transition cursor-pointer active:scale-95"
-                >
-                  <Edit3 className="w-3.5 h-3.5 text-slate-300" />
-                  <span>Редактировать</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic("light");
-                    state.setIsEditing(false);
-                  }}
-                  className="px-3.5 py-2 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 font-extrabold text-xs transition cursor-pointer active:scale-95"
-                >
-                  Отмена
-                </button>
-
-                <button
-                  type="button"
-                  disabled={state.isSaving}
-                  onClick={() => state.handleSave()}
-                  className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-95 disabled:opacity-50"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>{state.isSaving ? "Сохранение..." : "Сохранить"}</span>
-                </button>
-              </>
-            )}
-          </div>
         </div>
       </BottomSheet>
 

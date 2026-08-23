@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   SIGN_TYPES, 
   MOUNTING_HEIGHTS, 
@@ -10,287 +10,199 @@ import {
 } from "../../../_data/leadDetailDictionary";
 import { LeadTechSpec } from "../../../_types/leadDetailTypes";
 import { triggerHaptic } from "@/lib/haptics";
-import { Wrench, ShieldCheck, Zap, Maximize, Moon, Sparkles, Layers } from "lucide-react";
+import { 
+  Wrench, 
+  ShieldCheck, 
+  Zap, 
+  Maximize, 
+  Moon, 
+  Layers, 
+  ChevronDown, 
+  Check, 
+  X,
+  Plus
+} from "lucide-react";
 
 interface LeadTechSpecTabProps {
-  isEditing: boolean;
   techSpec: LeadTechSpec;
   setTechSpec: (val: LeadTechSpec | ((prev: LeadTechSpec) => LeadTechSpec)) => void;
+  onAutoSave?: (patch: { techSpec: LeadTechSpec }) => void;
 }
 
-export default function LeadTechSpecTab({ isEditing, techSpec, setTechSpec }: LeadTechSpecTabProps) {
+export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: LeadTechSpecTabProps) {
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const selectedTypes = techSpec.signTypes || [];
 
   const handleToggleSignType = (id: string) => {
     triggerHaptic("light");
-    setTechSpec((prev) => {
-      const current = prev.signTypes || [];
-      const next = current.includes(id) ? current.filter((t) => t !== id) : [...current, id];
-      return { ...prev, signTypes: next };
-    });
+    const nextTypes = selectedTypes.includes(id) 
+      ? selectedTypes.filter((t) => t !== id) 
+      : [...selectedTypes, id];
+    
+    const updated = { ...techSpec, signTypes: nextTypes };
+    setTechSpec(updated);
+    if (onAutoSave) onAutoSave({ techSpec: updated });
   };
 
   const handleFieldChange = (field: keyof LeadTechSpec, value: any) => {
-    setTechSpec((prev) => ({
-      ...prev,
+    const updated = {
+      ...techSpec,
       [field]: value,
-    }));
+    };
+    setTechSpec(updated);
+    if (onAutoSave) onAutoSave({ techSpec: updated });
   };
 
-  const selectedSignTypeLabels = selectedTypes
-    .map((id) => SIGN_TYPES.find((st) => st.id === id)?.label)
+  const selectedSignTypeObjs = selectedTypes
+    .map((id) => SIGN_TYPES.find((st) => st.id === id))
     .filter(Boolean);
 
-  const mountingHeightLabel = MOUNTING_HEIGHTS.find((h) => h.id === techSpec.mountingHeight)?.label;
-  const facadeTypeLabel = FACADE_WALL_TYPES.find((w) => w.id === techSpec.facadeType)?.label;
-  const powerSupplyLabel = POWER_SUPPLY_OPTIONS.find((p) => p.id === techSpec.powerSupply)?.label;
-  const approvalStatusLabel = APPROVAL_STATUSES.find((a) => a.id === techSpec.approvalStatus)?.label;
+  const hasSignType = selectedTypes.length > 0;
 
-  const hasAnyData =
-    selectedTypes.length > 0 ||
-    techSpec.lengthMeters ||
-    techSpec.heightMeters ||
-    techSpec.letterHeightCm ||
-    techSpec.mountingHeight ||
-    techSpec.facadeType ||
-    techSpec.powerSupply ||
-    techSpec.approvalStatus ||
-    techSpec.nightMountingOnly;
-
-  // ═══════════════════════════════════════════════════════════════
-  // РЕЖИМ ПРОСМОТРА (View Mode) — Читаемый аккуратный вид
-  // ═══════════════════════════════════════════════════════════════
-  if (!isEditing) {
-    if (!hasAnyData) {
-      return (
-        <div className="p-8 text-center bg-slate-50/70 border border-dashed border-slate-200 rounded-3xl space-y-2 animate-in fade-in duration-150">
-          <Layers className="w-8 h-8 text-slate-300 mx-auto" />
-          <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
-            Тех-спецификация не заполнена
-          </h4>
-          <p className="text-xs text-slate-400 font-medium max-w-sm mx-auto">
-            Нажмите кнопку «Изменить» внизу или в шапке, чтобы указать тип конструкции, размеры, фасад и параметры монтажа.
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-4 animate-in fade-in duration-150">
-        {/* Типы конструкций */}
-        {selectedSignTypeLabels.length > 0 && (
-          <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-              Тип конструкции
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {selectedSignTypeLabels.map((lbl, idx) => (
-                <span
-                  key={idx}
-                  className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-orange-500 text-white shadow-2xs"
-                >
-                  {lbl}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Размеры и габариты */}
-        {(techSpec.lengthMeters || techSpec.heightMeters || techSpec.letterHeightCm) && (
-          <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
-              <Maximize className="w-3.5 h-3.5 text-orange-500" />
-              Габариты и размеры
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {techSpec.lengthMeters && (
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80">
-                  <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
-                    Длина
-                  </span>
-                  <span className="text-sm font-black text-slate-900">
-                    {techSpec.lengthMeters} м
-                  </span>
-                </div>
-              )}
-
-              {techSpec.heightMeters && (
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80">
-                  <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
-                    Высота
-                  </span>
-                  <span className="text-sm font-black text-slate-900">
-                    {techSpec.heightMeters} м
-                  </span>
-                </div>
-              )}
-
-              {techSpec.letterHeightCm && (
-                <div className="bg-white p-3 rounded-xl border border-slate-200/80">
-                  <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
-                    Высота букв
-                  </span>
-                  <span className="text-sm font-black text-slate-900">
-                    {techSpec.letterHeightCm} см
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Монтажные условия */}
-        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-3">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <Wrench className="w-3.5 h-3.5 text-indigo-500" />
-            Условия монтажа и фасад
+  return (
+    <div className="space-y-4 animate-in fade-in duration-150">
+      {/* 1. Выбор типа рекламной конструкции (Дропдаун меню + Чипы) */}
+      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Layers className="w-3.5 h-3.5 text-orange-500" />
+            Тип рекламной конструкции
+          </label>
+          <span className="text-[10px] font-bold text-slate-400">
+            {selectedTypes.length > 0 ? `Выбрано: ${selectedTypes.length}` : "Не выбрано"}
           </span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
-                Высота от земли
-              </span>
-              <span className="text-xs font-black text-slate-900">
-                {mountingHeightLabel || "Не указана"}
-              </span>
-            </div>
+        </div>
 
-            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 font-bold block mb-0.5">
-                Материал фасада
+        {/* Выбранные конструкции (Чипы с кнопкой удаления) */}
+        {selectedSignTypeObjs.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {selectedSignTypeObjs.map((st) => (
+              <span
+                key={st!.id}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-white shadow-2xs animate-in zoom-in-95 duration-100"
+              >
+                <span>{st!.label}</span>
+                <button
+                  type="button"
+                  onClick={() => handleToggleSignType(st!.id)}
+                  className="p-0.5 rounded-md hover:bg-white/20 text-slate-300 hover:text-white transition cursor-pointer"
+                  title="Удалить"
+                >
+                  <X className="w-3 h-3" />
+                </button>
               </span>
-              <span className="text-xs font-black text-slate-900">
-                {facadeTypeLabel || "Не указан"}
-              </span>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 font-bold block mb-0.5 flex items-center gap-1">
-                <Zap className="w-3 h-3 text-amber-500" />
-                Питание 220V
-              </span>
-              <span className="text-xs font-black text-slate-900">
-                {powerSupplyLabel || "Не указано"}
-              </span>
-            </div>
-
-            <div className="bg-white p-3 rounded-xl border border-slate-200/80">
-              <span className="text-[10px] text-slate-400 font-bold block mb-0.5 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                Согласование
-              </span>
-              <span className="text-xs font-black text-slate-900">
-                {approvalStatusLabel || "Не указано"}
-              </span>
-            </div>
+            ))}
           </div>
+        )}
 
-          {techSpec.nightMountingOnly && (
-            <div className="pt-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-indigo-50 text-indigo-900 border border-indigo-200">
-                <Moon className="w-3.5 h-3.5 text-indigo-600" />
-                Строго ночной монтаж (требование ТРЦ)
-              </span>
+        {/* Кнопка выпадающего меню */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("light");
+              setShowTypeDropdown((prev) => !prev);
+            }}
+            className="w-full bg-white border border-slate-200 hover:border-orange-300 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-800 flex items-center justify-between shadow-2xs transition cursor-pointer active:scale-99"
+          >
+            <span className="flex items-center gap-2">
+              <Plus className="w-3.5 h-3.5 text-orange-600" />
+              <span>{selectedTypes.length === 0 ? "Выберите тип конструкции..." : "Добавить / Изменить тип конструкции..."}</span>
+            </span>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${showTypeDropdown ? "rotate-180" : ""}`} />
+          </button>
+
+          {showTypeDropdown && (
+            <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl border border-slate-200 shadow-xl p-2 z-40 max-h-72 overflow-y-auto space-y-1 animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-2 py-1 text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                Каталог рекламных конструкций
+              </div>
+              {SIGN_TYPES.map((st) => {
+                const isSelected = selectedTypes.includes(st.id);
+                return (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => handleToggleSignType(st.id)}
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer ${
+                      isSelected
+                        ? "bg-orange-50 text-orange-950 font-black border border-orange-200"
+                        : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    <span>{st.label}</span>
+                    {isSelected ? (
+                      <Check className="w-4 h-4 text-orange-600 stroke-[3]" />
+                    ) : (
+                      <span className="text-[10px] text-slate-400">{st.category}</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
       </div>
-    );
-  }
 
-  // ═══════════════════════════════════════════════════════════════
-  // РЕЖИМ РЕДАКТИРОВАНИЯ (Edit Mode) — Полный редактор
-  // ═══════════════════════════════════════════════════════════════
-  return (
-    <div className="space-y-4 animate-in fade-in duration-150">
-      {/* 1. Тип рекламной конструкции (Мультивыбор) */}
-      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-          Тип конструкции (можно выбрать несколько)
-        </label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {SIGN_TYPES.map((st) => {
-            const isSelected = selectedTypes.includes(st.id);
-            return (
-              <button
-                key={st.id}
-                type="button"
-                onClick={() => handleToggleSignType(st.id)}
-                className={`p-2.5 rounded-xl border text-left text-xs font-extrabold transition cursor-pointer flex items-center justify-between active:scale-98 ${
-                  isSelected
-                    ? "bg-orange-500 text-white border-orange-500 shadow-sm"
-                    : "bg-white text-slate-800 border-slate-200 hover:bg-slate-100/70"
-                }`}
-              >
-                <span>{st.label}</span>
-                <span
-                  className={`w-4 h-4 rounded-md border flex items-center justify-center text-[10px] ${
-                    isSelected ? "bg-white text-orange-600 border-white font-black" : "border-slate-300"
-                  }`}
-                >
-                  {isSelected && "✓"}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* 2. Габариты и размеры (появляются при выборе конструкции или наличии данных) */}
+      {(hasSignType || techSpec.lengthMeters || techSpec.heightMeters || techSpec.letterHeightCm) && (
+        <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3 animate-in fade-in duration-200">
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Maximize className="w-3.5 h-3.5 text-orange-500" />
+            Габариты и размеры объекта
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-[10px] text-slate-500 font-bold mb-1">
+                Длина конструкции (м)
+              </label>
+              <input
+                type="number"
+                step="any"
+                value={techSpec.lengthMeters ?? ""}
+                onChange={(e) => setTechSpec((prev) => ({ ...prev, lengthMeters: parseFloat(e.target.value) || null }))}
+                onBlur={(e) => handleFieldChange("lengthMeters", parseFloat(e.target.value) || null)}
+                placeholder="например: 4.5"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              />
+            </div>
 
-      {/* 2. Габариты и размеры */}
-      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
-          <Maximize className="w-3.5 h-3.5 text-orange-500" />
-          Габариты и размеры объекта
-        </span>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
-              Длина конструкции (м)
-            </label>
-            <input
-              type="number"
-              step="any"
-              value={techSpec.lengthMeters || ""}
-              onChange={(e) => handleFieldChange("lengthMeters", parseFloat(e.target.value) || null)}
-              placeholder="например: 4.5"
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
-            />
-          </div>
+            <div>
+              <label className="block text-[10px] text-slate-500 font-bold mb-1">
+                Высота конструкции (м)
+              </label>
+              <input
+                type="number"
+                step="any"
+                value={techSpec.heightMeters ?? ""}
+                onChange={(e) => setTechSpec((prev) => ({ ...prev, heightMeters: parseFloat(e.target.value) || null }))}
+                onBlur={(e) => handleFieldChange("heightMeters", parseFloat(e.target.value) || null)}
+                placeholder="например: 0.8"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              />
+            </div>
 
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
-              Высота конструкции (м)
-            </label>
-            <input
-              type="number"
-              step="any"
-              value={techSpec.heightMeters || ""}
-              onChange={(e) => handleFieldChange("heightMeters", parseFloat(e.target.value) || null)}
-              placeholder="например: 0.8"
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
-              Высота букв / знака (см)
-            </label>
-            <input
-              type="number"
-              step="any"
-              value={techSpec.letterHeightCm || ""}
-              onChange={(e) => handleFieldChange("letterHeightCm", parseFloat(e.target.value) || null)}
-              placeholder="например: 40"
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
-            />
+            <div>
+              <label className="block text-[10px] text-slate-500 font-bold mb-1">
+                Высота букв / знака (см)
+              </label>
+              <input
+                type="number"
+                step="any"
+                value={techSpec.letterHeightCm ?? ""}
+                onChange={(e) => setTechSpec((prev) => ({ ...prev, letterHeightCm: parseFloat(e.target.value) || null }))}
+                onBlur={(e) => handleFieldChange("letterHeightCm", parseFloat(e.target.value) || null)}
+                placeholder="например: 40"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* 3. Монтажные условия и фасад */}
+      {/* 3. Монтажные условия и фасад (Инлайн селекты с мгновенным сохранением) */}
       <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <Wrench className="w-3.5 h-3.5 text-indigo-500" />
           Монтажные условия и тип стены
         </span>
@@ -301,8 +213,8 @@ export default function LeadTechSpecTab({ isEditing, techSpec, setTechSpec }: Le
             </label>
             <select
               value={techSpec.mountingHeight || ""}
-              onChange={(e) => handleFieldChange("mountingHeight", e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              onChange={(e) => handleFieldChange("mountingHeight", e.target.value || null)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition cursor-pointer"
             >
               <option value="">Не указано</option>
               {MOUNTING_HEIGHTS.map((h) => (
@@ -319,8 +231,8 @@ export default function LeadTechSpecTab({ isEditing, techSpec, setTechSpec }: Le
             </label>
             <select
               value={techSpec.facadeType || ""}
-              onChange={(e) => handleFieldChange("facadeType", e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              onChange={(e) => handleFieldChange("facadeType", e.target.value || null)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition cursor-pointer"
             >
               <option value="">Не указано</option>
               {FACADE_WALL_TYPES.map((w) => (
@@ -340,8 +252,8 @@ export default function LeadTechSpecTab({ isEditing, techSpec, setTechSpec }: Le
             </label>
             <select
               value={techSpec.powerSupply || ""}
-              onChange={(e) => handleFieldChange("powerSupply", e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              onChange={(e) => handleFieldChange("powerSupply", e.target.value || null)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition cursor-pointer"
             >
               <option value="">Не указано</option>
               {POWER_SUPPLY_OPTIONS.map((p) => (
@@ -359,8 +271,8 @@ export default function LeadTechSpecTab({ isEditing, techSpec, setTechSpec }: Le
             </label>
             <select
               value={techSpec.approvalStatus || ""}
-              onChange={(e) => handleFieldChange("approvalStatus", e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              onChange={(e) => handleFieldChange("approvalStatus", e.target.value || null)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition cursor-pointer"
             >
               <option value="">Не указано</option>
               {APPROVAL_STATUSES.map((a) => (
