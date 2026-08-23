@@ -20,47 +20,13 @@ import CalculatorBanner from "./CalculatorBanner";
 
 import { enrichLeadWithAnalytics } from "@/lib/utils";
 import { trackClientConversion } from "@/lib/clientAnalytics";
+import { formatPhoneInput } from "@/lib/phoneUtils";
 
 interface CalculatePriceModalProps {
   isOpen: boolean;
   onClose: () => void;
   source: string;
 }
-
-// Легковесная функция маскирования для номеров Казахстана (+7 (7XX) XXX-XX-XX)
-const formatKazakhstanPhone = (value: string): string => {
-  const digits = value.replace(/\D/g, "");
-  if (digits.length === 0) return "";
-  
-  let cleanDigits = digits;
-  if (digits.startsWith("7") || digits.startsWith("8")) {
-    cleanDigits = digits.substring(1);
-  }
-  
-  cleanDigits = cleanDigits.substring(0, 10);
-  
-  let formatted = "+7";
-  if (cleanDigits.length > 0) {
-    const area = cleanDigits.substring(0, 3);
-    formatted += ` (${area}`;
-    if (cleanDigits.length >= 3) {
-      formatted += ") ";
-      const main = cleanDigits.substring(3, 6);
-      formatted += main;
-      if (cleanDigits.length >= 6) {
-        formatted += "-";
-        const part1 = cleanDigits.substring(6, 8);
-        formatted += part1;
-        if (cleanDigits.length >= 8) {
-          formatted += "-";
-          const part2 = cleanDigits.substring(8, 10);
-          formatted += part2;
-        }
-      }
-    }
-  }
-  return formatted;
-};
 
 export default function CalculatePriceModal({ isOpen, onClose, source }: CalculatePriceModalProps) {
   const pathname = usePathname();
@@ -255,7 +221,7 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
   }, [onClose]);
 
   const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatKazakhstanPhone(e.target.value);
+    const formatted = formatPhoneInput(e.target.value);
     setPhone(formatted);
     if (phoneError) setPhoneError("");
   }, [phoneError]);

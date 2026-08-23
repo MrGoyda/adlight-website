@@ -7,6 +7,7 @@ import BlueprintGrid from "@/components/ui/BlueprintGrid";
 import { CTA_CONFIGS, getQuizContextKey } from "@/dictionaries/quiz-configs";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
 import { trackClientConversion } from "@/lib/clientAnalytics";
+import { formatPhoneInput } from "@/lib/phoneUtils";
 
 interface CallToActionProps {
   source: string;
@@ -44,37 +45,9 @@ export default function CallToAction({
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputVal = e.target.value;
-    
-    if (phoneError) setPhoneError("");
-
-    const digits = inputVal.replace(/\D/g, "");
-    
-    if (digits.length === 0) {
-      setPhone("");
-      return;
-    }
-
-    let formatted = "+7 ";
-    let core = digits;
-    if (digits.startsWith("7") || digits.startsWith("8")) {
-      core = digits.slice(1);
-    }
-
-    if (core.length > 0) {
-      formatted += "(" + core.slice(0, 3);
-    }
-    if (core.length > 3) {
-      formatted += ") " + core.slice(3, 6);
-    }
-    if (core.length > 6) {
-      formatted += "-" + core.slice(6, 8);
-    }
-    if (core.length > 8) {
-      formatted += "-" + core.slice(8, 10);
-    }
-
+    const formatted = formatPhoneInput(e.target.value);
     setPhone(formatted);
+    if (phoneError) setPhoneError("");
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

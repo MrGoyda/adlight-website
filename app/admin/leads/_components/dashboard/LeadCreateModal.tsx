@@ -6,6 +6,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus, PartnerName } from "@prisma/client";
 import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
+import PhoneInput from "@/components/ui/PhoneInput";
 import BottomSheet from "@/components/ui/BottomSheet";
 
 interface LeadCreateModalProps {
@@ -123,13 +124,12 @@ export default function LeadCreateModal({
                 <Phone className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                 {dict.phoneLabel} *
               </label>
-              <input
-                type="tel"
+              <PhoneInput
                 required
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(val) => setPhone(val)}
                 placeholder={dict.phonePlaceholder}
-                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
+                className="bg-slate-50 focus:bg-white"
               />
             </div>
           </div>

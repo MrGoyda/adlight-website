@@ -5,6 +5,7 @@ import { X, Save, Building2, Phone, MapPin, MessageCircle } from "lucide-react";
 import { SupplierData } from "../../_types/pricingTypes";
 import { triggerHaptic } from "@/lib/haptics";
 import BottomSheet from "@/components/ui/BottomSheet";
+import PhoneInput from "@/components/ui/PhoneInput";
 
 interface SupplierModalProps {
   isOpen: boolean;
@@ -127,32 +128,26 @@ export default function SupplierModal({
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
                 Телефон
               </label>
-              <div className="relative">
-                <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+7 (700) 000-00-00"
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none box-border"
-                />
-              </div>
+              <PhoneInput
+                value={phone}
+                onChange={(val) => setPhone(val)}
+                placeholder="+7 (700) 000-00-00"
+                className="bg-slate-50 focus:bg-white"
+              />
             </div>
 
             <div className="min-w-0 w-full">
-              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
                 WhatsApp
               </label>
-              <div className="relative">
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="+77000000000"
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none box-border"
-                />
-              </div>
+              <PhoneInput
+                value={whatsapp}
+                onChange={(val) => setWhatsapp(val)}
+                placeholder="+7 (700) 000-00-00"
+                showIcon={false}
+                className="bg-slate-50 focus:bg-white"
+              />
             </div>
           </div>
 

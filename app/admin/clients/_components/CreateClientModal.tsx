@@ -6,6 +6,7 @@ import { User, Phone, Building2, FileText, MapPin, X, ArrowRight, Sparkles } fro
 import { triggerHaptic } from "@/lib/haptics";
 import { createClient } from "../actions";
 import { formatPhoneDisplay } from "@/lib/phoneUtils";
+import PhoneInput from "@/components/ui/PhoneInput";
 
 interface CreateClientModalProps {
   isOpen: boolean;
@@ -143,17 +144,13 @@ export const CreateClientModal: React.FC<CreateClientModalProps> = ({
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
                 Номер телефона (WhatsApp) *
               </label>
-              <div className="relative">
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="tel"
-                  required
-                  placeholder="+7 (701) 000-00-00"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 text-base sm:text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 transition text-slate-900 shadow-2xs"
-                />
-              </div>
+              <PhoneInput
+                required
+                placeholder="+7 (701) 000-00-00"
+                value={phone}
+                onChange={(val) => setPhone(val)}
+                className="bg-slate-50 focus:bg-white focus:border-blue-500"
+              />
             </div>
 
             {/* Компания и БИН */}

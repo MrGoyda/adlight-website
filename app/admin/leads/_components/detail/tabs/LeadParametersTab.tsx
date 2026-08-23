@@ -28,6 +28,7 @@ import {
   X
 } from "lucide-react";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
+import PhoneInput from "@/components/ui/PhoneInput";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { PartnerName, LeadStatus } from "@prisma/client";
@@ -330,17 +331,12 @@ export default function LeadParametersTab({
                 </button>
               )}
             </label>
-            <div className="relative">
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                onBlur={() => onAutoSave?.({ phone })}
-                placeholder="+7 (___) ___-__-__"
-                className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
-              />
-              <Phone className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            </div>
+            <PhoneInput
+              value={phone}
+              onChange={(val) => setPhone(val)}
+              onBlur={() => onAutoSave?.({ phone })}
+              placeholder="+7 (___) ___-__-__"
+            />
           </div>
         </div>
 

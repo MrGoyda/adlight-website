@@ -12,6 +12,7 @@ import Typography from "@/components/ui/Typography";
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
 import { trackClientConversion } from "@/lib/clientAnalytics";
+import { formatPhoneInput } from "@/lib/phoneUtils";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -22,44 +23,6 @@ interface ConsultationModalProps {
   buttonText?: string;
   customMessage?: string;
 }
-
-// Легковесная функция маскирования для номеров Казахстана (+7 (7XX) XXX-XX-XX)
-const formatKazakhstanPhone = (value: string): string => {
-  const digits = value.replace(/\D/g, "");
-  
-  if (digits.length === 0) return "";
-  
-  // Нормализуем, отсекая первую 7 или 8
-  let cleanDigits = digits;
-  if (digits.startsWith("7") || digits.startsWith("8")) {
-    cleanDigits = digits.substring(1);
-  }
-  
-  // Ограничиваем 10 цифрами (7XX XXX XX XX)
-  cleanDigits = cleanDigits.substring(0, 10);
-  
-  let formatted = "+7";
-  if (cleanDigits.length > 0) {
-    const area = cleanDigits.substring(0, 3);
-    formatted += ` (${area}`;
-    if (cleanDigits.length >= 3) {
-      formatted += ") ";
-      const main = cleanDigits.substring(3, 6);
-      formatted += main;
-      if (cleanDigits.length >= 6) {
-        formatted += "-";
-        const part1 = cleanDigits.substring(6, 8);
-        formatted += part1;
-        if (cleanDigits.length >= 8) {
-          formatted += "-";
-          const part2 = cleanDigits.substring(8, 10);
-          formatted += part2;
-        }
-      }
-    }
-  }
-  return formatted;
-};
 
 export default function ConsultationModal({ 
   isOpen, 
@@ -126,7 +89,7 @@ export default function ConsultationModal({
   }, [onClose]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatKazakhstanPhone(e.target.value);
+    const formatted = formatPhoneInput(e.target.value);
     setPhone(formatted);
     if (phoneError) setPhoneError("");
   };
