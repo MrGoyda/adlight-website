@@ -14,6 +14,7 @@ import { LeadStatus } from "@prisma/client";
 import { STATUS_MAP, LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 import { Lead } from "../../_types/leadTypes";
 import { Edit3, Check } from "lucide-react";
+import { toast } from "@/lib/toast";
 
 interface DrawerHeaderProps {
   activeLead: Lead;
@@ -50,6 +51,11 @@ export default function DrawerHeader({
 
   const handleSendWhatsApp = (customText?: string) => {
     triggerHaptic("light");
+    if (!cleanPhone) {
+      toast.error("У лида не указан номер телефона");
+      setShowWhatsAppMenu(false);
+      return;
+    }
     const textParam = customText ? `?text=${encodeURIComponent(customText)}` : "";
     window.open(`https://wa.me/${cleanPhone}${textParam}`, "_blank");
     setShowWhatsAppMenu(false);

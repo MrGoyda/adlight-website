@@ -4,7 +4,8 @@ import React from "react";
 import { Phone, DollarSign, CheckCircle2, Clock } from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { StatusConfig } from "../../_data/leadsDictionary";
-import { getCleanPhone, getWhatsAppUrl } from "@/lib/phoneUtils";
+import { formatPhoneInput, getCleanPhone, getWhatsAppUrl } from "@/lib/phoneUtils";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface LeadCardContactRowProps {
   status: StatusConfig;
@@ -29,8 +30,10 @@ export default function LeadCardContactRow({
   isBalancePaid,
   revenue,
 }: LeadCardContactRowProps) {
-  const cleanPhone = getCleanPhone(phone);
-  const waUrl = getWhatsAppUrl(phone);
+  const cleanPhone = phone ? getCleanPhone(phone) : "";
+  const waUrl = phone ? getWhatsAppUrl(phone) : "";
+  const formattedPhone = phone ? (formatPhoneInput(phone) || phone) : "";
+  const hasValidPhone = Boolean(cleanPhone && cleanPhone.length >= 6);
 
   const numOffered = offeredPrice ? Number(offeredPrice) : 0;
   const numPrepayment = prepayment ? Number(prepayment) : 0;
@@ -53,26 +56,40 @@ export default function LeadCardContactRow({
       )}
 
       {/* 3. Телефон с кнопкой WhatsApp */}
-      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100/90 text-slate-700 font-bold border border-slate-200">
-        <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-        <a
-          href={`tel:${cleanPhone}`}
-          onClick={(e) => e.stopPropagation()}
-          className="hover:text-orange-600 transition"
-        >
-          {phone}
-        </a>
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          title="Написать в WhatsApp"
-          className="ml-0.5 p-1 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition cursor-pointer active:scale-95 shadow-2xs inline-flex items-center justify-center"
-        >
-          <WhatsAppIcon className="w-3 h-3" />
-        </a>
-      </div>
+      {hasValidPhone ? (
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 font-bold border border-slate-200 transition-colors shadow-2xs group">
+          <a
+            href={`tel:${cleanPhone}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              triggerHaptic("light");
+            }}
+            className="inline-flex items-center gap-1.5 hover:text-orange-600 transition"
+            title="Позвонить клиенту"
+          >
+            <Phone className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-500 transition-colors shrink-0" />
+            <span>{formattedPhone}</span>
+          </a>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.stopPropagation();
+              triggerHaptic("light");
+            }}
+            title="Написать в WhatsApp"
+            className="ml-0.5 p-1 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition cursor-pointer active:scale-95 shadow-2xs inline-flex items-center justify-center"
+          >
+            <WhatsAppIcon className="w-3 h-3" />
+          </a>
+        </div>
+      ) : (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-50 text-slate-400 text-[11px] font-medium border border-dashed border-slate-200">
+          <Phone className="w-3 h-3 text-slate-300" />
+          <span>Без телефона</span>
+        </span>
+      )}
 
       {/* 4. Озвученная стоимость */}
       {numOffered > 0 && (
