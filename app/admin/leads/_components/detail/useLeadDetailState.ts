@@ -10,9 +10,9 @@ import {
   addLeadActivity, 
   deleteLeadActivity, 
   saveLeadFileRecord, 
-  deleteLeadFile,
-  convertLeadToProjectAndCompany
+  deleteLeadFile
 } from "../../[id]/actions";
+import { convertLeadToProjectAndCompany } from "../../actions";
 import { linkLeadToClient, createClientFromLead } from "../../../clients/actions";
 import { DetailTabType } from "../../_data/leadDetailDictionary";
 import { 
