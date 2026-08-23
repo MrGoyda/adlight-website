@@ -24,6 +24,14 @@ export default function NotFound() {
     }
   };
 
+  const handleWhatsAppClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    triggerHaptic();
+    const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
+    const trackedUrl = await getTrackedWhatsappUrl("77071356701", "Здравствуйте! Перешел со страницы 404.", "Page 404");
+    window.open(trackedUrl, "_blank");
+  };
+
   return (
     <main className="relative min-h-[90vh] flex items-center justify-center py-20 bg-white overflow-hidden text-slate-900 border-b border-slate-200">
       {/* Чертежная фоновая сетка */}
@@ -137,11 +145,10 @@ export default function NotFound() {
                 </div>
               </PremiumCard>
             </Link>
-
           </div>
         </div>
 
-        {/* Контакты для оперативной связи */}
+        {/* Прямые контакты внизу */}
         <div className="border-t border-slate-150 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-slate-500 text-xs font-semibold">
           <div className="flex items-center gap-2">
             <MapPin className="w-4.5 h-4.5 text-orange-500 shrink-0" />
@@ -158,8 +165,8 @@ export default function NotFound() {
               href="https://wa.me/77071356701" 
               target="_blank" 
               rel="nofollow noopener noreferrer"
-              onClick={triggerHaptic}
-              className="inline-flex items-center justify-center font-black text-white bg-[#25D366] px-3 py-1 rounded-xl hover:bg-[#20ba59] transition duration-200"
+              onClick={handleWhatsAppClick}
+              className="inline-flex items-center justify-center font-black text-white bg-[#25D366] px-3 py-1 rounded-xl hover:bg-[#20ba59] transition duration-200 cursor-pointer"
             >
               <MessageSquare className="w-3.5 h-3.5 mr-1 fill-current" />
               WhatsApp

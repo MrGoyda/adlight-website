@@ -25,6 +25,19 @@ export default function PriceResult({
   whatsappLink,
   onOpenModal,
 }: PriceResultProps) {
+  const handleWhatsAppClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { getTrackedWhatsappUrl } = await import("@/lib/clickTracker");
+    try {
+      const urlObj = new URL(whatsappLink);
+      const text = urlObj.searchParams.get("text") || undefined;
+      const trackedUrl = await getTrackedWhatsappUrl("77071356701", text, "Calculator Desktop");
+      window.open(trackedUrl, "_blank");
+    } catch {
+      window.open(whatsappLink, "_blank");
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-lg p-6 space-y-5">
       {/* Заголовок и сумма */}
@@ -83,6 +96,7 @@ export default function PriceResult({
 
         <Button
           href={whatsappLink}
+          onClick={handleWhatsAppClick}
           variant="outline"
           size="lg"
           className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 font-bold rounded-xl"

@@ -21,6 +21,7 @@ import CalculatorBanner from "./CalculatorBanner";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
 import { trackClientConversion } from "@/lib/clientAnalytics";
 import { formatPhoneInput } from "@/lib/phoneUtils";
+import { getTrackedWhatsappUrl } from "@/lib/clickTracker";
 
 interface CalculatePriceModalProps {
   isOpen: boolean;
@@ -282,13 +283,15 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
     }
   };
 
-  const handleDirectWhatsApp = useCallback(() => {
-    trackClientConversion('click_whatsapp', {
-      page_location: typeof window !== 'undefined' ? window.location.href : '',
-      form_name: 'Calculate Price Modal Direct WhatsApp',
-    });
-    const typeDetails = selectedOption ? `%20(${selectedOption.label})` : "";
-    window.open(`https://wa.me/${SITE_CONTACTS.phoneRaw}?text=Здравствуйте!%20Хочу%20рассчитать%20стоимость%20по%20направлению:%20${encodeURIComponent(serviceInfo.title)}${typeDetails}`, '_blank');
+  const handleDirectWhatsApp = useCallback(async () => {
+    const typeDetails = selectedOption ? ` (${selectedOption.label})` : "";
+    const customMessage = `Здравствуйте! Хочу рассчитать стоимость по направлению: ${serviceInfo.title}${typeDetails}`;
+    const trackedUrl = await getTrackedWhatsappUrl(
+      SITE_CONTACTS.phoneRaw || "77071356701",
+      customMessage,
+      "Calculate Price Modal"
+    );
+    window.open(trackedUrl, '_blank');
     onClose();
   }, [selectedOption, serviceInfo.title, onClose]);
 

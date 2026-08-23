@@ -13,6 +13,7 @@ import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import { enrichLeadWithAnalytics } from "@/lib/utils";
 import { trackClientConversion } from "@/lib/clientAnalytics";
 import { formatPhoneInput } from "@/lib/phoneUtils";
+import { getTrackedWhatsappUrl } from "@/lib/clickTracker";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -145,12 +146,13 @@ export default function ConsultationModal({
     }
   };
 
-  const handleDirectWhatsApp = () => {
-     trackClientConversion('click_whatsapp', {
-       page_location: typeof window !== 'undefined' ? window.location.href : '',
-       form_name: 'Consultation Modal Direct WhatsApp',
-     });
-     window.open(`https://wa.me/77071356701`, '_blank');
+  const handleDirectWhatsApp = async () => {
+     const trackedUrl = await getTrackedWhatsappUrl(
+       "77071356701",
+       customMessage || "Здравствуйте! Хочу проконсультироваться по вывеске.",
+       `Consultation Modal (${source || "Direct"})`
+     );
+     window.open(trackedUrl, '_blank');
      onClose();
   };
 

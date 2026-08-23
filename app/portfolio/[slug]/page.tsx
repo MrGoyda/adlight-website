@@ -23,6 +23,7 @@ import { PROJECTS, CATEGORIES } from "@/lib/projectsData";
 import CallToAction from "@/components/CallToAction";
 import ImageGallery from "@/components/ImageGallery";
 import VideoModalWrapper from "@/components/VideoModalWrapper";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { PORTFOLIO_DICT } from "@/dictionaries/portfolio";
 import BreadcrumbSchema from "@/components/services/BreadcrumbSchema";
 
@@ -341,7 +342,12 @@ export default async function ProjectPage({ params }: Props) {
                         <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-sm text-orange-600 font-extrabold shrink-0">AD</div> 
                         <div className="text-left">
                            <p className="text-slate-900 font-black text-sm mb-0.5">{PORTFOLIO_DICT.caseDetails.questions.title}</p>
-                           <a href="https://wa.me/77071356701" target="_blank" rel="noopener noreferrer" className="text-green-600 text-xs font-bold hover:underline">{PORTFOLIO_DICT.caseDetails.questions.whatsapp}</a>
+                           <WhatsAppButton
+                              className="text-emerald-600 text-xs font-bold hover:underline cursor-pointer"
+                              customText={`Здравствуйте! Смотрю кейс «${project.title}» в портфолио, хочу уточнить детали и стоимость.`}
+                           >
+                              {PORTFOLIO_DICT.caseDetails.questions.whatsapp}
+                           </WhatsAppButton>
                         </div>
                      </div>
                   </div>
