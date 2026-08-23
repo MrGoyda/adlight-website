@@ -10,7 +10,8 @@ import {
   Image as ImageIcon, 
   FileText, 
   CheckSquare, 
-  Folder 
+  Folder,
+  Camera
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { LeadFileItem } from "../../../_types/leadDetailTypes";
@@ -75,17 +76,32 @@ export default function LeadMediaFilesTab({
             </p>
           </div>
 
-          <label className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs shadow-md shadow-orange-500/20 cursor-pointer active:scale-95 transition">
-            <Upload className="w-3.5 h-3.5" />
-            <span>{isUploading ? "Загрузка в R2..." : "+ Загрузить файлы"}</span>
-            <input
-              type="file"
-              multiple
-              disabled={isUploading}
-              onChange={(e) => onUploadFiles(e, selectedCategory)}
-              className="hidden"
-            />
-          </label>
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-black text-white font-black text-xs shadow-sm cursor-pointer active:scale-95 transition">
+              <Camera className="w-3.5 h-3.5 text-amber-400" />
+              <span>Снять фото</span>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                disabled={isUploading}
+                onChange={(e) => onUploadFiles(e, "MEASUREMENT")}
+                className="hidden"
+              />
+            </label>
+
+            <label className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs shadow-md shadow-orange-500/20 cursor-pointer active:scale-95 transition">
+              <Upload className="w-3.5 h-3.5" />
+              <span>{isUploading ? "Загрузка в R2..." : "+ Загрузить файлы"}</span>
+              <input
+                type="file"
+                multiple
+                disabled={isUploading}
+                onChange={(e) => onUploadFiles(e, selectedCategory)}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
 
         {/* Категории файлов */}

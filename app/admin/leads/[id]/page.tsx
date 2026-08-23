@@ -50,6 +50,10 @@ export default async function LeadPage({
     notFound();
   }
 
+  const clients = await prisma.client.findMany({
+    orderBy: { name: "asc" },
+  });
+
   const warehouseItems = await prisma.warehouseItem.findMany({
     orderBy: { name: "asc" },
   });
@@ -64,6 +68,7 @@ export default async function LeadPage({
         <LeadDetailPage 
           lead={JSON.parse(JSON.stringify(lead))} 
           companies={JSON.parse(JSON.stringify(companies))}
+          clients={JSON.parse(JSON.stringify(clients))}
           warehouseItems={JSON.parse(JSON.stringify(warehouseItems))}
           supplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
         />

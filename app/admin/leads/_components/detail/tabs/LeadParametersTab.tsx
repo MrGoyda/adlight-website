@@ -14,7 +14,11 @@ import {
   MessageSquareQuote,
   Clock,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  UserPlus,
+  Link as LinkIcon,
+  Search,
+  Briefcase
 } from "lucide-react";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 import { triggerHaptic } from "@/lib/haptics";
@@ -23,6 +27,7 @@ import { PartnerName, LeadStatus } from "@prisma/client";
 import { CANCELLATION_REASONS } from "../../../_data/leadDetailDictionary";
 import { formatManagerName } from "../../../_data/leadsDictionary";
 import InitialMessageAccordion from "@/components/admin/InitialMessageAccordion";
+import DrawerCompanyConvertModal from "../../drawer/DrawerCompanyConvertModal";
 
 interface LeadParametersTabProps {
   isEditing: boolean;
@@ -55,6 +60,18 @@ interface LeadParametersTabProps {
   setCancellationReason: (val: string) => void;
   initialMessage?: string | null;
   source?: string | null;
+  leadId?: string;
+  client?: any;
+  clients?: any[];
+  companies?: any[];
+  onLinkLeadToClient?: (clientId: string | null) => void;
+  onCreateClientFromLead?: () => void;
+  onConvertToCompanyAndProject?: (
+    companyName: string,
+    binIin: string,
+    contactPosition: string,
+    projectTitle: string
+  ) => Promise<{ success: boolean; error?: string }>;
 }
 
 export default function LeadParametersTab({
@@ -88,7 +105,23 @@ export default function LeadParametersTab({
   setCancellationReason,
   initialMessage,
   source,
+  leadId,
+  client,
+  clients = [],
+  companies = [],
+  onLinkLeadToClient,
+  onCreateClientFromLead,
+  onConvertToCompanyAndProject,
 }: LeadParametersTabProps) {
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [showClientSearch, setShowClientSearch] = useState(false);
+  const [clientSearchQuery, setClientSearchQuery] = useState("");
+
+  const filteredClients = clients.filter((c: any) =>
+    (c.name || "").toLowerCase().includes(clientSearchQuery.toLowerCase()) ||
+    (c.phone || "").includes(clientSearchQuery)
+  );
+
   const handleCopyAddress = () => {
     if (!address) return;
     triggerHaptic("light");
@@ -132,18 +165,36 @@ export default function LeadParametersTab({
           </div>
         )}
 
-        {/* Карточка контактов заказчика */}
-        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
+        {/* Карточка контактов заказчика и CRM привязка */}
+        <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-              Заказчик
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <UserCheck className="w-3.5 h-3.5 text-orange-500" />
+              Заказчик и CRM-профиль
             </span>
-            {source && (
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">
-                {source}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5">
+              {source && (
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">
+                  {source}
+                </span>
+              )}
+              {onConvertToCompanyAndProject && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic("light");
+                    setShowConvertModal(true);
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-orange-100 text-orange-800 hover:bg-orange-200 border border-orange-200 transition cursor-pointer flex items-center gap-1 active:scale-95"
+                  title="Квалифицировать в Компанию и Проект"
+                >
+                  <Briefcase className="w-3 h-3 text-orange-600" />
+                  <span>В Проект</span>
+                </button>
+              )}
+            </div>
           </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-base font-black text-slate-900">
@@ -163,6 +214,117 @@ export default function LeadParametersTab({
               )}
             </div>
           </div>
+
+          {/* Привязка к базе клиентов */}
+          {client ? (
+            <div className="bg-white p-3 rounded-xl border border-emerald-200/80 flex items-center justify-between gap-3 shadow-2xs">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-extrabold text-slate-900 text-xs truncate">
+                    Клиент: {client.name}
+                  </span>
+                  {client.companyName && (
+                    <span className="text-[10px] font-bold text-slate-500">
+                      ({client.companyName})
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] font-medium text-slate-500 block">
+                  {client.phone}
+                </span>
+              </div>
+
+              {onLinkLeadToClient && (
+                <button
+                  type="button"
+                  onClick={() => onLinkLeadToClient(null)}
+                  className="px-2.5 py-1 text-[11px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer shrink-0"
+                >
+                  Отвязать
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2 pt-1 border-t border-slate-200/60">
+              {!showClientSearch ? (
+                <div className="flex items-center gap-2">
+                  {onCreateClientFromLead && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        onCreateClientFromLead();
+                      }}
+                      className="flex-1 py-1.5 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xs transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-98"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      <span>Создать клиента</span>
+                    </button>
+                  )}
+
+                  {onLinkLeadToClient && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        setShowClientSearch(true);
+                      }}
+                      className="py-1.5 px-3 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-extrabold text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                    >
+                      <LinkIcon className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Привязать</span>
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm space-y-2 animate-in fade-in duration-150">
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={clientSearchQuery}
+                      onChange={(e) => setClientSearchQuery(e.target.value)}
+                      placeholder="Поиск по имени или телефону..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 outline-none focus:border-orange-500"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="max-h-36 overflow-y-auto space-y-1">
+                    {filteredClients.slice(0, 5).map((c: any) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          if (onLinkLeadToClient) {
+                            onLinkLeadToClient(c.id);
+                          }
+                          setShowClientSearch(false);
+                        }}
+                        className="w-full text-left p-2 rounded-lg hover:bg-orange-50 text-slate-800 hover:text-orange-700 text-xs font-bold transition flex items-center justify-between"
+                      >
+                        <span className="truncate">{c.name} ({c.phone})</span>
+                        <span className="text-[10px] font-black text-orange-600 uppercase">Выбрать</span>
+                      </button>
+                    ))}
+                    {filteredClients.length === 0 && (
+                      <span className="block text-center text-xs text-slate-400 py-2">
+                        Клиент не найден
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowClientSearch(false)}
+                    className="w-full py-1 text-center text-xs text-slate-500 hover:text-slate-700 font-bold"
+                  >
+                    Отмена
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Карточка адреса объекта */}
@@ -584,6 +746,26 @@ export default function LeadParametersTab({
             </div>
           )}
         </div>
+      )}
+
+      {/* Модалка квалификации в Компанию и Проект */}
+      {showConvertModal && onConvertToCompanyAndProject && (
+        <DrawerCompanyConvertModal
+          activeLead={{ id: leadId || "", name, phone, client } as any}
+          companies={companies}
+          onClose={() => setShowConvertModal(false)}
+          onConvert={async (data) => {
+            const res = await onConvertToCompanyAndProject(
+              data.companyName,
+              data.binIin,
+              data.contactPosition,
+              data.projectTitle
+            );
+            if (res.success) {
+              setShowConvertModal(false);
+            }
+          }}
+        />
       )}
     </div>
   );

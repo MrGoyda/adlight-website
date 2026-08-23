@@ -23,6 +23,8 @@ interface LeadDetailSheetProps {
   warehouseItems?: any[];
   supplierPrices?: any[];
   leads?: any[];
+  clients?: any[];
+  companies?: any[];
 }
 
 export default function LeadDetailSheet({
@@ -33,6 +35,8 @@ export default function LeadDetailSheet({
   warehouseItems = [],
   supplierPrices = [],
   leads = [],
+  clients = [],
+  companies = [],
 }: LeadDetailSheetProps) {
   const [showEstimateModal, setShowEstimateModal] = useState(false);
 
@@ -50,6 +54,8 @@ export default function LeadDetailSheet({
       warehouseItems={warehouseItems}
       supplierPrices={supplierPrices}
       leads={leads}
+      clients={clients}
+      companies={companies}
     />
   );
 }
@@ -64,6 +70,8 @@ function LeadDetailSheetContent({
   warehouseItems,
   supplierPrices,
   leads,
+  clients,
+  companies,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -74,8 +82,16 @@ function LeadDetailSheetContent({
   warehouseItems: any[];
   supplierPrices: any[];
   leads: any[];
+  clients: any[];
+  companies: any[];
 }) {
-  const state = useLeadDetailState({ lead, onUpdateLead, onClose });
+  const state = useLeadDetailState({
+    lead,
+    onUpdateLead,
+    onClose,
+    clients,
+    companies,
+  });
 
   return (
     <>
@@ -139,6 +155,13 @@ function LeadDetailSheetContent({
               setCancellationReason={state.setCancellationReason}
               initialMessage={lead.message}
               source={lead.source}
+              leadId={lead.id}
+              client={state.client}
+              clients={clients}
+              companies={companies}
+              onLinkLeadToClient={state.handleLinkLeadToClient}
+              onCreateClientFromLead={state.handleCreateClientFromLead}
+              onConvertToCompanyAndProject={state.handleConvertToCompanyAndProject}
             />
           )}
 

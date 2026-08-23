@@ -10,8 +10,10 @@ import {
   addLeadActivity, 
   deleteLeadActivity, 
   saveLeadFileRecord, 
-  deleteLeadFile 
+  deleteLeadFile,
+  convertLeadToProjectAndCompany
 } from "../../[id]/actions";
+import { linkLeadToClient, createClientFromLead } from "../../../clients/actions";
 import { DetailTabType } from "../../_data/leadDetailDictionary";
 import { 
   LeadFullDetails, 
@@ -25,15 +27,18 @@ interface UseLeadDetailStateProps {
   lead: LeadFullDetails;
   onUpdateLead?: (updated: LeadFullDetails) => void;
   onClose: () => void;
+  clients?: any[];
+  companies?: any[];
 }
 
-export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetailStateProps) {
+export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], companies = [] }: UseLeadDetailStateProps) {
   const [activeTab, setActiveTab] = useState<DetailTabType>("params");
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   // Основные поля
+  const [client, setClient] = useState<any>(lead.client || null);
   const [rating, setRating] = useState<ClientRating>(lead.rating || "STANDARD");
   const [status, setStatus] = useState<LeadStatus>(lead.status || "NEW");
   const [name, setName] = useState(lead.name || "");
@@ -88,6 +93,7 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
   // Синхронизация при смене входящего лида
   useEffect(() => {
     if (!lead) return;
+    setClient(lead.client || null);
     setRating(lead.rating || "STANDARD");
     setStatus(lead.status || "NEW");
     setName(lead.name || "");
@@ -288,6 +294,81 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
     }
   };
 
+  // Привязка лида к клиенту
+  const handleLinkLeadToClient = async (clientId: string | null) => {
+    triggerHaptic("light");
+    const res = await linkLeadToClient(lead.id, clientId);
+    if (res.success) {
+      toast.success(clientId ? "Клиент успешно привязан" : "Клиент отвязан");
+      const clientObj = clientId && clients ? clients.find((c: any) => c.id === clientId) || null : null;
+      setClient(clientObj);
+      if (onUpdateLead) {
+        onUpdateLead({
+          ...lead,
+          clientId,
+          client: clientObj,
+        });
+      }
+    } else {
+      toast.error(res.error || "Ошибка привязки");
+    }
+  };
+
+  // Создание клиента из лида
+  const handleCreateClientFromLead = async () => {
+    triggerHaptic("success");
+    const res = await createClientFromLead(lead.id);
+    if (res.success && res.clientId) {
+      toast.success("Клиент создан и привязан!");
+      const newClientObj = {
+        id: res.clientId,
+        name: lead.name,
+        phone: lead.phone,
+        companyName: null,
+      };
+      setClient(newClientObj);
+      if (onUpdateLead) {
+        onUpdateLead({
+          ...lead,
+          clientId: res.clientId,
+          client: newClientObj,
+        });
+      }
+    } else {
+      toast.error(res.error || "Не удалось создать клиента");
+    }
+  };
+
+  // Конвертация в компанию и проект
+  const handleConvertToCompanyAndProject = async (
+    companyName: string,
+    binIin: string,
+    contactPosition: string,
+    projectTitle: string
+  ) => {
+    triggerHaptic("success");
+    const res = await convertLeadToProjectAndCompany(lead.id, {
+      companyName,
+      binIin,
+      contactPosition,
+      projectTitle,
+    });
+    if (res.success) {
+      toast.success("Лид успешно квалифицирован в Проект!");
+      setStatus(LeadStatus.PROCESSED);
+      if (onUpdateLead) {
+        onUpdateLead({
+          ...lead,
+          status: LeadStatus.PROCESSED,
+        });
+      }
+      return { success: true };
+    } else {
+      toast.error(res.error || "Ошибка при квалификации");
+      return { success: false, error: res.error };
+    }
+  };
+
   return {
     activeTab,
     setActiveTab,
@@ -295,6 +376,9 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
     setIsEditing,
     isSaving,
     isPending,
+    client,
+    clients,
+    companies,
     rating,
     status,
     name,
@@ -340,5 +424,8 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose }: UseLeadDetai
     handleDeleteFile,
     handleAddNote,
     handleDeleteActivity,
+    handleLinkLeadToClient,
+    handleCreateClientFromLead,
+    handleConvertToCompanyAndProject,
   };
 }

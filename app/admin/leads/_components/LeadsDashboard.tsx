@@ -28,7 +28,6 @@ import { useLeadOperations } from "../_hooks/useLeadOperations";
 import { useLeadFilters } from "../_hooks/useLeadFilters";
 
 import LeadCard from "./LeadCard";
-import LeadMobileDrawer from "./LeadMobileDrawer";
 import LeadCreateModal from "./dashboard/LeadCreateModal";
 import LeadFinanceModal from "./dashboard/LeadFinanceModal";
 import LeadDeleteConfirmModal from "./dashboard/LeadDeleteConfirmModal";
@@ -106,12 +105,20 @@ export default function LeadsDashboard({
       }
     }
 
+    // Открытие карточки лида при переходе по ссылке с id
+    if (selectedLeadId && ops.leads.length > 0) {
+      const found = ops.leads.find((l) => l.id === selectedLeadId);
+      if (found) {
+        setDetailLead(found);
+      }
+    }
+
     return () => {
       window.removeEventListener(CRM_EVENTS.OPEN_CREATE_LEAD, handleOpenCreateLead);
       window.removeEventListener(CRM_EVENTS.OPEN_ESTIMATE, handleOpenEstimate);
       window.removeEventListener(CRM_EVENTS.OPEN_CREATE_CLIENT, handleOpenCreateClient);
     };
-  }, []);
+  }, [selectedLeadId, ops.leads]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
@@ -296,8 +303,8 @@ export default function LeadsDashboard({
       </div>
 
       {/* ── ОСНОВНОЙ СПИСОК КАРТОЧЕК ЛИДОВ ── */}
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
-        <div className="flex-1 w-full space-y-3">
+      <div className="w-full">
+        <div className="w-full space-y-3">
           {filters.filteredLeads.length === 0 ? (
             <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
               {LEADS_DICTIONARY.noLeadsFound}
@@ -307,15 +314,19 @@ export default function LeadsDashboard({
               <LeadCard
                 key={lead.id}
                 lead={lead}
-                isSelected={ops.activeLead?.id === lead.id}
+                isSelected={detailLead?.id === lead.id}
                 isGloballyExpanded={filters.isGlobalExpanded}
-                onSelect={(selected) => ops.setActiveLead(selected)}
-                onOpenEstimate={(selected) => { setEstimateLead(selected); setShowEstimateModal(true); }}
+                onSelect={(selected) => {
+                  setDetailLead(selected);
+                }}
+                onOpenEstimate={(selected) => {
+                  setEstimateLead(selected);
+                  setShowEstimateModal(true);
+                }}
                 onOpenFullCard={(id) => {
                   const found = ops.leads.find((l) => l.id === id);
                   if (found) {
                     setDetailLead(found);
-                    ops.setActiveLead(null);
                   } else {
                     router.push(`/admin/leads/${id}`);
                   }
@@ -326,54 +337,6 @@ export default function LeadsDashboard({
             ))
           )}
         </div>
-
-        {/* ── САЙДБАР / ШТОРКА ЛИДА ── */}
-        <LeadMobileDrawer
-          activeLead={ops.activeLead}
-          clients={ops.clients}
-          companies={initialCompanies}
-          editName={ops.editName}
-          setEditName={ops.setEditName}
-          editPhone={ops.editPhone}
-          setEditPhone={ops.setEditPhone}
-          editAddress={ops.editAddress}
-          setEditAddress={ops.setEditAddress}
-          editManager={ops.editManager}
-          setEditManager={ops.setEditManager}
-          editAppDate={ops.editAppDate}
-          setEditAppDate={ops.setEditAppDate}
-          editDeadline={ops.editDeadline}
-          setEditDeadline={ops.setEditDeadline}
-          editOfferedPrice={ops.editOfferedPrice}
-          setEditOfferedPrice={ops.setEditOfferedPrice}
-          editIsDiscounted={ops.editIsDiscounted}
-          setEditIsDiscounted={ops.setEditIsDiscounted}
-          editPrepayment={ops.editPrepayment}
-          setEditPrepayment={ops.setEditPrepayment}
-          editComment={ops.editComment}
-          setEditComment={ops.setEditComment}
-          isSavingDetails={ops.isSavingDetails}
-          onClose={() => ops.setActiveLead(null)}
-          onSaveLeadDetails={ops.handleSaveLeadDetails}
-          onStatusChange={ops.handleStatusChange}
-          onOpenEstimateModal={() => {
-            if (ops.activeLead) setEstimateLead(ops.activeLead);
-            setShowEstimateModal(true);
-          }}
-          onOpenFullCard={(id) => {
-            const found = ops.leads.find((l) => l.id === id);
-            if (found) {
-              setDetailLead(found);
-              ops.setActiveLead(null);
-            } else {
-              router.push(`/admin/leads/${id}`);
-            }
-          }}
-          onLinkLeadToClient={ops.handleLinkLeadToClient}
-          onCreateClientFromLead={ops.handleCreateClientFromLead}
-          onOpenClientsPage={() => router.push("/admin/clients")}
-          onConvertToCompanyAndProject={ops.handleConvertToCompanyAndProject}
-        />
       </div>
 
       {/* ── МОДАЛЬНЫЕ ОКНА ── */}
@@ -401,19 +364,18 @@ export default function LeadsDashboard({
         />
       )}
 
-      {/* ── ПОДРОБНАЯ КАРТОЧКА ЛИДА (ШТОРКА 60 FPS) ── */}
+      {/* ── ПОДРОБНАЯ КАРТОЧКА ЛИДА (ЕДИНАЯ ШТОРКА 60 FPS) ── */}
       {detailLead && (
         <LeadDetailSheet
           isOpen={Boolean(detailLead)}
           onClose={() => setDetailLead(null)}
           lead={detailLead}
+          clients={ops.clients}
+          companies={initialCompanies}
           onUpdateLead={(updated) => {
             ops.setLeads((prev) =>
               prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
             );
-            if (ops.activeLead && ops.activeLead.id === updated.id) {
-              ops.setActiveLead((prev) => (prev ? { ...prev, ...updated } : null));
-            }
             setDetailLead(updated);
           }}
           warehouseItems={initialWarehouseItems}

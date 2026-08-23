@@ -19,6 +19,7 @@ import { triggerHaptic } from "@/lib/haptics";
 interface LeadDetailPageProps {
   lead: LeadFullDetails;
   companies?: any[];
+  clients?: any[];
   warehouseItems?: any[];
   supplierPrices?: any[];
 }
@@ -26,6 +27,7 @@ interface LeadDetailPageProps {
 export default function LeadDetailPage({
   lead,
   companies = [],
+  clients = [],
   warehouseItems = [],
   supplierPrices = [],
 }: LeadDetailPageProps) {
@@ -34,6 +36,8 @@ export default function LeadDetailPage({
 
   const state = useLeadDetailState({
     lead,
+    clients,
+    companies,
     onClose: () => router.push("/admin/leads"),
   });
 
@@ -114,6 +118,13 @@ export default function LeadDetailPage({
               setCancellationReason={state.setCancellationReason}
               initialMessage={lead.message}
               source={lead.source}
+              leadId={lead.id}
+              client={state.client}
+              clients={clients}
+              companies={companies}
+              onLinkLeadToClient={state.handleLinkLeadToClient}
+              onCreateClientFromLead={state.handleCreateClientFromLead}
+              onConvertToCompanyAndProject={state.handleConvertToCompanyAndProject}
             />
           )}
 
