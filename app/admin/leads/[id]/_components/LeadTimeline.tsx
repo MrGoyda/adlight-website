@@ -5,6 +5,7 @@ import { Clock, Send, Trash2, Pencil, Check, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { crmDict } from "@/dictionaries/crm";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
 
 interface LeadActivityItem {
   id: string;
@@ -139,7 +140,17 @@ export default function LeadTimeline({
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => onDeleteNote(act.id)}
+                            onClick={() => {
+                              triggerHaptic("medium");
+                              toast.confirm({
+                                title: "Удалить заметку?",
+                                message: "Заметка будет безвозвратно удалена из истории сделки.",
+                                confirmText: "Да, удалить",
+                                cancelText: "Отмена",
+                                isDestructive: true,
+                                onConfirm: () => onDeleteNote(act.id),
+                              });
+                            }}
                             className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition cursor-pointer active:scale-90"
                             title={crmDict.leadDetail.deleteNoteTitle}
                           >

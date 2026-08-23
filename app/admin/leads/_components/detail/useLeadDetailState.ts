@@ -272,13 +272,24 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
 
   // Удаление файла
   const handleDeleteFile = async (fileId: string) => {
-    const res = await deleteLeadFile(fileId, lead.id);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      setFiles((prev) => prev.filter((f) => f.id !== fileId));
-      toast.success("Файл удален");
-    }
+    const fileItem = files.find((f) => f.id === fileId);
+    const fileName = fileItem?.name || "файл";
+    toast.confirm({
+      title: `Удалить «${fileName}»?`,
+      message: "Файл будет удален из облачного хранилища без возможности восстановления.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        const res = await deleteLeadFile(fileId, lead.id);
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          setFiles((prev) => prev.filter((f) => f.id !== fileId));
+          toast.success("Файл удален");
+        }
+      },
+    });
   };
 
   // Добавление заметки в таймлайн
@@ -297,13 +308,22 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
 
   // Удаление заметки
   const handleDeleteActivity = async (activityId: string) => {
-    const res = await deleteLeadActivity(activityId, lead.id);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      setActivities((prev) => prev.filter((a) => a.id !== activityId));
-      toast.success("Запись удалена");
-    }
+    toast.confirm({
+      title: "Удалить запись из истории?",
+      message: "Заметка будет безвозвратно удалена из таймлайна сделки.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        const res = await deleteLeadActivity(activityId, lead.id);
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          setActivities((prev) => prev.filter((a) => a.id !== activityId));
+          toast.success("Запись удалена");
+        }
+      },
+    });
   };
 
   // Привязка лида к клиенту

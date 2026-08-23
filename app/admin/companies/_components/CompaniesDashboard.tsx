@@ -445,13 +445,23 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
                         </a>
                       </div>
                       <button
-                        onClick={async () => {
-                          if (confirm(`Удалить контакт ${cnt.name}?`)) {
-                            await deleteContact(cnt.id, activeCompany.id);
-                            router.refresh();
-                          }
+                        onClick={() => {
+                          triggerHaptic("medium");
+                          toast.confirm({
+                            title: `Удалить контакт «${cnt.name}»?`,
+                            message: "Контактное лицо будет удалено из профиля компании.",
+                            confirmText: "Да, удалить",
+                            cancelText: "Отмена",
+                            isDestructive: true,
+                            onConfirm: async () => {
+                              await deleteContact(cnt.id, activeCompany.id);
+                              router.refresh();
+                              toast.success("Контакт удален");
+                            },
+                          });
                         }}
-                        className="text-slate-400 hover:text-rose-600 p-1"
+                        className="text-slate-400 hover:text-rose-600 p-1 rounded-md hover:bg-rose-50 transition cursor-pointer active:scale-90"
+                        title="Удалить контакт"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

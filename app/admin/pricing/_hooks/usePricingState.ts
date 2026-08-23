@@ -88,16 +88,26 @@ export function usePricingState({
   };
 
   const handleDeleteMaterial = async (id: string) => {
-    if (!confirm("Вы уверены, что хотите удалить этот материал из каталога?")) return;
-    triggerHaptic("medium");
+    const material = supplierPrices.find((p) => p.id === id);
+    const materialName = material?.name || "материал";
 
-    const res = await deleteSupplierPrice(id);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      setSupplierPrices((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Товар удален");
-    }
+    toast.confirm({
+      title: `Удалить «${materialName}»?`,
+      message: "Материал будет удален из каталога себестоимости.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        triggerHaptic("medium");
+        const res = await deleteSupplierPrice(id);
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          setSupplierPrices((prev) => prev.filter((p) => p.id !== id));
+          toast.success("Товар удален");
+        }
+      },
+    });
   };
 
   // ════════════════════════════════════════════════════════════════════
@@ -132,16 +142,26 @@ export function usePricingState({
   };
 
   const handleDeleteRate = async (id: string) => {
-    if (!confirm("Вы уверены, что хотите удалить эту операцию из тарифов?")) return;
-    triggerHaptic("medium");
+    const rate = workOperations.find((r) => r.id === id);
+    const rateName = rate?.name || "тариф";
 
-    const res = await deleteWorkOperation(id);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      setWorkOperations((prev) => prev.filter((r) => r.id !== id));
-      toast.success("Тариф удален");
-    }
+    toast.confirm({
+      title: `Удалить «${rateName}»?`,
+      message: "Операция будет удалена из тарифов сметного калькулятора.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        triggerHaptic("medium");
+        const res = await deleteWorkOperation(id);
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          setWorkOperations((prev) => prev.filter((r) => r.id !== id));
+          toast.success("Тариф удален");
+        }
+      },
+    });
   };
 
   // ════════════════════════════════════════════════════════════════════
@@ -176,16 +196,26 @@ export function usePricingState({
   };
 
   const handleDeleteSupplier = async (id: string) => {
-    if (!confirm("Удалить поставщика? Товары этого поставщика останутся в каталоге, но привязка будет снята.")) return;
-    triggerHaptic("medium");
+    const supplier = suppliers.find((s) => s.id === id);
+    const supplierName = supplier?.name || "поставщика";
 
-    const res = await deleteSupplier(id);
-    if (res.error) {
-      toast.error(res.error);
-    } else {
-      setSuppliers((prev) => prev.filter((s) => s.id !== id));
-      toast.success("Поставщик удален");
-    }
+    toast.confirm({
+      title: `Удалить «${supplierName}»?`,
+      message: "Товары этого поставщика останутся в каталоге, но привязка к поставщику будет снята.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: async () => {
+        triggerHaptic("medium");
+        const res = await deleteSupplier(id);
+        if (res.error) {
+          toast.error(res.error);
+        } else {
+          setSuppliers((prev) => prev.filter((s) => s.id !== id));
+          toast.success("Поставщик удален");
+        }
+      },
+    });
   };
 
   return {

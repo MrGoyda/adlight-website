@@ -10,6 +10,7 @@ import {
 } from "../../../_data/leadDetailDictionary";
 import { LeadTechSpec, LeadConstructionItem } from "../../../_types/leadDetailTypes";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
 import { 
   Wrench, 
   ShieldCheck, 
@@ -125,21 +126,33 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
   const handleDeleteItem = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("medium");
-    if (items.length <= 1) {
-      const resetItem: LeadConstructionItem = {
-        id: `item-${Date.now()}`,
-        signType: null,
-        title: "Основная вывеска",
-        lengthMm: null,
-        heightMm: null,
-        letterHeightMm: null,
-      };
-      handleUpdateItems([resetItem]);
-      setExpandedItemIds([resetItem.id]);
-      return;
-    }
-    const nextItems = items.filter((i) => i.id !== id);
-    handleUpdateItems(nextItems);
+    const itemToDelete = items.find((i) => i.id === id);
+    const itemTitle = itemToDelete?.title || "Конструкция";
+
+    toast.confirm({
+      title: `Удалить «${itemTitle}»?`,
+      message: "Параметры и размеры этой конструкции будут удалены из тех-спецификации.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: () => {
+        if (items.length <= 1) {
+          const resetItem: LeadConstructionItem = {
+            id: `item-${Date.now()}`,
+            signType: null,
+            title: "Основная вывеска",
+            lengthMm: null,
+            heightMm: null,
+            letterHeightMm: null,
+          };
+          handleUpdateItems([resetItem]);
+          setExpandedItemIds([resetItem.id]);
+          return;
+        }
+        const nextItems = items.filter((i) => i.id !== id);
+        handleUpdateItems(nextItems);
+      },
+    });
   };
 
   const handleUpdateItemField = (id: string, field: keyof LeadConstructionItem, value: any) => {
