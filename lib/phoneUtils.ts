@@ -3,7 +3,18 @@ export function formatPhoneInput(rawPhone: string): string {
 
   const trimmed = rawPhone.trim();
 
-  // Если номер международный (начинается с плюса, но не +7)
+  // Пустые или очищенные значения при стирании
+  if (
+    trimmed === "" ||
+    trimmed === "+" ||
+    trimmed === "+7" ||
+    trimmed === "+7 " ||
+    trimmed === "+7 ("
+  ) {
+    return "";
+  }
+
+  // Если номер международный (начинается с +, но не +7)
   if (trimmed.startsWith("+") && !trimmed.startsWith("+7")) {
     const digits = trimmed.replace(/\D/g, "");
     return digits ? `+${digits}` : "";
@@ -13,40 +24,38 @@ export function formatPhoneInput(rawPhone: string): string {
   const digits = rawPhone.replace(/\D/g, "");
   if (!digits) return "";
 
-  // Если ввод пустой или пользователь удалил до кода страны (+7, 7, 8, +)
-  if (
-    trimmed === "+7" || 
-    trimmed === "+" || 
-    trimmed === "7" || 
-    trimmed === "8" || 
-    trimmed === "+7 (" ||
-    trimmed === "+7 "
-  ) {
-    return "";
+  // Если введена всего одна цифра в пустое поле
+  if (digits.length === 1) {
+    if (digits === "7" || digits === "8") {
+      return "+7 (";
+    }
+    return `+7 (${digits}`;
   }
 
-  // Извлекаем абонентские цифры (10 цифр)
-  let localDigits = digits;
-  if (digits.length >= 11 && (digits.startsWith("7") || digits.startsWith("8"))) {
-    localDigits = digits.slice(1);
-  } else if (digits.length > 1 && (digits.startsWith("7") || digits.startsWith("8"))) {
-    localDigits = digits.slice(1);
-  } else if (digits === "7" || digits === "8") {
-    return "";
-  }
+  let localDigits = "";
 
-  // Если абонентских цифр не осталось — возвращаем пусто, чтобы поле стиралось
-  if (!localDigits) {
-    return "";
+  // Если 11 цифр и начинается с 7 или 8 — первая цифра это код страны (+7)
+  if (digits.length === 11 && (digits.startsWith("7") || digits.startsWith("8"))) {
+    localDigits = digits.slice(1);
+  } else if (digits.length === 10) {
+    // 10 цифр — готовый номер оператора (например 7071234567)
+    localDigits = digits;
+  } else if (digits.startsWith("7") || digits.startsWith("8")) {
+    // Пользователь вводит номер с префиксом +7 или 8
+    localDigits = digits.slice(1);
+  } else {
+    // Пользователь вводит цифры без префикса
+    localDigits = digits;
   }
 
   localDigits = localDigits.slice(0, 10);
 
-  let result = "+7";
-
-  if (localDigits.length > 0) {
-    result += ` (${localDigits.slice(0, 3)}`;
+  if (!localDigits) {
+    return "+7 (";
   }
+
+  let result = `+7 (${localDigits.slice(0, 3)}`;
+
   if (localDigits.length > 3) {
     result += `) ${localDigits.slice(3, 6)}`;
   }
