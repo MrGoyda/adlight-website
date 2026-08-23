@@ -28,6 +28,7 @@ import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { createClient, updateClient, deleteClient } from "../actions";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import PhoneInput from "@/components/ui/PhoneInput";
 import { CRM_EVENTS } from "@/lib/crmEvents";
 import Button from "@/components/ui/Button";
 import { crmDict } from "@/dictionaries/crm";
@@ -489,16 +490,12 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
                     <label className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">
                       Телефон *
                     </label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-                      <input
-                        type="text"
-                        required
-                        value={editPhone}
-                        onChange={(e) => setEditPhone(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-slate-800 font-semibold focus:border-orange-500/50 focus:outline-none text-xs transition"
-                      />
-                    </div>
+                    <PhoneInput
+                      required
+                      value={editPhone}
+                      onChange={(val) => setEditPhone(val)}
+                      className="bg-slate-50 focus:bg-white"
+                    />
                   </div>
                 </div>
 
@@ -744,13 +741,12 @@ export default function ClientsDashboard({ initialClients }: ClientsDashboardPro
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
                     Телефон *
                   </label>
-                  <input
-                    type="text"
+                  <PhoneInput
                     required
                     value={newPhone}
-                    onChange={(e) => setNewPhone(e.target.value)}
-                    className="w-full bg-slate-50/60 border border-slate-200/80 rounded-xl py-2.5 px-3.5 text-slate-900 font-semibold focus:border-orange-500/50 focus:outline-none transition text-sm focus:ring-2 focus:ring-orange-500/10"
-                    placeholder="+77071112233"
+                    onChange={(val) => setNewPhone(val)}
+                    placeholder="+7 (___) ___-__-__"
+                    className="bg-slate-50/60 focus:bg-white"
                   />
                 </div>
               </div>

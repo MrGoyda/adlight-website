@@ -1,8 +1,3 @@
-/**
- * Умная маска для полей ввода: форматирует на лету в `+7 (7XX) XXX-XX-XX`
- * Поддерживает вставку номеров любого формата (8701..., +7701..., 701..., +7 701...)
- * и международные номера (+996..., +998..., +1...).
- */
 export function formatPhoneInput(rawPhone: string): string {
   if (!rawPhone) return "";
 
@@ -11,20 +6,40 @@ export function formatPhoneInput(rawPhone: string): string {
   // Если номер международный (начинается с плюса, но не +7)
   if (trimmed.startsWith("+") && !trimmed.startsWith("+7")) {
     const digits = trimmed.replace(/\D/g, "");
-    return `+${digits}`;
+    return digits ? `+${digits}` : "";
   }
 
   // Очищаем все нецифровые символы
   const digits = rawPhone.replace(/\D/g, "");
   if (!digits) return "";
 
-  // Если первая цифра 8 или 7 — отсекаем ее как код страны (+7)
-  let localDigits = digits;
-  if (localDigits.startsWith("8") || localDigits.startsWith("7")) {
-    localDigits = localDigits.slice(1);
+  // Если ввод пустой или пользователь удалил до кода страны (+7, 7, 8, +)
+  if (digits === "7" || digits === "8") {
+    if (
+      trimmed === "+7" || 
+      trimmed === "+" || 
+      trimmed === "7" || 
+      trimmed === "8" || 
+      trimmed === "+7 (" ||
+      trimmed === "+7 "
+    ) {
+      return "";
+    }
   }
 
-  // Ограничиваем 10 цифрами абонентского номера
+  // Извлекаем абонентские цифры (10 цифр)
+  let localDigits = digits;
+  if (digits.length >= 11 && (digits.startsWith("7") || digits.startsWith("8"))) {
+    localDigits = digits.slice(1);
+  } else if (digits.length > 1 && (digits.startsWith("7") || digits.startsWith("8"))) {
+    localDigits = digits.slice(1);
+  }
+
+  // Если абонентских цифр не осталось — возвращаем пусто, чтобы поле стиралось
+  if (!localDigits) {
+    return "";
+  }
+
   localDigits = localDigits.slice(0, 10);
 
   let result = "+7";

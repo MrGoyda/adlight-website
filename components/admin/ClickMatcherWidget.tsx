@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import Button from "@/components/ui/Button";
+import PhoneInput from "@/components/ui/PhoneInput";
 
 interface ClickItem {
   id: string;
@@ -420,14 +421,12 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                               className="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 placeholder:text-slate-400 focus:border-orange-500 outline-none text-base sm:text-xs transition shadow-2xs"
                               suppressHydrationWarning
                             />
-                            <input
-                              type="tel"
+                            <PhoneInput
                               required
                               placeholder="Телефон клиента *"
                               value={targetLeadPhone}
-                              onChange={(e) => setTargetLeadPhone(e.target.value)}
-                              className="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 placeholder:text-slate-400 focus:border-orange-500 outline-none text-base sm:text-xs transition shadow-2xs"
-                              suppressHydrationWarning
+                              onChange={(val) => setTargetLeadPhone(val)}
+                              className="bg-white"
                             />
                           </div>
 

@@ -26,6 +26,7 @@ import {
 import Button from "@/components/ui/Button";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import PhoneInput from "@/components/ui/PhoneInput";
 import { createCompany, createContact, createProject, deleteCompany, deleteContact, linkLeadToB2B } from "../actions";
 
 interface Contact {
@@ -718,13 +719,12 @@ export default function CompaniesDashboard({ initialCompanies, allLeads = [] }: 
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">Телефон * (проверка дубликатов +7 / 8 / 7)</label>
-                <input
-                  type="text"
+                <PhoneInput
                   required
                   placeholder="+7 (700) 000-00-00"
                   value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-orange-500"
+                  onChange={(val) => setContactPhone(val)}
+                  className="bg-slate-50 focus:bg-white"
                 />
               </div>
 

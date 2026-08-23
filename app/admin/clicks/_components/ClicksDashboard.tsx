@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
+import PhoneInput from "@/components/ui/PhoneInput";
 
 interface ClickItem {
   id: string;
@@ -462,14 +463,12 @@ export default function ClicksDashboard({ initialClicks }: ClicksDashboardProps)
                                 className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-orange-500 outline-none text-base sm:text-xs font-medium transition"
                                 suppressHydrationWarning
                               />
-                              <input
-                                type="tel"
+                              <PhoneInput
                                 required
                                 placeholder="Телефон клиента *"
                                 value={targetPhone}
-                                onChange={(e) => setTargetPhone(e.target.value)}
-                                className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:border-orange-500 outline-none text-base sm:text-xs font-medium transition"
-                                suppressHydrationWarning
+                                onChange={(val) => setTargetPhone(val)}
+                                className="bg-slate-50 focus:bg-white"
                               />
                             </div>
 
