@@ -18,20 +18,24 @@ interface LeadCardTechSpecChipsProps {
 export default function LeadCardTechSpecChips({ techSpec }: LeadCardTechSpecChipsProps) {
   if (!techSpec) return null;
 
-  const selectedTypes = techSpec.signTypes || [];
-  const selectedTypeLabels = selectedTypes
-    .map((id) => SIGN_TYPES.find((st) => st.id === id)?.label)
-    .filter(Boolean);
+  // Список конструкций из items или signTypes
+  const items = techSpec.items && techSpec.items.length > 0
+    ? techSpec.items
+    : (techSpec.signTypes || []).map((st) => ({
+        signType: st,
+        title: SIGN_TYPES.find((s) => s.id === st)?.label,
+        lengthMm: techSpec.lengthMm || (techSpec.lengthMeters ? Math.round(techSpec.lengthMeters * 1000) : null),
+        heightMm: techSpec.heightMm || (techSpec.heightMeters ? Math.round(techSpec.heightMeters * 1000) : null),
+        letterHeightMm: techSpec.letterHeightMm || (techSpec.letterHeightCm ? Math.round(techSpec.letterHeightCm * 10) : null),
+      }));
 
   const mountingHeightObj = MOUNTING_HEIGHTS.find((h) => h.id === techSpec.mountingHeight);
   const facadeTypeObj = FACADE_WALL_TYPES.find((w) => w.id === techSpec.facadeType);
   const powerSupplyObj = POWER_SUPPLY_OPTIONS.find((p) => p.id === techSpec.powerSupply);
   const approvalStatusObj = APPROVAL_STATUSES.find((a) => a.id === techSpec.approvalStatus);
 
-  const hasDims = Boolean(techSpec.lengthMeters || techSpec.heightMeters || techSpec.letterHeightCm);
   const hasSpec =
-    selectedTypeLabels.length > 0 ||
-    hasDims ||
+    items.length > 0 ||
     mountingHeightObj ||
     facadeTypeObj ||
     powerSupplyObj ||
@@ -42,31 +46,30 @@ export default function LeadCardTechSpecChips({ techSpec }: LeadCardTechSpecChip
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-      {/* Тип конструкции */}
-      {selectedTypeLabels.map((lbl, idx) => (
-        <span
-          key={idx}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-orange-100 text-orange-800 border border-orange-200 shadow-2xs"
-        >
-          <Layers className="w-2.5 h-2.5 text-orange-600" />
-          {lbl}
-        </span>
-      ))}
+      {/* Список конструкций с размерами в мм */}
+      {items.map((item, idx) => {
+        const stObj = SIGN_TYPES.find((st) => st.id === item.signType);
+        const title = stObj?.label || item.title || "Конструкция";
+        const dims = item.lengthMm || item.heightMm 
+          ? `${item.lengthMm || "?"}×${item.heightMm || "?"} мм`
+          : null;
 
-      {/* Габариты */}
-      {hasDims && (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-slate-100 text-slate-800 border border-slate-200">
-          <Maximize className="w-2.5 h-2.5 text-slate-500" />
-          {techSpec.lengthMeters ? `${techSpec.lengthMeters}м` : ""}
-          {techSpec.heightMeters ? ` × ${techSpec.heightMeters}м` : ""}
-          {techSpec.letterHeightCm ? ` (буквы ${techSpec.letterHeightCm}см)` : ""}
-        </span>
-      )}
+        return (
+          <span
+            key={idx}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-orange-100 text-orange-900 border border-orange-200 shadow-2xs"
+          >
+            <Layers className="w-2.5 h-2.5 text-orange-600" />
+            <span>{title}</span>
+            {dims && <span className="text-orange-700 font-mono font-bold">({dims})</span>}
+          </span>
+        );
+      })}
 
       {/* Материал фасада */}
       {facadeTypeObj && (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-          🏢 {facadeTypeObj.label}
+          <span>{facadeTypeObj.label}</span>
         </span>
       )}
 

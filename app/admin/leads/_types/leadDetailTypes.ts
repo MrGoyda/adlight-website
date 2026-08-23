@@ -1,11 +1,28 @@
 import { LeadStatus, ClientRating, FileCategory } from "@prisma/client";
 import { Lead } from "./leadTypes";
 
+export interface LeadConstructionItem {
+  id: string;
+  signType?: string | null;
+  title?: string | null;
+  lengthMm?: number | null;
+  heightMm?: number | null;
+  letterHeightMm?: number | null;
+  depthMm?: number | null;
+  comment?: string | null;
+}
+
 export interface LeadTechSpec {
+  items?: LeadConstructionItem[];
+  // Поля совместимости
   signTypes?: string[];
   lengthMeters?: number | null;
   heightMeters?: number | null;
   letterHeightCm?: number | null;
+  lengthMm?: number | null;
+  heightMm?: number | null;
+  letterHeightMm?: number | null;
+  // Монтажные условия
   mountingHeight?: string | null;
   facadeType?: string | null;
   powerSupply?: string | null;

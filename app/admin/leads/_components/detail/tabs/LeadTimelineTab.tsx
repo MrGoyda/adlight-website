@@ -105,7 +105,7 @@ export default function LeadTimelineTab({
             onChange={(e) => setNoteText(e.target.value)}
             placeholder="Результат звонка, договоренность по встрече, замечания по макету..."
             minHeight={64}
-            className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+            className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition"
           />
           <div className="flex justify-end">
             <button

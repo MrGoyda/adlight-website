@@ -291,7 +291,7 @@ export default function LeadParametersTab({
         )}
       </div>
 
-      {/* ── 1. ОСНОВНЫЕ КОНТАКТНЫЕ ДАННЫЕ (INLINE EDIT) ── */}
+      {/* ── 1. ОСНОВНЫЕ КОНТАКТНЫЕ ДАННЫЕ (INLINE EDIT, 16px font on mobile) ── */}
       <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <User className="w-3.5 h-3.5 text-slate-500" />
@@ -310,7 +310,7 @@ export default function LeadParametersTab({
               onChange={(e) => setName(e.target.value)}
               onBlur={() => onAutoSave?.({ name })}
               placeholder="Имя заказчика"
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition"
             />
           </div>
 
@@ -336,7 +336,7 @@ export default function LeadParametersTab({
                 onChange={(e) => setPhone(e.target.value)}
                 onBlur={() => onAutoSave?.({ phone })}
                 placeholder="+7 (___) ___-__-__"
-                className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition font-mono"
+                className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
               />
               <Phone className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
             </div>
@@ -366,7 +366,7 @@ export default function LeadParametersTab({
               onChange={(e) => setAddress(e.target.value)}
               onBlur={() => onAutoSave?.({ address })}
               placeholder="Улица, дом, ТРЦ, этаж, бутик..."
-              className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition"
             />
             <MapPin className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
           </div>
@@ -393,7 +393,7 @@ export default function LeadParametersTab({
                 setManager(val);
                 onAutoSave?.({ manager: val || null });
               }}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition cursor-pointer"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer"
             >
               <option value="">Не назначен</option>
               {Object.values(PartnerName).map((p) => (
@@ -417,7 +417,7 @@ export default function LeadParametersTab({
                 setAppDate(val);
                 onAutoSave?.({ appDate: val });
               }}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition font-mono"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
             />
           </div>
 
@@ -434,7 +434,7 @@ export default function LeadParametersTab({
                 setDeadline(val);
                 onAutoSave?.({ deadline: val });
               }}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition font-mono"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
             />
           </div>
         </div>
@@ -474,7 +474,7 @@ export default function LeadParametersTab({
               onChange={(e) => setOfferedPrice(e.target.value)}
               onBlur={() => onAutoSave?.({ offeredPrice })}
               placeholder="0 ₸"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-sm font-mono shadow-inner"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-sm font-mono shadow-inner"
             />
           </div>
 
@@ -504,7 +504,7 @@ export default function LeadParametersTab({
               onChange={(e) => setPrepayment(e.target.value)}
               onBlur={() => onAutoSave?.({ prepayment })}
               placeholder="0 ₸"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-sm font-mono shadow-inner"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-sm font-mono shadow-inner"
             />
           </div>
         </div>
@@ -527,11 +527,11 @@ export default function LeadParametersTab({
         </div>
       </div>
 
-      {/* ── 4. БЫСТРЫЕ ЗАМЕТКИ И ПОМЕТКИ МЕНЕДЖЕРА ── */}
+      {/* ── 4. ЕДИНАЯ ИСТОРИЯ И БЫСТРЫЕ ЗАМЕТКИ ПО СДЕЛКЕ ── */}
       <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <MessageSquare className="w-3.5 h-3.5 text-orange-500" />
-          Быстрые пометки и заметки ({activities.length})
+          История сделки и заметки ({activities.length})
         </span>
 
         {/* Форма добавления быстрой заметки */}
@@ -541,32 +541,32 @@ export default function LeadParametersTab({
               <AutoResizeTextarea
                 value={quickNoteText}
                 onChange={(e) => setQuickNoteText(e.target.value)}
-                placeholder="Добавить пометку: звонок клиенту, правки по смете, договоренности..."
-                minHeight={56}
-                className="w-full bg-white border border-slate-200 rounded-xl p-3 pr-10 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
+                placeholder="Добавить запись в историю сделки: звонок клиенту, правки, договоренности..."
+                minHeight={60}
+                className="w-full bg-white border border-slate-200 rounded-xl p-3 pr-10 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition"
               />
               <button
                 type="submit"
                 disabled={isAddingNote || !quickNoteText.trim()}
-                className="absolute right-2.5 bottom-2.5 p-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white transition cursor-pointer disabled:opacity-30 shadow-2xs active:scale-95"
+                className="absolute right-2.5 bottom-2.5 p-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white transition cursor-pointer disabled:opacity-30 shadow-2xs active:scale-95"
                 title="Сохранить пометку"
               >
-                <Send className="w-3.5 h-3.5" />
+                <Send className="w-4 h-4" />
               </button>
             </div>
           </form>
         )}
 
-        {/* Список последних заметок */}
-        {activities.length > 0 && (
-          <div className="space-y-2 max-h-48 overflow-y-auto pt-1">
+        {/* Список записей истории */}
+        {activities.length > 0 ? (
+          <div className="space-y-2 max-h-56 overflow-y-auto pt-1">
             {activities.map((act) => (
               <div
                 key={act.id}
-                className="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs space-y-1 relative group"
+                className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs space-y-1 relative group"
               >
                 <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
-                  <span className="text-slate-700 font-black">{act.author || "Менеджер"}</span>
+                  <span className="text-slate-800 font-black">{act.author || "Менеджер"}</span>
                   <div className="flex items-center gap-2">
                     <span>{new Date(act.createdAt).toLocaleDateString()} {new Date(act.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     {onDeleteActivity && (
@@ -590,25 +590,14 @@ export default function LeadParametersTab({
               </div>
             ))}
           </div>
+        ) : (
+          <p className="text-[11px] text-slate-400 text-center py-2 font-medium">
+            В истории пока нет записей. Добавьте первую пометку выше.
+          </p>
         )}
       </div>
 
-      {/* ── 5. ПОСТОЯННЫЙ КОММЕНТАРИЙ ── */}
-      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-2">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-          Постоянный комментарий к лиду
-        </label>
-        <AutoResizeTextarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          onBlur={() => onAutoSave?.({ comment })}
-          placeholder="Главный комментарий по объекту..."
-          minHeight={64}
-          className="w-full bg-white border border-slate-200 rounded-xl p-3 text-slate-900 font-bold focus:border-orange-500 outline-none text-xs shadow-2xs transition"
-        />
-      </div>
-
-      {/* ── 6. ПРИЧИНА ОТКАЗА (Если статус CANCELLED) ── */}
+      {/* ── 5. ПРИЧИНА ОТКАЗА (Если статус CANCELLED) ── */}
       {status === "CANCELLED" && (
         <div className="bg-rose-50/80 p-3.5 sm:p-4 rounded-2xl border border-rose-200 space-y-2 animate-in fade-in duration-150">
           <label className="text-[10px] font-black text-rose-600 uppercase tracking-wider flex items-center gap-1.5">
@@ -622,7 +611,7 @@ export default function LeadParametersTab({
               setCancellationReason(val);
               onAutoSave?.({ cancellationReason: val });
             }}
-            className="w-full bg-white border border-rose-200 text-rose-950 font-extrabold rounded-xl px-3 py-2 text-xs outline-none focus:border-rose-500 shadow-2xs transition cursor-pointer"
+            className="w-full bg-white border border-rose-200 text-rose-950 font-extrabold rounded-xl px-3 py-2.5 text-base sm:text-xs outline-none focus:border-rose-500 shadow-2xs transition cursor-pointer"
           >
             <option value="">Не указана</option>
             {CANCELLATION_REASONS.map((r) => (
@@ -634,7 +623,7 @@ export default function LeadParametersTab({
         </div>
       )}
 
-      {/* Исходный запрос с сайта (раскрывающийся аккордеон) */}
+      {/* ── 6. Исходный запрос с сайта (раскрывающийся аккордеон) ── */}
       {initialMessage && (
         <div className="bg-orange-50/70 rounded-2xl border border-orange-200/80 w-full min-w-0 max-w-full overflow-hidden transition shadow-2xs">
           <InitialMessageAccordion message={initialMessage} source={source} />
