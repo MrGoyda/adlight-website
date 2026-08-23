@@ -84,7 +84,7 @@ export default function LeadDetailPage({
         />
 
         {/* 3. Контент активной вкладки */}
-        <div className="p-4 sm:p-6 pb-8">
+        <div className="p-4 sm:p-6 pb-32 sm:pb-12">
           {state.activeTab === "params" && (
             <LeadParametersTab
               name={state.name}

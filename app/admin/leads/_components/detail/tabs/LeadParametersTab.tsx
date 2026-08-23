@@ -377,13 +377,13 @@ export default function LeadParametersTab({
       <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <Calendar className="w-3.5 h-3.5 text-indigo-500" />
-          Ответственный менеджер и график
+          Ответственный менеджер и график работ
         </span>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Менеджер */}
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
+          <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
+            <label className="block text-[10px] text-slate-500 font-bold">
               Ответственный
             </label>
             <select
@@ -393,7 +393,7 @@ export default function LeadParametersTab({
                 setManager(val);
                 onAutoSave?.({ manager: val || null });
               }}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[42px]"
             >
               <option value="">Не назначен</option>
               {Object.values(PartnerName).map((p) => (
@@ -405,9 +405,12 @@ export default function LeadParametersTab({
           </div>
 
           {/* Дата и время замера */}
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
-              Дата и время замера
+          <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
+            <label className="block text-[10px] text-slate-500 font-bold flex items-center justify-between">
+              <span>Дата и время замера</span>
+              {appDate && (
+                <span className="text-[10px] text-orange-600 font-extrabold">Назначен</span>
+              )}
             </label>
             <input
               type="datetime-local"
@@ -417,14 +420,17 @@ export default function LeadParametersTab({
                 setAppDate(val);
                 onAutoSave?.({ appDate: val });
               }}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[42px]"
             />
           </div>
 
           {/* Срок сдачи (Дедлайн) */}
-          <div>
-            <label className="block text-[10px] text-slate-500 font-bold mb-1">
-              Крайний срок (Дедлайн)
+          <div className="bg-white p-3 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
+            <label className="block text-[10px] text-slate-500 font-bold flex items-center justify-between">
+              <span>Крайний срок (Дедлайн)</span>
+              {deadline && (
+                <span className="text-[10px] text-rose-600 font-extrabold">Установлен</span>
+              )}
             </label>
             <input
               type="date"
@@ -434,7 +440,7 @@ export default function LeadParametersTab({
                 setDeadline(val);
                 onAutoSave?.({ deadline: val });
               }}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[42px]"
             />
           </div>
         </div>
@@ -474,7 +480,7 @@ export default function LeadParametersTab({
               onChange={(e) => setOfferedPrice(e.target.value)}
               onBlur={() => onAutoSave?.({ offeredPrice })}
               placeholder="0 ₸"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-sm font-mono shadow-inner"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-sm font-mono shadow-inner min-h-[42px]"
             />
           </div>
 
@@ -504,7 +510,7 @@ export default function LeadParametersTab({
               onChange={(e) => setPrepayment(e.target.value)}
               onBlur={() => onAutoSave?.({ prepayment })}
               placeholder="0 ₸"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-sm font-mono shadow-inner"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-sm font-mono shadow-inner min-h-[42px]"
             />
           </div>
         </div>
@@ -534,24 +540,27 @@ export default function LeadParametersTab({
           История сделки и заметки ({activities.length})
         </span>
 
-        {/* Форма добавления быстрой заметки */}
+        {/* Форма добавления быстрой заметки с чистым расположением кнопки (без наложения на текст) */}
         {onAddNote && (
-          <form onSubmit={handleQuickNoteSubmit} className="space-y-2">
-            <div className="relative">
-              <AutoResizeTextarea
-                value={quickNoteText}
-                onChange={(e) => setQuickNoteText(e.target.value)}
-                placeholder="Добавить запись в историю сделки: звонок клиенту, правки, договоренности..."
-                minHeight={60}
-                className="w-full bg-white border border-slate-200 rounded-xl p-3 pr-10 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition"
-              />
+          <form onSubmit={handleQuickNoteSubmit} className="bg-white rounded-2xl border border-slate-200 p-2.5 shadow-2xs space-y-2 focus-within:border-orange-400 transition">
+            <AutoResizeTextarea
+              value={quickNoteText}
+              onChange={(e) => setQuickNoteText(e.target.value)}
+              placeholder="Добавить запись в историю сделки: звонок клиенту, правки, договоренности..."
+              minHeight={56}
+              className="w-full bg-transparent p-1.5 text-slate-900 font-bold focus:outline-none text-base sm:text-xs leading-relaxed"
+            />
+            <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+              <span className="text-[10px] text-slate-400 font-medium">
+                {quickNoteText.trim().length > 0 ? `${quickNoteText.trim().length} симв.` : "Быстрая пометка"}
+              </span>
               <button
                 type="submit"
                 disabled={isAddingNote || !quickNoteText.trim()}
-                className="absolute right-2.5 bottom-2.5 p-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white transition cursor-pointer disabled:opacity-30 shadow-2xs active:scale-95"
-                title="Сохранить пометку"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs transition cursor-pointer disabled:opacity-30 shadow-2xs active:scale-95 shrink-0"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3 h-3" />
+                <span>{isAddingNote ? "Отправка..." : "Сохранить"}</span>
               </button>
             </div>
           </form>
@@ -559,7 +568,7 @@ export default function LeadParametersTab({
 
         {/* Список записей истории */}
         {activities.length > 0 ? (
-          <div className="space-y-2 max-h-56 overflow-y-auto pt-1">
+          <div className="space-y-2 max-h-60 overflow-y-auto pt-1">
             {activities.map((act) => (
               <div
                 key={act.id}

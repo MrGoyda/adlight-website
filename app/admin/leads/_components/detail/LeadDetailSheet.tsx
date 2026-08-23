@@ -120,8 +120,8 @@ function LeadDetailSheetContent({
           activitiesCount={state.activities.length}
         />
 
-        {/* 3. Контент активной вкладки */}
-        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 pb-8 overscroll-contain">
+        {/* 3. Контент активной вкладки с достаточным отступом для мобильной клавиатуры */}
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 pb-32 sm:pb-12 overscroll-contain">
           {state.activeTab === "params" && (
             <LeadParametersTab
               name={state.name}
