@@ -29,11 +29,13 @@ export default function LeadDetailTabs({
   const activeTabRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (activeTabRef.current) {
-      activeTabRef.current.scrollIntoView({
+    if (containerRef.current && activeTabRef.current) {
+      const container = containerRef.current;
+      const tab = activeTabRef.current;
+      const scrollLeft = tab.offsetLeft - container.offsetWidth / 2 + tab.offsetWidth / 2;
+      container.scrollTo({
+        left: Math.max(0, scrollLeft),
         behavior: "smooth",
-        inline: "center",
-        block: "nearest",
       });
     }
   }, [activeTab]);
