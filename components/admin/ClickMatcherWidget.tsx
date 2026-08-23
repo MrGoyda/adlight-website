@@ -270,14 +270,14 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                   }}
                   className="p-2.5 sm:p-3 flex items-center justify-between gap-2 cursor-pointer select-none"
                 >
-                  <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-nowrap overflow-hidden">
                     {/* Код клика */}
-                    <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl bg-orange-500 text-white font-black text-xs tracking-tight shadow-xs shrink-0">
+                    <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl bg-orange-500 text-white font-black text-xs tracking-tight shadow-xs shrink-0 whitespace-nowrap">
                       {click.code}
                     </span>
 
                     {/* Тип обращения */}
-                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase shrink-0 border ${
+                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase shrink-0 border whitespace-nowrap ${
                       isWhatsapp 
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
                         : "bg-orange-50 text-orange-700 border-orange-200"
@@ -286,7 +286,7 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
                     </span>
 
                     {/* Время и Дата */}
-                    <span className="text-xs font-bold text-slate-800 shrink-0" suppressHydrationWarning>
+                    <span className="text-xs font-bold text-slate-800 shrink-0 whitespace-nowrap" suppressHydrationWarning>
                       {timeStr} <span className="text-[10px] font-medium text-slate-400">({dateStr})</span>
                     </span>
 
