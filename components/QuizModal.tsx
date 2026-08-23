@@ -283,6 +283,9 @@ export default function QuizModal({ isOpen, onClose, serviceContext }: QuizModal
                           hideLabel
                           variant="light"
                           id="quiz-phone"
+                          name="phone"
+                          autoComplete="off"
+                          inputMode="tel"
                           type="tel"
                           placeholder="+7 (777) 123-45-67"
                           value={phone}

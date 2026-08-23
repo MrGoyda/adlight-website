@@ -14,17 +14,15 @@ export function formatPhoneInput(rawPhone: string): string {
   if (!digits) return "";
 
   // Если ввод пустой или пользователь удалил до кода страны (+7, 7, 8, +)
-  if (digits === "7" || digits === "8") {
-    if (
-      trimmed === "+7" || 
-      trimmed === "+" || 
-      trimmed === "7" || 
-      trimmed === "8" || 
-      trimmed === "+7 (" ||
-      trimmed === "+7 "
-    ) {
-      return "";
-    }
+  if (
+    trimmed === "+7" || 
+    trimmed === "+" || 
+    trimmed === "7" || 
+    trimmed === "8" || 
+    trimmed === "+7 (" ||
+    trimmed === "+7 "
+  ) {
+    return "";
   }
 
   // Извлекаем абонентские цифры (10 цифр)
@@ -33,6 +31,8 @@ export function formatPhoneInput(rawPhone: string): string {
     localDigits = digits.slice(1);
   } else if (digits.length > 1 && (digits.startsWith("7") || digits.startsWith("8"))) {
     localDigits = digits.slice(1);
+  } else if (digits === "7" || digits === "8") {
+    return "";
   }
 
   // Если абонентских цифр не осталось — возвращаем пусто, чтобы поле стиралось
@@ -47,13 +47,13 @@ export function formatPhoneInput(rawPhone: string): string {
   if (localDigits.length > 0) {
     result += ` (${localDigits.slice(0, 3)}`;
   }
-  if (localDigits.length >= 3) {
+  if (localDigits.length > 3) {
     result += `) ${localDigits.slice(3, 6)}`;
   }
-  if (localDigits.length >= 6) {
+  if (localDigits.length > 6) {
     result += `-${localDigits.slice(6, 8)}`;
   }
-  if (localDigits.length >= 8) {
+  if (localDigits.length > 8) {
     result += `-${localDigits.slice(8, 10)}`;
   }
 

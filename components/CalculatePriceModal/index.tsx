@@ -411,7 +411,8 @@ export default function CalculatePriceModal({ isOpen, onClose, source }: Calcula
                     variant="light"
                     id="calc-modal-phone"
                     name="phone"
-                    autoComplete="tel"
+                    autoComplete="off"
+                    inputMode="tel"
                     type="tel"
                     placeholder="+7 (707) 123-45-67"
                     value={phone}

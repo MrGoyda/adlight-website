@@ -136,10 +136,11 @@ export default function ComplexCTA({ source = "Complex CTA (По умолчан�
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                     <input 
-                      type="tel" 
                       id="complex-phone"
                       name="phone"
-                      autoComplete="tel"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="off"
                       required
                       placeholder="+7 (777) 000-00-00"
                       className={`w-full bg-slate-900 border rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition outline-none placeholder:text-slate-600 text-base sm:text-sm ${phoneError ? "border-red-500" : "border-slate-700"}`}

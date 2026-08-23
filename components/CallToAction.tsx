@@ -183,6 +183,8 @@ export default function CallToAction({
                     <input 
                       id="cta-phone"
                       type="tel"
+                      inputMode="tel"
+                      autoComplete="off"
                       placeholder="+7 (707) 000-00-00"
                       value={phone}
                       onChange={handlePhoneChange}

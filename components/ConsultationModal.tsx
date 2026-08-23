@@ -252,7 +252,8 @@ export default function ConsultationModal({
                                   variant="light"
                                   id="modal-phone"
                                   name="phone"
-                                  autoComplete="tel"
+                                  autoComplete="off"
+                                  inputMode="tel"
                                   type="tel"
                                   placeholder="+7 (777) 123-45-67"
                                   value={phone}
