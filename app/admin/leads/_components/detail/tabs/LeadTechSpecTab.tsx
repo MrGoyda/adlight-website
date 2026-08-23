@@ -182,7 +182,7 @@ export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: L
             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs shadow-2xs transition active:scale-95 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Добавить конструкцию</span>
+            <span>Добавить конструкцию</span>
           </button>
         </div>
 

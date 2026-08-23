@@ -127,23 +127,23 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
   const autoSaveLead = async (overrides?: any) => {
     setSaveStatus("saving");
 
-    const targetRating = overrides?.rating ?? rating;
-    const targetStatus = overrides?.status ?? status;
-    const targetName = overrides?.name ?? name;
-    const targetPhone = overrides?.phone ?? phone;
-    const targetAddress = overrides?.address ?? address;
-    const targetComment = overrides?.comment ?? comment;
-    const targetManager = overrides?.manager ?? manager;
-    const targetAppDate = overrides?.appDate ?? appDate;
-    const targetDeadline = overrides?.deadline ?? deadline;
-    const targetOfferedPrice = overrides?.offeredPrice ?? offeredPrice;
-    const targetIsDiscounted = overrides?.isDiscounted ?? isDiscounted;
-    const targetPrepayment = overrides?.prepayment ?? prepayment;
-    const targetIsPrepaymentPaid = overrides?.isPrepaymentPaid ?? isPrepaymentPaid;
-    const targetIsBalancePaid = overrides?.isBalancePaid ?? isBalancePaid;
-    const targetTechSpec = overrides?.techSpec ?? techSpec;
-    const targetChecklist = overrides?.checklist ?? checklist;
-    const targetCancellationReason = overrides?.cancellationReason ?? cancellationReason;
+    const targetRating = overrides?.rating !== undefined ? overrides.rating : rating;
+    const targetStatus = overrides?.status !== undefined ? overrides.status : status;
+    const targetName = overrides?.name !== undefined ? overrides.name : name;
+    const targetPhone = overrides?.phone !== undefined ? overrides.phone : phone;
+    const targetAddress = overrides?.address !== undefined ? overrides.address : address;
+    const targetComment = overrides?.comment !== undefined ? overrides.comment : comment;
+    const targetManager = overrides?.manager !== undefined ? overrides.manager : manager;
+    const targetAppDate = overrides?.appDate !== undefined ? overrides.appDate : appDate;
+    const targetDeadline = overrides?.deadline !== undefined ? overrides.deadline : deadline;
+    const targetOfferedPrice = overrides?.offeredPrice !== undefined ? overrides.offeredPrice : offeredPrice;
+    const targetIsDiscounted = overrides?.isDiscounted !== undefined ? overrides.isDiscounted : isDiscounted;
+    const targetPrepayment = overrides?.prepayment !== undefined ? overrides.prepayment : prepayment;
+    const targetIsPrepaymentPaid = overrides?.isPrepaymentPaid !== undefined ? overrides.isPrepaymentPaid : isPrepaymentPaid;
+    const targetIsBalancePaid = overrides?.isBalancePaid !== undefined ? overrides.isBalancePaid : isBalancePaid;
+    const targetTechSpec = overrides?.techSpec !== undefined ? overrides.techSpec : techSpec;
+    const targetChecklist = overrides?.checklist !== undefined ? overrides.checklist : checklist;
+    const targetCancellationReason = overrides?.cancellationReason !== undefined ? overrides.cancellationReason : cancellationReason;
 
     const calcDetailsPayload = JSON.stringify({
       techSpec: targetTechSpec,
@@ -178,6 +178,14 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
       } else {
         setSaveStatus("saved");
         setTimeout(() => setSaveStatus("idle"), 2500);
+
+        if (overrides?.appDate !== undefined) setAppDate(overrides.appDate || "");
+        if (overrides?.deadline !== undefined) setDeadline(overrides.deadline || "");
+        if (overrides?.manager !== undefined) setManager(overrides.manager || "");
+        if (overrides?.name !== undefined) setName(overrides.name || "");
+        if (overrides?.phone !== undefined) setPhone(overrides.phone || "");
+        if (overrides?.address !== undefined) setAddress(overrides.address || "");
+
         if (onUpdateLead) {
           onUpdateLead({
             ...lead,
