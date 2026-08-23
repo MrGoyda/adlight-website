@@ -58,28 +58,6 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
         ) {
           e.preventDefault();
           onChange("");
-          return;
-        }
-
-        // Если курсор стоит сразу за форматирующим символом (')', '-', ' ', '(')
-        if (selectionStart === selectionEnd && selectionStart !== null && selectionStart > 0) {
-          const charBeforeCursor = input.value[selectionStart - 1];
-          if (["-", ")", " ", "("].includes(charBeforeCursor)) {
-            e.preventDefault();
-            // Ищем предыдущую цифру перед разделителем и удаляем её
-            let prevDigitIdx = selectionStart - 1;
-            while (prevDigitIdx >= 0 && /\D/.test(input.value[prevDigitIdx])) {
-              prevDigitIdx--;
-            }
-            if (prevDigitIdx >= 0) {
-              const rawWithoutDigit =
-                input.value.slice(0, prevDigitIdx) + input.value.slice(selectionStart);
-              const formatted = formatPhoneInput(rawWithoutDigit);
-              onChange(formatted);
-            } else {
-              onChange("");
-            }
-          }
         }
       }
     };

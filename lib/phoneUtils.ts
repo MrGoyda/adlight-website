@@ -1,3 +1,46 @@
+/**
+ * Извлекает 10 цифр абонентского номера (без кода страны +7/8)
+ */
+export function extractSubscriberDigits(rawPhone: string): string {
+  if (!rawPhone) return "";
+  
+  const trimmed = rawPhone.trim();
+  const digits = trimmed.replace(/\D/g, "");
+  if (!digits) return "";
+
+  // Если строка начинается с "+7" или "+ 7"
+  if (trimmed.startsWith("+7") || trimmed.startsWith("+ 7")) {
+    return digits.slice(1, 11);
+  }
+
+  // Если 11 цифр и начинается с 8 или 7 (например 87011234567 или 77011234567)
+  if (digits.length === 11 && (digits.startsWith("8") || digits.startsWith("7"))) {
+    return digits.slice(1, 11);
+  }
+
+  // Если начинается с 8 (например 8701...)
+  if (digits.startsWith("8")) {
+    return digits.slice(1, 11);
+  }
+
+  // Если пользователь вставил 10 цифр (например 7071234567)
+  if (digits.length === 10 && !trimmed.startsWith("+") && !trimmed.includes("(")) {
+    return digits;
+  }
+
+  // Если строка содержит "(" или префикс +7, первая 7 была кодом страны
+  if (digits.startsWith("7") && (trimmed.includes("+") || trimmed.includes("(") || trimmed.includes(")"))) {
+    return digits.slice(1, 11);
+  }
+
+  // Если пользователь нажал просто "7" в пустом поле
+  if (trimmed === "7") {
+    return "";
+  }
+
+  return digits.slice(0, 10);
+}
+
 export function formatPhoneInput(rawPhone: string): string {
   if (!rawPhone) return "";
 
@@ -20,50 +63,29 @@ export function formatPhoneInput(rawPhone: string): string {
     return digits ? `+${digits}` : "";
   }
 
-  // Очищаем все нецифровые символы
-  const digits = rawPhone.replace(/\D/g, "");
-  if (!digits) return "";
+  const allDigits = rawPhone.replace(/\D/g, "");
+  if (!allDigits) return "";
 
-  // Если введена всего одна цифра в пустое поле
-  if (digits.length === 1) {
-    if (digits === "7" || digits === "8") {
+  const subDigits = extractSubscriberDigits(rawPhone);
+
+  // Если абонентских цифр еще нет
+  if (!subDigits) {
+    if (allDigits === "7" || allDigits === "8") {
       return "+7 (";
     }
-    return `+7 (${digits}`;
+    return "";
   }
 
-  let localDigits = "";
+  let result = `+7 (${subDigits.slice(0, 3)}`;
 
-  // Если 11 цифр и начинается с 7 или 8 — первая цифра это код страны (+7)
-  if (digits.length === 11 && (digits.startsWith("7") || digits.startsWith("8"))) {
-    localDigits = digits.slice(1);
-  } else if (digits.length === 10) {
-    // 10 цифр — готовый номер оператора (например 7071234567)
-    localDigits = digits;
-  } else if (digits.startsWith("7") || digits.startsWith("8")) {
-    // Пользователь вводит номер с префиксом +7 или 8
-    localDigits = digits.slice(1);
-  } else {
-    // Пользователь вводит цифры без префикса
-    localDigits = digits;
+  if (subDigits.length > 3) {
+    result += `) ${subDigits.slice(3, 6)}`;
   }
-
-  localDigits = localDigits.slice(0, 10);
-
-  if (!localDigits) {
-    return "+7 (";
+  if (subDigits.length > 6) {
+    result += `-${subDigits.slice(6, 8)}`;
   }
-
-  let result = `+7 (${localDigits.slice(0, 3)}`;
-
-  if (localDigits.length > 3) {
-    result += `) ${localDigits.slice(3, 6)}`;
-  }
-  if (localDigits.length > 6) {
-    result += `-${localDigits.slice(6, 8)}`;
-  }
-  if (localDigits.length > 8) {
-    result += `-${localDigits.slice(8, 10)}`;
+  if (subDigits.length > 8) {
+    result += `-${subDigits.slice(8, 10)}`;
   }
 
   return result;
