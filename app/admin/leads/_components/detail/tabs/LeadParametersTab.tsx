@@ -212,8 +212,18 @@ export default function LeadParametersTab({
               <button
                 type="button"
                 onClick={() => {
-                  triggerHaptic("medium");
-                  onLinkLeadToClient(null);
+                  toast.confirm({
+                    title: "Отвязать заказчика от сделки?",
+                    message: `Сделка больше не будет связана с профилем «${client.name || "клиента"}».`,
+                    confirmText: "Отвязать",
+                    cancelText: "Отмена",
+                    isDestructive: true,
+                    onConfirm: () => {
+                      triggerHaptic("medium");
+                      onLinkLeadToClient(null);
+                      toast.info("Заказчик отвязан от сделки");
+                    },
+                  });
                 }}
                 className="px-2.5 py-1 text-[11px] font-black text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer shrink-0"
               >
@@ -262,8 +272,7 @@ export default function LeadParametersTab({
                     value={clientSearchQuery}
                     onChange={(e) => setClientSearchQuery(e.target.value)}
                     placeholder="Поиск по имени или телефону..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-orange-500"
-                    autoFocus
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-base sm:text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-orange-500 transition"
                   />
                 </div>
 
