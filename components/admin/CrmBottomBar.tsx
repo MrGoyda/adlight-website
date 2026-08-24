@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { 
@@ -14,7 +14,6 @@ import {
   Calculator, 
   Building2 
 } from "lucide-react";
-import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
 import { CRM_EVENTS, dispatchCrmEvent } from "@/lib/crmEvents";
 
@@ -22,6 +21,14 @@ export default function CrmBottomBar() {
   const pathname = usePathname();
   const router = useRouter();
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+  const [shouldRenderSheet, setShouldRenderSheet] = useState(false);
+  const [isSheetVisible, setIsSheetVisible] = useState(false);
+  const [dragOffset, setDragOffset] = useState<number>(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const startYRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+  const currentOffsetRef = useRef<number>(0);
 
   const navItems = [
     {
@@ -50,12 +57,69 @@ export default function CrmBottomBar() {
     },
   ];
 
-  const handleDragEnd = (_: unknown, info: PanInfo) => {
-    if (info.offset.y > 100 || info.velocity.y > 500) {
+  // Управление плавным открытием/закрытием шторки
+  useEffect(() => {
+    if (isActionSheetOpen) {
+      setShouldRenderSheet(true);
+      setDragOffset(0);
+      setIsDragging(false);
+      const raf = requestAnimationFrame(() => {
+        setIsSheetVisible(true);
+      });
+      return () => cancelAnimationFrame(raf);
+    } else {
+      setIsSheetVisible(false);
+      const timer = setTimeout(() => {
+        setShouldRenderSheet(false);
+        setDragOffset(0);
+        setIsDragging(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isActionSheetOpen]);
+
+  // Нативные жесты свайпа вниз
+  const handleTouchStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    startYRef.current = clientY;
+    startTimeRef.current = Date.now();
+    currentOffsetRef.current = 0;
+    setIsDragging(true);
+  }, []);
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent | React.MouseEvent) => {
+      if (!isDragging) return;
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+      const diffY = clientY - startYRef.current;
+
+      if (diffY > 0) {
+        currentOffsetRef.current = diffY;
+        setDragOffset(diffY);
+      } else {
+        const rubberBand = diffY * 0.2;
+        currentOffsetRef.current = rubberBand;
+        setDragOffset(rubberBand);
+      }
+    },
+    [isDragging]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    const elapsed = Date.now() - startTimeRef.current;
+    const offset = currentOffsetRef.current;
+    const velocity = elapsed > 0 ? offset / elapsed : 0;
+
+    if (offset > 80 || velocity > 0.4) {
       triggerHaptic("light");
       setIsActionSheetOpen(false);
+    } else {
+      setDragOffset(0);
     }
-  };
+  }, [isDragging]);
 
   const handleAction = (action: "lead" | "estimate" | "client") => {
     triggerHaptic("light");
@@ -81,6 +145,12 @@ export default function CrmBottomBar() {
       }
     }
   };
+
+  const sheetTransform = !isSheetVisible
+    ? "translate3d(0, 100%, 0)"
+    : dragOffset !== 0
+    ? `translate3d(0, ${Math.max(dragOffset, -15)}px, 0)`
+    : "translate3d(0, 0, 0)";
 
   return (
     <>
@@ -134,98 +204,102 @@ export default function CrmBottomBar() {
         </div>
       </div>
 
-      {/* ── Плавная мобильная шторка (iOS Bottom Sheet) с поддержкой свайпа вниз ── */}
-      <AnimatePresence>
-        {isActionSheetOpen && (
-          <>
-            {/* Оверлей с блюром */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[90] lg:hidden bg-slate-900/40 backdrop-blur-xs cursor-pointer"
-              onClick={() => setIsActionSheetOpen(false)}
-            />
+      {/* ── Плавная мобильная шторка (iOS Bottom Sheet) на чистом CSS ── */}
+      {shouldRenderSheet && (
+        <>
+          {/* Оверлей с блюром */}
+          <div
+            className={`fixed inset-0 z-[90] lg:hidden bg-slate-900/40 backdrop-blur-xs cursor-pointer transition-opacity duration-300 ease-out ${
+              isSheetVisible ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setIsActionSheetOpen(false)}
+          />
 
-            {/* Выдвигающаяся снизу шторка */}
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 400, damping: 32, mass: 0.8 }}
-              drag="y"
-              dragDirectionLock
-              dragConstraints={{ top: 0, bottom: 300 }}
-              dragElastic={{ top: 0, bottom: 0.2 }}
-              onDragEnd={handleDragEnd}
-              className="fixed bottom-0 left-0 right-0 z-[100] lg:hidden bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl p-4 pb-safe select-none space-y-3 touch-pan-y"
+          {/* Выдвигающаяся снизу шторка */}
+          <div
+            style={{
+              transform: sheetTransform,
+              transition: isDragging
+                ? "none"
+                : "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
+              willChange: "transform",
+            }}
+            className="fixed bottom-0 left-0 right-0 z-[100] lg:hidden bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl p-4 pb-safe select-none space-y-3 touch-pan-y transform-gpu"
+          >
+            {/* Ручка для свайпа закрытия */}
+            <div
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={handleTouchStart}
+              onMouseMove={handleTouchMove}
+              onMouseUp={handleTouchEnd}
+              className="py-1 cursor-grab active:cursor-grabbing flex justify-center w-full touch-none select-none"
             >
-              {/* Полоска-индикатор для свайпа закрытия */}
-              <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto" />
+              <div className="w-10 h-1 bg-slate-300 rounded-full" />
+            </div>
 
-              <div className="flex items-center justify-between px-2 pb-1">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-wider">
-                  Быстрые действия
-                </span>
-                <button 
-                  onClick={() => setIsActionSheetOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+            <div className="flex items-center justify-between px-2 pb-1">
+              <span className="text-xs font-black text-slate-400 uppercase tracking-wider">
+                Быстрые действия
+              </span>
+              <button 
+                onClick={() => setIsActionSheetOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-              <div className="grid gap-2">
-                {/* Новая сделка */}
-                <button
-                  type="button"
-                  onClick={() => handleAction("lead")}
-                  className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-orange-50 border border-orange-200/80 text-orange-600 font-extrabold text-xs hover:bg-orange-100/60 transition text-left cursor-pointer active:scale-[0.98]"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-orange-500/20">
-                    <UserPlus className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="block text-sm font-extrabold text-slate-900">Новая Заявка (Лид)</span>
-                    <span className="text-[11px] text-slate-500 font-medium block">Зарегистрировать сделку или замер</span>
-                  </div>
-                </button>
+            <div className="grid gap-2">
+              {/* Новая сделка */}
+              <button
+                type="button"
+                onClick={() => handleAction("lead")}
+                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-orange-50 border border-orange-200/80 text-orange-600 font-extrabold text-xs hover:bg-orange-100/60 transition text-left cursor-pointer active:scale-[0.98]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-orange-500/20">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="block text-sm font-extrabold text-slate-900">Новая Заявка (Лид)</span>
+                  <span className="text-[11px] text-slate-500 font-medium block">Зарегистрировать сделку или замер</span>
+                </div>
+              </button>
 
-                {/* Создать смету */}
-                <button
-                  type="button"
-                  onClick={() => handleAction("estimate")}
-                  className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-amber-900 font-extrabold text-xs hover:bg-amber-100/60 transition text-left cursor-pointer active:scale-[0.98]"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
-                    <Calculator className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="block text-sm font-extrabold text-slate-900">Калькулятор Сметы</span>
-                    <span className="text-[11px] text-slate-500 font-medium block">Расчет материалов, ЗП и наценки</span>
-                  </div>
-                </button>
+              {/* Создать смету */}
+              <button
+                type="button"
+                onClick={() => handleAction("estimate")}
+                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-amber-900 font-extrabold text-xs hover:bg-amber-100/60 transition text-left cursor-pointer active:scale-[0.98]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
+                  <Calculator className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="block text-sm font-extrabold text-slate-900">Калькулятор Сметы</span>
+                  <span className="text-[11px] text-slate-500 font-medium block">Расчет материалов, ЗП и наценки</span>
+                </div>
+              </button>
 
-                {/* Новый клиент */}
-                <button
-                  type="button"
-                  onClick={() => handleAction("client")}
-                  className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-blue-900 font-extrabold text-xs hover:bg-blue-100/60 transition text-left cursor-pointer active:scale-[0.98]"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
-                    <Building2 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="block text-sm font-extrabold text-slate-900">Новый Клиент</span>
-                    <span className="text-[11px] text-slate-500 font-medium block">Внести контакт или компанию в базу</span>
-                  </div>
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              {/* Новый клиент */}
+              <button
+                type="button"
+                onClick={() => handleAction("client")}
+                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-blue-900 font-extrabold text-xs hover:bg-blue-100/60 transition text-left cursor-pointer active:scale-[0.98]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="block text-sm font-extrabold text-slate-900">Новый Клиент</span>
+                  <span className="text-[11px] text-slate-500 font-medium block">Внести контакт или компанию в базу</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
