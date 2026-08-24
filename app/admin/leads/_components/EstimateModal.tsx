@@ -159,11 +159,12 @@ export default function EstimateModal({
           ) : (
             items.map((item, idx) => (
               <EstimateCardItem
-                key={idx}
+                key={`${idx}-${item.type}-${item.name}`}
                 item={item}
                 index={idx}
                 warehouseItems={warehouseItems}
                 supplierPrices={supplierPrices}
+                defaultCollapsed={true}
                 onRemove={handleRemoveItem}
                 onUpdateField={handleUpdateItemField}
                 onOpenSupplierPicker={setActivePickerIdx}

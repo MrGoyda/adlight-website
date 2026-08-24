@@ -31,7 +31,7 @@ export const EstimateCardItem: React.FC<EstimateCardItemProps> = ({
   index: idx,
   warehouseItems,
   supplierPrices,
-  defaultCollapsed = false,
+  defaultCollapsed = true,
   onRemove,
   onUpdateField,
   onOpenSupplierPicker,
