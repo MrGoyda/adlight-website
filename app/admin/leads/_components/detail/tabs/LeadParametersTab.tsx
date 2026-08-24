@@ -675,8 +675,9 @@ export default function LeadParametersTab({
       )}
 
       {/* Модалка квалификации в Компанию и Проект */}
-      {showConvertModal && onConvertToCompanyAndProject && (
+      {onConvertToCompanyAndProject && (
         <DrawerCompanyConvertModal
+          isOpen={showConvertModal}
           activeLead={{ id: leadId || "", name, phone, client } as any}
           companies={companies}
           onClose={() => setShowConvertModal(false)}
