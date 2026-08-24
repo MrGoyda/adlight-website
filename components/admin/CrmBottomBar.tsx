@@ -28,7 +28,6 @@ export default function CrmBottomBar() {
       label: "Заявки",
       href: "/admin/leads",
       icon: Inbox,
-      badge: "3",
     },
     {
       label: "Финансы",
@@ -125,14 +124,7 @@ export default function CrmBottomBar() {
                   isActive ? "text-orange-600" : "text-slate-500 hover:text-slate-900"
                 }`}
               >
-                <div className="relative">
-                  <Icon className="w-5 h-5" />
-                  {item.badge && pathname !== item.href && (
-                    <span className="absolute -top-1.5 -right-2 bg-orange-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
+                <Icon className="w-5 h-5" />
                 <span className={`text-[10px] mt-1 tracking-tight ${isActive ? "font-black" : "font-semibold"}`}>
                   {item.label}
                 </span>
