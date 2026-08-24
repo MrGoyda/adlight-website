@@ -247,14 +247,27 @@ export function useEstimateState({
   };
 
   const handleRemoveItem = (index: number) => {
-    triggerHaptic("light");
-    const filtered = items.filter((_, i) => i !== index);
-    setItems(filtered);
-    if (filtered.length > 0) {
-      saveEstimateDraft(draftKey, filtered, selectedLeadId);
-    } else {
-      clearEstimateDraft(draftKey);
-    }
+    const itemToDelete = items[index];
+    const itemName = itemToDelete?.name || "позицию";
+
+    toast.confirm({
+      title: `Удалить «${itemName}»?`,
+      message: "Позиция будет удалена из текущего расчета сметы.",
+      confirmText: "Да, удалить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: () => {
+        triggerHaptic("medium");
+        const filtered = items.filter((_, i) => i !== index);
+        setItems(filtered);
+        if (filtered.length > 0) {
+          saveEstimateDraft(draftKey, filtered, selectedLeadId);
+        } else {
+          clearEstimateDraft(draftKey);
+        }
+        toast.success("Позиция удалена из сметы");
+      },
+    });
   };
 
   const handleUpdateItemField = (index: number, field: keyof EstimateItem, value: any) => {
@@ -362,10 +375,20 @@ export function useEstimateState({
   };
 
   const handleDiscardDraft = () => {
-    clearEstimateDraft(draftKey);
-    setItems(initialItems || []);
-    setRestoredDraftInfo(null);
-    toast.info("Черновик сметы сброшен");
+    toast.confirm({
+      title: "Сбросить черновик сметы?",
+      message: "Все несохраненные добавленные материалы и работы будут удалены.",
+      confirmText: "Сбросить",
+      cancelText: "Отмена",
+      isDestructive: true,
+      onConfirm: () => {
+        triggerHaptic("medium");
+        clearEstimateDraft(draftKey);
+        setItems(initialItems || []);
+        setRestoredDraftInfo(null);
+        toast.info("Черновик сметы сброшен");
+      },
+    });
   };
 
   const handleDeductStock = () => {
