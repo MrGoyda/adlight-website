@@ -349,13 +349,12 @@ export default function LeadsDashboard({
         />
       )}
 
-      {ops.showCreateModal && (
-        <LeadCreateModal
-          onClose={() => ops.setShowCreateModal(false)}
-          onSubmit={ops.handleCreateLeadSubmit}
-          isCreating={ops.isCreatingLead}
-        />
-      )}
+      <LeadCreateModal
+        isOpen={ops.showCreateModal}
+        onClose={() => ops.setShowCreateModal(false)}
+        onSubmit={ops.handleCreateLeadSubmit}
+        isCreating={ops.isCreatingLead}
+      />
 
       {ops.showDeleteConfirm && (
         <LeadDeleteConfirmModal

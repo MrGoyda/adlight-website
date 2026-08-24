@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { UserPlus, UserCheck, ChevronDown, Calendar, CalendarCheck, X, MapPin, MessageSquare, Phone, User } from "lucide-react";
+import { UserPlus, UserCheck, Calendar, CalendarCheck, X, MapPin, MessageSquare, Phone, User } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus, PartnerName } from "@prisma/client";
 import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 import PhoneInput from "@/components/ui/PhoneInput";
 import BottomSheet from "@/components/ui/BottomSheet";
+import CustomDropdown from "@/components/ui/CustomDropdown";
 
 interface LeadCreateModalProps {
+  isOpen?: boolean;
   onClose: () => void;
   onSubmit: (data: {
     name: string;
@@ -27,6 +29,7 @@ interface LeadCreateModalProps {
 }
 
 export default function LeadCreateModal({
+  isOpen = true,
   onClose,
   onSubmit,
   isCreating,
@@ -64,7 +67,7 @@ export default function LeadCreateModal({
 
   return (
     <BottomSheet
-      isOpen={true}
+      isOpen={isOpen}
       onClose={onClose}
       maxWidth="max-w-xl"
       maxHeight="max-h-[92dvh]"
@@ -90,7 +93,7 @@ export default function LeadCreateModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0 active:scale-90"
             title="Закрыть"
           >
             <X className="w-5 h-5" />
@@ -115,7 +118,7 @@ export default function LeadCreateModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={dict.namePlaceholder}
-                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
+                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-base sm:text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
               />
             </div>
 
@@ -144,7 +147,7 @@ export default function LeadCreateModal({
                 type="datetime-local"
                 value={appDate}
                 onChange={(e) => setAppDate(e.target.value)}
-                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
+                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-base sm:text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
               />
             </div>
 
@@ -156,29 +159,28 @@ export default function LeadCreateModal({
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
+                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-base sm:text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
               />
             </div>
           </div>
 
           {/* Ответственный менеджер */}
           <div className="w-full max-w-full">
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+              <UserCheck className="w-3.5 h-3.5 text-orange-500 shrink-0" />
               {dict.managerLabel}
             </label>
-            <div className="relative w-full max-w-full">
-              <select
-                value={manager}
-                onChange={(e) => setManager(e.target.value as PartnerName)}
-                className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-8 py-2.5 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 appearance-none cursor-pointer"
-              >
-                <option value="">Не назначен</option>
-                <option value={PartnerName.DANIIL}>Даниил</option>
-                <option value={PartnerName.ELISEY}>Елисей</option>
-              </select>
-              <UserCheck className="w-4 h-4 text-orange-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <CustomDropdown
+              value={manager}
+              onChange={(val) => setManager(val as PartnerName)}
+              options={[
+                { value: "", label: "Не назначен", icon: User },
+                { value: PartnerName.DANIIL, label: "Даниил", icon: UserCheck },
+                { value: PartnerName.ELISEY, label: "Елисей", icon: UserCheck },
+              ]}
+              placeholder="Не назначен"
+              icon={UserCheck}
+            />
           </div>
 
           {/* Адрес объекта */}
@@ -192,7 +194,7 @@ export default function LeadCreateModal({
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="г. Астана, ул. Сыганак..."
-              className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
+              className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-base sm:text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition"
             />
           </div>
 
@@ -207,7 +209,7 @@ export default function LeadCreateModal({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Первичные пожелания клиента, детали вывески..."
-              className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition shadow-2xs"
+              className="w-full min-w-0 max-w-full box-border bg-slate-50 border border-slate-200 rounded-xl p-3 text-base sm:text-xs font-medium text-slate-900 outline-none focus:bg-white focus:border-orange-500 transition shadow-2xs"
             />
           </div>
 
