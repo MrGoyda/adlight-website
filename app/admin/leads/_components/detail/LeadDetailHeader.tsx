@@ -10,6 +10,7 @@ import { CLIENT_RATINGS, getQuickWhatsAppTemplates } from "../../_data/leadDetai
 import { Lead } from "../../_types/leadTypes";
 import { LeadFullDetails } from "../../_types/leadDetailTypes";
 import { getWhatsAppUrl } from "@/lib/phoneUtils";
+import CustomDropdown, { CustomDropdownOption } from "@/components/ui/CustomDropdown";
 
 interface LeadDetailHeaderProps {
   lead: LeadFullDetails | Lead;
@@ -42,7 +43,13 @@ export default function LeadDetailHeader({
   const whatsappRef = useRef<HTMLDivElement>(null);
   const ratingRef = useRef<HTMLDivElement>(null);
 
-  const status = STATUS_MAP[lead.status] || { label: lead.status, color: "", bg: "" };
+  const statusOptions: CustomDropdownOption[] = Object.entries(STATUS_MAP).map(([key, val]) => ({
+    value: key,
+    label: val.label,
+    color: val.color,
+    bg: val.bg,
+  }));
+
   const currentRating = CLIENT_RATINGS[rating] || CLIENT_RATINGS.STANDARD;
   const RatingIcon = RATING_ICONS[rating] || User;
   const quickMessages = getQuickWhatsAppTemplates(lead.name || "Клиент");
@@ -75,25 +82,14 @@ export default function LeadDetailHeader({
     <div className="p-2.5 sm:px-6 sm:py-3.5 border-b border-slate-100 flex items-center justify-between gap-1.5 sm:gap-3 sticky top-0 bg-white/95 backdrop-blur-md z-30 shrink-0">
       {/* Левая часть: Статус + Рейтинг + Индикатор сохранения */}
       <div className="flex items-center gap-1.5 min-w-0 shrink">
-        {/* Интерактивный этап сделки */}
-        <div className="relative shrink-0">
-          <select
-            value={lead.status}
-            onChange={(e) => {
-              triggerHaptic("medium");
-              onStatusChange(e.target.value as LeadStatus);
-            }}
-            className={`appearance-none pl-2.5 pr-6 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold uppercase tracking-wider border shadow-2xs cursor-pointer outline-none transition max-w-[130px] sm:max-w-none truncate ${status.bg} ${status.color}`}
-            title="Сменить этап сделки"
-          >
-            {Object.entries(STATUS_MAP).map(([key, val]) => (
-              <option key={key} value={key} className="bg-white text-slate-900 font-bold py-1">
-                {val.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
-        </div>
+        {/* Интерактивный этап сделки (Кастомный Apple Dropdown) */}
+        <CustomDropdown
+          value={lead.status}
+          onChange={(val) => onStatusChange(val as LeadStatus)}
+          options={statusOptions}
+          variant="pill"
+          label="Этап сделки"
+        />
 
         {/* Рейтинг клиента */}
         <div className="relative shrink-0" ref={ratingRef}>

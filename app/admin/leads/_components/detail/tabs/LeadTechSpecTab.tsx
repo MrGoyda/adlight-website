@@ -11,6 +11,7 @@ import {
 import { LeadTechSpec, LeadConstructionItem } from "../../../_types/leadDetailTypes";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import CustomDropdown, { CustomDropdownOption } from "@/components/ui/CustomDropdown";
 import { 
   Wrench, 
   ShieldCheck, 
@@ -407,36 +408,30 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                           <label className="block text-[10px] text-slate-500 font-bold mb-1">
                             Высота монтажа от земли
                           </label>
-                          <select
+                          <CustomDropdown
                             value={item.mountingHeight || ""}
-                            onChange={(e) => handleUpdateItemField(item.id, "mountingHeight", e.target.value || null)}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
-                          >
-                            <option value="">Не указано</option>
-                            {MOUNTING_HEIGHTS.map((h) => (
-                              <option key={h.id} value={h.id}>
-                                {h.label}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(val) => handleUpdateItemField(item.id, "mountingHeight", val || null)}
+                            options={[
+                              { value: "", label: "Не указано" },
+                              ...MOUNTING_HEIGHTS.map((h) => ({ value: h.id, label: h.label })),
+                            ]}
+                            placeholder="Не указано"
+                          />
                         </div>
 
                         <div>
                           <label className="block text-[10px] text-slate-500 font-bold mb-1">
                             Материал фасада / стены
                           </label>
-                          <select
+                          <CustomDropdown
                             value={item.facadeType || ""}
-                            onChange={(e) => handleUpdateItemField(item.id, "facadeType", e.target.value || null)}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
-                          >
-                            <option value="">Не указано</option>
-                            {FACADE_WALL_TYPES.map((w) => (
-                              <option key={w.id} value={w.id}>
-                                {w.label}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(val) => handleUpdateItemField(item.id, "facadeType", val || null)}
+                            options={[
+                              { value: "", label: "Не указано" },
+                              ...FACADE_WALL_TYPES.map((w) => ({ value: w.id, label: w.label })),
+                            ]}
+                            placeholder="Не указано"
+                          />
                         </div>
                       </div>
 
@@ -446,18 +441,16 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                             <Zap className="w-3 h-3 text-amber-500" />
                             Питание 220V (подключение)
                           </label>
-                          <select
+                          <CustomDropdown
                             value={item.powerSupply || ""}
-                            onChange={(e) => handleUpdateItemField(item.id, "powerSupply", e.target.value || null)}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
-                          >
-                            <option value="">Не указано</option>
-                            {POWER_SUPPLY_OPTIONS.map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.label}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(val) => handleUpdateItemField(item.id, "powerSupply", val || null)}
+                            options={[
+                              { value: "", label: "Не указано" },
+                              ...POWER_SUPPLY_OPTIONS.map((p) => ({ value: p.id, label: p.label })),
+                            ]}
+                            placeholder="Не указано"
+                            icon={Zap}
+                          />
                         </div>
 
                         <div>
@@ -465,18 +458,16 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                             <ShieldCheck className="w-3 h-3 text-emerald-500" />
                             Согласование вывески
                           </label>
-                          <select
+                          <CustomDropdown
                             value={item.approvalStatus || ""}
-                            onChange={(e) => handleUpdateItemField(item.id, "approvalStatus", e.target.value || null)}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[40px]"
-                          >
-                            <option value="">Не указано</option>
-                            {APPROVAL_STATUSES.map((a) => (
-                              <option key={a.id} value={a.id}>
-                                {a.label}
-                              </option>
-                            ))}
-                          </select>
+                            onChange={(val) => handleUpdateItemField(item.id, "approvalStatus", val || null)}
+                            options={[
+                              { value: "", label: "Не указано" },
+                              ...APPROVAL_STATUSES.map((a) => ({ value: a.id, label: a.label })),
+                            ]}
+                            placeholder="Не указано"
+                            icon={ShieldCheck}
+                          />
                         </div>
                       </div>
 

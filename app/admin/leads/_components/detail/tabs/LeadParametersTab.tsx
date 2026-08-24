@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import AutoResizeTextarea from "@/components/ui/AutoResizeTextarea";
 import PhoneInput from "@/components/ui/PhoneInput";
+import CustomDropdown, { CustomDropdownOption } from "@/components/ui/CustomDropdown";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { PartnerName, LeadStatus } from "@prisma/client";
@@ -383,22 +384,23 @@ export default function LeadParametersTab({
             <label className="block text-[10px] text-slate-500 font-bold">
               Ответственный
             </label>
-            <select
+            <CustomDropdown
               value={manager || ""}
-              onChange={(e) => {
-                const val = e.target.value;
+              onChange={(val) => {
                 setManager(val);
                 onAutoSave?.({ manager: val || null });
               }}
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition cursor-pointer min-h-[42px]"
-            >
-              <option value="">Не назначен</option>
-              {Object.values(PartnerName).map((p) => (
-                <option key={p} value={p}>
-                  {formatManagerName(p)}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "Не назначен", icon: User },
+                ...Object.values(PartnerName).map((p) => ({
+                  value: p,
+                  label: formatManagerName(p),
+                  icon: UserCheck,
+                })),
+              ]}
+              placeholder="Не назначен"
+              icon={UserCheck}
+            />
           </div>
 
           {/* Дата и время замера */}
