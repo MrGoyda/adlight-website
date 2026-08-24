@@ -4,36 +4,38 @@ import ProjectsDashboard from "./_components/ProjectsDashboard";
 export const revalidate = 0;
 
 export default async function ProjectsPage() {
-  const projects = await prisma.project.findMany({
-    include: {
-      company: {
-        select: {
-          id: true,
-          name: true,
+  const [projects, companies] = await Promise.all([
+    prisma.project.findMany({
+      include: {
+        company: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
-      },
-      leads: {
-        include: {
-          files: true,
-          estimate: {
-            include: {
-              items: true,
+        leads: {
+          include: {
+            files: true,
+            estimate: {
+              include: {
+                items: true,
+              },
             },
           },
         },
+        files: true,
       },
-      files: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy: { createdAt: "desc" },
+    }),
 
-  const companies = await prisma.company.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-    orderBy: { name: "asc" },
-  });
+    prisma.company.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   return (
     <main className="min-h-screen bg-slate-50/50 py-8">

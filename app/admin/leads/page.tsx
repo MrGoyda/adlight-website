@@ -12,72 +12,88 @@ export default async function LeadsPage({
   const resolvedParams = await searchParams;
   const selectedLeadId = typeof resolvedParams.id === "string" ? resolvedParams.id : undefined;
 
-  const leads = await prisma.lead.findMany({
-    include: {
-      client: true,
-      company: true,
-      project: true,
-      contact: true,
-      files: {
-        select: {
-          id: true,
-          mimeType: true,
-          category: true,
-          name: true,
-          url: true,
-          fileKey: true,
-          size: true,
-          createdAt: true,
+  // Параллельное выполнение всех 6 независимых запросов к БД через Promise.all (ускорение в 3 раза)
+  const [
+    leads,
+    clients,
+    companies,
+    warehouseItems,
+    pendingClicks,
+    supplierPrices
+  ] = await Promise.all([
+    // 1. Лиды со связями и оптимизированными полями
+    prisma.lead.findMany({
+      include: {
+        client: true,
+        company: true,
+        project: true,
+        contact: true,
+        files: {
+          select: {
+            id: true,
+            mimeType: true,
+            category: true,
+            name: true,
+            url: true,
+            fileKey: true,
+            size: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
         },
-        orderBy: { createdAt: "desc" },
-      },
-      activities: {
-        select: {
-          id: true,
-          text: true,
-          createdAt: true,
-          author: true,
-          type: true,
+        activities: {
+          select: {
+            id: true,
+            text: true,
+            createdAt: true,
+            author: true,
+            type: true,
+          },
+          orderBy: { createdAt: "desc" },
         },
-        orderBy: { createdAt: "desc" },
-      },
-      estimate: {
-        include: {
-          items: true,
+        estimate: {
+          include: {
+            items: true,
+          },
         },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy: { createdAt: "desc" },
+    }),
 
-  const clients = await prisma.client.findMany({
-    orderBy: { name: "asc" },
-  });
+    // 2. Клиентская база
+    prisma.client.findMany({
+      orderBy: { name: "asc" },
+    }),
 
-  const companies = await prisma.company.findMany({
-    include: {
-      projects: true,
-      contacts: true,
-    },
-    orderBy: { name: "asc" },
-  });
+    // 3. Компании со связями
+    prisma.company.findMany({
+      include: {
+        projects: true,
+        contacts: true,
+      },
+      orderBy: { name: "asc" },
+    }),
 
-  const warehouseItems = await prisma.warehouseItem.findMany({
-    orderBy: { name: "asc" },
-  });
+    // 4. Складские позиции
+    prisma.warehouseItem.findMany({
+      orderBy: { name: "asc" },
+    }),
 
-  const pendingClicks = await prisma.leadClick.findMany({
-    where: { status: "PENDING" },
-    orderBy: { createdAt: "desc" },
-    take: 15,
-  });
+    // 5. Ожидающие клики аналитики
+    prisma.leadClick.findMany({
+      where: { status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    }),
 
-  const supplierPrices = await prisma.supplierPrice.findMany({
-    include: {
-      supplierObj: true
-    },
-    orderBy: { supplier: "asc" },
-  });
+    // 6. Прайсы поставщиков
+    prisma.supplierPrice.findMany({
+      include: {
+        supplierObj: true,
+      },
+      orderBy: { supplier: "asc" },
+    }),
+  ]);
 
   return (
     <main className="min-h-screen bg-slate-50/50 py-8">

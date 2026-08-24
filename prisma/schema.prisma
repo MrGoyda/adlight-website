@@ -109,6 +109,15 @@ model Lead {
 
   // Связь с физическими кликами
   clicks          LeadClick[]
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([clientId])
+  @@index([companyId])
+  @@index([projectId])
+  @@index([contactId])
+  @@index([manager])
+  @@index([phone])
+  @@index([createdAt(sort: Desc)])
 }
 
 model LeadClick {
@@ -145,6 +154,9 @@ model LeadClick {
   status          String   @default("PENDING") // PENDING, MATCHED, EXPIRED
   matchedLeadId   String?
   matchedLead     Lead?    @relation(fields: [matchedLeadId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([matchedLeadId])
 }
 
 model LeadFile {
@@ -162,6 +174,9 @@ model LeadFile {
 
   projectId String?
   project   Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@index([projectId])
 }
 
 model LeadActivity {
@@ -173,6 +188,8 @@ model LeadActivity {
   
   leadId    String
   lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, createdAt(sort: Desc)])
 }
 
 model DbTransaction {
@@ -186,6 +203,10 @@ model DbTransaction {
   lead        Lead?           @relation(fields: [leadId], references: [id], onDelete: SetNull)
   
   partner     PartnerName?
+
+  @@index([leadId])
+  @@index([createdAt(sort: Desc)])
+  @@index([type])
 }
 
 model CompanyState {
@@ -208,6 +229,8 @@ model Client {
   notes         String?         // Общие заметки по работе с клиентом
 
   leads         Lead[]          // Проекты/сделки этого клиента
+
+  @@index([name])
 }
 
 model Company {
@@ -225,6 +248,8 @@ model Company {
   contacts      Contact[]       // Сотрудники / ЛПР компании
   projects      Project[]       // Объекты / крупные проекты компании
   leads         Lead[]          // Заявки и сделки этой компании
+
+  @@index([name])
 }
 
 model Contact {
@@ -243,6 +268,9 @@ model Contact {
   company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   leads           Lead[]   // Заявки, за которые отвечает этот контакт
+
+  @@index([companyId])
+  @@index([phone])
 }
 
 model Project {
@@ -259,6 +287,9 @@ model Project {
 
   leads       Lead[]        // Заявки / этапы входящие в этот проект
   files       LeadFile[]    // Файлы, чертежи и договора проекта
+
+  @@index([companyId])
+  @@index([status])
 }
 
 enum InventoryUnit {
@@ -293,6 +324,8 @@ model WarehouseItem {
   minStock     Float                  @default(0) // Минимальный порог (для алертов)
 
   transactions WarehouseTransaction[]
+
+  @@index([category])
 }
 
 model WarehouseTransaction {
@@ -303,6 +336,9 @@ model WarehouseTransaction {
   quantityChanged Float          // Положительное (приход) или отрицательное (списание)
   description     String?        // "Списание под лид №123", "Поступление от поставщика"
   leadId          String?        // Связь с лидом, если списание под проект
+
+  @@index([itemId, createdAt(sort: Desc)])
+  @@index([leadId])
 }
 
 model Supplier {
@@ -328,6 +364,9 @@ model SupplierPrice {
   
   supplierId  String?
   supplierObj Supplier?     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  @@index([supplierId])
+  @@index([name])
 }
 
 model LeadEstimate {
@@ -355,6 +394,9 @@ model EstimateItem {
   
   // Для связи со складом при ручном списании
   warehouseItemId String?
+
+  @@index([estimateId])
+  @@index([warehouseItemId])
 }
 
 enum UserRole {
@@ -384,4 +426,3 @@ model WorkOperation {
   defaultPrice Float            @default(0) // Цена для клиента
   isCustom     Boolean          @default(false)
 }
-
