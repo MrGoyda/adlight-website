@@ -15,13 +15,23 @@ interface LeadCardTechSpecChipsProps {
   techSpec?: LeadTechSpec | null;
 }
 
-export default function LeadCardTechSpecChips({ techSpec }: LeadCardTechSpecChipsProps) {
-  if (!techSpec) return null;
+export default function LeadCardTechSpecChips({ techSpec: rawTechSpec }: LeadCardTechSpecChipsProps) {
+  if (!rawTechSpec) return null;
+
+  const techSpec: LeadTechSpec = typeof rawTechSpec === "string"
+    ? (() => {
+        try {
+          return JSON.parse(rawTechSpec);
+        } catch {
+          return {};
+        }
+      })()
+    : rawTechSpec;
 
   // Список конструкций из items или signTypes
-  const items: LeadConstructionItem[] = techSpec.items && techSpec.items.length > 0
+  const items: LeadConstructionItem[] = Array.isArray(techSpec.items) && techSpec.items.length > 0
     ? techSpec.items
-    : (techSpec.signTypes || []).map((st, idx) => ({
+    : (Array.isArray(techSpec.signTypes) ? techSpec.signTypes : []).map((st, idx) => ({
         id: `legacy-${idx}`,
         signType: st,
         title: SIGN_TYPES.find((s) => s.id === st)?.label,

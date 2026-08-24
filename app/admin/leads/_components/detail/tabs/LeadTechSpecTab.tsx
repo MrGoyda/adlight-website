@@ -30,11 +30,22 @@ interface LeadTechSpecTabProps {
   onAutoSave?: (patch: { techSpec: LeadTechSpec }) => void;
 }
 
-export default function LeadTechSpecTab({ techSpec, setTechSpec, onAutoSave }: LeadTechSpecTabProps) {
+export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, onAutoSave }: LeadTechSpecTabProps) {
+  // Защитный парсинг: если techSpec пришел как JSON-строка, null или объект
+  const techSpec: LeadTechSpec = typeof rawTechSpec === "string"
+    ? (() => {
+        try {
+          return JSON.parse(rawTechSpec);
+        } catch {
+          return {};
+        }
+      })()
+    : rawTechSpec || {};
+
   // Список конструкций. Если items нет, строим из legacy данных или инициализируем
-  const items: LeadConstructionItem[] = techSpec.items && techSpec.items.length > 0
+  const items: LeadConstructionItem[] = Array.isArray(techSpec.items) && techSpec.items.length > 0
     ? techSpec.items
-    : (techSpec.signTypes && techSpec.signTypes.length > 0)
+    : (Array.isArray(techSpec.signTypes) && techSpec.signTypes.length > 0)
       ? techSpec.signTypes.map((st, idx) => ({
           id: `legacy-${idx}-${st}`,
           signType: st,
