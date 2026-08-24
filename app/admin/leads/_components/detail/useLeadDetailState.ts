@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { LeadStatus, ClientRating, FileCategory } from "@prisma/client";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -90,10 +90,17 @@ export function useLeadDetailState({ lead, onUpdateLead, onClose, clients = [], 
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [viewerFile, setViewerFile] = useState<LeadFileItem | null>(null);
+  const lastLeadIdRef = useRef<string | null>(lead?.id || null);
 
-  // Синхронизация при смене входящего лида
+  // Синхронизация при смене входящего лида (сброс вкладки на первую дефолтную)
   useEffect(() => {
     if (!lead) return;
+
+    if (lastLeadIdRef.current !== lead.id) {
+      lastLeadIdRef.current = lead.id;
+      setActiveTab("params");
+    }
+
     setClient(lead.client || null);
     setRating(lead.rating || "STANDARD");
     setStatus(lead.status || "NEW");
