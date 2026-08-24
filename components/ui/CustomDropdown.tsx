@@ -23,6 +23,7 @@ export interface CustomDropdownProps {
   icon?: LucideIcon | React.ComponentType<{ className?: string }>;
   disabled?: boolean;
   variant?: "default" | "pill" | "subtle";
+  placement?: "auto" | "top" | "bottom";
   size?: "sm" | "md";
   className?: string;
   buttonClassName?: string;
@@ -39,6 +40,7 @@ export default function CustomDropdown({
   icon: LeadingIcon,
   disabled = false,
   variant = "default",
+  placement = "auto",
   size = "md",
   className = "",
   buttonClassName = "",
@@ -46,6 +48,7 @@ export default function CustomDropdown({
   align = "left",
 }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
@@ -79,6 +82,26 @@ export default function CustomDropdown({
   const handleToggle = () => {
     if (disabled) return;
     triggerHaptic("light");
+
+    if (!isOpen && dropdownRef.current) {
+      if (placement === "top") {
+        setOpenUpward(true);
+      } else if (placement === "bottom") {
+        setOpenUpward(false);
+      } else {
+        // Автоматический расчет свободного пространства сверху и снизу
+        const rect = dropdownRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        // Если снизу меньше 260px и сверху больше пространства — открываем наверх
+        if (spaceBelow < 260 && spaceAbove > spaceBelow) {
+          setOpenUpward(true);
+        } else {
+          setOpenUpward(false);
+        }
+      }
+    }
+
     setIsOpen((prev) => !prev);
   };
 
@@ -117,7 +140,9 @@ export default function CustomDropdown({
 
         {isOpen && (
           <div
-            className={`absolute top-full mt-1.5 w-56 sm:w-64 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 ${
+            className={`absolute ${
+              openUpward ? "bottom-full mb-1.5 origin-bottom" : "top-full mt-1.5 origin-top"
+            } w-56 sm:w-64 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1 ${
               align === "right" ? "right-0" : "left-0"
             } ${popoverClassName}`}
           >
@@ -126,7 +151,7 @@ export default function CustomDropdown({
                 {label}
               </span>
             )}
-            <div className="max-h-64 overflow-y-auto space-y-0.5 overscroll-contain">
+            <div className="max-h-60 overflow-y-auto space-y-0.5 overscroll-contain">
               {options.map((opt) => {
                 const ItemIcon = opt.icon;
                 const isSelected = opt.value === value;
@@ -203,7 +228,9 @@ export default function CustomDropdown({
 
       {isOpen && (
         <div
-          className={`absolute top-full mt-1.5 w-full min-w-[200px] bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-0.5 ${
+          className={`absolute ${
+            openUpward ? "bottom-full mb-1.5 origin-bottom" : "top-full mt-1.5 origin-top"
+          } w-full min-w-[220px] bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-0.5 ${
             align === "right" ? "right-0" : "left-0"
           } ${popoverClassName}`}
         >
@@ -212,7 +239,7 @@ export default function CustomDropdown({
               {label}
             </span>
           )}
-          <div className="max-h-60 overflow-y-auto space-y-0.5 overscroll-contain">
+          <div className="max-h-56 overflow-y-auto space-y-0.5 overscroll-contain">
             {options.map((opt) => {
               const ItemIcon = opt.icon;
               const isSelected = opt.value === value;

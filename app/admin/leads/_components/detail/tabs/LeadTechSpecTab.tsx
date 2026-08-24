@@ -223,8 +223,10 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
             return (
               <div
                 key={item.id}
-                className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden shadow-2xs ${
-                  isExpanded ? "border-orange-300 ring-2 ring-orange-500/10" : "border-slate-200/80 hover:border-slate-300"
+                className={`bg-white rounded-2xl border transition-all duration-200 shadow-2xs ${
+                  isExpanded
+                    ? "border-orange-300 ring-2 ring-orange-500/10 overflow-visible"
+                    : "border-slate-200/80 hover:border-slate-300 overflow-hidden"
                 }`}
               >
                 {/* Заголовок конструкции (Сжатый режим / клик для раскрытия) */}
