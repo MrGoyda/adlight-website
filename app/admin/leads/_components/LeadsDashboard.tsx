@@ -365,24 +365,22 @@ export default function LeadsDashboard({
       )}
 
       {/* ── ПОДРОБНАЯ КАРТОЧКА ЛИДА (ЕДИНАЯ ШТОРКА 60 FPS) ── */}
-      {detailLead && (
-        <LeadDetailSheet
-          isOpen={Boolean(detailLead)}
-          onClose={() => setDetailLead(null)}
-          lead={detailLead}
-          clients={ops.clients}
-          companies={initialCompanies}
-          onUpdateLead={(updated) => {
-            ops.setLeads((prev) =>
-              prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
-            );
-            setDetailLead(updated);
-          }}
-          warehouseItems={initialWarehouseItems}
-          supplierPrices={initialSupplierPrices}
-          leads={ops.leads}
-        />
-      )}
+      <LeadDetailSheet
+        isOpen={Boolean(detailLead)}
+        onClose={() => setDetailLead(null)}
+        lead={detailLead}
+        clients={ops.clients}
+        companies={initialCompanies}
+        onUpdateLead={(updated) => {
+          ops.setLeads((prev) =>
+            prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
+          );
+          setDetailLead(updated);
+        }}
+        warehouseItems={initialWarehouseItems}
+        supplierPrices={initialSupplierPrices}
+        leads={ops.leads}
+      />
 
       {showEstimateModal && (
         <EstimateModal

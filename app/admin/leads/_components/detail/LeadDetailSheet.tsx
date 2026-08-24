@@ -39,15 +39,20 @@ export default function LeadDetailSheet({
   companies = [],
 }: LeadDetailSheetProps) {
   const [showEstimateModal, setShowEstimateModal] = useState(false);
+  const lastLeadRef = React.useRef<LeadFullDetails | null>(lead);
 
-  // Если лид не передан, не рендерим
-  if (!lead) return null;
+  if (lead) {
+    lastLeadRef.current = lead;
+  }
+
+  const activeLead = lead || lastLeadRef.current;
+  if (!activeLead) return null;
 
   return (
     <LeadDetailSheetContent
       isOpen={isOpen}
       onClose={onClose}
-      lead={lead}
+      lead={activeLead}
       onUpdateLead={onUpdateLead}
       showEstimateModal={showEstimateModal}
       setShowEstimateModal={setShowEstimateModal}

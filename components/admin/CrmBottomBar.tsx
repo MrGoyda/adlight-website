@@ -63,17 +63,17 @@ export default function CrmBottomBar() {
       setShouldRenderSheet(true);
       setDragOffset(0);
       setIsDragging(false);
-      const raf = requestAnimationFrame(() => {
+      const timer = setTimeout(() => {
         setIsSheetVisible(true);
-      });
-      return () => cancelAnimationFrame(raf);
+      }, 25);
+      return () => clearTimeout(timer);
     } else {
       setIsSheetVisible(false);
       const timer = setTimeout(() => {
         setShouldRenderSheet(false);
         setDragOffset(0);
         setIsDragging(false);
-      }, 300);
+      }, 320);
       return () => clearTimeout(timer);
     }
   }, [isActionSheetOpen]);

@@ -41,24 +41,25 @@ export default function BottomSheet({
     setMounted(true);
   }, []);
 
-  // Управление жизненным циклом и плавным монтированием/демонтированием
+  // Управление жизненным циклом и гарантированным двухфазным рендерингом для CSS-переходов
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
       setDragOffset(0);
       setIsDragging(false);
-      // Запускаем анимацию открытия на следующем кадре GPU
-      const raf = requestAnimationFrame(() => {
+      // Задержка в 25мс гарантирует, что браузер сначала отрисует начальное состояние (translateY(100%)),
+      // а затем плавно анимирует его к translateY(0)
+      const timer = setTimeout(() => {
         setIsVisible(true);
-      });
-      return () => cancelAnimationFrame(raf);
+      }, 25);
+      return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
       const timer = setTimeout(() => {
         setShouldRender(false);
         setDragOffset(0);
         setIsDragging(false);
-      }, 320); // 320ms соответствует длительности CSS-перехода
+      }, 320); // 320ms соответствует длительности CSS-анимации
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -134,12 +135,12 @@ export default function BottomSheet({
     const offset = currentOffsetRef.current;
     const velocity = elapsed > 0 ? offset / elapsed : 0;
 
-    // Если свайпнули больше 100px или с высокой скоростью (velocity > 0.4) — закрываем
-    if (offset > 100 || velocity > 0.4) {
+    // Если свайпнули больше 80px или с высокой скоростью (velocity > 0.4) — закрываем
+    if (offset > 80 || velocity > 0.4) {
       triggerHaptic("light");
       onClose();
     } else {
-      // Иначе возвращаем шторку на место плавной пружиной
+      // Иначе возвращаем шторку на место плавной анимацией
       setDragOffset(0);
     }
   }, [isDragging, onClose]);
@@ -178,7 +179,7 @@ export default function BottomSheet({
             : "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
           willChange: "transform",
         }}
-        className={`relative w-full ${maxWidth} max-w-full bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} ${height} z-20 overflow-hidden overflow-x-hidden border-t border-slate-200/80 transform-gpu ${className}`}
+        className={`relative w-full ${maxWidth} max-w-full bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} ${height} z-20 overflow-hidden overflow-x-hidden border-t border-slate-200/80 ${className}`}
       >
         {/* Ручка для свайпа вниз (iOS Handle Bar) с поддержкой Touch/Mouse Drag */}
         {showHandleBar && (
