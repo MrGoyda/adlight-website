@@ -24,6 +24,7 @@ import {
   clearEstimateDraft,
 } from "./utils";
 import { DEFAULT_MARGIN_MULTIPLIER } from "./constants";
+import { ESTIMATE_DEFAULT_SERVICES } from "../../_data/estimateDictionary";
 
 interface UseEstimateStateProps {
   isOpen: boolean;
@@ -208,16 +209,16 @@ export function useEstimateState({
       unit = "PIECE";
     } else if (type === "ASSEMBLY") {
       const defaultAssembly = workOperations.find((o) => o.type === "ASSEMBLY");
-      name = defaultAssembly?.name || "Сборка световой вывески / букв";
-      costPrice = defaultAssembly?.defaultCost || 15000;
-      sellPrice = defaultAssembly?.defaultPrice || 22000;
-      unit = defaultAssembly?.unit || "PIECE";
+      name = defaultAssembly?.name || ESTIMATE_DEFAULT_SERVICES.ASSEMBLY.name;
+      costPrice = defaultAssembly?.defaultCost || ESTIMATE_DEFAULT_SERVICES.ASSEMBLY.costPrice;
+      sellPrice = defaultAssembly?.defaultPrice || ESTIMATE_DEFAULT_SERVICES.ASSEMBLY.sellPrice;
+      unit = defaultAssembly?.unit || ESTIMATE_DEFAULT_SERVICES.ASSEMBLY.unit;
     } else if (type === "INSTALLATION") {
       const defaultInstall = workOperations.find((o) => o.type === "INSTALLATION");
-      name = defaultInstall?.name || "Монтаж фасадной вывески";
-      costPrice = defaultInstall?.defaultCost || 25000;
-      sellPrice = defaultInstall?.defaultPrice || 35000;
-      unit = defaultInstall?.unit || "PIECE";
+      name = defaultInstall?.name || ESTIMATE_DEFAULT_SERVICES.INSTALLATION.name;
+      costPrice = defaultInstall?.defaultCost || ESTIMATE_DEFAULT_SERVICES.INSTALLATION.costPrice;
+      sellPrice = defaultInstall?.defaultPrice || ESTIMATE_DEFAULT_SERVICES.INSTALLATION.sellPrice;
+      unit = defaultInstall?.unit || ESTIMATE_DEFAULT_SERVICES.INSTALLATION.unit;
     }
 
     const newItem: EstimateItem = {
