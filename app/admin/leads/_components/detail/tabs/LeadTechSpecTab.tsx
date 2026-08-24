@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
   SIGN_TYPES, 
   MOUNTING_HEIGHTS, 
@@ -11,7 +11,7 @@ import {
 import { LeadTechSpec, LeadConstructionItem } from "../../../_types/leadDetailTypes";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
-import CustomDropdown, { CustomDropdownOption } from "@/components/ui/CustomDropdown";
+import CustomDropdown from "@/components/ui/CustomDropdown";
 import { 
   Wrench, 
   ShieldCheck, 
@@ -31,8 +31,8 @@ interface LeadTechSpecTabProps {
   onAutoSave?: (patch: { techSpec: LeadTechSpec }) => void;
 }
 
-export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, onAutoSave }: LeadTechSpecTabProps) {
-  // Защитный парсинг: если techSpec пришел как JSON-строка, null или объект
+// Защитный хелпер безопасного парсинга элементов тех-спецификации
+function parseInitialItems(rawTechSpec: any): LeadConstructionItem[] {
   const techSpec: LeadTechSpec = typeof rawTechSpec === "string"
     ? (() => {
         try {
@@ -43,48 +43,87 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
       })()
     : rawTechSpec || {};
 
-  // Список конструкций. Если items нет, строим из legacy данных или инициализируем
-  const items: LeadConstructionItem[] = Array.isArray(techSpec.items) && techSpec.items.length > 0
-    ? techSpec.items
-    : (Array.isArray(techSpec.signTypes) && techSpec.signTypes.length > 0)
-      ? techSpec.signTypes.map((st, idx) => ({
-          id: `legacy-${idx}-${st}`,
-          signType: st,
-          title: SIGN_TYPES.find((s) => s.id === st)?.label || "Конструкция",
-          lengthMm: techSpec.lengthMm || (techSpec.lengthMeters ? Math.round(techSpec.lengthMeters * 1000) : null),
-          heightMm: techSpec.heightMm || (techSpec.heightMeters ? Math.round(techSpec.heightMeters * 1000) : null),
-          letterHeightMm: techSpec.letterHeightMm || (techSpec.letterHeightCm ? Math.round(techSpec.letterHeightCm * 10) : null),
-          mountingHeight: techSpec.mountingHeight || null,
-          facadeType: techSpec.facadeType || null,
-          powerSupply: techSpec.powerSupply || null,
-          approvalStatus: techSpec.approvalStatus || null,
-          nightMountingOnly: techSpec.nightMountingOnly || false,
-        }))
-      : [
-          {
-            id: `item-${Date.now()}`,
-            signType: null,
-            title: "Основная вывеска",
-            lengthMm: null,
-            heightMm: null,
-            letterHeightMm: null,
-            depthMm: null,
-            mountingHeight: techSpec.mountingHeight || null,
-            facadeType: techSpec.facadeType || null,
-            powerSupply: techSpec.powerSupply || null,
-            approvalStatus: techSpec.approvalStatus || null,
-            nightMountingOnly: techSpec.nightMountingOnly || false,
-            comment: null,
-          }
-        ];
+  if (Array.isArray(techSpec.items) && techSpec.items.length > 0) {
+    return techSpec.items;
+  }
+
+  if (Array.isArray(techSpec.signTypes) && techSpec.signTypes.length > 0) {
+    return techSpec.signTypes.map((st, idx) => ({
+      id: `legacy-${idx}-${st}`,
+      signType: st,
+      title: SIGN_TYPES.find((s) => s.id === st)?.label || "Конструкция",
+      lengthMm: techSpec.lengthMm || (techSpec.lengthMeters ? Math.round(techSpec.lengthMeters * 1000) : null),
+      heightMm: techSpec.heightMm || (techSpec.heightMeters ? Math.round(techSpec.heightMeters * 1000) : null),
+      letterHeightMm: techSpec.letterHeightMm || (techSpec.letterHeightCm ? Math.round(techSpec.letterHeightCm * 10) : null),
+      mountingHeight: techSpec.mountingHeight || null,
+      facadeType: techSpec.facadeType || null,
+      powerSupply: techSpec.powerSupply || null,
+      approvalStatus: techSpec.approvalStatus || null,
+      nightMountingOnly: techSpec.nightMountingOnly || false,
+    }));
+  }
+
+  return [
+    {
+      id: "item-primary",
+      signType: null,
+      title: "Основная вывеска",
+      lengthMm: null,
+      heightMm: null,
+      letterHeightMm: null,
+      depthMm: null,
+      mountingHeight: techSpec.mountingHeight || null,
+      facadeType: techSpec.facadeType || null,
+      powerSupply: techSpec.powerSupply || null,
+      approvalStatus: techSpec.approvalStatus || null,
+      nightMountingOnly: techSpec.nightMountingOnly || false,
+      comment: null,
+    },
+  ];
+}
+
+export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, onAutoSave }: LeadTechSpecTabProps) {
+  // Локальный стейт конструкций для 60 FPS плавного ввода без задержек и лагов
+  const [items, setItems] = useState<LeadConstructionItem[]>(() => parseInitialItems(rawTechSpec));
 
   // Состояние раскрытых карточек (ID конструкций, которые развернуты)
-  const [expandedItemIds, setExpandedItemIds] = useState<string[]>(() => 
-    items.length > 0 ? [items[0].id] : []
-  );
+  const [expandedItemIds, setExpandedItemIds] = useState<string[]>(() => {
+    const init = parseInitialItems(rawTechSpec);
+    return init.length > 0 ? [init[0].id] : [];
+  });
 
   // Какая карточка сейчас выбирает тип конструкции (ID или null)
   const [openDropdownItemId, setOpenDropdownItemId] = useState<string | null>(null);
+
+  // Ссылка на актуальные items для debounce-сохранения
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+
+  // Формирование и сохранение итогового объекта тех-спецификации
+  const buildTechSpecPayload = useCallback((currentItems: LeadConstructionItem[]): LeadTechSpec => {
+    return {
+      items: currentItems,
+      signTypes: currentItems.map((i) => i.signType).filter(Boolean) as string[],
+      lengthMm: currentItems[0]?.lengthMm || null,
+      heightMm: currentItems[0]?.heightMm || null,
+      letterHeightMm: currentItems[0]?.letterHeightMm || null,
+      mountingHeight: currentItems[0]?.mountingHeight || null,
+      facadeType: currentItems[0]?.facadeType || null,
+      powerSupply: currentItems[0]?.powerSupply || null,
+      approvalStatus: currentItems[0]?.approvalStatus || null,
+      nightMountingOnly: currentItems[0]?.nightMountingOnly || false,
+    };
+  }, []);
+
+  // Синхронизация с сервером (вызывается на onBlur или при дискретных действиях)
+  const persistChanges = useCallback(
+    (newItems: LeadConstructionItem[]) => {
+      const updated = buildTechSpecPayload(newItems);
+      setTechSpec(updated);
+      onAutoSave?.({ techSpec: updated });
+    },
+    [buildTechSpecPayload, setTechSpec, onAutoSave]
+  );
 
   const toggleExpandItem = (id: string) => {
     triggerHaptic("light");
@@ -93,23 +132,19 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
     );
   };
 
-  const handleUpdateItems = (newItems: LeadConstructionItem[]) => {
-    const updated: LeadTechSpec = {
-      ...techSpec,
-      items: newItems,
-      // Сохраняем legacy поля для обратной совместимости
-      signTypes: newItems.map((i) => i.signType).filter(Boolean) as string[],
-      lengthMm: newItems[0]?.lengthMm || null,
-      heightMm: newItems[0]?.heightMm || null,
-      letterHeightMm: newItems[0]?.letterHeightMm || null,
-      mountingHeight: newItems[0]?.mountingHeight || null,
-      facadeType: newItems[0]?.facadeType || null,
-      powerSupply: newItems[0]?.powerSupply || null,
-      approvalStatus: newItems[0]?.approvalStatus || null,
-      nightMountingOnly: newItems[0]?.nightMountingOnly || false,
-    };
-    setTechSpec(updated);
-    if (onAutoSave) onAutoSave({ techSpec: updated });
+  // Мгновенное локальное обновление поля без блокировки UI и без скачков экрана
+  const handleLocalFieldChange = (id: string, field: keyof LeadConstructionItem, value: any) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        return { ...item, [field]: value };
+      })
+    );
+  };
+
+  // Обработчик завершения ввода (onBlur) — отправляет актуальное состояние в БД
+  const handleFieldBlur = () => {
+    persistChanges(itemsRef.current);
   };
 
   const handleAddItem = () => {
@@ -131,8 +166,9 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
       comment: null,
     };
     const nextItems = [...items, newItem];
+    setItems(nextItems);
     setExpandedItemIds((prev) => [...prev, newItemId]);
-    handleUpdateItems(nextItems);
+    persistChanges(nextItems);
   };
 
   const handleDeleteItem = (id: string, e: React.MouseEvent) => {
@@ -150,29 +186,24 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
       onConfirm: () => {
         if (items.length <= 1) {
           const resetItem: LeadConstructionItem = {
-            id: `item-${Date.now()}`,
+            id: "item-primary",
             signType: null,
             title: "Основная вывеска",
             lengthMm: null,
             heightMm: null,
             letterHeightMm: null,
           };
-          handleUpdateItems([resetItem]);
+          const nextItems = [resetItem];
+          setItems(nextItems);
           setExpandedItemIds([resetItem.id]);
+          persistChanges(nextItems);
           return;
         }
         const nextItems = items.filter((i) => i.id !== id);
-        handleUpdateItems(nextItems);
+        setItems(nextItems);
+        persistChanges(nextItems);
       },
     });
-  };
-
-  const handleUpdateItemField = (id: string, field: keyof LeadConstructionItem, value: any) => {
-    const nextItems = items.map((i) => {
-      if (i.id !== id) return i;
-      return { ...i, [field]: value };
-    });
-    handleUpdateItems(nextItems);
   };
 
   const handleSelectSignType = (itemId: string, typeId: string) => {
@@ -186,9 +217,18 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
         title: stObj ? stObj.label : i.title 
       };
     });
-    // АВТОЗАКРЫТИЕ выпадающего списка при выборе!
+    setItems(nextItems);
     setOpenDropdownItemId(null);
-    handleUpdateItems(nextItems);
+    persistChanges(nextItems);
+  };
+
+  const handleDropdownChange = (itemId: string, field: keyof LeadConstructionItem, value: any) => {
+    const nextItems = items.map((i) => {
+      if (i.id !== itemId) return i;
+      return { ...i, [field]: value };
+    });
+    setItems(nextItems);
+    persistChanges(nextItems);
   };
 
   return (
@@ -360,7 +400,11 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                             type="number"
                             inputMode="numeric"
                             value={item.lengthMm ?? ""}
-                            onChange={(e) => handleUpdateItemField(item.id, "lengthMm", parseInt(e.target.value, 10) || null)}
+                            onChange={(e) => {
+                              const val = e.target.value === "" ? null : Number(e.target.value);
+                              handleLocalFieldChange(item.id, "lengthMm", val);
+                            }}
+                            onBlur={handleFieldBlur}
                             placeholder="например: 3500"
                             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[40px]"
                           />
@@ -375,7 +419,11 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                             type="number"
                             inputMode="numeric"
                             value={item.heightMm ?? ""}
-                            onChange={(e) => handleUpdateItemField(item.id, "heightMm", parseInt(e.target.value, 10) || null)}
+                            onChange={(e) => {
+                              const val = e.target.value === "" ? null : Number(e.target.value);
+                              handleLocalFieldChange(item.id, "heightMm", val);
+                            }}
+                            onBlur={handleFieldBlur}
                             placeholder="например: 800"
                             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[40px]"
                           />
@@ -390,7 +438,11 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                             type="number"
                             inputMode="numeric"
                             value={item.letterHeightMm ?? ""}
-                            onChange={(e) => handleUpdateItemField(item.id, "letterHeightMm", parseInt(e.target.value, 10) || null)}
+                            onChange={(e) => {
+                              const val = e.target.value === "" ? null : Number(e.target.value);
+                              handleLocalFieldChange(item.id, "letterHeightMm", val);
+                            }}
+                            onBlur={handleFieldBlur}
                             placeholder="например: 450"
                             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-black focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition font-mono min-h-[40px]"
                           />
@@ -412,7 +464,7 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                           </label>
                           <CustomDropdown
                             value={item.mountingHeight || ""}
-                            onChange={(val) => handleUpdateItemField(item.id, "mountingHeight", val || null)}
+                            onChange={(val) => handleDropdownChange(item.id, "mountingHeight", val || null)}
                             options={[
                               { value: "", label: "Не указано" },
                               ...MOUNTING_HEIGHTS.map((h) => ({ value: h.id, label: h.label })),
@@ -427,7 +479,7 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                           </label>
                           <CustomDropdown
                             value={item.facadeType || ""}
-                            onChange={(val) => handleUpdateItemField(item.id, "facadeType", val || null)}
+                            onChange={(val) => handleDropdownChange(item.id, "facadeType", val || null)}
                             options={[
                               { value: "", label: "Не указано" },
                               ...FACADE_WALL_TYPES.map((w) => ({ value: w.id, label: w.label })),
@@ -445,7 +497,7 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                           </label>
                           <CustomDropdown
                             value={item.powerSupply || ""}
-                            onChange={(val) => handleUpdateItemField(item.id, "powerSupply", val || null)}
+                            onChange={(val) => handleDropdownChange(item.id, "powerSupply", val || null)}
                             options={[
                               { value: "", label: "Не указано" },
                               ...POWER_SUPPLY_OPTIONS.map((p) => ({ value: p.id, label: p.label })),
@@ -462,7 +514,7 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                           </label>
                           <CustomDropdown
                             value={item.approvalStatus || ""}
-                            onChange={(val) => handleUpdateItemField(item.id, "approvalStatus", val || null)}
+                            onChange={(val) => handleDropdownChange(item.id, "approvalStatus", val || null)}
                             options={[
                               { value: "", label: "Не указано" },
                               ...APPROVAL_STATUSES.map((a) => ({ value: a.id, label: a.label })),
@@ -478,7 +530,7 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                           <input
                             type="checkbox"
                             checked={Boolean(item.nightMountingOnly)}
-                            onChange={(e) => handleUpdateItemField(item.id, "nightMountingOnly", e.target.checked)}
+                            onChange={(e) => handleDropdownChange(item.id, "nightMountingOnly", e.target.checked)}
                             className="w-4 h-4 rounded text-orange-600 border-slate-300 focus:ring-orange-500 cursor-pointer"
                           />
                           <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
@@ -497,7 +549,8 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
                       <input
                         type="text"
                         value={item.comment || ""}
-                        onChange={(e) => handleUpdateItemField(item.id, "comment", e.target.value || null)}
+                        onChange={(e) => handleLocalFieldChange(item.id, "comment", e.target.value || null)}
+                        onBlur={handleFieldBlur}
                         placeholder="например: Лицевое свечение, акрил 3мм, подсветка контурная..."
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-bold focus:border-orange-500 outline-none text-base sm:text-xs shadow-2xs transition min-h-[40px]"
                       />
