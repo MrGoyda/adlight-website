@@ -65,8 +65,8 @@ export function getLeadTimingInfo(
   if (appointmentDate) {
     const appDate = new Date(appointmentDate);
     if (!isNaN(appDate.getTime())) {
-      appointmentTimeStr = appDate.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-      appointmentDateStr = appDate.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+      appointmentTimeStr = appDate.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Almaty" });
+      appointmentDateStr = appDate.toLocaleDateString("ru-RU", { day: "numeric", month: "short", timeZone: "Asia/Almaty" });
 
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);

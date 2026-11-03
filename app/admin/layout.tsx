@@ -17,7 +17,7 @@ export default function AdminLayout({
       <CrmHeader />
 
       {/* Основное прокручиваемое пространство админки с воздухом по бокам */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-y-auto overscroll-contain pb-24 lg:pb-8">
+      <main className="flex-1 w-full max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 overflow-y-auto overscroll-contain pb-24 lg:pb-8">
         {children}
       </main>
 

@@ -14,6 +14,14 @@ export interface BottomSheetProps {
   showHandleBar?: boolean;
   className?: string;
   zIndex?: string;
+  /**
+   * На десктопе (md/lg):
+   * 'sheet' - классическая шторка снизу (по умолчанию)
+   * 'drawer' - выезжающая боковая панель справа (Apple Inspector / Slide-over)
+   * 'modal' - центрированное плавающее окно (Apple Pro Modal)
+   */
+  desktopVariant?: "sheet" | "drawer" | "modal";
+  desktopWidth?: string;
 }
 
 export default function BottomSheet({
@@ -26,6 +34,8 @@ export default function BottomSheet({
   showHandleBar = true,
   className = "",
   zIndex = "z-[9999]",
+  desktopVariant = "sheet",
+  desktopWidth = "lg:w-[680px]",
 }: BottomSheetProps) {
   const [mounted, setMounted] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -145,18 +155,39 @@ export default function BottomSheet({
     }
   }, [isDragging, onClose]);
 
-  if (!mounted || !shouldRender) return null;
+  if (!mounted || !shouldRender || typeof document === "undefined") return null;
 
-  // Динамический transform с учетом жеста перетаскивания
-  const sheetTransform = !isVisible
-    ? "translate3d(0, 100%, 0)"
-    : dragOffset !== 0
-    ? `translate3d(0, ${Math.max(dragOffset, -20)}px, 0)`
-    : "translate3d(0, 0, 0)";
+  // Динамический класс позиционирования для десктопа
+  let containerPositionClass = "flex flex-col justify-end items-center";
+  if (desktopVariant === "drawer") {
+    containerPositionClass = "flex flex-col justify-end items-center lg:justify-start lg:items-end";
+  } else if (desktopVariant === "modal") {
+    containerPositionClass = "flex flex-col justify-end items-center lg:justify-center lg:items-center lg:p-6";
+  }
+
+  // Динамический стиль анимации и размеров
+  // На мобилке: всегда классический bottom sheet (translateY)
+  // На десктопе в режиме drawer: translateX
+  // На десктопе в режиме modal: fade + scale
+  let desktopClassNames = "";
+  if (desktopVariant === "drawer") {
+    desktopClassNames = `lg:rounded-t-none lg:rounded-l-3xl lg:border-t-0 lg:border-l lg:border-slate-200/80 lg:shadow-2xl lg:h-full lg:max-h-full ${desktopWidth}`;
+  } else if (desktopVariant === "modal") {
+    desktopClassNames = `lg:rounded-3xl lg:border lg:border-slate-200/80 lg:shadow-2xl lg:h-auto ${maxHeight} ${desktopWidth || maxWidth}`;
+  }
+
+  // Определение стилей трансформации:
+  // 1. На мобилке (< lg): всегда снизу вверх (translateY)
+  // 2. На десктопе (>= lg):
+  //    - drawer: выезжает справа (translateX(100%) -> translateX(0))
+  //    - modal: центрируется со scale(0.95) -> scale(1) и opacity
+  //    - sheet: снизу вверх
+  const isDrawer = desktopVariant === "drawer";
+  const isModal = desktopVariant === "modal";
 
   return createPortal(
     <div
-      className={`fixed inset-0 ${zIndex} flex flex-col justify-end items-center pointer-events-auto`}
+      className={`fixed inset-0 ${zIndex} ${containerPositionClass} pointer-events-auto`}
       style={{ isolation: "isolate" }}
     >
       {/* ── Затемнение фона (Backdrop) на чистом CSS ── */}
@@ -170,18 +201,30 @@ export default function BottomSheet({
         }`}
       />
 
-      {/* ── Шторка на чистом CSS (Apple UIKit cubic-bezier) ── */}
+      {/* ── Адаптивный контейнер (Шторка на мобилке / Drawer или Modal на десктопе) ── */}
       <div
-        style={{
-          transform: sheetTransform,
-          transition: isDragging
-            ? "none"
-            : "transform 320ms cubic-bezier(0.32, 0.72, 0, 1)",
-          willChange: "transform",
-        }}
-        className={`relative w-full ${maxWidth} max-w-full bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} ${height} z-20 overflow-hidden overflow-x-hidden border-t border-slate-200/80 ${className}`}
+        className={`relative w-full ${maxWidth} max-w-full bg-white rounded-t-[32px] shadow-2xl flex flex-col ${maxHeight} ${height} z-20 overflow-hidden overflow-x-hidden border-t border-slate-200/80 transition-all duration-300 ease-out ${
+          isDrawer
+            ? `${
+                isVisible
+                  ? "translate-y-0 lg:translate-x-0 opacity-100"
+                  : "translate-y-full lg:translate-y-0 lg:translate-x-full opacity-0 lg:opacity-100"
+              }`
+            : isModal
+            ? `${
+                isVisible
+                  ? "translate-y-0 lg:scale-100 opacity-100"
+                  : "translate-y-full lg:translate-y-0 lg:scale-95 opacity-0"
+              }`
+            : `${isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`
+        } ${desktopClassNames} ${className}`}
+        style={
+          isDragging && dragOffset !== 0
+            ? { transform: `translate3d(0, ${Math.max(dragOffset, -20)}px, 0)`, transition: "none" }
+            : undefined
+        }
       >
-        {/* Ручка для свайпа вниз (iOS Handle Bar) с поддержкой Touch/Mouse Drag */}
+        {/* Ручка для свайпа вниз (iOS Handle Bar) — только для мобильных устройств */}
         {showHandleBar && (
           <div
             onTouchStart={handleTouchStart}
@@ -190,7 +233,9 @@ export default function BottomSheet({
             onMouseDown={handleTouchStart}
             onMouseMove={handleTouchMove}
             onMouseUp={handleTouchEnd}
-            className="pt-2.5 pb-1 flex justify-center shrink-0 cursor-grab active:cursor-grabbing bg-white select-none touch-none w-full max-w-full"
+            className={`pt-2.5 pb-1 flex justify-center shrink-0 cursor-grab active:cursor-grabbing bg-white select-none touch-none w-full max-w-full ${
+              desktopVariant !== "sheet" ? "lg:hidden" : ""
+            }`}
           >
             <div className="w-12 h-1.5 bg-slate-300 hover:bg-slate-400 rounded-full transition-colors pointer-events-none" />
           </div>

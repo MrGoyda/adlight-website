@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "framer-motion", "clsx", "tailwind-merge"],
     serverActions: {
       allowedOrigins: [
+        "crm.adlight.kz",
+        "adlight.kz",
+        "www.adlight.kz",
         "172.20.10.5:3000",
         "172.20.10.1:3000",
         "172.20.10.2:3000",

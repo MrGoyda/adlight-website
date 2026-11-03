@@ -46,6 +46,7 @@ export default function LeadCardHeader({
             month: "short",
             hour: "2-digit",
             minute: "2-digit",
+            timeZone: "Asia/Almaty",
           })}
         </span>
 

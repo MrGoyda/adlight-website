@@ -104,8 +104,10 @@ function LeadDetailSheetContent({
         isOpen={isOpen}
         onClose={onClose}
         maxWidth="max-w-5xl"
-        height="h-[90dvh] min-h-[90dvh]"
-        maxHeight="max-h-[90dvh]"
+        height="h-[90dvh] lg:h-screen min-h-[90dvh] lg:min-h-screen"
+        maxHeight="max-h-[90dvh] lg:max-h-screen"
+        desktopVariant="drawer"
+        desktopWidth="lg:w-[600px] xl:w-[640px]"
       >
         {/* 1. Синхронизированная шапка */}
         <LeadDetailHeader

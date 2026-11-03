@@ -96,18 +96,16 @@ export default async function LeadsPage({
   ]);
 
   return (
-    <main className="min-h-screen bg-slate-50/50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <LeadsDashboard 
-          initialLeads={JSON.parse(JSON.stringify(leads))} 
-          initialClients={JSON.parse(JSON.stringify(clients))}
-          initialCompanies={JSON.parse(JSON.stringify(companies))}
-          initialWarehouseItems={JSON.parse(JSON.stringify(warehouseItems))}
-          initialSupplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
-          initialPendingClicks={JSON.parse(JSON.stringify(pendingClicks))}
-          selectedLeadId={selectedLeadId} 
-        />
-      </div>
-    </main>
+    <div className="w-full">
+      <LeadsDashboard 
+        initialLeads={JSON.parse(JSON.stringify(leads))} 
+        initialClients={JSON.parse(JSON.stringify(clients))}
+        initialCompanies={JSON.parse(JSON.stringify(companies))}
+        initialWarehouseItems={JSON.parse(JSON.stringify(warehouseItems))}
+        initialSupplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
+        initialPendingClicks={JSON.parse(JSON.stringify(pendingClicks))}
+        selectedLeadId={selectedLeadId} 
+      />
+    </div>
   );
 }

@@ -74,6 +74,8 @@ export default function EstimateModal({
       onClose={onClose}
       maxWidth="max-w-5xl"
       maxHeight="max-h-[92dvh]"
+      desktopVariant="modal"
+      desktopWidth="lg:w-[960px] xl:w-[1120px]"
     >
       {/* Шапка */}
       <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">

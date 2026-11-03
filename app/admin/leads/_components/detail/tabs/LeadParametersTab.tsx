@@ -156,9 +156,9 @@ export default function LeadParametersTab({
   };
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-150">
+    <div className="space-y-4 max-w-2xl mx-auto animate-in fade-in duration-150">
       {/* ── БЛОК КЛИЕНТА И КОНВЕРТАЦИИ В ПРОЕКТ ── */}
-      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
+      <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
             <UserCheck className="w-3.5 h-3.5 text-blue-500" />
@@ -490,8 +490,41 @@ export default function LeadParametersTab({
         </div>
       </div>
 
+      {/* ── 5. ПРИЧИНА ОТКАЗА (Если статус CANCELLED) ── */}
+      {status === "CANCELLED" && (
+        <div className="bg-rose-50/80 p-3.5 sm:p-4 rounded-2xl border border-rose-200 space-y-2 animate-in fade-in duration-150">
+          <label className="text-[10px] font-black text-rose-600 uppercase tracking-wider flex items-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+            Причина отказа / срыва сделки
+          </label>
+          <select
+            value={cancellationReason || ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              setCancellationReason(val);
+              onAutoSave?.({ cancellationReason: val });
+            }}
+            className="w-full bg-white border border-rose-200 text-rose-950 font-extrabold rounded-xl px-3 py-2.5 text-base sm:text-xs outline-none focus:border-rose-500 shadow-2xs transition cursor-pointer"
+          >
+            <option value="">Не указана</option>
+            {CANCELLATION_REASONS.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* ── 6. Исходный запрос с сайта (раскрывающийся аккордеон) ── */}
+      {initialMessage && (
+        <div className="bg-orange-50/70 rounded-2xl border border-orange-200/80 w-full min-w-0 max-w-full overflow-hidden transition shadow-2xs">
+          <InitialMessageAccordion message={initialMessage} source={source} />
+        </div>
+      )}
+
       {/* ── 3. ФИНАНСЫ И ПРЕДОПЛАТА (INLINE) ── */}
-      <div className="bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-3">
+      <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
           <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
           Финансовые условия и расчеты
@@ -612,7 +645,7 @@ export default function LeadParametersTab({
 
         {/* Список записей истории */}
         {activities.length > 0 ? (
-          <div className="space-y-2 max-h-60 overflow-y-auto pt-1">
+          <div className="space-y-2 max-h-64 overflow-y-auto pt-1 pr-1">
             {activities.map((act) => (
               <div
                 key={act.id}
@@ -621,7 +654,10 @@ export default function LeadParametersTab({
                 <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
                   <span className="text-slate-800 font-black">{act.author || "Менеджер"}</span>
                   <div className="flex items-center gap-2">
-                    <span>{new Date(act.createdAt).toLocaleDateString()} {new Date(act.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span suppressHydrationWarning>
+                      {new Date(act.createdAt).toLocaleDateString("ru-RU", { timeZone: "Asia/Almaty" })}{" "}
+                      {new Date(act.createdAt).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Almaty" })}
+                    </span>
                     {onDeleteActivity && (
                       <button
                         type="button"
@@ -649,39 +685,6 @@ export default function LeadParametersTab({
           </p>
         )}
       </div>
-
-      {/* ── 5. ПРИЧИНА ОТКАЗА (Если статус CANCELLED) ── */}
-      {status === "CANCELLED" && (
-        <div className="bg-rose-50/80 p-3.5 sm:p-4 rounded-2xl border border-rose-200 space-y-2 animate-in fade-in duration-150">
-          <label className="text-[10px] font-black text-rose-600 uppercase tracking-wider flex items-center gap-1.5">
-            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-            Причина отказа / срыва сделки
-          </label>
-          <select
-            value={cancellationReason || ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              setCancellationReason(val);
-              onAutoSave?.({ cancellationReason: val });
-            }}
-            className="w-full bg-white border border-rose-200 text-rose-950 font-extrabold rounded-xl px-3 py-2.5 text-base sm:text-xs outline-none focus:border-rose-500 shadow-2xs transition cursor-pointer"
-          >
-            <option value="">Не указана</option>
-            {CANCELLATION_REASONS.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* ── 6. Исходный запрос с сайта (раскрывающийся аккордеон) ── */}
-      {initialMessage && (
-        <div className="bg-orange-50/70 rounded-2xl border border-orange-200/80 w-full min-w-0 max-w-full overflow-hidden transition shadow-2xs">
-          <InitialMessageAccordion message={initialMessage} source={source} />
-        </div>
-      )}
 
       {/* Модалка квалификации в Компанию и Проект */}
       {onConvertToCompanyAndProject && (

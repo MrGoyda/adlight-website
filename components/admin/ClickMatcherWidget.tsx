@@ -250,8 +250,8 @@ export default function ClickMatcherWidget({ leadId, onMatched }: ClickMatcherWi
             const isTablet = click.deviceType === "Tablet";
             
             const dateObj = new Date(click.createdAt);
-            const timeStr = dateObj.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-            const dateStr = dateObj.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" });
+            const timeStr = dateObj.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Almaty" });
+            const dateStr = dateObj.toLocaleDateString("ru-RU", { day: "2-digit", month: "short", timeZone: "Asia/Almaty" });
 
             return (
               <div

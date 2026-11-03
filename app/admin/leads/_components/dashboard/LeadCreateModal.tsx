@@ -71,6 +71,8 @@ export default function LeadCreateModal({
       onClose={onClose}
       maxWidth="max-w-xl"
       maxHeight="max-h-[92dvh]"
+      desktopVariant="modal"
+      desktopWidth="lg:w-[580px]"
       className="bg-white"
     >
       <div className="flex flex-col h-full w-full max-w-full overflow-hidden overflow-x-hidden">
