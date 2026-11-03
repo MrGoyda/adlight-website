@@ -5,10 +5,14 @@ import CrmSidebar from "./CrmSidebar";
 import CrmTopBar from "./CrmTopBar";
 import CrmBottomBar from "./CrmBottomBar";
 import CrmCommandPalette from "./CrmCommandPalette";
+import { useCrmRealtime } from "@/lib/useCrmRealtime";
 
 export default function CrmAppShell({ children }: { children: React.ReactNode }) {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Подключение фонового Realtime слушателя событий Supabase
+  useCrmRealtime();
 
   // Глобальный перехват Cmd+K / Ctrl+K
   useEffect(() => {

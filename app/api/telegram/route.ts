@@ -261,7 +261,7 @@ ${parsed.title}
     }
 
     messageContent += `──────────────────
-🔗 <a href="https://adlight.kz/admin/leads?id=${leadId}">Открыть в CRM</a>
+🔗 <a href="https://crm.adlight.kz/leads?id=${leadId}">Открыть в CRM</a>
 ⏰ <i>${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Almaty' })} (Астана)</i>
 `;
 
