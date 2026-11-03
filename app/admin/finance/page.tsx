@@ -61,15 +61,13 @@ export default async function FinancePage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50/50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <FinanceDashboard 
-          cashbox={cashbox}
-          transactions={JSON.parse(JSON.stringify(transactions))}
-          withdrawals={withdrawalsMap}
-          leads={JSON.parse(JSON.stringify(leads))}
-        />
-      </div>
-    </main>
+    <div className="w-full space-y-6">
+      <FinanceDashboard 
+        cashbox={cashbox}
+        transactions={JSON.parse(JSON.stringify(transactions))}
+        withdrawals={withdrawalsMap}
+        leads={JSON.parse(JSON.stringify(leads))}
+      />
+    </div>
   );
 }
