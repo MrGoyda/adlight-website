@@ -2,7 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  const host = request.headers.get("host") || "";
+  const rawHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
+  const host = rawHost.toLowerCase().split(":")[0];
   const pathname = request.nextUrl.pathname;
 
   const isLocal =
