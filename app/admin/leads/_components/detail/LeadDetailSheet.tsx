@@ -25,6 +25,7 @@ interface LeadDetailSheetProps {
   leads?: any[];
   clients?: any[];
   companies?: any[];
+  isEmbedded?: boolean;
 }
 
 export default function LeadDetailSheet({
@@ -37,6 +38,7 @@ export default function LeadDetailSheet({
   leads = [],
   clients = [],
   companies = [],
+  isEmbedded = false,
 }: LeadDetailSheetProps) {
   const [showEstimateModal, setShowEstimateModal] = useState(false);
   const lastLeadRef = React.useRef<LeadFullDetails | null>(lead);
@@ -61,6 +63,7 @@ export default function LeadDetailSheet({
       leads={leads}
       clients={clients}
       companies={companies}
+      isEmbedded={isEmbedded}
     />
   );
 }
@@ -77,6 +80,7 @@ function LeadDetailSheetContent({
   leads,
   clients,
   companies,
+  isEmbedded,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -89,6 +93,7 @@ function LeadDetailSheetContent({
   leads: any[];
   clients: any[];
   companies: any[];
+  isEmbedded?: boolean;
 }) {
   const state = useLeadDetailState({
     lead,
@@ -98,114 +103,104 @@ function LeadDetailSheetContent({
     companies,
   });
 
-  return (
-    <>
-      <BottomSheet
-        isOpen={isOpen}
+  const content = (
+    <div className="flex-1 flex flex-col min-h-0 h-full overflow-hidden select-text">
+      {/* 1. Синхронизированная шапка */}
+      <LeadDetailHeader
+        lead={lead}
+        rating={state.rating}
+        saveStatus={state.saveStatus}
+        onRatingChange={state.handleRatingChange}
+        onStatusChange={state.handleStatusChange}
+        onOpenEstimate={() => setShowEstimateModal(true)}
         onClose={onClose}
-        maxWidth="max-w-5xl"
-        height="h-[90dvh] lg:h-screen min-h-[90dvh] lg:min-h-screen"
-        maxHeight="max-h-[90dvh] lg:max-h-screen"
-        desktopVariant="drawer"
-        desktopWidth="lg:w-[600px] xl:w-[640px]"
-      >
-        {/* 1. Синхронизированная шапка */}
-        <LeadDetailHeader
-          lead={lead}
-          rating={state.rating}
-          saveStatus={state.saveStatus}
-          onRatingChange={state.handleRatingChange}
-          onStatusChange={state.handleStatusChange}
-          onOpenEstimate={() => setShowEstimateModal(true)}
-          onClose={onClose}
-        />
+      />
 
-        {/* 2. Apple Segmented Control табы */}
-        <LeadDetailTabs
-          activeTab={state.activeTab}
-          onChangeTab={state.setActiveTab}
-          filesCount={state.files.length}
-          activitiesCount={state.activities.length}
-        />
+      {/* 2. Apple Segmented Control табы */}
+      <LeadDetailTabs
+        activeTab={state.activeTab}
+        onChangeTab={state.setActiveTab}
+        filesCount={state.files.length}
+        activitiesCount={state.activities.length}
+      />
 
-        {/* 3. Контент активной вкладки с фиксированной высотой (Zero Height Jumps) */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-6 pb-32 sm:pb-12 overscroll-contain">
-          {state.activeTab === "params" && (
-            <LeadParametersTab
-              name={state.name}
-              setName={state.setName}
-              phone={state.phone}
-              setPhone={state.setPhone}
-              address={state.address}
-              setAddress={state.setAddress}
-              appDate={state.appDate}
-              setAppDate={state.setAppDate}
-              deadline={state.deadline}
-              setDeadline={state.setDeadline}
-              manager={state.manager}
-              setManager={state.setManager}
-              offeredPrice={state.offeredPrice}
-              setOfferedPrice={state.setOfferedPrice}
-              isDiscounted={state.isDiscounted}
-              setIsDiscounted={state.setIsDiscounted}
-              prepayment={state.prepayment}
-              setPrepayment={state.setPrepayment}
-              isPrepaymentPaid={state.isPrepaymentPaid}
-              setIsPrepaymentPaid={state.setIsPrepaymentPaid}
-              isBalancePaid={state.isBalancePaid}
-              setIsBalancePaid={state.setIsBalancePaid}
-              comment={state.comment}
-              setComment={state.setComment}
-              status={state.status}
-              cancellationReason={state.cancellationReason}
-              setCancellationReason={state.setCancellationReason}
-              initialMessage={lead.message}
-              source={lead.source}
-              leadId={lead.id}
-              client={state.client}
-              clients={clients}
-              companies={companies}
-              activities={state.activities}
-              onAddNote={state.handleAddNote}
-              onDeleteActivity={state.handleDeleteActivity}
-              isAddingNote={state.isAddingNote}
-              onAutoSave={state.autoSaveLead}
-              onLinkLeadToClient={state.handleLinkLeadToClient}
-              onCreateClientFromLead={state.handleCreateClientFromLead}
-              onConvertToCompanyAndProject={state.handleConvertToCompanyAndProject}
-            />
-          )}
+      {/* 3. Контент активной вкладки */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-5 pb-24 lg:pb-6 overscroll-contain">
+        {state.activeTab === "params" && (
+          <LeadParametersTab
+            name={state.name}
+            setName={state.setName}
+            phone={state.phone}
+            setPhone={state.setPhone}
+            address={state.address}
+            setAddress={state.setAddress}
+            appDate={state.appDate}
+            setAppDate={state.setAppDate}
+            deadline={state.deadline}
+            setDeadline={state.setDeadline}
+            manager={state.manager}
+            setManager={state.setManager}
+            offeredPrice={state.offeredPrice}
+            setOfferedPrice={state.setOfferedPrice}
+            isDiscounted={state.isDiscounted}
+            setIsDiscounted={state.setIsDiscounted}
+            prepayment={state.prepayment}
+            setPrepayment={state.setPrepayment}
+            isPrepaymentPaid={state.isPrepaymentPaid}
+            setIsPrepaymentPaid={state.setIsPrepaymentPaid}
+            isBalancePaid={state.isBalancePaid}
+            setIsBalancePaid={state.setIsBalancePaid}
+            comment={state.comment}
+            setComment={state.setComment}
+            status={state.status}
+            cancellationReason={state.cancellationReason}
+            setCancellationReason={state.setCancellationReason}
+            initialMessage={lead.message}
+            source={lead.source}
+            leadId={lead.id}
+            client={state.client}
+            clients={clients}
+            companies={companies}
+            activities={state.activities}
+            onAddNote={state.handleAddNote}
+            onDeleteActivity={state.handleDeleteActivity}
+            isAddingNote={state.isAddingNote}
+            onAutoSave={state.autoSaveLead}
+            onLinkLeadToClient={state.handleLinkLeadToClient}
+            onCreateClientFromLead={state.handleCreateClientFromLead}
+            onConvertToCompanyAndProject={state.handleConvertToCompanyAndProject}
+          />
+        )}
 
-          {state.activeTab === "tech" && (
-            <LeadTechSpecTab
-              techSpec={state.techSpec}
-              setTechSpec={state.setTechSpec}
-              onAutoSave={state.autoSaveLead}
-            />
-          )}
+        {state.activeTab === "tech" && (
+          <LeadTechSpecTab
+            techSpec={state.techSpec}
+            setTechSpec={state.setTechSpec}
+            onAutoSave={state.autoSaveLead}
+          />
+        )}
 
-          {state.activeTab === "files" && (
-            <LeadMediaFilesTab
-              files={state.files}
-              onUploadFiles={state.handleUploadFiles}
-              onDeleteFile={state.handleDeleteFile}
-              onOpenFile={(f) => state.setViewerFile(f)}
-              isUploading={state.isUploading}
-            />
-          )}
+        {state.activeTab === "files" && (
+          <LeadMediaFilesTab
+            files={state.files}
+            onUploadFiles={state.handleUploadFiles}
+            onDeleteFile={state.handleDeleteFile}
+            onOpenFile={(f) => state.setViewerFile(f)}
+            isUploading={state.isUploading}
+          />
+        )}
 
-          {state.activeTab === "timeline" && (
-            <LeadTimelineTab
-              checklist={state.checklist}
-              onToggleChecklistItem={state.handleToggleChecklistItem}
-              activities={state.activities}
-              onAddNote={state.handleAddNote}
-              onDeleteActivity={state.handleDeleteActivity}
-              isAddingNote={state.isAddingNote}
-            />
-          )}
-        </div>
-      </BottomSheet>
+        {state.activeTab === "timeline" && (
+          <LeadTimelineTab
+            checklist={state.checklist}
+            onToggleChecklistItem={state.handleToggleChecklistItem}
+            activities={state.activities}
+            onAddNote={state.handleAddNote}
+            onDeleteActivity={state.handleDeleteActivity}
+            isAddingNote={state.isAddingNote}
+          />
+        )}
+      </div>
 
       {/* Модалка просмотра файлов / медиа */}
       {state.viewerFile && (
@@ -238,9 +233,33 @@ function LeadDetailSheetContent({
                 estimate: newEstimate,
               });
             }
+            setShowEstimateModal(false);
           }}
         />
       )}
-    </>
+    </div>
+  );
+
+  // Если это встраиваемый Desktop Inspector Drawer (двухпанельный режим на ПК)
+  if (isEmbedded) {
+    return (
+      <div className="w-full h-full flex flex-col bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden animate-in fade-in slide-in-from-right-3 duration-200">
+        {content}
+      </div>
+    );
+  }
+
+  // Иначе для мобильных — нативная шторка BottomSheet
+  return (
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      maxWidth="max-w-5xl"
+      height="h-[92dvh] min-h-[92dvh]"
+      maxHeight="max-h-[92dvh]"
+      desktopVariant="sheet"
+    >
+      {content}
+    </BottomSheet>
   );
 }

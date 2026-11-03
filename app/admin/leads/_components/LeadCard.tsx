@@ -14,6 +14,7 @@ import LeadCardHeader from "./card/LeadCardHeader";
 import LeadCardTimingBadges from "./card/LeadCardTimingBadges";
 import LeadCardTechSpecChips from "./card/LeadCardTechSpecChips";
 import LeadCardContactRow from "./card/LeadCardContactRow";
+import LeadQuickContactBar from "@/components/admin/LeadQuickContactBar";
 import LeadCardHudBar from "./card/LeadCardHudBar";
 import LeadCardAccordionContent from "./card/LeadCardAccordionContent";
 import LeadCardActionBar from "./card/LeadCardActionBar";
@@ -147,6 +148,7 @@ export default function LeadCard({
       />
 
       {/* ── Этаж 3: Полоса умных индикаторов (HUD): Чек-лист, Макеты, Фото, Документы, Смета, Заметки ── */}
+      <LeadQuickContactBar phone={lead.phone} name={lead.name} />
       <LeadCardHudBar
         imagesCount={imagesCount}
         docsCount={docsCount}

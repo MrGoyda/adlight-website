@@ -454,39 +454,73 @@ export default function LeadsDashboard({
         </div>
       </div>
 
-      {/* ── АДАПТИВНАЯ СЕТКА КАРТОЧЕК ЛИДОВ (1 колонка на моб, 2 на md/lg, 3 на 2xl) ── */}
-      <div className="w-full">
-        {filters.filteredLeads.length === 0 ? (
-          <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
-            {LEADS_DICTIONARY.noLeadsFound}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3.5 sm:gap-4 items-start">
-            {filters.filteredLeads.map((lead) => (
-              <LeadCard
-                key={lead.id}
-                lead={lead}
-                isSelected={detailLead?.id === lead.id}
-                isGloballyExpanded={filters.isGlobalExpanded}
-                onSelect={(selected) => {
-                  setDetailLead(selected);
-                }}
-                onOpenEstimate={(selected) => {
-                  setEstimateLead(selected);
-                  setShowEstimateModal(true);
-                }}
-                onOpenFullCard={(id) => {
-                  const found = ops.leads.find((l) => l.id === id);
-                  if (found) {
-                    setDetailLead(found);
-                  } else {
-                    router.push(`/admin/leads/${id}`);
-                  }
-                }}
-                onDeleteClick={ops.handleDeleteClick}
-                onRestoreLead={ops.handleRestoreLead}
-              />
-            ))}
+      {/* ── АДАПТИВНАЯ СЕТКА КАРТОЧЕК ЛИДОВ И ДЕСКТОПНЫЙ ДВУХПАНЕЛЬНЫЙ РЕЖИМ ── */}
+      <div className="w-full flex items-start gap-4 lg:gap-6 relative">
+        {/* Список карточек лидов */}
+        <div className={`transition-all duration-300 min-w-0 ${
+          detailLead 
+            ? "w-full lg:w-[48%] xl:w-[50%] 2xl:w-[55%] shrink-0" 
+            : "w-full"
+        }`}>
+          {filters.filteredLeads.length === 0 ? (
+            <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
+              {LEADS_DICTIONARY.noLeadsFound}
+            </div>
+          ) : (
+            <div className={`grid gap-3.5 sm:gap-4 items-start ${
+              detailLead 
+                ? "grid-cols-1 xl:grid-cols-2" 
+                : "grid-cols-1 md:grid-cols-2 2xl:grid-cols-3"
+            }`}>
+              {filters.filteredLeads.map((lead) => (
+                <LeadCard
+                  key={lead.id}
+                  lead={lead}
+                  isSelected={detailLead?.id === lead.id}
+                  isGloballyExpanded={filters.isGlobalExpanded}
+                  onSelect={(selected) => {
+                    setDetailLead(selected);
+                  }}
+                  onOpenEstimate={(selected) => {
+                    setEstimateLead(selected);
+                    setShowEstimateModal(true);
+                  }}
+                  onOpenFullCard={(id) => {
+                    const found = ops.leads.find((l) => l.id === id);
+                    if (found) {
+                      setDetailLead(found);
+                    } else {
+                      router.push(`/admin/leads/${id}`);
+                    }
+                  }}
+                  onDeleteClick={ops.handleDeleteClick}
+                  onRestoreLead={ops.handleRestoreLead}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── ДЕСКТОПНЫЙ ВСТРОЕННЫЙ INSPECTOR DRAWER (ТОЛЬКО НА ПК lg+) ── */}
+        {detailLead && (
+          <div className="hidden lg:flex flex-1 sticky top-0 h-[calc(100vh-140px)] min-h-[600px] overflow-hidden">
+            <LeadDetailSheet
+              isOpen={true}
+              isEmbedded={true}
+              onClose={() => setDetailLead(null)}
+              lead={detailLead}
+              clients={ops.clients}
+              companies={initialCompanies}
+              onUpdateLead={(updated) => {
+                ops.setLeads((prev) =>
+                  prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
+                );
+                setDetailLead(updated);
+              }}
+              warehouseItems={initialWarehouseItems}
+              supplierPrices={initialSupplierPrices}
+              leads={ops.leads}
+            />
           </div>
         )}
       </div>
@@ -515,23 +549,26 @@ export default function LeadsDashboard({
         />
       )}
 
-      {/* ── ПОДРОБНАЯ КАРТОЧКА ЛИДА (ЕДИНАЯ ШТОРКА 60 FPS) ── */}
-      <LeadDetailSheet
-        isOpen={Boolean(detailLead)}
-        onClose={() => setDetailLead(null)}
-        lead={detailLead}
-        clients={ops.clients}
-        companies={initialCompanies}
-        onUpdateLead={(updated) => {
-          ops.setLeads((prev) =>
-            prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
-          );
-          setDetailLead(updated);
-        }}
-        warehouseItems={initialWarehouseItems}
-        supplierPrices={initialSupplierPrices}
-        leads={ops.leads}
-      />
+      {/* ── МОБИЛЬНАЯ ШТОРКА (ТОЛЬКО НА СМАРТФОНАХ < lg) ── */}
+      <div className="lg:hidden">
+        <LeadDetailSheet
+          isOpen={Boolean(detailLead)}
+          isEmbedded={false}
+          onClose={() => setDetailLead(null)}
+          lead={detailLead}
+          clients={ops.clients}
+          companies={initialCompanies}
+          onUpdateLead={(updated) => {
+            ops.setLeads((prev) =>
+              prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
+            );
+            setDetailLead(updated);
+          }}
+          warehouseItems={initialWarehouseItems}
+          supplierPrices={initialSupplierPrices}
+          leads={ops.leads}
+        />
+      </div>
 
       {showEstimateModal && (
         <EstimateModal
