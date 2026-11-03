@@ -45,8 +45,7 @@ export default async function AnalyticsPage() {
   const completedLeads = leads.filter(l => l.status === LeadStatus.COMPLETED).length;
 
   return (
-    <main className="min-h-screen bg-slate-50/50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <div className="w-full space-y-6">
         <AnalyticsDashboard 
           stats={formattedStats}
           summary={{
@@ -59,6 +58,5 @@ export default async function AnalyticsPage() {
           }}
         />
       </div>
-    </main>
   );
 }

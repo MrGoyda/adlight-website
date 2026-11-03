@@ -34,13 +34,11 @@ export default async function CompaniesPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-slate-50/50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <CompaniesDashboard 
-          initialCompanies={JSON.parse(JSON.stringify(companies))} 
-          allLeads={JSON.parse(JSON.stringify(allLeads))}
-        />
-      </div>
-    </main>
+    <div className="w-full space-y-6">
+      <CompaniesDashboard 
+        initialCompanies={JSON.parse(JSON.stringify(companies))} 
+        allLeads={JSON.parse(JSON.stringify(allLeads))}
+      />
+    </div>
   );
 }

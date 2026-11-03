@@ -45,10 +45,8 @@ export default async function ProjectPage({
   }
 
   return (
-    <main className="min-h-screen bg-slate-50/50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <ProjectDetailPage project={JSON.parse(JSON.stringify(project))} />
-      </div>
-    </main>
+    <div className="w-full space-y-6">
+      <ProjectDetailPage project={JSON.parse(JSON.stringify(project))} />
+    </div>
   );
 }

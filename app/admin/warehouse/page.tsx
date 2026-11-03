@@ -28,15 +28,13 @@ export default async function WarehousePage() {
   });
 
   return (
-    <main className="min-h-screen bg-slate-50/50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <WarehouseDashboard
-          initialItems={JSON.parse(JSON.stringify(items))}
-          initialSupplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
-          initialSuppliers={JSON.parse(JSON.stringify(suppliers))}
-          initialTransactions={JSON.parse(JSON.stringify(transactions))}
-        />
-      </div>
-    </main>
+    <div className="w-full space-y-6">
+      <WarehouseDashboard
+        initialItems={JSON.parse(JSON.stringify(items))}
+        initialSupplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
+        initialSuppliers={JSON.parse(JSON.stringify(suppliers))}
+        initialTransactions={JSON.parse(JSON.stringify(transactions))}
+      />
+    </div>
   );
 }
