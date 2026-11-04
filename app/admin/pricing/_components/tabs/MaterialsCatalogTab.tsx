@@ -1,11 +1,15 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React from "react";
 import { SupplierData, SupplierPriceItem } from "../../_types/pricingTypes";
-import { MATERIAL_CATEGORIES } from "../../_data/pricingDictionary";
-import MaterialFiltersBar from "../materials/MaterialFiltersBar";
-import MaterialTableRow from "./materials/MaterialTableRow";
-import { Plus, Package } from "lucide-react";
+import { useMaterialFilters } from "../../_hooks/useMaterialFilters";
+import MaterialsSidebar from "./materials/MaterialsSidebar";
+import MaterialToolbar from "./materials/MaterialToolbar";
+import MaterialBreadcrumbs from "./materials/MaterialBreadcrumbs";
+import MaterialTableView from "./materials/MaterialTableView";
+import MaterialGridView from "./materials/MaterialGridView";
+import MaterialEmptyState from "./materials/MaterialEmptyState";
+import MaterialInspectorDrawer from "./materials/MaterialInspectorDrawer";
 
 interface MaterialsCatalogTabProps {
   supplierPrices: SupplierPriceItem[];
@@ -24,118 +28,165 @@ export default function MaterialsCatalogTab({
   onQuickUpdatePrice,
   onDeleteItem,
 }: MaterialsCatalogTabProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedSupplier, setSelectedSupplier] = useState("all");
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    handleCategorySelect,
+    selectedSubcategory,
+    setSelectedSubcategory,
+    selectedSupplier,
+    setSelectedSupplier,
+    sortBy,
+    setSortBy,
+    onlyWithPhoto,
+    setOnlyWithPhoto,
+    viewMode,
+    setViewMode,
+    inspectingItem,
+    setInspectingItem,
+    facets,
+    handleFacetChange,
+    handleResetFacets,
+    hasActiveFacets,
+    handleResetAllFilters,
+    handleQuickUpdateAndSync,
+    searchInputRef,
+    uniqueSuppliersFromPrices,
+    categoryCounts,
+    subcategoryCounts,
+    supplierCounts,
+    withPhotoCount,
+    currentCategoryDef,
+    processedPrices,
+  } = useMaterialFilters({
+    supplierPrices,
+    suppliers,
+    onQuickUpdatePrice,
+  });
 
-  // Список уникальных поставщиков из цен
-  const uniqueSuppliersFromPrices = useMemo(() => {
-    return Array.from(new Set(supplierPrices.map((p) => p.supplier))).filter(Boolean);
-  }, [supplierPrices]);
-
-  // Фильтрация
-  const filteredPrices = useMemo(() => {
-    return supplierPrices.filter((item) => {
-      // 1. Поиск
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = item.name.toLowerCase().includes(q);
-        const matchesSupplier = item.supplier.toLowerCase().includes(q);
-        if (!matchesName && !matchesSupplier) return false;
-      }
-
-      // 2. Поставщик
-      if (selectedSupplier !== "all") {
-        if (item.supplier.toLowerCase() !== selectedSupplier.toLowerCase()) return false;
-      }
-
-      // 3. Категория
-      if (selectedCategory !== "all") {
-        const categoryObj = MATERIAL_CATEGORIES.find((c) => c.id === selectedCategory);
-        if (categoryObj?.keywords) {
-          const lowerName = item.name.toLowerCase();
-          const hasKeyword = categoryObj.keywords.some((k) => lowerName.includes(k));
-          if (!hasKeyword) return false;
+  // Автосинхронизация данных в открытом инспекторе при обновлении цен/свойств
+  React.useEffect(() => {
+    if (inspectingItem) {
+      const fresh = supplierPrices.find((p) => p.id === inspectingItem.id);
+      if (fresh) {
+        if (fresh.price !== inspectingItem.price || fresh.name !== inspectingItem.name || fresh.category !== inspectingItem.category) {
+          setInspectingItem(fresh);
         }
+      } else {
+        // Позиция была удалена
+        setInspectingItem(null);
       }
+    }
+  }, [supplierPrices, inspectingItem]);
 
-      return true;
-    });
-  }, [supplierPrices, searchQuery, selectedSupplier, selectedCategory]);
+  const handleDeleteWithCleanup = async (id: string) => {
+    await onDeleteItem(id);
+    if (inspectingItem?.id === id) {
+      setInspectingItem(null);
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Панель фильтров */}
-      <MaterialFiltersBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr] gap-6 items-start w-full">
+      {/* 1. Левый macOS-сайдбар навигации */}
+      <MaterialsSidebar
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={handleCategorySelect}
+        selectedSubcategory={selectedSubcategory}
+        onSelectSubcategory={setSelectedSubcategory}
+        subcategoryCounts={subcategoryCounts}
         selectedSupplier={selectedSupplier}
         onSelectSupplier={setSelectedSupplier}
+        onlyWithPhoto={onlyWithPhoto}
+        onToggleOnlyWithPhoto={() => setOnlyWithPhoto((prev) => !prev)}
+        categoryCounts={categoryCounts}
+        supplierCounts={supplierCounts}
+        withPhotoCount={withPhotoCount}
+        totalCount={supplierPrices.length}
         suppliers={suppliers}
         uniqueSuppliersFromPrices={uniqueSuppliersFromPrices}
+        facets={facets}
+        onFacetChange={handleFacetChange}
+        onResetFacets={handleResetFacets}
+        hasActiveFacets={hasActiveFacets}
       />
 
-      {/* Панель информации и счетчиков */}
-      <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-xs font-black text-slate-500">
-          Найдено: <b className="text-slate-900">{filteredPrices.length}</b> из {supplierPrices.length} позиций
-        </span>
+      {/* 2. Основная рабочая зона */}
+      <main className="w-full min-w-0 space-y-4">
+        {/* Компактный Pro Toolbar & Хлебные крошки */}
+        <div className="bg-white/90 backdrop-blur-md p-3 sm:p-4 rounded-3xl border border-slate-200/90 shadow-xs space-y-3">
+          <MaterialToolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchInputRef={searchInputRef}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onOpenCreateModal={onOpenCreateModal}
+          />
 
-        <button
-          type="button"
-          onClick={onOpenCreateModal}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black shadow-md shadow-orange-600/20 transition active:scale-95 cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Добавить товар</span>
-        </button>
-      </div>
-
-      {/* Список / Таблица товаров */}
-      {filteredPrices.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
-            <Package className="w-6 h-6" />
-          </div>
-          <p className="text-sm font-extrabold text-slate-700">Материалы не найдены</p>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            Попробуйте изменить поисковый запрос или сбросить фильтры поставщика/категории
-          </p>
-          <button
-            type="button"
-            onClick={onOpenCreateModal}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold transition cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Создать первый товар</span>
-          </button>
+          <MaterialBreadcrumbs
+            selectedCategory={selectedCategory}
+            selectedSubcategory={selectedSubcategory}
+            categoryLabel={currentCategoryDef?.label}
+            onResetCategory={() => handleCategorySelect("all")}
+            onResetSubcategory={() => setSelectedSubcategory("all")}
+            facets={facets}
+            hasActiveFacets={hasActiveFacets}
+            onFacetChange={handleFacetChange}
+            onResetFacets={handleResetFacets}
+          />
         </div>
-      ) : (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-2xs overflow-hidden">
-          {/* Десктопная шапка таблицы */}
-          <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 border-b border-slate-200/80 text-[10px] font-black text-slate-400 uppercase tracking-wider">
-            <div className="col-span-6">Наименование товара / материала</div>
-            <div className="col-span-2">Поставщик</div>
-            <div className="col-span-3 text-right">Цена за ед.</div>
-            <div className="col-span-1 text-center">Действия</div>
-          </div>
 
-          {/* Список позиций */}
-          <div className="divide-y divide-slate-100">
-            {filteredPrices.map((item) => (
-              <MaterialTableRow
-                key={item.id}
-                item={item}
-                onOpenEditModal={onOpenEditModal}
-                onQuickUpdatePrice={onQuickUpdatePrice}
-                onDeleteItem={onDeleteItem}
-              />
-            ))}
-          </div>
+        {/* Информационная строка счетчика */}
+        <div className="flex items-center justify-between px-2 text-xs font-bold text-slate-500">
+          <span>
+            Показано: <b className="text-slate-900">{processedPrices.length}</b> из {supplierPrices.length} позиций
+          </span>
+          {inspectingItem && (
+            <span className="text-[11px] text-orange-600 font-extrabold truncate max-w-[280px]">
+              Выбрано: {inspectingItem.name}
+            </span>
+          )}
         </div>
-      )}
+
+        {/* Контент: Таблица или Сетка */}
+        {processedPrices.length === 0 ? (
+          <MaterialEmptyState
+            onResetFilters={handleResetAllFilters}
+            onOpenCreateModal={onOpenCreateModal}
+          />
+        ) : viewMode === "table" ? (
+          <MaterialTableView
+            items={processedPrices}
+            selectedItemId={inspectingItem?.id || null}
+            onSelectItem={setInspectingItem}
+            onOpenEditModal={onOpenEditModal}
+            onQuickUpdatePrice={handleQuickUpdateAndSync}
+            onDeleteItem={handleDeleteWithCleanup}
+          />
+        ) : (
+          <MaterialGridView
+            items={processedPrices}
+            selectedItemId={inspectingItem?.id || null}
+            onSelectItem={setInspectingItem}
+            onOpenEditModal={onOpenEditModal}
+            onQuickUpdatePrice={handleQuickUpdateAndSync}
+            onDeleteItem={handleDeleteWithCleanup}
+          />
+        )}
+      </main>
+
+      {/* 3. Боковой инспектор материала */}
+      <MaterialInspectorDrawer
+        item={inspectingItem}
+        onClose={() => setInspectingItem(null)}
+        onOpenEditModal={onOpenEditModal}
+        onQuickUpdatePrice={handleQuickUpdateAndSync}
+        onDeleteItem={handleDeleteWithCleanup}
+      />
     </div>
   );
 }

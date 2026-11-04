@@ -20,6 +20,12 @@ export interface SupplierPriceItem {
   supplier: string;
   price: number;
   unit: InventoryUnit;
+  category?: string | null;
+  subcategory?: string | null;
+  imageUrl?: string | null;
+  description?: string | null;
+  sourceUrl?: string | null;
+  isService?: boolean;
   supplierId?: string | null;
   supplierObj?: SupplierData | null;
   createdAt: string | Date;

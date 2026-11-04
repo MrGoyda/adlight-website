@@ -361,12 +361,21 @@ model SupplierPrice {
   supplier    String        // Поставщик (текстовое имя для совместимости)
   price       Float         // Цена за единицу
   unit        InventoryUnit
+  category    String?       // Категория (напр. "Листовые материалы", "Светотехника", "Перезаказ услуг")
+  subcategory String?       // Подкатегория (напр. "Листовой акрил", "Вспененный ПВХ", "Алюмокомпозит")
+  imageUrl    String?       // Фотография материала для наглядности
+  description String?       // Описание, спецификация, размеры
+  sourceUrl   String?       // Ссылка на товар у поставщика (signtech.kz и т.д.)
+  isService   Boolean       @default(false) // Является ли перезаказом услуги (фрезеровка, лазер, печать)
   
   supplierId  String?
   supplierObj Supplier?     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
 
   @@index([supplierId])
   @@index([name])
+  @@index([category])
+  @@index([subcategory])
+  @@index([isService])
 }
 
 model LeadEstimate {

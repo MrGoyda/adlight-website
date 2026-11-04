@@ -56,6 +56,12 @@ export function usePricingState({
     supplier: string;
     price: number;
     unit: InventoryUnit;
+    category?: string | null;
+    subcategory?: string | null;
+    imageUrl?: string | null;
+    description?: string | null;
+    sourceUrl?: string | null;
+    isService?: boolean;
     supplierId?: string | null;
   }) => {
     if (data.id) {
@@ -64,7 +70,7 @@ export function usePricingState({
         toast.error(res.error);
       } else if (res.data) {
         setSupplierPrices((prev) => prev.map((p) => (p.id === data.id ? res.data : p)));
-        toast.success("Товар успешно обновлен");
+        toast.success("Позиция успешно обновлена");
       }
     } else {
       const res = await createSupplierPrice(data);
@@ -72,7 +78,7 @@ export function usePricingState({
         toast.error(res.error);
       } else if (res.data) {
         setSupplierPrices((prev) => [res.data, ...prev]);
-        toast.success("Новый товар добавлен в каталог");
+        toast.success("Новая позиция добавлена в каталог");
       }
     }
   };
@@ -93,7 +99,7 @@ export function usePricingState({
 
     toast.confirm({
       title: `Удалить «${materialName}»?`,
-      message: "Материал будет удален из каталога себестоимости.",
+      message: "Позиция будет удалена из каталога себестоимости и смет.",
       confirmText: "Да, удалить",
       cancelText: "Отмена",
       isDestructive: true,
@@ -104,7 +110,7 @@ export function usePricingState({
           toast.error(res.error);
         } else {
           setSupplierPrices((prev) => prev.filter((p) => p.id !== id));
-          toast.success("Товар удален");
+          toast.success("Позиция удалена");
         }
       },
     });

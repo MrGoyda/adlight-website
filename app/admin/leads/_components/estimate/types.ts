@@ -22,6 +22,12 @@ export interface SupplierPrice {
   supplier: string;
   price: number;
   unit: InventoryUnit;
+  category?: string | null;
+  subcategory?: string | null;
+  imageUrl?: string | null;
+  description?: string | null;
+  sourceUrl?: string | null;
+  isService?: boolean;
   supplierObj?: Supplier | null;
 }
 
@@ -54,9 +60,14 @@ export interface ParsedSupplierPrice {
   price: number;
   unit: InventoryUnit;
   category: string;
+  subcategory?: string | null;
   materialType: string;
   spec: string;
   detail: string;
+  imageUrl?: string | null;
+  sourceUrl?: string | null;
+  isService?: boolean;
+  supplierObj?: Supplier | null;
 }
 
 export interface EstimateModalProps {

@@ -63,16 +63,14 @@ export default async function LeadPage({
   });
 
   return (
-    <main className="min-h-screen bg-slate-50/50 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <LeadDetailPage 
-          lead={JSON.parse(JSON.stringify(lead))} 
-          companies={JSON.parse(JSON.stringify(companies))}
-          clients={JSON.parse(JSON.stringify(clients))}
-          warehouseItems={JSON.parse(JSON.stringify(warehouseItems))}
-          supplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
-        />
-      </div>
-    </main>
+    <div className="w-full">
+      <LeadDetailPage 
+        lead={JSON.parse(JSON.stringify(lead))} 
+        companies={JSON.parse(JSON.stringify(companies))}
+        clients={JSON.parse(JSON.stringify(clients))}
+        warehouseItems={JSON.parse(JSON.stringify(warehouseItems))}
+        supplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
+      />
+    </div>
   );
 }

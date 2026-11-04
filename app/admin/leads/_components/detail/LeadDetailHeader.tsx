@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { X, ChevronDown, Calculator, Send, Check, Crown, User, AlertCircle, Loader2 } from "lucide-react";
+import { 
+  X, 
+  ChevronDown, 
+  Calculator, 
+  Send, 
+  Check, 
+  Crown, 
+  User, 
+  AlertCircle, 
+  Loader2,
+  Phone,
+  Maximize2
+} from "lucide-react";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { triggerHaptic } from "@/lib/haptics";
 import { LeadStatus, ClientRating } from "@prisma/client";
@@ -77,6 +89,8 @@ export default function LeadDetailHeader({
       document.removeEventListener("touchstart", handleOutside);
     };
   }, []);
+
+  const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
 
   return (
     <div className="p-2.5 sm:px-6 sm:py-3.5 border-b border-slate-100 flex items-center justify-between gap-1.5 sm:gap-3 sticky top-0 bg-white/95 backdrop-blur-md z-30 shrink-0">
@@ -154,9 +168,23 @@ export default function LeadDetailHeader({
         )}
       </div>
 
-      {/* Правая часть: WhatsApp, Смета, Закрыть */}
+      {/* Правая часть: Звонок, WhatsApp, Смета, Развернуть, Закрыть */}
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-        {/* Кнопка WhatsApp */}
+        
+        {/* Прямой звонок по телефону */}
+        {cleanPhone && (
+          <a
+            href={`tel:${cleanPhone}`}
+            onClick={() => triggerHaptic("light")}
+            className="flex items-center gap-1 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-extrabold text-xs transition cursor-pointer border border-blue-200/60 active:scale-95 shadow-2xs"
+            title={`Позвонить клиенту: ${lead.phone}`}
+          >
+            <Phone className="w-3.5 h-3.5" />
+            <span className="hidden xl:inline">Звонок</span>
+          </a>
+        )}
+
+        {/* Кнопка WhatsApp с шаблонами */}
         <div className="relative" ref={whatsappRef}>
           <button
             type="button"
@@ -214,6 +242,20 @@ export default function LeadDetailHeader({
           <Calculator className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Смета</span>
         </button>
+
+        {/* Открыть в отдельном окне / на весь экран */}
+        {lead.id && (
+          <a
+            href={`/admin/leads/${lead.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => triggerHaptic("light")}
+            className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+            title="Открыть на отдельной странице (2 колонки)"
+          >
+            <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          </a>
+        )}
 
         {/* Крестик закрытия */}
         <button

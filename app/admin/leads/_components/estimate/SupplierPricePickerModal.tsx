@@ -3,8 +3,9 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ParsedSupplierPrice } from "./types";
-import { Layers, X, Search, Check, Phone, MessageCircle, MapPin } from "lucide-react";
+import { Layers, X, Search, Check, ExternalLink, Handshake, Package, Image as ImageIcon } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { INVENTORY_UNITS } from "@/app/admin/pricing/_data/pricingDictionary";
 
 interface SupplierPricePickerModalProps {
   isOpen: boolean;
@@ -62,13 +63,22 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
   }, [pickerSearch, parsedPrices]);
 
   const matchedOptions = useMemo(() => {
-    if (!pickerCategory || !pickerType || !pickerSpec) return [];
-    return parsedPrices.filter(
-      (p) =>
-        p.category === pickerCategory &&
-        p.materialType === pickerType &&
-        p.spec === pickerSpec
-    );
+    if (!pickerCategory) return [];
+    // Если выбран тип и спецификация — фильтруем по ним, иначе показываем все в категории
+    if (pickerType && pickerSpec) {
+      return parsedPrices.filter(
+        (p) =>
+          p.category === pickerCategory &&
+          p.materialType === pickerType &&
+          p.spec === pickerSpec
+      );
+    }
+    if (pickerType) {
+      return parsedPrices.filter(
+        (p) => p.category === pickerCategory && p.materialType === pickerType
+      );
+    }
+    return parsedPrices.filter((p) => p.category === pickerCategory);
   }, [pickerCategory, pickerType, pickerSpec, parsedPrices]);
 
   const listItems = pickerSearch ? searchResults : matchedOptions;
@@ -88,14 +98,14 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 28, stiffness: 260 }}
-          className="absolute inset-0 lg:left-auto lg:right-0 lg:w-[480px] bg-white border-l border-slate-200 shadow-2xl z-[140] p-4 sm:p-6 flex flex-col"
+          className="absolute inset-0 lg:left-auto lg:right-0 lg:w-[500px] bg-white border-l border-slate-200 shadow-2xl z-[140] p-4 sm:p-6 flex flex-col"
         >
           {/* Шапка подборщика */}
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
             <div>
               <h4 className="font-black text-slate-900 text-sm tracking-tight flex items-center gap-1.5">
                 <Layers className="w-4 h-4 text-purple-600" />
-                Подбор материала из прайсов
+                Подбор материала и услуг подрядчиков
               </h4>
               <p className="text-[10px] text-slate-400 font-bold uppercase mt-0.5">
                 Позиция сметы #{itemIndex !== null ? itemIndex + 1 : ""}
@@ -117,7 +127,7 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
             </div>
             <input
               type="text"
-              placeholder="Поиск: ПВХ, Акрил, Светодиоды, Неон..."
+              placeholder="Поиск: Акрил, ПВХ, SignTech, Фрезеровка..."
               value={pickerSearch}
               onChange={(e) => setPickerSearch(e.target.value)}
               className="block w-full pl-10 pr-10 py-2.5 text-base sm:text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:bg-white focus:border-purple-500 transition text-slate-900 shadow-2xs"
@@ -143,7 +153,7 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
                 {/* Шаг 1: Категории */}
                 <div className="space-y-1.5">
                   <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">
-                    1. Категория материала
+                    1. Категория
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {uniqueCategories.map((cat) => {
@@ -191,11 +201,11 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
                   </div>
                 </div>
 
-                {/* Шаг 2: Тип материала */}
-                {pickerCategory && uniqueTypes.length > 0 && (
+                {/* Шаг 2: Подтип материала */}
+                {pickerCategory && uniqueTypes.length > 1 && (
                   <div className="space-y-1.5">
                     <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">
-                      2. Тип материала
+                      2. Подтип
                     </span>
                     <div className="grid grid-cols-2 gap-1.5">
                       {uniqueTypes.map((t) => {
@@ -231,51 +241,20 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
                     </div>
                   </div>
                 )}
-
-                {/* Шаг 3: Спецификации / Толщина */}
-                {pickerCategory && pickerType && uniqueSpecs.length > 0 && (
-                  <div className="space-y-1.5">
-                    <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">
-                      3. Параметры / Толщина
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {uniqueSpecs.map((s) => {
-                        const isActive = pickerSpec === s;
-                        return (
-                          <button
-                            key={s}
-                            type="button"
-                            onClick={() => {
-                              triggerHaptic("light");
-                              setPickerSpec(s);
-                            }}
-                            className={`px-2.5 py-1 text-xs font-extrabold rounded-lg border transition cursor-pointer active:scale-95 ${
-                              isActive
-                                ? "border-purple-500 bg-purple-50 text-purple-700"
-                                : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            {s}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
               </>
             )}
 
-            {/* Шаг 4: Доступные варианты */}
-            <div className="space-y-2 pt-2">
+            {/* Шаг 3: Список предложений с фото */}
+            <div className="space-y-2 pt-1">
               <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider block">
                 {pickerSearch
                   ? `Результаты поиска (${listItems.length})`
-                  : "4. Доступные предложения поставщиков:"}
+                  : `Доступные позиции (${listItems.length}):`}
               </span>
 
               {listItems.length === 0 ? (
                 <div className="text-center py-8 text-slate-400 text-xs italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  Материалов по заданным критериям не найдено
+                  Позиций по заданным критериям не найдено
                 </div>
               ) : (
                 listItems.map((p) => (
@@ -286,22 +265,54 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
                       triggerHaptic("light");
                       onSelect(p);
                     }}
-                    className="w-full p-3 rounded-2xl border border-slate-200/90 bg-white hover:border-purple-500 hover:bg-purple-50/40 text-left transition flex items-center justify-between group shadow-2xs cursor-pointer active:scale-98"
+                    className="w-full p-2.5 rounded-2xl border border-slate-200/90 bg-white hover:border-purple-500 hover:bg-purple-50/40 text-left transition flex items-center gap-3 group shadow-2xs cursor-pointer active:scale-98"
                   >
-                    <div className="flex flex-col pr-2">
-                      <span className="text-[9px] text-purple-600 font-black uppercase tracking-wider">
-                        [{p.supplier}]
-                      </span>
-                      <span className="font-extrabold text-xs text-slate-900 group-hover:text-purple-700">
-                        {p.detail}
+                    {/* Фото позиции */}
+                    <div className="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center relative">
+                      {p.imageUrl ? (
+                        <img
+                          src={p.imageUrl}
+                          alt={p.originalName}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      ) : p.isService ? (
+                        <Handshake className="w-5 h-5 text-purple-600" />
+                      ) : (
+                        <Package className="w-5 h-5 text-slate-300" />
+                      )}
+                    </div>
+
+                    {/* Название и детали */}
+                    <div className="flex-1 min-w-0 pr-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[9px] text-purple-700 font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-purple-100">
+                          {p.supplier}
+                        </span>
+                        {p.isService && (
+                          <span className="text-[9px] text-amber-700 font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-100">
+                            Перезаказ
+                          </span>
+                        )}
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {p.subcategory || p.category}
+                        </span>
+                      </div>
+                      <span className="font-extrabold text-xs text-slate-900 group-hover:text-purple-700 block truncate mt-0.5">
+                        {p.originalName}
                       </span>
                     </div>
+
+                    {/* Цена */}
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-black text-slate-900 block">
-                        {p.price.toLocaleString()} ₸
+                      <span className="text-xs sm:text-sm font-black text-slate-900 block">
+                        {p.price.toLocaleString("ru-RU")} ₸
                       </span>
                       <span className="text-[10px] text-slate-400 block font-bold">
-                        за 1 ед.
+                        за {INVENTORY_UNITS[p.unit]?.short || "ед."}
                       </span>
                     </div>
                   </button>

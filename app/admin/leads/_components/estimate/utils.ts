@@ -17,44 +17,50 @@ export interface EstimateCategoryBreakdown {
 }
 
 /**
- * Каскадный парсер прайс-листов поставщиков (Акрил, ПВХ, Светодиоды, Неон и т.д.)
+ * Каскадный парсер прайс-листов поставщиков (Акрил, ПВХ, Светодиоды, Неон, Перезаказ услуг и т.д.)
  */
 export function parseSupplierPrices(supplierPrices: SupplierPrice[]): ParsedSupplierPrice[] {
-  return supplierPrices.map(sp => {
-    let category = "Другое";
+  return supplierPrices.map((sp) => {
     const nameLower = sp.name.toLowerCase();
+    let category = sp.category || "Другое";
 
-    if (
-      nameLower.includes("пвх") || 
-      nameLower.includes("оргстекло") || 
-      nameLower.includes("акрил") || 
-      nameLower.includes("алюкобонд") || 
-      nameLower.includes("пэт") || 
-      nameLower.includes("пвс") || 
-      nameLower.includes("abs") || 
-      nameLower.includes("пластик")
-    ) {
-      category = "Листовые материалы";
-    } else if (nameLower.includes("баннер") || nameLower.includes("пленка") || nameLower.includes("магнитная")) {
-      category = "Рулонные материалы";
-    } else if (nameLower.includes("светодиод") || nameLower.includes("лент")) {
-      category = "Светодиоды";
-    } else if (nameLower.includes("неон")) {
-      category = "Неон";
-    } else if (
-      nameLower.includes("трансформатор") || 
-      nameLower.includes("блок питания") || 
-      nameLower.includes("шввп") || 
-      nameLower.includes("кабель") || 
-      nameLower.includes("провод")
-    ) {
-      category = "Электрика и Питание";
-    } else if (nameLower.includes("скотч") || nameLower.includes("клей") || nameLower.includes("mitreapel")) {
-      category = "Клей и Скотч";
+    // Если категория явно не была указана в карточке товара, определяем ее умным парсером
+    if (!sp.category || sp.category === "Другое") {
+      if (sp.isService || nameLower.includes("фрезер") || nameLower.includes("лазер") || nameLower.includes("уф") || nameLower.includes("печать")) {
+        category = "Перезаказ услуг";
+      } else if (
+        nameLower.includes("пвх") ||
+        nameLower.includes("оргстекло") ||
+        nameLower.includes("акрил") ||
+        nameLower.includes("алюкобонд") ||
+        nameLower.includes("пэт") ||
+        nameLower.includes("пвс") ||
+        nameLower.includes("abs") ||
+        nameLower.includes("пластик")
+      ) {
+        category = "Листовые материалы";
+      } else if (nameLower.includes("баннер") || nameLower.includes("пленка") || nameLower.includes("магнитная")) {
+        category = "Рулонные материалы";
+      } else if (nameLower.includes("светодиод") || nameLower.includes("лент")) {
+        category = "Светодиоды";
+      } else if (nameLower.includes("неон")) {
+        category = "Неон";
+      } else if (
+        nameLower.includes("трансформатор") ||
+        nameLower.includes("блок питания") ||
+        nameLower.includes("шввп") ||
+        nameLower.includes("кабель") ||
+        nameLower.includes("провод")
+      ) {
+        category = "Электрика и Питание";
+      } else if (nameLower.includes("скотч") || nameLower.includes("клей") || nameLower.includes("mitreapel")) {
+        category = "Клей и Скотч";
+      }
     }
 
     let materialType = "Общее";
-    if (nameLower.includes("пвх")) materialType = "ПВХ пластик";
+    if (sp.isService) materialType = "Услуга подрядчика";
+    else if (nameLower.includes("пвх")) materialType = "ПВХ пластик";
     else if (nameLower.includes("акрил")) materialType = "Акрил (Оргстекло)";
     else if (nameLower.includes("алюкобонд")) materialType = "Алюкобонд (АКП)";
     else if (nameLower.includes("пэт")) materialType = "ПЭТ";
@@ -68,7 +74,7 @@ export function parseSupplierPrices(supplierPrices: SupplierPrice[]): ParsedSupp
     let spec = "Стандарт";
     const thicknessMatch = sp.name.match(/(\d+(?:[.,]\d+)?)\s*(?:мм|mm)/i);
     if (thicknessMatch) {
-      spec = `${thicknessMatch[1].replace(',', '.')} мм`;
+      spec = `${thicknessMatch[1].replace(",", ".")} мм`;
     } else if (nameLower.includes("12v") || nameLower.includes("12в")) {
       spec = "12V";
     } else if (nameLower.includes("24v") || nameLower.includes("24в")) {
@@ -82,9 +88,14 @@ export function parseSupplierPrices(supplierPrices: SupplierPrice[]): ParsedSupp
       price: sp.price,
       unit: sp.unit,
       category,
+      subcategory: sp.subcategory || null,
       materialType,
       spec,
-      detail: sp.name
+      detail: sp.name,
+      imageUrl: sp.imageUrl || null,
+      sourceUrl: sp.sourceUrl || null,
+      isService: Boolean(sp.isService),
+      supplierObj: sp.supplierObj || null,
     };
   });
 }
@@ -119,7 +130,7 @@ export function calcStandardTruckRates(trips: number) {
   return {
     costPrice: 15000,
     sellPrice: 20000,
-    name: `Аренда газели (${t} ${t === 1 ? 'рейс' : t < 5 ? 'рейса' : 'рейсов'})`
+    name: `Аренда газели (${t} ${t === 1 ? "рейс" : t < 5 ? "рейса" : "рейсов"})`,
   };
 }
 
@@ -158,7 +169,7 @@ export function calcEstimateBreakdown(items: EstimateItem[]): EstimateCategoryBr
 
   const totalSalary = assemblyCost + installationCost;
   const markupProfit = totalSell - totalCost;
-  const markupPercent = totalCost > 0 ? (markupProfit / totalCost) * 100 : (totalSell > 0 ? 100 : 0);
+  const markupPercent = totalCost > 0 ? (markupProfit / totalCost) * 100 : totalSell > 0 ? 100 : 0;
 
   return {
     materialCost,
@@ -251,4 +262,3 @@ export function clearEstimateDraft(key: string) {
     localStorage.removeItem(`${DRAFT_PREFIX}${key}`);
   } catch (err) {}
 }
-

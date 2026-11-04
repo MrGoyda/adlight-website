@@ -9,17 +9,107 @@ export const INVENTORY_UNITS: Record<InventoryUnit, { label: string; short: stri
   LITER: { label: "Литр", short: "л" },
 };
 
-export const MATERIAL_CATEGORIES = [
-  { id: "all", label: "Все материалы", icon: "📦" },
-  { id: "acrylic", label: "Акрил и Оргстекло", icon: "✨", keywords: ["акрил", "оргстекло", "plexiglas", "плексиглас", "молочный", "прозрачный"] },
-  { id: "pvc", label: "ПВХ пластик", icon: "🧱", keywords: ["пвх", "пластик", "pvc", "вспененный"] },
-  { id: "acp", label: "Композит АКП", icon: "🏢", keywords: ["композит", "акп", "alucobond", "алюкобонд", "панель"] },
-  { id: "led", label: "Светодиоды и модули", icon: "💡", keywords: ["диод", "модуль", "линзованный", "лента", "led", "светодиод", "неон"] },
-  { id: "power", label: "Блоки питания", icon: "⚡", keywords: ["блок", "питания", "трансформатор", "12v", "24v", "meanwell", "водостойкий"] },
-  { id: "vinyl", label: "Пленки и Винил", icon: "🎨", keywords: ["oracal", "оракал", "пленка", "печать", "винил", "ламинация", "трансфер"] },
-  { id: "profiles", label: "Профили и Металл", icon: "📏", keywords: ["профиль", "уголок", "труба", "клик", "алюминий", "металл", "каркас"] },
-  { id: "hardware", label: "Клей и Крепеж", icon: "🔩", keywords: ["клей", "саморез", "космофен", "cosmofen", "дихлорэтан", "скотч", "дюбель"] },
+export interface MaterialCategoryItem {
+  id: string;
+  label: string;
+  iconType: "layers" | "square-stack" | "zap" | "scroll" | "columns-3" | "wrench" | "handshake";
+  subcategories: string[];
+}
+
+export const MATERIAL_TAXONOMY: MaterialCategoryItem[] = [
+  {
+    id: "sheets",
+    label: "Листовые материалы",
+    iconType: "square-stack",
+    subcategories: [
+      "Листовой акрил и Оргстекло",
+      "Вспененный листовой ПВХ",
+      "Алюмокомпозит (АКП)",
+      "Пластиковые листы ПЭТ / PVC",
+      "Двухслойный пластик (Ромарк)",
+      "Композитные листы для печати",
+      "Полистирол и Поликарбонат",
+    ],
+  },
+  {
+    id: "lighting",
+    label: "Светотехника и Электрика",
+    iconType: "zap",
+    subcategories: [
+      "Светодиодные модули (линзованные)",
+      "Светодиодные ленты",
+      "Гибкий неон 12V / 24V",
+      "Блоки питания (трансформаторы)",
+      "Кабели, провода и клеммы",
+      "Контроллеры и диммеры",
+    ],
+  },
+  {
+    id: "vinyl",
+    label: "Пленки и Баннеры",
+    iconType: "scroll",
+    subcategories: [
+      "Плоттерные пленки (Oracal 641)",
+      "Светорассеивающие пленки (Oracal 8500)",
+      "Монтажные пленки",
+      "Баннерная ткань (Frontlit, Backlit)",
+      "Пленки для печати и ламинация",
+      "Световозвращающие и перфорированные пленки",
+    ],
+  },
+  {
+    id: "profiles",
+    label: "Профили и Металл",
+    iconType: "columns-3",
+    subcategories: [
+      "Алюминиевые профили для лайтбоксов",
+      "Клик-профили для постеров",
+      "Трубы профильные и уголки",
+      "Бортогибочные ленты и профили",
+    ],
+  },
+  {
+    id: "hardware",
+    label: "Клеи, Скотчи и Крепеж",
+    iconType: "wrench",
+    subcategories: [
+      "Клеи для рекламы (Cosmofen, дихлорэтан)",
+      "Двусторонние скотчи (3M / акриловые)",
+      "Дистанционные держатели",
+      "Саморезы, дюбели и метизы",
+      "Очистители и обезжириватели",
+    ],
+  },
+  {
+    id: "services",
+    label: "Перезаказ услуг (Подрядчики)",
+    iconType: "handshake",
+    subcategories: [
+      "Фрезерная резка (ЧПУ)",
+      "Лазерная резка (акрил/фанера)",
+      "УФ-печать (планшетная)",
+      "Широкоформатная и интерьерная печать",
+      "Плоттерная резка и выборка",
+      "Порошковая покраска металла",
+      "Гибка акрила и композита",
+    ],
+  },
 ];
+
+// Для быстрого плоского списка категорий в фильтрах
+export const MATERIAL_CATEGORIES = [
+  { id: "all", label: "Все категории", iconType: "layers" as const },
+  ...MATERIAL_TAXONOMY.map((c) => ({
+    id: c.id,
+    label: c.label,
+    iconType: c.iconType,
+  })),
+];
+
+// ════════════════════════════════════════════════════════════════════
+// ХАРАКТЕРИСТИКИ И ФАСЕТЫ МАТЕРИАЛОВ (Реэкспорт)
+// ════════════════════════════════════════════════════════════════════
+export * from "./materialFacets";
 
 export const RATE_CATEGORIES: Record<
   EstimateItemType,
@@ -99,122 +189,119 @@ export const DEFAULT_WORK_OPERATIONS = [
     defaultCost: 25000,
     defaultPrice: 35000,
   },
-
   // ── АВТОВЫШКА И СПЕЦТЕХНИКА ──
   {
     type: EstimateItemType.EQUIPMENT,
-    name: "Автовышка 18м (почасовая аренда)",
+    name: "Автовышка 18м (смена до 2 часов)",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 20000,
+    defaultPrice: 26000,
+  },
+  {
+    type: EstimateItemType.EQUIPMENT,
+    name: "Автовышка 18м (дополнительный час)",
     unit: InventoryUnit.PIECE,
     defaultCost: 10000,
-    defaultPrice: 15000,
+    defaultPrice: 13000,
   },
   {
     type: EstimateItemType.EQUIPMENT,
-    name: "Автовышка 28м (высотная техника)",
-    unit: InventoryUnit.PIECE,
-    defaultCost: 18000,
-    defaultPrice: 25000,
-  },
-  {
-    type: EstimateItemType.EQUIPMENT,
-    name: "Манипулятор / Кран (смена)",
+    name: "Автовышка 28м (смена до 2 часов)",
     unit: InventoryUnit.PIECE,
     defaultCost: 35000,
-    defaultPrice: 50000,
+    defaultPrice: 45000,
   },
-
+  {
+    type: EstimateItemType.EQUIPMENT,
+    name: "Кран-манипулятор (рейс / монтаж)",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 30000,
+    defaultPrice: 40000,
+  },
   // ── ЗП СБОРЩИКОВ (ЦЕХ) ──
   {
     type: EstimateItemType.ASSEMBLY,
-    name: "Сборка световой вывески / букв",
+    name: "Изготовление световой буквы (высота до 30см)",
     unit: InventoryUnit.PIECE,
-    defaultCost: 15000,
-    defaultPrice: 22000,
+    defaultCost: 2500,
+    defaultPrice: 4000,
   },
   {
     type: EstimateItemType.ASSEMBLY,
-    name: "Сборка лайтбокса (светового короба)",
+    name: "Изготовление световой буквы (высота 31-50см)",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 4000,
+    defaultPrice: 6500,
+  },
+  {
+    type: EstimateItemType.ASSEMBLY,
+    name: "Изготовление световой буквы (высота 51-80см)",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 6500,
+    defaultPrice: 10000,
+  },
+  {
+    type: EstimateItemType.ASSEMBLY,
+    name: "Сборка лайтбокса стандартного (до 2 м²)",
     unit: InventoryUnit.SQUARE_METER,
-    defaultCost: 12000,
+    defaultCost: 6000,
+    defaultPrice: 10000,
+  },
+  {
+    type: EstimateItemType.ASSEMBLY,
+    name: "Сварка металлокаркаса (проф. труба 20х20, 40х20)",
+    unit: InventoryUnit.RUNNING_METER,
+    defaultCost: 1500,
+    defaultPrice: 2500,
+  },
+  {
+    type: EstimateItemType.ASSEMBLY,
+    name: "Закатка пленки Oracal на пластик / композит",
+    unit: InventoryUnit.SQUARE_METER,
+    defaultCost: 1000,
+    defaultPrice: 2000,
+  },
+  // ── ЗП МОНТАЖНИКОВ ──
+  {
+    type: EstimateItemType.INSTALLATION,
+    name: "Монтаж объемных букв на раме (высота до 3м)",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 15000,
+    defaultPrice: 25000,
+  },
+  {
+    type: EstimateItemType.INSTALLATION,
+    name: "Монтаж вывески с лестницы / туры (высота до 5м)",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 25000,
+    defaultPrice: 40000,
+  },
+  {
+    type: EstimateItemType.INSTALLATION,
+    name: "Монтаж с автовышки (высотные работы от 6м)",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 35000,
+    defaultPrice: 55000,
+  },
+  {
+    type: EstimateItemType.INSTALLATION,
+    name: "Монтаж баннера на раму со шнуровкой",
+    unit: InventoryUnit.SQUARE_METER,
+    defaultCost: 1200,
+    defaultPrice: 2200,
+  },
+  {
+    type: EstimateItemType.INSTALLATION,
+    name: "Демонтаж старой вывески / баннера",
+    unit: InventoryUnit.PIECE,
+    defaultCost: 10000,
     defaultPrice: 18000,
   },
   {
-    type: EstimateItemType.ASSEMBLY,
-    name: "Сварка кронштейна / металлокаркаса",
+    type: EstimateItemType.INSTALLATION,
+    name: "Подключение к электросети и пуско-наладка",
     unit: InventoryUnit.PIECE,
-    defaultCost: 10000,
-    defaultPrice: 15000,
-  },
-  {
-    type: EstimateItemType.ASSEMBLY,
-    name: "Закатка пленки Oracal / винила",
-    unit: InventoryUnit.SQUARE_METER,
-    defaultCost: 2500,
-    defaultPrice: 4500,
-  },
-  {
-    type: EstimateItemType.ASSEMBLY,
-    name: "Фрезеровка и раскрой композита / ПВХ",
-    unit: InventoryUnit.RUNNING_METER,
-    defaultCost: 3000,
-    defaultPrice: 5000,
-  },
-  {
-    type: EstimateItemType.ASSEMBLY,
-    name: "Пайка и коммутация светодиодов / блоков",
-    unit: InventoryUnit.RUNNING_METER,
     defaultCost: 5000,
-    defaultPrice: 8000,
-  },
-  {
-    type: EstimateItemType.ASSEMBLY,
-    name: "Сборка гибкого неона на подложке",
-    unit: InventoryUnit.RUNNING_METER,
-    defaultCost: 8000,
-    defaultPrice: 13000,
-  },
-
-  // ── ЗП МОНТАЖНИКОВ (МОНТАЖ) ──
-  {
-    type: EstimateItemType.INSTALLATION,
-    name: "Монтаж фасадной вывески",
-    unit: InventoryUnit.PIECE,
-    defaultCost: 25000,
-    defaultPrice: 35000,
-  },
-  {
-    type: EstimateItemType.INSTALLATION,
-    name: "Монтаж интерьерной вывески / логотипа",
-    unit: InventoryUnit.PIECE,
-    defaultCost: 15000,
-    defaultPrice: 22000,
-  },
-  {
-    type: EstimateItemType.INSTALLATION,
-    name: "Высотный монтаж (вышка / альпинисты)",
-    unit: InventoryUnit.PIECE,
-    defaultCost: 35000,
-    defaultPrice: 50000,
-  },
-  {
-    type: EstimateItemType.INSTALLATION,
-    name: "Монтаж баннера на металлокаркасе / люверсах",
-    unit: InventoryUnit.SQUARE_METER,
-    defaultCost: 3500,
-    defaultPrice: 6000,
-  },
-  {
-    type: EstimateItemType.INSTALLATION,
-    name: "Демонтаж старой конструкции / вывески",
-    unit: InventoryUnit.PIECE,
-    defaultCost: 15000,
-    defaultPrice: 22000,
-  },
-  {
-    type: EstimateItemType.INSTALLATION,
-    name: "Демонтаж баннера / очистка фасада от пленки",
-    unit: InventoryUnit.SQUARE_METER,
-    defaultCost: 2000,
-    defaultPrice: 3500,
+    defaultPrice: 10000,
   },
 ];

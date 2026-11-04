@@ -1,53 +1,33 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
 import { STATUS_MAP } from "../_data/leadsDictionary";
 import { Lead } from "../_types/leadTypes";
 import { getLeadTimingInfo } from "../_utils/leadTimelineUtils";
-import { DEFAULT_CHECKLIST_ITEMS } from "../_data/leadDetailDictionary";
-import { LeadTechSpec, LeadChecklistState } from "../_types/leadDetailTypes";
 import { parseLeadMetadata } from "../_utils/leadMetaUtils";
-
-import LeadCardHeader from "./card/LeadCardHeader";
-import LeadCardTimingBadges from "./card/LeadCardTimingBadges";
-import LeadCardTechSpecChips from "./card/LeadCardTechSpecChips";
-import LeadCardContactRow from "./card/LeadCardContactRow";
-import LeadQuickContactBar from "@/components/admin/LeadQuickContactBar";
-import LeadCardHudBar from "./card/LeadCardHudBar";
-import LeadCardAccordionContent from "./card/LeadCardAccordionContent";
-import LeadCardActionBar from "./card/LeadCardActionBar";
+import { SIGN_TYPES } from "../_data/leadDetailDictionary";
+import { getWhatsAppUrl } from "@/lib/phoneUtils";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { Phone, Crown, AlertCircle } from "lucide-react";
 
 interface LeadCardProps {
   lead: Lead;
   isSelected: boolean;
   isGloballyExpanded?: boolean;
   onSelect: (lead: Lead) => void;
-  onOpenEstimate: (lead: Lead) => void;
-  onOpenFullCard: (leadId: string) => void;
-  onDeleteClick: (leadId: string, e: React.MouseEvent) => void;
+  onOpenEstimate?: (lead: Lead) => void;
+  onOpenFullCard?: (leadId: string) => void;
+  onDeleteClick?: (leadId: string, e: React.MouseEvent) => void;
   onRestoreLead?: (leadId: string, e: React.MouseEvent) => void;
 }
 
 export default function LeadCard({
   lead,
   isSelected,
-  isGloballyExpanded = false,
   onSelect,
-  onOpenEstimate,
-  onOpenFullCard,
-  onDeleteClick,
-  onRestoreLead,
 }: LeadCardProps) {
-  const [isLocalExpanded, setIsLocalExpanded] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setIsLocalExpanded(null);
-  }, [isGloballyExpanded]);
-
-  const isExpanded = isLocalExpanded !== null ? isLocalExpanded : isGloballyExpanded;
-
   const status = STATUS_MAP[lead.status] || {
     label: lead.status,
     color: "text-slate-600 border-slate-200",
@@ -61,41 +41,48 @@ export default function LeadCard({
     lead.deadline
   );
 
-  // Парсинг метаданных (TechSpec, Checklist)
+  // Извлекаем краткую суть конструкции из метаданных или calcDetails
   const meta = parseLeadMetadata(lead.calcDetails);
-  const techSpec: LeadTechSpec = (meta.raw?.techSpec || meta.techSpec || {}) as LeadTechSpec;
-  const checklist: LeadChecklistState = (meta.raw?.checklist || meta.checklist || {}) as LeadChecklistState;
+  const techSpec = meta.techSpec;
+  
+  let constructionSummary = "";
+  if (techSpec?.items && techSpec.items.length > 0) {
+    const first = techSpec.items[0];
+    const signTypeLabel = SIGN_TYPES.find((s) => s.id === first.signType)?.label || first.title || "Вывеска";
+    const dim = first.lengthMm && first.heightMm ? ` ${first.lengthMm}×${first.heightMm} мм` : "";
+    constructionSummary = `${signTypeLabel}${dim}`;
+  } else if (techSpec?.signTypes && techSpec.signTypes.length > 0) {
+    const signTypeLabel = SIGN_TYPES.find((s) => s.id === techSpec.signTypes?.[0])?.label || "Вывеска";
+    constructionSummary = signTypeLabel;
+  } else if (lead.address) {
+    constructionSummary = lead.address;
+  } else if (lead.source) {
+    constructionSummary = lead.source;
+  } else {
+    constructionSummary = "Рекламная конструкция";
+  }
 
-  // Расчет прогресса чек-листа
-  const completedChecklistCount = DEFAULT_CHECKLIST_ITEMS.filter((item) => Boolean(checklist[item.id])).length;
-  const checklistProgress = completedChecklistCount > 0
-    ? {
-        completed: completedChecklistCount,
-        total: DEFAULT_CHECKLIST_ITEMS.length,
-        percent: Math.round((completedChecklistCount / DEFAULT_CHECKLIST_ITEMS.length) * 100),
-      }
-    : null;
+  const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
+  const amount = lead.offeredPrice || lead.revenue || 0;
 
-  // Категоризация файлов
-  const allFiles = lead.files || [];
-  const designCount = allFiles.filter((f) => f.category === "SKETCH").length;
-  const imagesCount = allFiles.filter(
-    (f) => f.category === "MEASUREMENT" || (f.mimeType?.startsWith("image/") && f.category !== "SKETCH")
-  ).length;
-  const docsCount = allFiles.filter(
-    (f) =>
-      f.category === "CONTRACT" ||
-      f.category === "INVOICE" ||
-      (!f.mimeType?.startsWith("image/") && f.category !== "SKETCH")
-  ).length;
-
-  const estimateItemsCount = lead.estimate?.items?.length || 0;
-  const commentsCount = (lead.comment ? 1 : 0) + (lead.activities?.length || 0);
-
-  const toggleExpand = (e: React.MouseEvent) => {
+  // Быстрый клик по WhatsApp
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("light");
-    setIsLocalExpanded(!isExpanded);
+    const waUrl = getWhatsAppUrl(
+      lead.phone || "",
+      `Здравствуйте, ${lead.name || "клиент"}! По вашей заявке на изготовление вывески в компании ADLight:`
+    );
+    if (waUrl) window.open(waUrl, "_blank");
+  };
+
+  // Быстрый клик по Звонку
+  const handleCallClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic("light");
+    if (cleanPhone) {
+      window.location.href = `tel:${cleanPhone}`;
+    }
   };
 
   return (
@@ -105,10 +92,10 @@ export default function LeadCard({
         triggerHaptic("light");
         onSelect(lead);
       }}
-      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer space-y-3 relative overflow-hidden ${
+      className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[110px] select-none ${
         isSelected
-          ? "bg-orange-50/40 border-orange-300 shadow-md shadow-orange-500/5"
-          : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
+          ? "bg-orange-50/30 border-orange-400 ring-2 ring-orange-500/20 shadow-sm"
+          : "bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-2xs active:bg-slate-50/50"
       }`}
     >
       {/* Акцентная левая полоска при горящем замере сегодня или остывающем лиде */}
@@ -119,67 +106,102 @@ export default function LeadCard({
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-500" />
       )}
 
-      {/* ── Этаж 1: Шапка (Имя + Рейтинг VIP/Стандарт + Время + Кнопка Раскрытия) ── */}
-      <LeadCardHeader
-        name={lead.name}
-        rating={lead.rating}
-        createdAt={lead.createdAt}
-        isExpanded={isExpanded}
-        onToggleExpand={toggleExpand}
-      />
+      {/* ── СТРОКА 1: Имя клиента + Рейтинг VIP + Дата + Аватар менеджера ── */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="font-extrabold text-xs sm:text-sm text-slate-900 truncate">
+            {lead.name || "Без имени"}
+          </span>
+          {lead.rating === "EASY" && (
+            <span title="VIP Заказчик" className="inline-flex shrink-0">
+              <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
+            </span>
+          )}
+          {lead.rating === "PROBLEM" && (
+            <span title="Сложный клиент" className="inline-flex shrink-0">
+              <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+            </span>
+          )}
+        </div>
 
-      {/* ── Смарт-бейджи внимания (Замер сегодня / Остывающий лид / Свежий / Дедлайн) ── */}
-      <LeadCardTimingBadges timing={timing} />
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] text-slate-400 font-semibold" suppressHydrationWarning>
+            {timing.timeSinceCreationStr || "Недавно"}
+          </span>
 
-      {/* ── Лейблы тех-спецификации (Буквы / Короб, Размеры, Стена, Высота, 220V, Ночной монтаж) ── */}
-      <LeadCardTechSpecChips techSpec={techSpec} />
+          {/* Аватар ответственного менеджера */}
+          {lead.manager === "ELISEY" && (
+            <span
+              className="w-5 h-5 rounded-full bg-orange-100 text-orange-700 font-extrabold text-[10px] flex items-center justify-center border border-orange-200"
+              title="Ответственный: Елисей (Я)"
+            >
+              Е
+            </span>
+          )}
+          {lead.manager === "DANIIL" && (
+            <span
+              className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-extrabold text-[10px] flex items-center justify-center border border-blue-200"
+              title="Ответственный: Даниил"
+            >
+              Д
+            </span>
+          )}
+        </div>
+      </div>
 
-      {/* ── Этаж 2: Статус + Телефон + WhatsApp + Озвучено со скидкой + Аванс / Остаток / 100% ── */}
-      <LeadCardContactRow
-        status={status}
-        source={lead.source}
-        phone={lead.phone}
-        offeredPrice={lead.offeredPrice}
-        isDiscounted={lead.isDiscounted}
-        prepayment={lead.prepayment}
-        isPrepaymentPaid={lead.isPrepaymentPaid}
-        isBalancePaid={lead.isBalancePaid}
-        revenue={lead.revenue}
-      />
+      {/* ── СТРОКА 2: Тип конструкции / объект + Статус ── */}
+      <div className="my-1.5 flex items-center justify-between gap-2 min-w-0">
+        <p className="text-[11px] text-slate-500 font-medium truncate flex-1">
+          {constructionSummary}
+        </p>
+        <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border shrink-0 ${status.color} ${status.bg}`}>
+          {status.label}
+        </span>
+      </div>
 
-      {/* ── Этаж 3: Полоса умных индикаторов (HUD): Чек-лист, Макеты, Фото, Документы, Смета, Заметки ── */}
-      <LeadQuickContactBar phone={lead.phone} name={lead.name} />
-      <LeadCardHudBar
-        imagesCount={imagesCount}
-        docsCount={docsCount}
-        designCount={designCount}
-        estimateItemsCount={estimateItemsCount}
-        checklistProgress={checklistProgress}
-        commentsCount={commentsCount}
-        hasAddress={Boolean(lead.address)}
-        manager={lead.manager}
-      />
+      {/* ── СТРОКА 3: Сумма сделки + Оплата + Кнопки связи (WhatsApp / Звонок) ── */}
+      <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100/80">
+        {/* Сумма и статус оплаты */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight whitespace-nowrap">
+            {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "Сумма не указана"}
+          </span>
 
-      {/* ── Этаж 4: Разворачиваемый аккордеон с адресом, кнопками 2GIS/Копия, заметкой и датами ── */}
-      <LeadCardAccordionContent
-        isExpanded={isExpanded}
-        address={lead.address}
-        message={lead.message}
-        comment={lead.comment}
-        appointmentDate={lead.appointmentDate}
-        deadline={lead.deadline}
-        manager={lead.manager}
-        activities={lead.activities}
-      />
+          {lead.isBalancePaid && (
+            <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[9px] font-extrabold border border-emerald-200 shrink-0">
+              100%
+            </span>
+          )}
+          {!lead.isBalancePaid && lead.isPrepaymentPaid && (
+            <span className="px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 text-[9px] font-extrabold border border-teal-200 shrink-0">
+              Аванс
+            </span>
+          )}
+        </div>
 
-      {/* ── Этаж 5: Нижняя панель действий (Смета, Карточка, Удаление) ── */}
-      <LeadCardActionBar
-        lead={lead}
-        onOpenEstimate={onOpenEstimate}
-        onOpenFullCard={onOpenFullCard}
-        onDeleteClick={onDeleteClick}
-        onRestoreLead={onRestoreLead}
-      />
+        {/* Быстрые круглые кнопки связи (по 1 клику, без открытия карточки) */}
+        <div className="flex items-center gap-1 shrink-0">
+          {cleanPhone && (
+            <button
+              type="button"
+              onClick={handleCallClick}
+              className="w-7 h-7 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition active:scale-90 border border-blue-200/60"
+              title={`Позвонить клиенту: ${lead.phone}`}
+            >
+              <Phone className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleWhatsAppClick}
+            className="w-7 h-7 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-90 border border-emerald-200/60"
+            title="Написать в WhatsApp"
+          >
+            <WhatsAppIcon className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
     </motion.div>
   );
 }

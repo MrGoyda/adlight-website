@@ -75,6 +75,12 @@ export async function createSupplierPrice(data: {
   supplier: string;
   price: number;
   unit: InventoryUnit;
+  category?: string | null;
+  subcategory?: string | null;
+  imageUrl?: string | null;
+  description?: string | null;
+  sourceUrl?: string | null;
+  isService?: boolean;
   supplierId?: string | null;
 }) {
   try {
@@ -87,6 +93,12 @@ export async function createSupplierPrice(data: {
         supplier: data.supplier.trim(),
         price: Number(data.price) || 0,
         unit: data.unit,
+        category: data.category?.trim() || null,
+        subcategory: data.subcategory?.trim() || null,
+        imageUrl: data.imageUrl?.trim() || null,
+        description: data.description?.trim() || null,
+        sourceUrl: data.sourceUrl?.trim() || null,
+        isService: Boolean(data.isService),
         supplierId: data.supplierId || null,
       },
       include: {
@@ -110,6 +122,12 @@ export async function updateSupplierPrice(
     supplier?: string;
     price?: number;
     unit?: InventoryUnit;
+    category?: string | null;
+    subcategory?: string | null;
+    imageUrl?: string | null;
+    description?: string | null;
+    sourceUrl?: string | null;
+    isService?: boolean;
     supplierId?: string | null;
   }
 ) {
@@ -119,6 +137,12 @@ export async function updateSupplierPrice(
     if (data.supplier !== undefined) updateData.supplier = data.supplier.trim();
     if (data.price !== undefined) updateData.price = Number(data.price) || 0;
     if (data.unit !== undefined) updateData.unit = data.unit;
+    if (data.category !== undefined) updateData.category = data.category?.trim() || null;
+    if (data.subcategory !== undefined) updateData.subcategory = data.subcategory?.trim() || null;
+    if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl?.trim() || null;
+    if (data.description !== undefined) updateData.description = data.description?.trim() || null;
+    if (data.sourceUrl !== undefined) updateData.sourceUrl = data.sourceUrl?.trim() || null;
+    if (data.isService !== undefined) updateData.isService = Boolean(data.isService);
     if (data.supplierId !== undefined) updateData.supplierId = data.supplierId || null;
 
     const item = await prisma.supplierPrice.update({

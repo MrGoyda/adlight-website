@@ -1,529 +1,565 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
+  Zap, 
+  Clock, 
+  Archive, 
+  Plus, 
   Search, 
   X, 
-  Maximize2, 
-  Minimize2, 
-  Plus, 
+  Filter, 
+  Flame, 
+  Calendar, 
   Calculator, 
   User, 
   FileSpreadsheet, 
   Target, 
-  Zap, 
-  Clock, 
-  Archive, 
-  Flame, 
-  CalendarCheck, 
-  AlertCircle 
+  ChevronDown, 
+  LayoutGrid, 
+  List, 
+  Phone, 
+  Check, 
+  MoreHorizontal,
+  ExternalLink
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
-import { CRM_EVENTS } from "@/lib/crmEvents";
-import ClickMatcherWidget from "@/components/admin/ClickMatcherWidget";
-import { LEADS_DICTIONARY, STATUS_MAP } from "../_data/leadsDictionary";
-import { Lead, Client, Company, WarehouseItem, SupplierPrice } from "../_types/leadTypes";
-import { useLeadOperations } from "../_hooks/useLeadOperations";
+import { Lead } from "../_types/leadTypes";
+import { STATUS_MAP } from "../_data/leadsDictionary";
 import { useLeadFilters } from "../_hooks/useLeadFilters";
-
+import { useLeadOperations } from "../_hooks/useLeadOperations";
 import LeadCard from "./LeadCard";
+import LeadDetailSheet from "./detail/LeadDetailSheet";
+import ClickMatcherWidget from "@/components/admin/ClickMatcherWidget";
 import LeadCreateModal from "./dashboard/LeadCreateModal";
 import LeadFinanceModal from "./dashboard/LeadFinanceModal";
 import LeadDeleteConfirmModal from "./dashboard/LeadDeleteConfirmModal";
 import EstimateModal from "./EstimateModal";
-import LeadDetailSheet from "./detail/LeadDetailSheet";
 import { CreateClientModal } from "../../clients/_components/CreateClientModal";
 import { BatchImportClientsModal } from "../../clients/_components/BatchImportClientsModal";
 import { ExportAudienceModal } from "../../clients/_components/ExportAudienceModal";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { getWhatsAppUrl } from "@/lib/phoneUtils";
 
 interface LeadsDashboardProps {
   initialLeads: Lead[];
-  initialClients: Client[];
-  initialCompanies?: Company[];
-  initialWarehouseItems?: WarehouseItem[];
-  initialSupplierPrices?: SupplierPrice[];
+  initialClients?: any[];
+  initialCompanies?: any[];
+  initialWarehouseItems?: any[];
+  initialSupplierPrices?: any[];
   initialPendingClicks?: any[];
   selectedLeadId?: string;
 }
 
 export default function LeadsDashboard({
   initialLeads,
-  initialClients,
+  initialClients = [],
   initialCompanies = [],
   initialWarehouseItems = [],
   initialSupplierPrices = [],
+  initialPendingClicks = [],
   selectedLeadId,
 }: LeadsDashboardProps) {
   const router = useRouter();
 
-  // Хук операций и состояний лидов
-  const ops = useLeadOperations({ initialLeads, initialClients, selectedLeadId });
-
-  // Хук фильтрации, поиска и метрик
+  // Хуки логики операций и фильтрации
+  const ops = useLeadOperations({
+    initialLeads,
+    initialClients,
+    selectedLeadId,
+  });
   const filters = useLeadFilters(ops.leads);
 
-  // Модальные окна сметы и клиентов
-  const [showEstimateModal, setShowEstimateModal] = useState(false);
+  // Выбранная сделка для инспектора (двухпанельный режим на десктопе и шторка на мобилке)
+  const [detailLead, setDetailLead] = useState<Lead | null>(() => {
+    if (selectedLeadId) {
+      return initialLeads.find((l) => l.id === selectedLeadId) || null;
+    }
+    return null;
+  });
+
+  // Режим отображения: Карточки (Канбан-сетка) или Список (Таблица)
+  const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
+
+  // Фильтр по менеджеру
+  const [managerFilter, setManagerFilter] = useState<string>("ALL");
+
+  // Состояние меню «Действия»
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showManagerMenu, setShowManagerMenu] = useState(false);
+
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const managerRef = useRef<HTMLDivElement>(null);
+
+  // Модальные окна
   const [estimateLead, setEstimateLead] = useState<Lead | null>(null);
-  const [detailLead, setDetailLead] = useState<any | null>(null);
+  const [showEstimateModal, setShowEstimateModal] = useState(false);
   const [showCreateClientModal, setShowCreateClientModal] = useState(false);
   const [showBatchImportModal, setShowBatchImportModal] = useState(false);
   const [showExportAudienceModal, setShowExportAudienceModal] = useState(false);
 
-  // Слушатели глобальных быстрых действий из CrmHeader и CrmBottomBar
+  // Закрытие выпадающих списков по клику вне
   useEffect(() => {
-    const handleOpenCreateLead = () => {
-      triggerHaptic("light");
-      ops.setShowCreateModal(true);
-    };
-    const handleOpenEstimate = () => {
-      triggerHaptic("light");
-      setEstimateLead(null);
-      setShowEstimateModal(true);
-    };
-    const handleOpenCreateClient = () => {
-      triggerHaptic("light");
-      setShowCreateClientModal(true);
-    };
-
-    window.addEventListener(CRM_EVENTS.OPEN_CREATE_LEAD, handleOpenCreateLead);
-    window.addEventListener(CRM_EVENTS.OPEN_ESTIMATE, handleOpenEstimate);
-    window.addEventListener(CRM_EVENTS.OPEN_CREATE_CLIENT, handleOpenCreateClient);
-
-    // Проверка URL query параметров (при переходе с других страниц)
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const action = params.get("action");
-      if (action === "create-lead") {
-        ops.setShowCreateModal(true);
-      } else if (action === "estimate") {
-        setEstimateLead(null);
-        setShowEstimateModal(true);
-      } else if (action === "create-client") {
-        setShowCreateClientModal(true);
+    const handleClickOutside = (e: MouseEvent) => {
+      if (actionsRef.current && !actionsRef.current.contains(e.target as Node)) {
+        setShowActionsMenu(false);
       }
+      if (managerRef.current && !managerRef.current.contains(e.target as Node)) {
+        setShowManagerMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Дополнительная фильтрация по выбранному менеджеру
+  const finalLeads = useMemo(() => {
+    let result = filters.filteredLeads;
+    if (managerFilter === "ELISEY") {
+      result = result.filter((l) => l.manager === "ELISEY");
+    } else if (managerFilter === "DANIIL") {
+      result = result.filter((l) => l.manager === "DANIIL");
+    } else if (managerFilter === "UNASSIGNED") {
+      result = result.filter((l) => !l.manager);
     }
-
-    // Открытие карточки лида при переходе по ссылке с id
-    if (selectedLeadId && ops.leads.length > 0) {
-      const found = ops.leads.find((l) => l.id === selectedLeadId);
-      if (found) {
-        setDetailLead(found);
-      }
-    }
-
-    // Клавиатурные шорткаты Pro для десктопа
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Игнорируем шорткаты, если фокус в инпуте или textarea
-      const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable) {
-        return;
-      }
-
-      if ((e.key === "n" || e.key === "N") && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        triggerHaptic("light");
-        ops.setShowCreateModal(true);
-      } else if ((e.key === "e" || e.key === "E") && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        triggerHaptic("light");
-        setEstimateLead(null);
-        setShowEstimateModal(true);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener(CRM_EVENTS.OPEN_CREATE_LEAD, handleOpenCreateLead);
-      window.removeEventListener(CRM_EVENTS.OPEN_ESTIMATE, handleOpenEstimate);
-      window.removeEventListener(CRM_EVENTS.OPEN_CREATE_CLIENT, handleOpenCreateClient);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedLeadId, ops.leads]);
+    return result;
+  }, [filters.filteredLeads, managerFilter]);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-16">
-      {/* Виджет сопоставления кликов с сайта */}
+    <div className="space-y-4 max-w-7xl mx-auto pb-16">
+      
+      {/* ── НЕРАСПРЕДЕЛЕННЫЕ КЛИКИ (КОМПАКТНЫЙ СТРИП, ИСЧЕЗАЕТ ПРИ 0 КЛИКОВ) ── */}
       <ClickMatcherWidget onMatched={() => router.refresh()} />
 
-      {/* ── 📱 МОБИЛЬНЫЙ ВИД: ОРИГИНАЛЬНЫЙ ЧИСТЫЙ ЛЕЙАУТ (< md) ── */}
-      <div className="block md:hidden space-y-4">
-        {/* Сегментированный переключатель 3 пространств */}
-        <div className="grid grid-cols-3 bg-slate-200/80 p-1 rounded-2xl w-full shadow-2xs select-none gap-1">
-          <button
-            onClick={() => { triggerHaptic("light"); filters.setWorkView("ACTIVE"); filters.setStatusFilter("ALL"); }}
-            className={`flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-black transition-all cursor-pointer whitespace-nowrap ${
-              filters.workView === "ACTIVE" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-            <span>В фокусе ({filters.activeLeads.length})</span>
-          </button>
-
-          <button
-            onClick={() => { triggerHaptic("light"); filters.setWorkView("ON_HOLD"); filters.setStatusFilter("ALL"); }}
-            className={`flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-black transition-all cursor-pointer whitespace-nowrap ${
-              filters.workView === "ON_HOLD" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-            <span>На паузе ({filters.onHoldLeads.length})</span>
-          </button>
-
-          <button
-            onClick={() => { triggerHaptic("light"); filters.setWorkView("ARCHIVE"); filters.setStatusFilter("ALL"); }}
-            className={`flex items-center justify-center gap-1 px-2 py-2 rounded-xl text-[11px] font-black transition-all cursor-pointer whitespace-nowrap ${
-              filters.workView === "ARCHIVE" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Archive className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-            <span>Архив ({filters.archiveLeads.length})</span>
-          </button>
-        </div>
-
-        {/* Поиск и чипсы статусов */}
-        <div className="space-y-2.5">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <input
-                type="text"
-                placeholder={LEADS_DICTIONARY.searchPlaceholder}
-                value={filters.searchTerm}
-                onChange={(e) => filters.setSearchTerm(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-10 py-2.5 text-xs text-slate-800 font-semibold focus:border-orange-500/50 focus:outline-none transition shadow-2xs placeholder:text-slate-400"
-                suppressHydrationWarning
-              />
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3 pointer-events-none" />
-              {filters.searchTerm && (
-                <button
-                  type="button"
-                  onClick={() => { triggerHaptic("light"); filters.setSearchTerm(""); }}
-                  className="absolute right-3 top-2.5 p-0.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => { triggerHaptic("light"); filters.setIsGlobalExpanded(!filters.isGlobalExpanded); }}
-              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-2xl border text-xs font-black transition active:scale-95 cursor-pointer shrink-0 shadow-2xs ${
-                filters.isGlobalExpanded ? "bg-slate-900 border-slate-900 text-white" : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
-              }`}
-            >
-              {filters.isGlobalExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-
-          {filters.workView === "ACTIVE" && (
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none select-none scroll-smooth">
+      {/* ── ЕДИНЫЙ СОВРЕМЕННЫЙ TOOLBAR (APPLE / LINEAR STYLE) ── */}
+      <div className="bg-white rounded-3xl p-3 sm:p-4 border border-slate-200/90 shadow-xs space-y-3">
+        
+        {/* Верхний ряд: Переключатель пространств + Вид + Поиск + Действия + Новая сделка */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          
+          {/* Слева: Сегментированный переключатель 3 пространств + Вид (Доска / Список) */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            {/* 3 пространства: В работе / На паузе / Архив */}
+            <div className="inline-flex bg-slate-100 p-1 rounded-2xl select-none">
               <button
-                onClick={() => { triggerHaptic("light"); filters.setStatusFilter("ALL"); filters.setTimingFilter("ALL"); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                  filters.statusFilter === "ALL" && filters.timingFilter === "ALL"
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-2xs"
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setWorkView("ACTIVE");
+                  filters.setStatusFilter("ALL");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                  filters.workView === "ACTIVE"
+                    ? "bg-white text-slate-900 shadow-2xs"
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
               >
-                <span>Все ({filters.activeLeads.length})</span>
+                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                <span>В работе ({filters.activeLeads.length})</span>
               </button>
 
-              {filters.timingStats.coldWarnings > 0 && (
-                <button
-                  onClick={() => { triggerHaptic("light"); filters.setStatusFilter("ALL"); filters.setTimingFilter(filters.timingFilter === "COLD_WARNING" ? "ALL" : "COLD_WARNING"); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                    filters.timingFilter === "COLD_WARNING" ? "bg-rose-600 text-white shadow-md shadow-rose-500/20" : "bg-rose-50 border border-rose-200/80 text-rose-700"
-                  }`}
-                >
-                  <Flame className="w-3.5 h-3.5" />
-                  <span>Ждут ответа &gt;2ч ({filters.timingStats.coldWarnings})</span>
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setWorkView("ON_HOLD");
+                  filters.setStatusFilter("ALL");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                  filters.workView === "ON_HOLD"
+                    ? "bg-white text-slate-900 shadow-2xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                <span>На паузе ({filters.onHoldLeads.length})</span>
+              </button>
 
-              {filters.timingStats.appointmentsToday > 0 && (
-                <button
-                  onClick={() => { triggerHaptic("light"); filters.setStatusFilter("ALL"); filters.setTimingFilter(filters.timingFilter === "APPOINTMENTS_TODAY" ? "ALL" : "APPOINTMENTS_TODAY"); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                    filters.timingFilter === "APPOINTMENTS_TODAY" ? "bg-orange-600 text-white shadow-md shadow-orange-500/20" : "bg-orange-50 border border-orange-200/80 text-orange-700"
-                  }`}
-                >
-                  <CalendarCheck className="w-3.5 h-3.5" />
-                  <span>Замеры сегодня ({filters.timingStats.appointmentsToday})</span>
-                </button>
-              )}
-
-              {Object.entries(STATUS_MAP)
-                .filter(([key]) => key !== "CANCELLED" && key !== "UNPROCESSED")
-                .map(([key, value]) => {
-                  const count = filters.activeLeads.filter((l) => l.status === key).length;
-                  const isSelected = filters.statusFilter === key && filters.timingFilter === "ALL";
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => { triggerHaptic("light"); filters.setTimingFilter("ALL"); filters.setStatusFilter(filters.statusFilter === key ? "ALL" : key); }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                        isSelected ? "bg-slate-900 text-white shadow-xs" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 shadow-2xs"
-                      }`}
-                    >
-                      <span>{value.label} ({count})</span>
-                    </button>
-                  );
-                })}
+              <button
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setWorkView("ARCHIVE");
+                  filters.setStatusFilter("ALL");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                  filters.workView === "ARCHIVE"
+                    ? "bg-white text-slate-900 shadow-2xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                <Archive className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                <span>Архив ({filters.archiveLeads.length})</span>
+              </button>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* ── 🖥️ ДЕСКТОПНЫЙ ВИД: ЕДИНЫЙ APPLE PRO TOOLBAR (≥ md) ── */}
-      <div className="hidden md:block bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3.5">
-        {/* Верхняя строка: Переключатель пространств + Глобальные действия */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          {/* Сегментированный переключатель 3 пространств */}
-          <div className="inline-flex bg-slate-100 p-1 rounded-2xl shadow-inner select-none w-full sm:w-auto">
-            <button
-              onClick={() => { triggerHaptic("light"); filters.setWorkView("ACTIVE"); filters.setStatusFilter("ALL"); }}
-              className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
-                filters.workView === "ACTIVE" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-              <span>В фокусе ({filters.activeLeads.length})</span>
-            </button>
-
-            <button
-              onClick={() => { triggerHaptic("light"); filters.setWorkView("ON_HOLD"); filters.setStatusFilter("ALL"); }}
-              className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
-                filters.workView === "ON_HOLD" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-              <span>На паузе ({filters.onHoldLeads.length})</span>
-            </button>
-
-            <button
-              onClick={() => { triggerHaptic("light"); filters.setWorkView("ARCHIVE"); filters.setStatusFilter("ALL"); }}
-              className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
-                filters.workView === "ARCHIVE" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <Archive className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-              <span>Архив ({filters.archiveLeads.length})</span>
-            </button>
+            {/* Переключатель вида: Карточки / Таблица */}
+            <div className="hidden sm:inline-flex bg-slate-100 p-1 rounded-2xl select-none">
+              <button
+                onClick={() => { triggerHaptic("light"); setViewMode("cards"); }}
+                className={`p-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "cards" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-400 hover:text-slate-700"
+                }`}
+                title="Вид: Сетка карточек"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => { triggerHaptic("light"); setViewMode("list"); }}
+                className={`p-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "list" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-400 hover:text-slate-700"
+                }`}
+                title="Вид: Таблица / Реестр"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
-          {/* Быстрые действия: Создать сделку, Смета, Клиент, База */}
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => { triggerHaptic("light"); ops.setShowCreateModal(true); }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-black text-xs shadow-xs transition active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>Новая сделка</span>
-            </button>
-
-            <button
-              onClick={() => { triggerHaptic("light"); setEstimateLead(null); setShowEstimateModal(true); }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-orange-50/70 border border-slate-200 hover:border-orange-300 text-slate-800 font-extrabold text-xs transition active:scale-95 cursor-pointer"
-            >
-              <Calculator className="w-4 h-4 text-orange-600" />
-              <span>Смета</span>
-            </button>
-
-            <button
-              onClick={() => { triggerHaptic("light"); setShowCreateClientModal(true); }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 text-slate-800 font-extrabold text-xs transition active:scale-95 cursor-pointer"
-            >
-              <User className="w-4 h-4 text-blue-600" />
-              <span>Клиент</span>
-            </button>
-
-            <button
-              onClick={() => { triggerHaptic("light"); setShowBatchImportModal(true); }}
-              className="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer active:scale-95"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-purple-600" />
-              <span>Импорт</span>
-            </button>
-
-            <button
-              onClick={() => { triggerHaptic("light"); setShowExportAudienceModal(true); }}
-              className="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer active:scale-95"
-            >
-              <Target className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Аудитории</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Нижняя строка Toolbar: Поиск + Чипсы статусов + Компактный режим */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2.5 pt-1 border-t border-slate-100">
-          {/* Поиск */}
-          <div className="relative w-full md:w-72 shrink-0">
+          {/* В центре: Умный поиск */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder={LEADS_DICTIONARY.searchPlaceholder}
+              placeholder="Поиск по имени, телефону, адресу..."
               value={filters.searchTerm}
               onChange={(e) => filters.setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-800 font-semibold focus:bg-white focus:border-orange-500 focus:outline-none transition placeholder:text-slate-400"
-              suppressHydrationWarning
+              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-8 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs placeholder:text-slate-400"
             />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
             {filters.searchTerm && (
               <button
                 type="button"
                 onClick={() => { triggerHaptic("light"); filters.setSearchTerm(""); }}
-                className="absolute right-2.5 top-2 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Чипсы статусов с горизонтальным скроллом */}
-          {filters.workView === "ACTIVE" && (
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none select-none flex-1 min-w-0">
+          {/* Справа: Фильтры + Меню Действия + Кнопка Новая сделка */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+            
+            {/* Селектор Менеджера */}
+            <div className="relative" ref={managerRef}>
               <button
-                onClick={() => { triggerHaptic("light"); filters.setStatusFilter("ALL"); filters.setTimingFilter("ALL"); }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                  filters.statusFilter === "ALL" && filters.timingFilter === "ALL"
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-slate-100 border border-transparent text-slate-600 hover:bg-slate-200/80"
+                type="button"
+                onClick={() => { triggerHaptic("light"); setShowManagerMenu((p) => !p); }}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs font-bold transition cursor-pointer ${
+                  managerFilter !== "ALL"
+                    ? "bg-blue-50 border-blue-200 text-blue-700 font-extrabold"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <span>Все ({filters.activeLeads.length})</span>
+                <User className="w-3.5 h-3.5 text-slate-400" />
+                <span>
+                  {managerFilter === "ELISEY" ? "Елисей" : managerFilter === "DANIIL" ? "Даниил" : managerFilter === "UNASSIGNED" ? "Без менеджера" : "Менеджер"}
+                </span>
+                <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
 
-              {filters.timingStats.coldWarnings > 0 && (
-                <button
-                  onClick={() => { triggerHaptic("light"); filters.setStatusFilter("ALL"); filters.setTimingFilter(filters.timingFilter === "COLD_WARNING" ? "ALL" : "COLD_WARNING"); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                    filters.timingFilter === "COLD_WARNING" ? "bg-rose-600 text-white shadow-xs" : "bg-rose-50 border border-rose-200 text-rose-700"
-                  }`}
-                >
-                  <Flame className="w-3.5 h-3.5" />
-                  <span>Ждут ответа &gt;2ч ({filters.timingStats.coldWarnings})</span>
-                </button>
+              {showManagerMenu && (
+                <div className="absolute right-0 top-full mt-1.5 w-44 bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 z-40 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                  <button
+                    onClick={() => { triggerHaptic("light"); setManagerFilter("ALL"); setShowManagerMenu(false); }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-bold rounded-xl flex items-center justify-between ${
+                      managerFilter === "ALL" ? "bg-slate-100 text-slate-900" : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    <span>Все менеджеры</span>
+                    {managerFilter === "ALL" && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  </button>
+                  <button
+                    onClick={() => { triggerHaptic("light"); setManagerFilter("ELISEY"); setShowManagerMenu(false); }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-bold rounded-xl flex items-center justify-between ${
+                      managerFilter === "ELISEY" ? "bg-orange-50 text-orange-700" : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    <span>Елисей (Я)</span>
+                    {managerFilter === "ELISEY" && <Check className="w-3.5 h-3.5 text-orange-600" />}
+                  </button>
+                  <button
+                    onClick={() => { triggerHaptic("light"); setManagerFilter("DANIIL"); setShowManagerMenu(false); }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-bold rounded-xl flex items-center justify-between ${
+                      managerFilter === "DANIIL" ? "bg-blue-50 text-blue-700" : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    <span>Даниил</span>
+                    {managerFilter === "DANIIL" && <Check className="w-3.5 h-3.5 text-blue-600" />}
+                  </button>
+                  <button
+                    onClick={() => { triggerHaptic("light"); setManagerFilter("UNASSIGNED"); setShowManagerMenu(false); }}
+                    className={`w-full text-left px-3 py-1.5 text-xs font-bold rounded-xl flex items-center justify-between ${
+                      managerFilter === "UNASSIGNED" ? "bg-slate-100 text-slate-900" : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    <span>Не назначен</span>
+                    {managerFilter === "UNASSIGNED" && <Check className="w-3.5 h-3.5 text-slate-600" />}
+                  </button>
+                </div>
               )}
-
-              {filters.timingStats.appointmentsToday > 0 && (
-                <button
-                  onClick={() => { triggerHaptic("light"); filters.setStatusFilter("ALL"); filters.setTimingFilter(filters.timingFilter === "APPOINTMENTS_TODAY" ? "ALL" : "APPOINTMENTS_TODAY"); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                    filters.timingFilter === "APPOINTMENTS_TODAY" ? "bg-orange-600 text-white shadow-xs" : "bg-orange-50 border border-orange-200 text-orange-700"
-                  }`}
-                >
-                  <CalendarCheck className="w-3.5 h-3.5" />
-                  <span>Замеры сегодня ({filters.timingStats.appointmentsToday})</span>
-                </button>
-              )}
-
-              {Object.entries(STATUS_MAP)
-                .filter(([key]) => key !== "CANCELLED" && key !== "UNPROCESSED")
-                .map(([key, value]) => {
-                  const count = filters.activeLeads.filter((l) => l.status === key).length;
-                  const isSelected = filters.statusFilter === key && filters.timingFilter === "ALL";
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => { triggerHaptic("light"); filters.setTimingFilter("ALL"); filters.setStatusFilter(filters.statusFilter === key ? "ALL" : key); }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer shrink-0 active:scale-95 whitespace-nowrap ${
-                        isSelected ? "bg-slate-900 text-white shadow-xs" : "bg-slate-100 border border-transparent text-slate-600 hover:bg-slate-200/80"
-                      }`}
-                    >
-                      <span>{value.label} ({count})</span>
-                    </button>
-                  );
-                })}
             </div>
-          )}
 
-          {/* Переключатель развернутого вида */}
-          <button
-            type="button"
-            onClick={() => { triggerHaptic("light"); filters.setIsGlobalExpanded(!filters.isGlobalExpanded); }}
-            className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black transition active:scale-95 cursor-pointer shrink-0 ${
-              filters.isGlobalExpanded ? "bg-slate-900 border-slate-900 text-white" : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
-            }`}
-          >
-            {filters.isGlobalExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-            <span>{filters.isGlobalExpanded ? "Компактно" : "Подробно"}</span>
-          </button>
+            {/* Выпадающее меню «Действия» */}
+            <div className="relative" ref={actionsRef}>
+              <button
+                type="button"
+                onClick={() => { triggerHaptic("light"); setShowActionsMenu((p) => !p); }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer active:scale-95"
+                title="Дополнительные операции"
+              >
+                <span>Действия</span>
+                <ChevronDown className="w-3 h-3 opacity-60" />
+              </button>
+
+              {showActionsMenu && (
+                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 p-1.5 z-40 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                  <button
+                    onClick={() => {
+                      triggerHaptic("light");
+                      setShowActionsMenu(false);
+                      setEstimateLead(null);
+                      setShowEstimateModal(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-orange-50 text-slate-700 hover:text-orange-700 flex items-center gap-2 transition"
+                  >
+                    <Calculator className="w-4 h-4 text-orange-500" />
+                    <span>Калькулятор сметы</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      triggerHaptic("light");
+                      setShowActionsMenu(false);
+                      setShowCreateClientModal(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-blue-50 text-slate-700 hover:text-blue-700 flex items-center gap-2 transition"
+                  >
+                    <User className="w-4 h-4 text-blue-500" />
+                    <span>Новый профиль клиента</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      triggerHaptic("light");
+                      setShowActionsMenu(false);
+                      setShowBatchImportModal(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-purple-50 text-slate-700 hover:text-purple-700 flex items-center gap-2 transition"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 text-purple-500" />
+                    <span>Импорт из Excel</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      triggerHaptic("light");
+                      setShowActionsMenu(false);
+                      setShowExportAudienceModal(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 flex items-center gap-2 transition"
+                  >
+                    <Target className="w-4 h-4 text-emerald-500" />
+                    <span>Выгрузка аудитории</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* ГЛАВНАЯ КНОПКА: Новая сделка */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                ops.setShowCreateModal(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-xs shadow-sm transition active:scale-95 cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>Новая сделка</span>
+            </button>
+
+          </div>
+
         </div>
+
+        {/* Нижний ряд (чипсы статусов и горящих напоминаний, если актуально) */}
+        {(filters.timingStats.coldWarnings > 0 || filters.timingStats.appointmentsToday > 0 || filters.statusFilter !== "ALL" || managerFilter !== "ALL") && (
+          <div className="flex items-center gap-2 pt-2 border-t border-slate-100 flex-wrap text-xs">
+            {/* Смарт-чипсы горящих заявок */}
+            {filters.timingStats.coldWarnings > 0 && (
+              <button
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setTimingFilter(filters.timingFilter === "COLD_WARNING" ? "ALL" : "COLD_WARNING");
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
+                  filters.timingFilter === "COLD_WARNING"
+                    ? "bg-rose-600 text-white shadow-xs"
+                    : "bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100"
+                }`}
+              >
+                <Flame className="w-3.5 h-3.5" />
+                <span>Ждут ответа &gt;2ч ({filters.timingStats.coldWarnings})</span>
+              </button>
+            )}
+
+            {filters.timingStats.appointmentsToday > 0 && (
+              <button
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setTimingFilter(filters.timingFilter === "APPOINTMENTS_TODAY" ? "ALL" : "APPOINTMENTS_TODAY");
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
+                  filters.timingFilter === "APPOINTMENTS_TODAY"
+                    ? "bg-orange-600 text-white shadow-xs"
+                    : "bg-orange-50 border border-orange-200 text-orange-700 hover:bg-orange-100"
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Замеры сегодня ({filters.timingStats.appointmentsToday})</span>
+              </button>
+            )}
+
+            {/* Кнопка сброса всех фильтров */}
+            {(filters.statusFilter !== "ALL" || filters.timingFilter !== "ALL" || managerFilter !== "ALL" || filters.searchTerm) && (
+              <button
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setStatusFilter("ALL");
+                  filters.setTimingFilter("ALL");
+                  setManagerFilter("ALL");
+                  filters.setSearchTerm("");
+                }}
+                className="text-slate-400 hover:text-slate-700 text-xs font-semibold underline underline-offset-2 ml-auto cursor-pointer"
+              >
+                Сбросить фильтры
+              </button>
+            )}
+          </div>
+        )}
+
       </div>
 
-      {/* ── АДАПТИВНАЯ СЕТКА КАРТОЧЕК ЛИДОВ И ДЕСКТОПНЫЙ ДВУХПАНЕЛЬНЫЙ РЕЖИМ ── */}
-      <div className="w-full flex items-start gap-4 lg:gap-6 relative">
-        {/* Список карточек лидов */}
-        <div className={`transition-all duration-300 min-w-0 ${
-          detailLead 
-            ? "w-full lg:w-[48%] xl:w-[50%] 2xl:w-[55%] shrink-0" 
-            : "w-full"
-        }`}>
-          {filters.filteredLeads.length === 0 ? (
-            <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
-              {LEADS_DICTIONARY.noLeadsFound}
-            </div>
-          ) : (
-            <div className={`grid gap-3.5 sm:gap-4 items-start ${
-              detailLead 
-                ? "grid-cols-1 xl:grid-cols-2" 
-                : "grid-cols-1 md:grid-cols-2 2xl:grid-cols-3"
-            }`}>
-              {filters.filteredLeads.map((lead) => (
-                <LeadCard
-                  key={lead.id}
-                  lead={lead}
-                  isSelected={detailLead?.id === lead.id}
-                  isGloballyExpanded={filters.isGlobalExpanded}
-                  onSelect={(selected) => {
-                    setDetailLead(selected);
-                  }}
-                  onOpenEstimate={(selected) => {
-                    setEstimateLead(selected);
-                    setShowEstimateModal(true);
-                  }}
-                  onOpenFullCard={(id) => {
-                    const found = ops.leads.find((l) => l.id === id);
-                    if (found) {
-                      setDetailLead(found);
-                    } else {
-                      router.push(`/admin/leads/${id}`);
-                    }
-                  }}
-                  onDeleteClick={ops.handleDeleteClick}
-                  onRestoreLead={ops.handleRestoreLead}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+      {/* ── ОСНОВНОЙ КОНТЕНТ: СЕТКА КАРТОЧЕК ИЛИ РЕЕСТР ТАБЛИЦЫ ── */}
+      <div className="w-full">
+        {finalLeads.length === 0 ? (
+          <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
+            Сделки не найдены по заданным критериям
+          </div>
+        ) : viewMode === "cards" ? (
+          /* ── РЕЖИМ 1: СЕТКА КАРТОЧЕК (КАРТОЧКИ ВЫСОТОЙ ~110px) ── */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3.5 items-start">
+            {finalLeads.map((lead) => (
+              <LeadCard
+                key={lead.id}
+                lead={lead}
+                isSelected={detailLead?.id === lead.id}
+                onSelect={(selected) => setDetailLead(selected)}
+                onOpenEstimate={(selected) => {
+                  setEstimateLead(selected);
+                  setShowEstimateModal(true);
+                }}
+                onOpenFullCard={(id) => {
+                  router.push(`/admin/leads/${id}`);
+                }}
+                onDeleteClick={ops.handleDeleteClick}
+                onRestoreLead={ops.handleRestoreLead}
+              />
+            ))}
+          </div>
+        ) : (
+          /* ── РЕЖИМ 2: СОВРЕМЕННЫЙ РЕЕСТР (ДАТА-ТАБЛИЦА) ── */
+          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
+                    <th className="py-3 px-4">Клиент</th>
+                    <th className="py-3 px-4">Этап</th>
+                    <th className="py-3 px-4">Ответственный</th>
+                    <th className="py-3 px-4">Сумма сделки</th>
+                    <th className="py-3 px-4">Связь</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {finalLeads.map((lead) => {
+                    const status = STATUS_MAP[lead.status] || { label: lead.status, color: "text-slate-600", bg: "bg-slate-100" };
+                    const amount = lead.offeredPrice || lead.revenue || 0;
+                    const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
 
-        {/* ── ДЕСКТОПНЫЙ ВСТРОЕННЫЙ INSPECTOR DRAWER (ТОЛЬКО НА ПК lg+) ── */}
-        {detailLead && (
-          <div className="hidden lg:flex flex-1 sticky top-0 h-[calc(100vh-140px)] min-h-[600px] overflow-hidden">
-            <LeadDetailSheet
-              isOpen={true}
-              isEmbedded={true}
-              onClose={() => setDetailLead(null)}
-              lead={detailLead}
-              clients={ops.clients}
-              companies={initialCompanies}
-              onUpdateLead={(updated) => {
-                ops.setLeads((prev) =>
-                  prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
-                );
-                setDetailLead(updated);
-              }}
-              warehouseItems={initialWarehouseItems}
-              supplierPrices={initialSupplierPrices}
-              leads={ops.leads}
-            />
+                    return (
+                      <tr
+                        key={lead.id}
+                        onClick={() => {
+                          triggerHaptic("light");
+                          setDetailLead(lead);
+                        }}
+                        className={`hover:bg-slate-50/80 cursor-pointer transition ${
+                          detailLead?.id === lead.id ? "bg-orange-50/40" : ""
+                        }`}
+                      >
+                        <td className="py-3 px-4">
+                          <span className="font-extrabold text-slate-900 block truncate max-w-xs">{lead.name || "Без имени"}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">{lead.phone}</span>
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${status.color} ${status.bg}`}>
+                            {status.label}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap text-slate-600 font-bold">
+                          {lead.manager === "ELISEY" ? "Елисей" : lead.manager === "DANIIL" ? "Даниил" : "—"}
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap font-black text-slate-900">
+                          {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "—"}
+                        </td>
+                        <td className="py-3 px-4 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            {cleanPhone && (
+                              <a
+                                href={`tel:${cleanPhone}`}
+                                className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"
+                                title="Позвонить"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                            <a
+                              href={getWhatsAppUrl(lead.phone || "", `Здравствуйте, ${lead.name || "клиент"}!`)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition"
+                              title="WhatsApp"
+                            >
+                              <WhatsAppIcon className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
+
+      {/* ── ЦЕНТРИРОВАННОЕ APPLE PRO ОКНО КАРТОЧКИ (MODAL QUICKVIEW НА ПК / BOTTOM SHEET НА МОБИЛКЕ) ── */}
+      {detailLead && (
+        <LeadDetailSheet
+          isOpen={Boolean(detailLead)}
+          onClose={() => setDetailLead(null)}
+          lead={detailLead as any}
+          clients={ops.clients}
+          companies={initialCompanies}
+          onUpdateLead={(updated) => {
+            ops.setLeads((prev) =>
+              prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
+            );
+            setDetailLead(updated as any);
+          }}
+          warehouseItems={initialWarehouseItems}
+          supplierPrices={initialSupplierPrices}
+          leads={ops.leads}
+        />
+      )}
 
       {/* ── МОДАЛЬНЫЕ ОКНА ── */}
       {ops.showFinanceModal && ops.financeLead && (
@@ -549,26 +585,7 @@ export default function LeadsDashboard({
         />
       )}
 
-      {/* ── МОБИЛЬНАЯ ШТОРКА (ТОЛЬКО НА СМАРТФОНАХ < lg) ── */}
-      <div className="lg:hidden">
-        <LeadDetailSheet
-          isOpen={Boolean(detailLead)}
-          isEmbedded={false}
-          onClose={() => setDetailLead(null)}
-          lead={detailLead}
-          clients={ops.clients}
-          companies={initialCompanies}
-          onUpdateLead={(updated) => {
-            ops.setLeads((prev) =>
-              prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l))
-            );
-            setDetailLead(updated);
-          }}
-          warehouseItems={initialWarehouseItems}
-          supplierPrices={initialSupplierPrices}
-          leads={ops.leads}
-        />
-      </div>
+
 
       {showEstimateModal && (
         <EstimateModal
@@ -589,11 +606,6 @@ export default function LeadsDashboard({
                 )
               );
             }
-            if (ops.activeLead && ops.activeLead.id === newEstimate.leadId) {
-              ops.setActiveLead((prev) =>
-                prev ? { ...prev, revenue, expenses, estimate: newEstimate } : null
-              );
-            }
             setEstimateLead(null);
             router.refresh();
           }}
@@ -603,7 +615,7 @@ export default function LeadsDashboard({
       <CreateClientModal
         isOpen={showCreateClientModal}
         onClose={() => setShowCreateClientModal(false)}
-        onSuccess={(client) => {
+        onSuccess={(client: any) => {
           ops.setClients((prev) => [client, ...prev.filter((c) => c.id !== client.id)]);
           router.refresh();
         }}
@@ -619,6 +631,7 @@ export default function LeadsDashboard({
         isOpen={showExportAudienceModal}
         onClose={() => setShowExportAudienceModal(false)}
       />
+
     </div>
   );
 }
