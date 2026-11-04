@@ -7,14 +7,18 @@ import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import { INVENTORY_UNITS } from "../../../_data/pricingDictionary";
 import {
   X,
-  ExternalLink,
+  Package,
+  Handshake,
+  ZoomIn,
   Edit2,
   Trash2,
   Copy,
   Check,
-  Package,
-  Handshake,
-  ZoomIn,
+  Building2,
+  ShoppingBag,
+  Plus,
+  Minus,
+  ArrowRight,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -25,6 +29,10 @@ interface MaterialInspectorDrawerProps {
   onOpenEditModal: (item: SupplierPriceItem) => void;
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
+  onOpenSupplierInfo?: (supplierName: string) => void;
+  onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
+  isInCart?: boolean;
+  cartQuantity?: number;
 }
 
 function MaterialInspectorDrawer({
@@ -33,12 +41,17 @@ function MaterialInspectorDrawer({
   onOpenEditModal,
   onQuickUpdatePrice,
   onDeleteItem,
+  onOpenSupplierInfo,
+  onAddToCart,
+  isInCart = false,
+  cartQuantity = 0,
 }: MaterialInspectorDrawerProps) {
   const [copied, setCopied] = useState(false);
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [priceInput, setPriceInput] = useState<number | "">("");
   const [isSavingPrice, setIsSavingPrice] = useState(false);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [quantityToAdd, setQuantityToAdd] = useState(1);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -50,6 +63,7 @@ function MaterialInspectorDrawer({
       setPriceInput(item.price);
       setIsEditingPrice(false);
       setIsZoomOpen(false);
+      setQuantityToAdd(1);
     }
   }, [item]);
 
@@ -66,16 +80,14 @@ function MaterialInspectorDrawer({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, isZoomOpen, item]);
-
-  if (!mounted) return null;
+  }, [item, isZoomOpen, onClose]);
 
   const handleCopyName = () => {
     if (!item) return;
     triggerHaptic("light");
     navigator.clipboard.writeText(item.name);
     setCopied(true);
-    toast.success("Название скопировано");
+    toast.success("Наименование скопировано");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -96,6 +108,11 @@ function MaterialInspectorDrawer({
     } finally {
       setIsSavingPrice(false);
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!item) return;
+    onAddToCart?.(item, quantityToAdd);
   };
 
   const fullScreenPhotoModal =
@@ -162,105 +179,100 @@ function MaterialInspectorDrawer({
         )
       : null;
 
+  if (!mounted) return null;
+
   return (
     <>
       {createPortal(
         <AnimatePresence>
           {item && (
             <>
-              {/* Затемнение фона для шторки (клик в любую точку закрывает инспектор) */}
+              {/* Затемняющий оверлей */}
               <motion.div
-                key="inspector-backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
                 onClick={onClose}
-                className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
+                className="fixed inset-0 z-[9980] bg-black/40 backdrop-blur-xs"
               />
 
-              {/* Выдвижная шторка инспектора */}
+              {/* Выезжающая панель инспектора */}
               <motion.div
-                key="inspector-drawer"
-                initial={{ x: "100%", opacity: 0.8 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: "100%", opacity: 0 }}
-                transition={{ type: "spring", damping: 28, stiffness: 300 }}
-                className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[420px] bg-white border-l border-slate-200/90 shadow-2xl flex flex-col pointer-events-auto"
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 350 }}
+                className="fixed top-0 right-0 z-[9985] w-full max-w-md h-full bg-white shadow-2xl flex flex-col justify-between overflow-hidden border-l border-slate-200"
               >
                 {/* 1. Шапка инспектора */}
-                <div className="p-4 sm:px-5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/90 backdrop-blur-md">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-white shrink-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-orange-100 text-orange-800">
                       Инспектор материала
                     </span>
-                    {item.isService ? (
-                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase bg-purple-100 text-purple-700">
-                        Услуга
+                    {isInCart && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-900 text-orange-400 flex items-center gap-1">
+                        <ShoppingBag className="w-3 h-3" />
+                        <span>В корзине ({cartQuantity})</span>
                       </span>
-                    ) : null}
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onOpenEditModal(item)}
-                      className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
-                      title="Редактировать полностью"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
-                      title="Закрыть (Esc или клик вне шторки)"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+                    title="Закрыть (Esc)"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
 
-                {/* 2. Скроллируемое тело инспектора */}
-                <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
-                  {/* Большое фото с кнопкой зума */}
-                  <div className="relative aspect-4/3 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200/80 flex items-center justify-center group shadow-xs">
+                {/* 2. Тело инспектора */}
+                <div className="p-5 flex-1 overflow-y-auto space-y-5">
+                  {/* Фото позиции */}
+                  <div className="relative aspect-16/10 rounded-2xl bg-slate-100 overflow-hidden border border-slate-200/80 shadow-xs flex items-center justify-center group">
                     {item.imageUrl ? (
                       <>
                         <img
                           src={item.imageUrl}
                           alt={item.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-102"
                           decoding="async"
                         />
                         <button
                           type="button"
-                          onClick={() => setIsZoomOpen(true)}
-                          className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-xl bg-black/60 hover:bg-black/80 text-white text-[11px] font-bold backdrop-blur-sm flex items-center gap-1 transition cursor-pointer"
+                          onClick={() => {
+                            triggerHaptic("medium");
+                            setIsZoomOpen(true);
+                          }}
+                          className="absolute bottom-3 right-3 px-3 py-1.5 rounded-xl bg-black/70 hover:bg-black text-white text-xs font-black flex items-center gap-1.5 transition cursor-pointer shadow-md active:scale-95"
                         >
                           <ZoomIn className="w-3.5 h-3.5" />
                           <span>Увеличить</span>
                         </button>
                       </>
                     ) : item.isService ? (
-                      <div className="flex flex-col items-center gap-2 text-purple-500">
-                        <Handshake className="w-12 h-12" />
-                        <span className="text-xs font-black uppercase">Услуга подрядчика</span>
+                      <div className="flex flex-col items-center gap-2 text-purple-600">
+                        <Handshake className="w-12 h-12 stroke-[1.5]" />
+                        <span className="text-xs font-black uppercase tracking-wider">
+                          Услуга перезаказа
+                        </span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-slate-400">
-                        <Package className="w-12 h-12" />
-                        <span className="text-xs font-bold">Фотография не загружена</span>
+                        <Package className="w-12 h-12 stroke-[1.5]" />
+                        <span className="text-xs font-bold">Фото отсутствует</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Блок цены с быстрым редактированием */}
-                  <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-200/80 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-slate-400">
-                      <span>Базовая себестоимость</span>
-                      <span>{INVENTORY_UNITS[item.unit]?.label || "Единица измерения"}</span>
-                    </div>
+                  {/* Быстрое редактирование цены */}
+                  <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                      Базовая цена
+                    </span>
 
                     {isEditingPrice ? (
                       <div className="flex items-center gap-2 pt-1">
@@ -317,6 +329,59 @@ function MaterialInspectorDrawer({
                     )}
                   </div>
 
+                  {/* Добавление в корзину закупки */}
+                  {onAddToCart && (
+                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                        Снабжение и закупка
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {/* Степпер количества */}
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setQuantityToAdd((q) => Math.max(1, q - 1))}
+                            className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
+                            title="Уменьшить"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <input
+                            type="number"
+                            min="1"
+                            value={quantityToAdd}
+                            onChange={(e) =>
+                              setQuantityToAdd(Math.max(1, parseInt(e.target.value, 10) || 1))
+                            }
+                            className="w-10 text-center font-black text-xs text-slate-900 outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setQuantityToAdd((q) => q + 1)}
+                            className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
+                            title="Увеличить"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Кнопка добавления в корзину */}
+                        <button
+                          type="button"
+                          onClick={handleAddToCart}
+                          className="flex-1 py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-orange-600/20 active:scale-95"
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>
+                            {isInCart
+                              ? `Добавить ещё (+${quantityToAdd} ${INVENTORY_UNITS[item.unit]?.short || "ед."})`
+                              : `В корзину (${quantityToAdd} ${INVENTORY_UNITS[item.unit]?.short || "ед."})`}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Название и быстрое копирование */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
@@ -346,10 +411,10 @@ function MaterialInspectorDrawer({
                     </div>
                   </div>
 
-                  {/* Классификация и Метаданные */}
+                  {/* Классификация и Поставщик */}
                   <div className="space-y-2 pt-1 border-t border-slate-100">
                     <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 block">
-                      Классификация и поставка
+                      Классификация и поставщик
                     </span>
 
                     <div className="grid grid-cols-2 gap-2 text-xs">
@@ -367,31 +432,25 @@ function MaterialInspectorDrawer({
                         </span>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
-                        <span className="text-[10px] font-bold text-slate-400 block">Поставщик</span>
-                        <span className="font-extrabold text-slate-800 truncate block mt-0.5">
-                          {item.supplier}
-                        </span>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60">
-                        <span className="text-[10px] font-bold text-slate-400 block">Источник</span>
-                        {item.sourceUrl ? (
-                          <a
-                            href={item.sourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-extrabold text-orange-600 hover:underline inline-flex items-center gap-1 mt-0.5 truncate"
-                          >
-                            <span>Перейти</span>
-                            <ExternalLink className="w-3 h-3 shrink-0" />
-                          </a>
-                        ) : (
-                          <span className="font-extrabold text-slate-400 block mt-0.5">
-                            Внутренний
+                      {/* Поставщик (кликабельный с переходом к карточке) */}
+                      <button
+                        type="button"
+                        onClick={() => onOpenSupplierInfo?.(item.supplier)}
+                        className="col-span-2 p-3 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200/60 hover:border-orange-200 text-left transition cursor-pointer group flex items-center justify-between"
+                      >
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-bold text-slate-400 block">
+                            Поставщик (нажмите для контактов и адреса)
                           </span>
-                        )}
-                      </div>
+                          <span className="font-black text-slate-900 group-hover:text-orange-600 truncate block mt-0.5">
+                            {item.supplier}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] font-extrabold text-orange-600 shrink-0">
+                          <span>Контакты</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </div>
+                      </button>
                     </div>
                   </div>
 

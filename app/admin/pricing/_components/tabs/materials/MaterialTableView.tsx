@@ -11,6 +11,10 @@ interface MaterialTableViewProps {
   onOpenEditModal: (item: SupplierPriceItem) => void;
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
+  onOpenSupplierInfo?: (supplierName: string) => void;
+  onAddToCart?: (item: SupplierPriceItem) => void;
+  isItemInCart?: (priceItemId: string) => boolean;
+  getItemQuantity?: (priceItemId: string) => number;
 }
 
 function MaterialTableView({
@@ -20,6 +24,10 @@ function MaterialTableView({
   onOpenEditModal,
   onQuickUpdatePrice,
   onDeleteItem,
+  onOpenSupplierInfo,
+  onAddToCart,
+  isItemInCart,
+  getItemQuantity,
 }: MaterialTableViewProps) {
   return (
     <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
@@ -29,7 +37,7 @@ function MaterialTableView({
         <div className="col-span-2">Подкатегория</div>
         <div className="col-span-2">Поставщик</div>
         <div className="col-span-2 text-right">Себестоимость</div>
-        <div className="col-span-1 text-center">Действия</div>
+        <div className="col-span-1 text-right">Действия</div>
       </div>
 
       {/* Список строк */}
@@ -43,6 +51,10 @@ function MaterialTableView({
             onOpenEditModal={onOpenEditModal}
             onQuickUpdatePrice={onQuickUpdatePrice}
             onDeleteItem={onDeleteItem}
+            onOpenSupplierInfo={onOpenSupplierInfo}
+            onAddToCart={onAddToCart}
+            isInCart={isItemInCart?.(item.id)}
+            cartQuantity={getItemQuantity?.(item.id)}
           />
         ))}
       </div>

@@ -21,6 +21,7 @@ import {
   RotateCcw,
   ChevronDown,
   CircleDot,
+  Info,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 
@@ -66,6 +67,7 @@ interface MaterialsSidebarProps {
   onFacetChange: (key: keyof MaterialFacetState, value: string) => void;
   onResetFacets: () => void;
   hasActiveFacets: boolean;
+  onOpenSupplierInfo?: (supplierName: string) => void;
 }
 
 function MaterialsSidebar({
@@ -88,6 +90,7 @@ function MaterialsSidebar({
   onFacetChange,
   onResetFacets,
   hasActiveFacets,
+  onOpenSupplierInfo,
 }: MaterialsSidebarProps) {
   // Список уникальных поставщиков
   const allSupplierNames = React.useMemo(() => {
@@ -831,20 +834,22 @@ function MaterialsSidebar({
             const isAct = selectedSupplier === supName;
             const supCount = supplierCounts[supName] ?? 0;
             return (
-              <button
+              <div
                 key={supName}
-                type="button"
-                onClick={() => {
-                  triggerHaptic("light");
-                  onSelectSupplier(supName);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-bold transition text-left cursor-pointer active:scale-98 ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition text-left group ${
                   isAct
                     ? "bg-slate-800 text-white font-black"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
-                <span className="truncate flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic("light");
+                    onSelectSupplier(supName);
+                  }}
+                  className="flex-1 truncate flex items-center gap-2 cursor-pointer text-left mr-1"
+                >
                   <span
                     className={`w-2 h-2 rounded-full shrink-0 ${
                       supName.toLowerCase().includes("signtech")
@@ -853,15 +858,36 @@ function MaterialsSidebar({
                     }`}
                   />
                   <span className="truncate">{supName}</span>
-                </span>
-                <span
-                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
-                    isAct ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {supCount}
-                </span>
-              </button>
+                </button>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                      isAct ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    {supCount}
+                  </span>
+                  {onOpenSupplierInfo && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerHaptic("light");
+                        onOpenSupplierInfo(supName);
+                      }}
+                      className={`p-1 rounded-lg transition cursor-pointer ${
+                        isAct
+                          ? "text-slate-300 hover:text-white hover:bg-white/20"
+                          : "text-slate-400 hover:text-orange-600 hover:bg-slate-200/70"
+                      }`}
+                      title="Контакты и адрес поставщика"
+                    >
+                      <Info className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              </div>
             );
           })}
         </div>

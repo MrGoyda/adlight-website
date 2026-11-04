@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, X, ArrowUpDown, List, LayoutGrid, Plus } from "lucide-react";
+import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { SortOption, ViewMode } from "./types";
 
@@ -14,6 +14,9 @@ interface MaterialToolbarProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   onOpenCreateModal: () => void;
+  cartCount?: number;
+  cartTotalSum?: number;
+  onOpenCart?: () => void;
 }
 
 function MaterialToolbar({
@@ -25,6 +28,9 @@ function MaterialToolbar({
   viewMode,
   onViewModeChange,
   onOpenCreateModal,
+  cartCount = 0,
+  cartTotalSum = 0,
+  onOpenCart,
 }: MaterialToolbarProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
@@ -36,7 +42,7 @@ function MaterialToolbar({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Поиск по названию, толщине, размерам, поставщику..."
+          placeholder="Поиск по названию, характеристикам, поставщику..."
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
@@ -61,7 +67,41 @@ function MaterialToolbar({
       </div>
 
       {/* Правая панель действий */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap justify-end">
+        {/* Кнопка Корзины закупа */}
+        {onOpenCart && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("medium");
+              onOpenCart();
+            }}
+            className={`relative inline-flex items-center gap-2 px-3.5 py-2.5 rounded-2xl border text-xs font-black transition cursor-pointer active:scale-95 ${
+              cartCount > 0
+                ? "bg-slate-900 text-white border-slate-900 shadow-md shadow-slate-900/10 hover:bg-slate-800"
+                : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+            }`}
+            title="Открыть корзину закупки"
+          >
+            <ShoppingBag
+              className={`w-4 h-4 transition-transform ${
+                cartCount > 0 ? "text-orange-400 animate-bounce duration-1000" : "text-slate-500"
+              }`}
+            />
+            <span className="hidden md:inline">Закупка</span>
+            {cartCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-orange-500 text-white text-[10px] font-black">
+                {cartCount}
+              </span>
+            )}
+            {cartTotalSum > 0 && (
+              <span className="hidden lg:inline text-orange-300 font-extrabold text-[11px]">
+                {cartTotalSum.toLocaleString("ru-RU")} ₸
+              </span>
+            )}
+          </button>
+        )}
+
         {/* Сортировка */}
         <div className="relative">
           <select

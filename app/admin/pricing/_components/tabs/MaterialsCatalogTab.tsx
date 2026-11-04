@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { SupplierData, SupplierPriceItem } from "../../_types/pricingTypes";
 import { useMaterialFilters } from "../../_hooks/useMaterialFilters";
+import { useMaterialCart } from "../../_hooks/useMaterialCart";
 import MaterialsSidebar from "./materials/MaterialsSidebar";
 import MaterialToolbar from "./materials/MaterialToolbar";
 import MaterialBreadcrumbs from "./materials/MaterialBreadcrumbs";
@@ -10,6 +11,8 @@ import MaterialTableView from "./materials/MaterialTableView";
 import MaterialGridView from "./materials/MaterialGridView";
 import MaterialEmptyState from "./materials/MaterialEmptyState";
 import MaterialInspectorDrawer from "./materials/MaterialInspectorDrawer";
+import SupplierInfoDrawer from "./materials/SupplierInfoDrawer";
+import MaterialCartDrawer from "./materials/MaterialCartDrawer";
 import { Sparkles, ChevronDown } from "lucide-react";
 
 interface MaterialsCatalogTabProps {
@@ -67,6 +70,42 @@ export default function MaterialsCatalogTab({
     suppliers,
     onQuickUpdatePrice,
   });
+
+  // Управление корзиной закупки (снабжение)
+  const {
+    items: cartItems,
+    isCartOpen,
+    setIsCartOpen,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearSupplierItems,
+    clearCart,
+    uniquePositionsCount,
+    totalQuantity,
+    totalSum: cartTotalSum,
+    groupedBySupplier,
+    isItemInCart,
+    getItemQuantity,
+  } = useMaterialCart();
+
+  // Состояние карточки поставщика
+  const [infoSupplierName, setInfoSupplierName] = useState<string | null>(null);
+
+  const handleOpenSupplierInfo = useCallback((supplierName: string) => {
+    setInfoSupplierName(supplierName);
+  }, []);
+
+  const handleCloseSupplierInfo = useCallback(() => {
+    setInfoSupplierName(null);
+  }, []);
+
+  const handleFilterBySupplierFromDrawer = useCallback(
+    (supName: string) => {
+      setSelectedSupplier(supName);
+    },
+    [setSelectedSupplier]
+  );
 
   // Прогрессивная подгрузка элементов (60 штук за раз) для мгновенного скролла и 120 FPS
   const [visibleLimit, setVisibleLimit] = useState(BATCH_SIZE);
@@ -168,6 +207,7 @@ export default function MaterialsCatalogTab({
         onFacetChange={handleFacetChange}
         onResetFacets={handleResetFacets}
         hasActiveFacets={hasActiveFacets}
+        onOpenSupplierInfo={handleOpenSupplierInfo}
       />
 
       {/* 2. Основная рабочая зона */}
@@ -183,6 +223,9 @@ export default function MaterialsCatalogTab({
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onOpenCreateModal={onOpenCreateModal}
+            cartCount={uniquePositionsCount}
+            cartTotalSum={cartTotalSum}
+            onOpenCart={() => setIsCartOpen(true)}
           />
 
           <MaterialBreadcrumbs
@@ -224,6 +267,10 @@ export default function MaterialsCatalogTab({
             onOpenEditModal={onOpenEditModal}
             onQuickUpdatePrice={handleQuickUpdateAndSync}
             onDeleteItem={handleDeleteWithCleanup}
+            onOpenSupplierInfo={handleOpenSupplierInfo}
+            onAddToCart={addToCart}
+            isItemInCart={isItemInCart}
+            getItemQuantity={getItemQuantity}
           />
         ) : (
           <MaterialGridView
@@ -233,6 +280,10 @@ export default function MaterialsCatalogTab({
             onOpenEditModal={onOpenEditModal}
             onQuickUpdatePrice={handleQuickUpdateAndSync}
             onDeleteItem={handleDeleteWithCleanup}
+            onOpenSupplierInfo={handleOpenSupplierInfo}
+            onAddToCart={addToCart}
+            isItemInCart={isItemInCart}
+            getItemQuantity={getItemQuantity}
           />
         )}
 
@@ -270,6 +321,37 @@ export default function MaterialsCatalogTab({
         onOpenEditModal={onOpenEditModal}
         onQuickUpdatePrice={handleQuickUpdateAndSync}
         onDeleteItem={handleDeleteWithCleanup}
+        onOpenSupplierInfo={handleOpenSupplierInfo}
+        onAddToCart={addToCart}
+        isInCart={inspectingItem ? isItemInCart(inspectingItem.id) : false}
+        cartQuantity={inspectingItem ? getItemQuantity(inspectingItem.id) : 0}
+      />
+
+      {/* 4. Выезжающая карточка контактов поставщика */}
+      <SupplierInfoDrawer
+        isOpen={Boolean(infoSupplierName)}
+        onClose={handleCloseSupplierInfo}
+        supplierName={infoSupplierName}
+        suppliers={suppliers}
+        onFilterBySupplier={handleFilterBySupplierFromDrawer}
+        catalogCount={infoSupplierName ? (supplierCounts[infoSupplierName] || 0) : 0}
+      />
+
+      {/* 5. Выезжающая корзина закупки с группировкой по поставщику и WhatsApp */}
+      <MaterialCartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        suppliers={suppliers}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeFromCart}
+        onClearSupplier={clearSupplierItems}
+        onClearCart={clearCart}
+        groupedBySupplier={groupedBySupplier}
+        totalSum={cartTotalSum}
+        uniquePositionsCount={uniquePositionsCount}
+        totalQuantity={totalQuantity}
+        onOpenSupplierInfo={handleOpenSupplierInfo}
       />
     </div>
   );

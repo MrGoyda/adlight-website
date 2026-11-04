@@ -11,6 +11,10 @@ interface MaterialGridViewProps {
   onOpenEditModal: (item: SupplierPriceItem) => void;
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
+  onOpenSupplierInfo?: (supplierName: string) => void;
+  onAddToCart?: (item: SupplierPriceItem) => void;
+  isItemInCart?: (priceItemId: string) => boolean;
+  getItemQuantity?: (priceItemId: string) => number;
 }
 
 function MaterialGridView({
@@ -20,6 +24,10 @@ function MaterialGridView({
   onOpenEditModal,
   onQuickUpdatePrice,
   onDeleteItem,
+  onOpenSupplierInfo,
+  onAddToCart,
+  isItemInCart,
+  getItemQuantity,
 }: MaterialGridViewProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -32,6 +40,10 @@ function MaterialGridView({
           onOpenEditModal={onOpenEditModal}
           onQuickUpdatePrice={onQuickUpdatePrice}
           onDeleteItem={onDeleteItem}
+          onOpenSupplierInfo={onOpenSupplierInfo}
+          onAddToCart={onAddToCart}
+          isInCart={isItemInCart?.(item.id)}
+          cartQuantity={getItemQuantity?.(item.id)}
         />
       ))}
     </div>
