@@ -5,6 +5,8 @@ import { MATERIAL_TAXONOMY } from "../../../_data/pricingDictionary";
 import {
   MATERIAL_FACETS,
   MaterialFacetState,
+  FACET_CONFIG_MAP,
+  FACET_LABELS,
 } from "../../../_data/materialFacets";
 import { SupplierData } from "../../../_types/pricingTypes";
 import {
@@ -62,8 +64,9 @@ interface MaterialsSidebarProps {
   totalCount: number;
   suppliers: SupplierData[];
   uniqueSuppliersFromPrices: string[];
-  // Характеристики
+  // Характеристики со строгой изоляцией
   facets: MaterialFacetState;
+  applicableFacetKeys: (keyof MaterialFacetState)[];
   onFacetChange: (key: keyof MaterialFacetState, value: string) => void;
   onResetFacets: () => void;
   hasActiveFacets: boolean;
@@ -87,6 +90,7 @@ function MaterialsSidebar({
   suppliers,
   uniqueSuppliersFromPrices,
   facets,
+  applicableFacetKeys,
   onFacetChange,
   onResetFacets,
   hasActiveFacets,
@@ -100,8 +104,6 @@ function MaterialsSidebar({
       .filter(Boolean)
       .sort();
   }, [suppliers, uniqueSuppliersFromPrices]);
-
-  const subLower = (selectedSubcategory || "").toLowerCase();
 
   return (
     <aside className="w-full space-y-5 bg-white/90 backdrop-blur-md p-4 rounded-3xl border border-slate-200/80 shadow-xs">
@@ -312,11 +314,8 @@ function MaterialsSidebar({
         </div>
       </div>
 
-      {/* 3. Раздел: Характеристики (Apple Pro Dynamic Contextual Facets 2026) */}
-      {(selectedCategory === "sheets" ||
-        selectedCategory === "vinyl" ||
-        selectedCategory === "lighting" ||
-        selectedCategory === "all") && (
+      {/* 3. Раздел: Характеристики (Строго изолированные фасеты 2026) */}
+      {applicableFacetKeys.length > 0 && (
         <div className="space-y-3 pt-3 border-t border-slate-100">
           <div className="px-2 flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-slate-400">
             <span className="flex items-center gap-1.5">
@@ -339,25 +338,27 @@ function MaterialsSidebar({
             )}
           </div>
 
-          {/* ═══════════════ А. СВЕТОТЕХНИКА И ЭЛЕКТРИКА ═══════════════ */}
-          {selectedCategory === "lighting" && (
-            <div className="space-y-2.5">
-              {/* 1. Светодиодные модули: Линзы/точки */}
-              {subLower.includes("модул") && (
-                <div className="space-y-1">
+          <div className="space-y-3">
+            {applicableFacetKeys.map((key) => {
+              const title = FACET_LABELS[key] || key;
+              const options = FACET_CONFIG_MAP[key] || [];
+              const currentValue = facets[key];
+
+              return (
+                <div key={key} className="space-y-1">
                   <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Количество линз (диодов)
+                    {title}
                   </span>
                   <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.lensCounts.map((lc) => {
-                      const isAct = facets.lensCount === lc.id;
+                    {options.map((opt) => {
+                      const isAct = currentValue === opt.id;
                       return (
                         <button
-                          key={lc.id}
+                          key={opt.id}
                           type="button"
                           onClick={() => {
                             triggerHaptic("light");
-                            onFacetChange("lensCount", lc.id);
+                            onFacetChange(key, opt.id);
                           }}
                           className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
                             isAct
@@ -365,431 +366,15 @@ function MaterialsSidebar({
                               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                           }`}
                         >
-                          {lc.label}
+                          {opt.label}
                         </button>
                       );
                     })}
                   </div>
                 </div>
-              )}
-
-              {/* 2. Трансформаторы: Исполнение корпуса */}
-              {(subLower.includes("трансформатор") || subLower.includes("блок")) && (
-                <div className="space-y-1">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Исполнение корпуса
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.housingTypes.map((ht) => {
-                      const isAct = facets.housingType === ht.id;
-                      return (
-                        <button
-                          key={ht.id}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic("light");
-                            onFacetChange("housingType", ht.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            isAct
-                              ? "bg-slate-900 text-white font-black shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {ht.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* 3. Неон: Формат поставки */}
-              {subLower.includes("неон") && (
-                <div className="space-y-1">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Формат поставки
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.deliveryFormats.map((df) => {
-                      const isAct = facets.deliveryFormat === df.id;
-                      return (
-                        <button
-                          key={df.id}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic("light");
-                            onFacetChange("deliveryFormat", df.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            isAct
-                              ? "bg-orange-500 text-white font-black shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {df.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* 4. Мощность (Диоды, Блоки, Ленты) */}
-              {(!subLower.includes("неон") || facets.wattage !== "all") && (
-                <div className="space-y-1">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    {subLower.includes("трансформатор") || subLower.includes("блок")
-                      ? "Мощность блока (W)"
-                      : "Мощность (W)"}
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.wattages
-                      .filter((w) => {
-                        if (subLower.includes("трансформатор") || subLower.includes("блок")) {
-                          return w.id === "all" || w.id.includes("60-100w") || w.id.includes("150-200w") || w.id.includes("300-400w");
-                        }
-                        if (subLower.includes("модул")) {
-                          return w.id === "all" || w.id === "0.5w" || w.id === "1.2w";
-                        }
-                        return true;
-                      })
-                      .map((w) => {
-                        const isAct = facets.wattage === w.id;
-                        return (
-                          <button
-                            key={w.id}
-                            type="button"
-                            onClick={() => {
-                              triggerHaptic("light");
-                              onFacetChange("wattage", w.id);
-                            }}
-                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                              isAct
-                                ? "bg-orange-500 text-white font-black shadow-2xs"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
-                          >
-                            {w.label}
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
-
-              {/* 5. Свечение светодиодов и цветовая t° (для модулей, лент, неона, всех) */}
-              {!subLower.includes("трансформатор") && !subLower.includes("блок") && (
-                <div className="space-y-1 pt-0.5">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Свечение и цветовая t°
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.glowColors.map((g) => {
-                      const isAct = facets.glowColor === g.id;
-                      return (
-                        <button
-                          key={g.id}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic("light");
-                            onFacetChange("glowColor", g.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            isAct
-                              ? "bg-amber-500 text-white font-black shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {g.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* 6. Влагозащита (IP) */}
-              {(subLower.includes("модул") || subLower.includes("лент") || subLower === "all") && (
-                <div className="space-y-1 pt-0.5">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Степень защиты (IP)
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.ipRatings.map((ip) => {
-                      const isAct = facets.ipRating === ip.id;
-                      return (
-                        <button
-                          key={ip.id}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic("light");
-                            onFacetChange("ipRating", ip.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            isAct
-                              ? "bg-slate-900 text-white font-black shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {ip.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* 7. Напряжение питания (12V, 24V, 220V) */}
-              <div className="space-y-1 pt-0.5">
-                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                  Напряжение питания
-                </span>
-                <div className="flex flex-wrap gap-1 px-1">
-                  {MATERIAL_FACETS.voltages.map((volt) => {
-                    const isAct = facets.voltage === volt.id;
-                    return (
-                      <button
-                        key={volt.id}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic("light");
-                          onFacetChange("voltage", volt.id);
-                        }}
-                        className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                          isAct
-                            ? "bg-slate-900 text-white font-black shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {volt.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═══════════════ Б. ЛИСТОВЫЕ МАТЕРИАЛЫ ═══════════════ */}
-          {(selectedCategory === "sheets" || selectedCategory === "all") && (
-            <div className="space-y-2.5">
-              {/* Толщина */}
-              <div className="space-y-1">
-                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                  Толщина листа
-                </span>
-                <div className="flex flex-wrap gap-1 px-1">
-                  {MATERIAL_FACETS.thicknesses.map((t) => {
-                    const isAct = facets.thickness === t.id;
-                    return (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic("light");
-                          onFacetChange("thickness", t.id);
-                        }}
-                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                          isAct
-                            ? "bg-orange-500 text-white font-black shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {t.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Плотность ПВХ */}
-              {selectedCategory === "sheets" && (subLower.includes("пвх") || subLower === "all") && (
-                <div className="space-y-1 pt-0.5">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Плотность ПВХ
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.pvcDensities.map((p) => {
-                      const isAct = facets.pvcDensity === p.id;
-                      return (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic("light");
-                            onFacetChange("pvcDensity", p.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            isAct
-                              ? "bg-slate-900 text-white font-black shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {p.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Стенка АКП */}
-              {selectedCategory === "sheets" &&
-                (subLower.includes("акп") || subLower.includes("алюмокомпозит") || subLower === "all") && (
-                  <div className="space-y-1 pt-0.5">
-                    <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                      Стенка алюминия АКП
-                    </span>
-                    <div className="flex flex-wrap gap-1 px-1">
-                      {MATERIAL_FACETS.compositeSkins.map((cs) => {
-                        const isAct = facets.compositeSkin === cs.id;
-                        return (
-                          <button
-                            key={cs.id}
-                            type="button"
-                            onClick={() => {
-                              triggerHaptic("light");
-                              onFacetChange("compositeSkin", cs.id);
-                            }}
-                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                              isAct
-                                ? "bg-slate-900 text-white font-black shadow-2xs"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
-                          >
-                            {cs.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-              {/* Цвет / Оптика (для Листовых) */}
-              {selectedCategory === "sheets" && (
-                <div className="space-y-1 pt-0.5">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Цвет и Оптика
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.colors.map((c) => {
-                      const isAct = facets.color === c.id;
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic("light");
-                            onFacetChange("color", c.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            isAct
-                              ? "bg-slate-900 text-white font-black shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {c.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Формат листа (для Листовых) */}
-              {selectedCategory === "sheets" && (
-                <div className="space-y-1 pt-0.5">
-                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                    Размер листа
-                  </span>
-                  <div className="flex flex-wrap gap-1 px-1">
-                    {MATERIAL_FACETS.sheetSizes.map((s) => {
-                      const isAct = facets.sheetSize === s.id;
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => {
-                            triggerHaptic("light");
-                            onFacetChange("sheetSize", s.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            isAct
-                              ? "bg-slate-900 text-white font-black shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {s.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ═══════════════ В. ПЛЕНКИ И БАННЕРЫ ═══════════════ */}
-          {selectedCategory === "vinyl" && (
-            <div className="space-y-2.5">
-              <div className="space-y-1">
-                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                  Тип поверхности
-                </span>
-                <div className="flex flex-wrap gap-1 px-1">
-                  {MATERIAL_FACETS.vinylSurfaces.map((v) => {
-                    const isAct = facets.vinylSurface === v.id;
-                    return (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic("light");
-                          onFacetChange("vinylSurface", v.id);
-                        }}
-                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                          isAct
-                            ? "bg-orange-500 text-white font-black shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {v.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-1 pt-0.5">
-                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                  Плотность баннера
-                </span>
-                <div className="flex flex-wrap gap-1 px-1">
-                  {MATERIAL_FACETS.bannerDensities.map((b) => {
-                    const isAct = facets.bannerDensity === b.id;
-                    return (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic("light");
-                          onFacetChange("bannerDensity", b.id);
-                        }}
-                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                          isAct
-                            ? "bg-slate-900 text-white font-black shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {b.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
       )}
 

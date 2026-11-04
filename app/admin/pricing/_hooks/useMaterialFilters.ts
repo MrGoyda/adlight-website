@@ -7,6 +7,9 @@ import {
   MATERIAL_FACETS,
   INITIAL_FACETS,
   MaterialFacetState,
+  FacetOption,
+  getApplicableFacetKeys,
+  FACET_CONFIG_MAP,
 } from "../_data/materialFacets";
 
 export type ViewMode = "table" | "grid";
@@ -47,25 +50,15 @@ export function useMaterialFilters({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Проверка активности фильтров характеристик
+  // Список применимых ключей фасетов для текущей категории и подкатегории (Строгая изоляция)
+  const applicableFacetKeys = useMemo(() => {
+    return getApplicableFacetKeys(selectedCategory, selectedSubcategory);
+  }, [selectedCategory, selectedSubcategory]);
+
+  // Проверка активности фильтров только среди применимых ключей
   const hasActiveFacets = useMemo(() => {
-    return (
-      facets.thickness !== "all" ||
-      facets.color !== "all" ||
-      facets.sheetSize !== "all" ||
-      facets.pvcDensity !== "all" ||
-      facets.compositeSkin !== "all" ||
-      facets.vinylSurface !== "all" ||
-      facets.bannerDensity !== "all" ||
-      facets.voltage !== "all" ||
-      facets.glowColor !== "all" ||
-      facets.wattage !== "all" ||
-      facets.lensCount !== "all" ||
-      facets.ipRating !== "all" ||
-      facets.housingType !== "all" ||
-      facets.deliveryFormat !== "all"
-    );
-  }, [facets]);
+    return applicableFacetKeys.some((k) => facets[k] !== "all");
+  }, [applicableFacetKeys, facets]);
 
   const handleFacetChange = (key: keyof MaterialFacetState, value: string) => {
     setFacets((prev) => ({
@@ -200,80 +193,18 @@ export function useMaterialFilters({
         }
       }
 
-      // 6. Динамические характеристики (Smart Contextual Facets)
+      // 6. Динамические характеристики со строгой изоляцией
       const fullItemText = `${item.name} ${item.description || ""}`;
 
-      // 6.1 Листовые
-      if (facets.thickness !== "all") {
-        const tOpt = MATERIAL_FACETS.thicknesses.find((t) => t.id === facets.thickness);
-        if (tOpt?.match && !tOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.color !== "all") {
-        const cOpt = MATERIAL_FACETS.colors.find((c) => c.id === facets.color);
-        if (cOpt?.match && !cOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.sheetSize !== "all") {
-        const sOpt = MATERIAL_FACETS.sheetSizes.find((s) => s.id === facets.sheetSize);
-        if (sOpt?.match && !sOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.pvcDensity !== "all") {
-        const pOpt = MATERIAL_FACETS.pvcDensities.find((p) => p.id === facets.pvcDensity);
-        if (pOpt?.match && !pOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.compositeSkin !== "all") {
-        const csOpt = MATERIAL_FACETS.compositeSkins.find((cs) => cs.id === facets.compositeSkin);
-        if (csOpt?.match && !csOpt.match.test(fullItemText)) return false;
-      }
-
-      // 6.2 Пленки и баннеры
-      if (facets.vinylSurface !== "all") {
-        const vOpt = MATERIAL_FACETS.vinylSurfaces.find((v) => v.id === facets.vinylSurface);
-        if (vOpt?.match && !vOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.bannerDensity !== "all") {
-        const bOpt = MATERIAL_FACETS.bannerDensities.find((b) => b.id === facets.bannerDensity);
-        if (bOpt?.match && !bOpt.match.test(fullItemText)) return false;
-      }
-
-      // 6.3 Светотехника и электрика
-      if (facets.glowColor !== "all") {
-        const glowOpt = MATERIAL_FACETS.glowColors.find((g) => g.id === facets.glowColor);
-        if (glowOpt?.match && !glowOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.voltage !== "all") {
-        const voltOpt = MATERIAL_FACETS.voltages.find((v) => v.id === facets.voltage);
-        if (voltOpt?.match && !voltOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.wattage !== "all") {
-        const wOpt = MATERIAL_FACETS.wattages.find((w) => w.id === facets.wattage);
-        if (wOpt?.match && !wOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.lensCount !== "all") {
-        const lcOpt = MATERIAL_FACETS.lensCounts.find((lc) => lc.id === facets.lensCount);
-        if (lcOpt?.match && !lcOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.ipRating !== "all") {
-        const ipOpt = MATERIAL_FACETS.ipRatings.find((ip) => ip.id === facets.ipRating);
-        if (ipOpt?.match && !ipOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.housingType !== "all") {
-        const htOpt = MATERIAL_FACETS.housingTypes.find((ht) => ht.id === facets.housingType);
-        if (htOpt?.match && !htOpt.match.test(fullItemText)) return false;
-      }
-
-      if (facets.deliveryFormat !== "all") {
-        const dfOpt = MATERIAL_FACETS.deliveryFormats.find((df) => df.id === facets.deliveryFormat);
-        if (dfOpt?.match && !dfOpt.match.test(fullItemText)) return false;
+      for (const facetKey of applicableFacetKeys) {
+        const val = facets[facetKey];
+        if (val && val !== "all") {
+          const options = FACET_CONFIG_MAP[facetKey];
+          const matchedOpt = options?.find((o) => o.id === val);
+          if (matchedOpt?.match && !matchedOpt.match.test(fullItemText)) {
+            return false;
+          }
+        }
       }
 
       return true;
@@ -308,6 +239,7 @@ export function useMaterialFilters({
     sortBy,
     onlyWithPhoto,
     facets,
+    applicableFacetKeys,
   ]);
 
   // Инлайн обновление цены с синхронизацией инспектора
@@ -345,6 +277,7 @@ export function useMaterialFilters({
     inspectingItem,
     setInspectingItem,
     facets,
+    applicableFacetKeys,
     handleFacetChange,
     handleResetFacets,
     hasActiveFacets,

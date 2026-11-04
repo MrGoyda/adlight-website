@@ -52,6 +52,7 @@ export default function MaterialsCatalogTab({
     inspectingItem,
     setInspectingItem,
     facets,
+    applicableFacetKeys,
     handleFacetChange,
     handleResetFacets,
     hasActiveFacets,
@@ -204,6 +205,7 @@ export default function MaterialsCatalogTab({
         suppliers={suppliers}
         uniqueSuppliersFromPrices={uniqueSuppliersFromPrices}
         facets={facets}
+        applicableFacetKeys={applicableFacetKeys}
         onFacetChange={handleFacetChange}
         onResetFacets={handleResetFacets}
         hasActiveFacets={hasActiveFacets}
@@ -235,6 +237,7 @@ export default function MaterialsCatalogTab({
             onResetCategory={() => handleCategorySelect("all")}
             onResetSubcategory={() => setSelectedSubcategory("all")}
             facets={facets}
+            applicableFacetKeys={applicableFacetKeys}
             hasActiveFacets={hasActiveFacets}
             onFacetChange={handleFacetChange}
             onResetFacets={handleResetFacets}
