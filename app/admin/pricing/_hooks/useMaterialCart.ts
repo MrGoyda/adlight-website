@@ -54,7 +54,7 @@ export function useMaterialCart() {
     }
   }, [items, isInitialized]);
 
-  // Добавление позиции в корзину
+  // Добавление позиции в корзину (чистая функция без сайд-эффектов внутри reducer)
   const addToCart = useCallback((priceItem: SupplierPriceItem, quantity = 1) => {
     triggerHaptic("medium");
     const unitShort = INVENTORY_UNITS[priceItem.unit]?.short || "ед.";
@@ -69,7 +69,6 @@ export function useMaterialCart() {
           quantity: updatedQty,
           price: Number(priceItem.price) || next[existingIndex].price,
         };
-        toast.success(`«${priceItem.name}»: ${updatedQty} ${unitShort} в корзине`);
         return next;
       } else {
         const newItem: MaterialCartItem = {
@@ -85,10 +84,14 @@ export function useMaterialCart() {
           subcategory: priceItem.subcategory,
           description: priceItem.description,
         };
-        toast.success(`Добавлено в корзину закупа: «${priceItem.name}» (${quantity} ${unitShort})`);
         return [...prev, newItem];
       }
     });
+
+    // Безопасный вызов toast вне очереди рендера
+    setTimeout(() => {
+      toast.success(`«${priceItem.name}» (${quantity} ${unitShort}) в корзине`);
+    }, 0);
   }, []);
 
   // Изменение количества
@@ -114,14 +117,18 @@ export function useMaterialCart() {
   const clearSupplierItems = useCallback((supplierName: string) => {
     triggerHaptic("medium");
     setItems((prev) => prev.filter((i) => i.supplier.toLowerCase() !== supplierName.toLowerCase()));
-    toast.info(`Позиции поставщика «${supplierName}» удалены из корзины`);
+    setTimeout(() => {
+      toast.info(`Позиции поставщика «${supplierName}» удалены из корзины`);
+    }, 0);
   }, []);
 
   // Полная очистка корзины
   const clearCart = useCallback(() => {
     triggerHaptic("medium");
     setItems([]);
-    toast.info("Корзина закупа очищена");
+    setTimeout(() => {
+      toast.info("Корзина закупа очищена");
+    }, 0);
   }, []);
 
   // Подсчет уникальных позиций и общего количества
