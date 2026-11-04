@@ -85,56 +85,52 @@ export default function MaterialCartDrawer({
 
   if (!mounted || !isOpen) return null;
 
-  // Формирование текста заявки в WhatsApp для конкретного поставщика
-  const generateSupplierOrderText = (supplierName: string, supplierItems: MaterialCartItem[], subtotal: number) => {
+  // Формирование текста заявки в WhatsApp для конкретного поставщика (без цен и сумм, только названия и количества)
+  const generateSupplierOrderText = (supplierName: string, supplierItems: MaterialCartItem[]) => {
     const lines = [
       `Здравствуйте! Заявка на закупку от компании ADLight:`,
       ``,
-      `Позиции к заказу:`,
+      `Позиции:`,
     ];
 
     supplierItems.forEach((it, idx) => {
-      const lineSum = it.price * it.quantity;
-      lines.push(
-        `${idx + 1}. ${it.name} — ${it.quantity} ${it.unitShort} × ${Number(it.price).toLocaleString("ru-RU")} ₸ = ${Number(lineSum).toLocaleString("ru-RU")} ₸`
-      );
+      lines.push(`${idx + 1}. ${it.name} — ${it.quantity} ${it.unitShort}`);
     });
 
     lines.push(``);
-    lines.push(`Итого позиций: ${supplierItems.length}`);
-    lines.push(`Общая сумма: ${Number(subtotal).toLocaleString("ru-RU")} ₸`);
+    lines.push(`Всего позиций: ${supplierItems.length}`);
     lines.push(``);
-    lines.push(`Подскажите, пожалуйста, наличие на складе и возможность выставления счета / самовывоза.`);
+    lines.push(`Подскажите, пожалуйста, по наличию на складе и актуальной стоимости (выставите счет / реквизиты на оплату).`);
 
     return lines.join("\n");
   };
 
   // Копирование текста заявки для поставщика
-  const handleCopySupplierOrder = (supplierName: string, supplierItems: MaterialCartItem[], subtotal: number) => {
+  const handleCopySupplierOrder = (supplierName: string, supplierItems: MaterialCartItem[]) => {
     triggerHaptic("light");
-    const text = generateSupplierOrderText(supplierName, supplierItems, subtotal);
+    const text = generateSupplierOrderText(supplierName, supplierItems);
     navigator.clipboard.writeText(text);
     setCopiedSupplier(supplierName);
-    toast.success(`Текст заказа для «${supplierName}» скопирован`);
+    toast.success(`Список товаров для «${supplierName}» скопирован`);
     setTimeout(() => {
       setCopiedSupplier((curr) => (curr === supplierName ? null : curr));
     }, 2000);
   };
 
   // Отправка заявки в WhatsApp
-  const handleSendWhatsApp = (supplierName: string, supplierItems: MaterialCartItem[], subtotal: number) => {
+  const handleSendWhatsApp = (supplierName: string, supplierItems: MaterialCartItem[]) => {
     triggerHaptic("medium");
     const supObj = suppliers.find(
       (s) => s.name.trim().toLowerCase() === supplierName.trim().toLowerCase()
     );
     const rawPhone = supObj?.whatsapp || supObj?.phone || KNOWN_SUPPLIER_PHONES[supplierName.trim().toLowerCase()] || "";
 
-    const text = generateSupplierOrderText(supplierName, supplierItems, subtotal);
+    const text = generateSupplierOrderText(supplierName, supplierItems);
 
     if (!rawPhone) {
       // Если номер не найден в базе, копируем в буфер и предупреждаем
       navigator.clipboard.writeText(text);
-      toast.info(`Номер WhatsApp поставщика ${supplierName} не указан. Текст скопирован в буфер обмена!`);
+      toast.info(`Номер WhatsApp поставщика ${supplierName} не указан. Список скопирован в буфер обмена!`);
       return;
     }
 
@@ -142,36 +138,32 @@ export default function MaterialCartDrawer({
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
 
-  // Копирование общего сводного отчета по всей закупке
+  // Копирование общего сводного отчета по всей закупке (список материалов по поставщикам)
   const handleCopyFullReport = () => {
     triggerHaptic("medium");
     const lines = [
-      `СВОДНЫЙ ОТЧЕТ ПО ЗАКУПКЕ МАТЕРИАЛОВ — ADLight CRM`,
+      `СВОДНАЯ ВЕДОМОСТЬ ЗАКУПКИ МАТЕРИАЛОВ — ADLight`,
       `Дата: ${new Date().toLocaleDateString("ru-RU")}`,
       `Всего позиций: ${uniquePositionsCount} (${totalQuantity} ед.)`,
-      `Общая сумма: ${Number(totalSum).toLocaleString("ru-RU")} ₸`,
       `═════════════════════════════════════════════════`,
       ``,
     ];
 
     groupedBySupplier.forEach((group, gIdx) => {
       lines.push(`ПОСТАВЩИК ${gIdx + 1}: ${group.supplierName.toUpperCase()}`);
-      lines.push(`Сумма по поставщику: ${Number(group.subtotal).toLocaleString("ru-RU")} ₸`);
       lines.push(`-------------------------------------------------`);
       group.items.forEach((it, idx) => {
-        const lineSum = it.price * it.quantity;
-        lines.push(
-          `  ${idx + 1}. ${it.name}: ${it.quantity} ${it.unitShort} × ${Number(it.price).toLocaleString("ru-RU")} ₸ = ${Number(lineSum).toLocaleString("ru-RU")} ₸`
-        );
+        lines.push(`  ${idx + 1}. ${it.name} — ${it.quantity} ${it.unitShort}`);
       });
       lines.push(``);
     });
 
-    lines.push(`ИТОГО К ОПЛАТЕ: ${Number(totalSum).toLocaleString("ru-RU")} ₸`);
+    lines.push(`═════════════════════════════════════════════════`);
+    lines.push(`Ожидаем подтверждения наличия и счетов на оплату.`);
 
     navigator.clipboard.writeText(lines.join("\n"));
     setCopiedAll(true);
-    toast.success("Сводный отчет по закупке скопирован в буфер!");
+    toast.success("Сводная ведомость закупки скопирована в буфер!");
     setTimeout(() => setCopiedAll(false), 2000);
   };
 
@@ -298,9 +290,9 @@ export default function MaterialCartDrawer({
                     <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                       <button
                         type="button"
-                        onClick={() => handleCopySupplierOrder(group.supplierName, group.items, group.subtotal)}
+                        onClick={() => handleCopySupplierOrder(group.supplierName, group.items)}
                         className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-bold transition cursor-pointer flex items-center gap-1"
-                        title="Скопировать текст заявки"
+                        title="Скопировать список материалов"
                       >
                         {isCopied ? (
                           <>
@@ -317,9 +309,9 @@ export default function MaterialCartDrawer({
 
                       <button
                         type="button"
-                        onClick={() => handleSendWhatsApp(group.supplierName, group.items, group.subtotal)}
+                        onClick={() => handleSendWhatsApp(group.supplierName, group.items)}
                         className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black transition cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95"
-                        title="Сформировать заказ и открыть диалог в WhatsApp"
+                        title="Отправить заявку со списком материалов в WhatsApp"
                       >
                         <WhatsAppIcon className="w-3.5 h-3.5" />
                         <span>Закупить в WhatsApp</span>
