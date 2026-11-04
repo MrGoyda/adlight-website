@@ -51,8 +51,14 @@ export interface MaterialFacetState {
 
   // ── 5. Клеи, скотчи и крепеж ──
   glueType: string;
-  doubleTapeType: string;
+  glueVolume: string;
+  doubleTapeBase: string;
   tapeWidth: string;
+  tapeLength: string;
+  reinforcedTapeType: string;
+  specialTapeType: string;
+  grommetDiameter: string;
+  grommetMaterial: string;
   standoffDistance: string;
   standoffDiameter: string;
 
@@ -101,10 +107,16 @@ export const INITIAL_FACETS: MaterialFacetState = {
   letterBorder: "all",
   profileMetal: "all",
 
-  // Клеи
+  // Клеи, скотчи и крепеж
   glueType: "all",
-  doubleTapeType: "all",
+  glueVolume: "all",
+  doubleTapeBase: "all",
   tapeWidth: "all",
+  tapeLength: "all",
+  reinforcedTapeType: "all",
+  specialTapeType: "all",
+  grommetDiameter: "all",
+  grommetMaterial: "all",
   standoffDistance: "all",
   standoffDiameter: "all",
 
@@ -414,26 +426,105 @@ export const MATERIAL_FACETS = {
   // 5. КЛЕИ, СКОТЧИ И КРЕПЕЖ
   // ─────────────────────────────────────────────────────────────
 
-  // Назначение клея
+  // Назначение / тип клея
   glueTypes: [
     { id: "all", label: "Все клеи" },
-    { id: "pvc", label: "Для ПВХ (Cosmofen CA12/SL)", match: /cosmo|ca12|sl\b/i },
-    { id: "acrylic", label: "Для акрила (дихлорэтан/PMMA)", match: /дихлорэтан|pmma/i },
-    { id: "activator", label: "С активатором (Akfix 705)", match: /akfix|активатор|705/i },
+    {
+      id: "activator",
+      label: "2-х компонентный с активатором",
+      match: /двухкомпонент|2-х|активатор|705|750|apel/i,
+    },
+    {
+      id: "cyanoacrylate",
+      label: "Цианакрилат (Суперклей)",
+      match: /suba|201|202|супер клей|цианакрил/i,
+    },
+    {
+      id: "nails",
+      label: "Жидкие гвозди / Герметик",
+      match: /жидкие гвозди|герметик|308|310|gpl|civi/i,
+    },
+    {
+      id: "metal",
+      label: "Для металла / алюминия",
+      match: /клей ав|алюминиев/i,
+    },
+    {
+      id: "thread",
+      label: "Фиксатор резьбы",
+      match: /j-20|резьб/i,
+    },
   ] as FacetOption[],
 
-  // Тип основы скотча
-  doubleTapeTypes: [
-    { id: "all", label: "Все скотчи" },
-    { id: "vhb", label: "Вспененный VHB (3M)", match: /vhb|3m|вспенен/i },
-    { id: "film", label: "Тонкий пленочный", match: /пленочн|тонкий/i },
+  // Объем / фасовка клея
+  glueVolumes: [
+    { id: "all", label: "Все фасовки" },
+    { id: "100ml", label: "100 мл + 25 г", match: /100\s*мл/i },
+    { id: "200ml", label: "200 мл + 50 г", match: /200\s*мл/i },
+    { id: "400ml", label: "400 мл + 100 г", match: /400\s*мл/i },
+    { id: "small", label: "25 – 50 мл / г", match: /(?:25|50)\s*(?:мл|гр)/i },
+    { id: "large", label: "300 – 500 мл / г", match: /(?:300|308|310|390|500)\s*(?:мл|гр)/i },
   ] as FacetOption[],
 
-  // Ширина скотча
+  // Цвет основы вспененного скотча
+  doubleTapeBases: [
+    { id: "all", label: "Все основы" },
+    { id: "white", label: "Белая основа", match: /бел/i },
+    { id: "black", label: "Черная основа", match: /черн/i },
+    { id: "transparent", label: "Прозрачный силикон", match: /прозрачн|силикон/i },
+  ] as FacetOption[],
+
+  // Ширина ленты / скотча
   tapeWidths: [
     { id: "all", label: "Все ширины" },
-    { id: "6-9", label: "6 – 9 мм", match: /[69]\s*мм/i },
-    { id: "12-19", label: "12 – 19 мм", match: /(?:12|19)\s*мм/i },
+    { id: "5mm", label: "5 мм (0.5 см)", match: /(?:0[.,]5|5)\s*(?:см|мм)/i },
+    { id: "10mm", label: "10 мм (1.0 см)", match: /(?:1[.,]0|10)\s*(?:см|мм)/i },
+    { id: "15mm", label: "15 мм (1.5 см)", match: /(?:1[.,]5|15)\s*(?:см|мм)/i },
+    { id: "20mm", label: "20 мм (2.0 см)", match: /(?:2[.,]0|20)\s*(?:см|мм)/i },
+    { id: "25-30mm", label: "25 – 30 мм (3 см)", match: /(?:25|30|3[.,]0)\s*(?:см|мм)/i },
+    { id: "40-50mm", label: "40 – 50 мм (5 см)", match: /(?:40|48|50|5[.,]0)\s*(?:см|мм)/i },
+  ] as FacetOption[],
+
+  // Длина намотки
+  tapeLengths: [
+    { id: "all", label: "Любая намотка" },
+    { id: "25-33m", label: "25 – 33 м", match: /(?:25|30|33)\s*м\b/i },
+    { id: "45-50m", label: "45 – 50 м", match: /(?:45|45[.,]7|50)\s*м\b/i },
+    { id: "150-200m", label: "150 – 200 м", match: /(?:150|200)\s*м\b/i },
+  ] as FacetOption[],
+
+  // Усиленные и силиконовые ленты
+  reinforcedTapeTypes: [
+    { id: "all", label: "Все типы" },
+    { id: "banner", label: "Для баннера (высокая адгезия)", match: /для баннера|sh335/i },
+    { id: "silicone", label: "Силиконовая прозрачная (SH368)", match: /силиконов.*прозрачн|sh368/i },
+    { id: "pet", label: "Тонкая PET (SH338)", match: /pet|sh338|тонкая/i },
+  ] as FacetOption[],
+
+  // Специальные ленты
+  specialTapeTypes: [
+    { id: "all", label: "Все назначения" },
+    { id: "masking", label: "Малярная лента", match: /малярн/i },
+    { id: "cnc", label: "Для фрезерных столов (SH336)", match: /станков|sh336/i },
+    { id: "magnetic", label: "Магнитная лента с клеем", match: /магнитн/i },
+    { id: "reflective", label: "Светоотражающая сигнальная", match: /светоотраж/i },
+    { id: "polygraphy", label: "Полиграфическая / рулонная", match: /полиграфическ|рулонн|sh328/i },
+    { id: "packaging", label: "Упаковочная / Стретч", match: /стретч|упаковочн/i },
+  ] as FacetOption[],
+
+  // Диаметр люверсов
+  grommetDiameters: [
+    { id: "all", label: "Все диаметры" },
+    { id: "10mm", label: "Ø 10 мм", match: /10\s*мм/i },
+    { id: "12mm", label: "Ø 12 мм", match: /12\s*мм/i },
+  ] as FacetOption[],
+
+  // Материал люверсов / фурнитуры
+  grommetMaterials: [
+    { id: "all", label: "Все материалы" },
+    { id: "stainless", label: "Нержавеющая сталь", match: /нержавейк|нерж/i },
+    { id: "galvanized", label: "Оцинкованный металл", match: /оцинков/i },
+    { id: "tool", label: "Инструмент / Пробойник", match: /пробойник|рельс|насадка/i },
   ] as FacetOption[],
 
   // Вынос дистанционного держателя
@@ -571,16 +662,26 @@ export function getApplicableFacetKeys(
 
   // 5. КЛЕИ, СКОТЧИ И КРЕПЕЖ
   if (cat === "hardware") {
-    if (sub.includes("кле")) {
-      return ["glueType"];
+    if (sub.includes("клей") || sub.includes("герметик") || sub.includes("кле")) {
+      return ["glueType", "glueVolume"];
     }
-    if (sub.includes("скотч")) {
-      return ["doubleTapeType", "tapeWidth"];
+    if (sub.includes("вспененн")) {
+      return ["doubleTapeBase", "tapeWidth", "tapeLength"];
     }
-    if (sub.includes("держател")) {
+    if (sub.includes("усиленн") || sub.includes("силиконов")) {
+      return ["reinforcedTapeType", "tapeWidth", "tapeLength"];
+    }
+    if (sub.includes("специальн") || sub.includes("малярн")) {
+      return ["specialTapeType", "tapeWidth", "tapeLength"];
+    }
+    if (sub.includes("люверс") || sub.includes("пробойник") || sub.includes("фурнитур")) {
+      return ["grommetDiameter", "grommetMaterial"];
+    }
+    if (sub.includes("дистанционн") || sub.includes("метиз") || sub.includes("держател")) {
       return ["standoffDistance", "standoffDiameter"];
     }
-    return [];
+    // "Все клеи, скотчи и крепеж"
+    return ["glueType", "doubleTapeBase", "tapeWidth", "grommetDiameter"];
   }
 
   // 6. ПЕРЕЗАКАЗ УСЛУГ
@@ -645,10 +746,16 @@ export const FACET_LABELS: Record<keyof MaterialFacetState, string> = {
   letterBorder: "Высота борта буквы",
   profileMetal: "Материал профиля",
 
-  // Клеи
-  glueType: "Назначение клея",
-  doubleTapeType: "Основа скотча",
-  tapeWidth: "Ширина скотча",
+  // Клеи, скотчи и крепеж
+  glueType: "Тип клея",
+  glueVolume: "Объем / Фасовка",
+  doubleTapeBase: "Цвет основы",
+  tapeWidth: "Ширина ленты / скотча",
+  tapeLength: "Длина намотки",
+  reinforcedTapeType: "Тип усиленной ленты",
+  specialTapeType: "Назначение ленты",
+  grommetDiameter: "Диаметр люверса",
+  grommetMaterial: "Материал / Назначение",
   standoffDistance: "Вынос держателя",
   standoffDiameter: "Диаметр держателя",
 
@@ -700,10 +807,16 @@ export const FACET_CONFIG_MAP: Record<keyof MaterialFacetState, FacetOption[]> =
   letterBorder: MATERIAL_FACETS.letterBorders,
   profileMetal: MATERIAL_FACETS.profileMetals,
 
-  // Клеи
+  // Клеи, скотчи и крепеж
   glueType: MATERIAL_FACETS.glueTypes,
-  doubleTapeType: MATERIAL_FACETS.doubleTapeTypes,
+  glueVolume: MATERIAL_FACETS.glueVolumes,
+  doubleTapeBase: MATERIAL_FACETS.doubleTapeBases,
   tapeWidth: MATERIAL_FACETS.tapeWidths,
+  tapeLength: MATERIAL_FACETS.tapeLengths,
+  reinforcedTapeType: MATERIAL_FACETS.reinforcedTapeTypes,
+  specialTapeType: MATERIAL_FACETS.specialTapeTypes,
+  grommetDiameter: MATERIAL_FACETS.grommetDiameters,
+  grommetMaterial: MATERIAL_FACETS.grommetMaterials,
   standoffDistance: MATERIAL_FACETS.standoffDistances,
   standoffDiameter: MATERIAL_FACETS.standoffDiameters,
 
