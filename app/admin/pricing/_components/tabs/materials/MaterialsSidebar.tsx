@@ -54,6 +54,7 @@ export interface MaterialFacetState {
   vinylSurface: string;
   bannerDensity: string;
   voltage: string;
+  glowColor: string;
 }
 
 interface MaterialsSidebarProps {
@@ -504,33 +505,65 @@ function MaterialsSidebar({
             </div>
           )}
 
-          {/* В. Светотехника (Напряжение) */}
+          {/* В. Светотехника (Свечение светодиодов и Напряжение) */}
           {selectedCategory === "lighting" && (
-            <div className="space-y-1">
-              <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                Напряжение питания
-              </span>
-              <div className="flex flex-wrap gap-1 px-1">
-                {MATERIAL_FACETS.voltages.map((volt) => {
-                  const isAct = facets.voltage === volt.id;
-                  return (
-                    <button
-                      key={volt.id}
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic("light");
-                        onFacetChange("voltage", volt.id);
-                      }}
-                      className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                        isAct
-                          ? "bg-orange-500 text-white font-black shadow-2xs"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      {volt.label}
-                    </button>
-                  );
-                })}
+            <div className="space-y-2.5">
+              {/* Свечение светодиодов */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                  Свечение и цветовая t°
+                </span>
+                <div className="flex flex-wrap gap-1 px-1">
+                  {MATERIAL_FACETS.glowColors.map((g) => {
+                    const isAct = facets.glowColor === g.id;
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic("light");
+                          onFacetChange("glowColor", g.id);
+                        }}
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                          isAct
+                            ? "bg-orange-500 text-white font-black shadow-2xs"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {g.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Напряжение */}
+              <div className="space-y-1 pt-1">
+                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                  Напряжение питания
+                </span>
+                <div className="flex flex-wrap gap-1 px-1">
+                  {MATERIAL_FACETS.voltages.map((volt) => {
+                    const isAct = facets.voltage === volt.id;
+                    return (
+                      <button
+                        key={volt.id}
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic("light");
+                          onFacetChange("voltage", volt.id);
+                        }}
+                        className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                          isAct
+                            ? "bg-slate-900 text-white font-black shadow-2xs"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {volt.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

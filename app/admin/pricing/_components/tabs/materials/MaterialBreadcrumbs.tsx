@@ -3,7 +3,7 @@
 import React from "react";
 import { ChevronRight, X, SlidersHorizontal } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
-import { MaterialFacetState } from "../../../_data/materialFacets";
+import { MaterialFacetState, MATERIAL_FACETS } from "../../../_data/materialFacets";
 
 interface MaterialBreadcrumbsProps {
   selectedCategory: string;
@@ -150,6 +150,19 @@ function MaterialBreadcrumbs({
                 type="button"
                 onClick={() => onFacetChange("bannerDensity", facets.bannerDensity)}
                 className="hover:text-slate-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {facets.glowColor !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-yellow-100 text-yellow-900 text-[11px] font-bold">
+              {MATERIAL_FACETS.glowColors.find((g) => g.id === facets.glowColor)?.label || facets.glowColor}
+              <button
+                type="button"
+                onClick={() => onFacetChange("glowColor", facets.glowColor)}
+                className="hover:text-yellow-950 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>

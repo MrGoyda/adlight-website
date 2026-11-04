@@ -55,7 +55,8 @@ export function useMaterialFilters({
       facets.sheetSize !== "all" ||
       facets.vinylSurface !== "all" ||
       facets.bannerDensity !== "all" ||
-      facets.voltage !== "all"
+      facets.voltage !== "all" ||
+      facets.glowColor !== "all"
     );
   }, [facets]);
 
@@ -212,6 +213,12 @@ export function useMaterialFilters({
       if (facets.bannerDensity !== "all") {
         const bOpt = MATERIAL_FACETS.bannerDensities.find((b) => b.id === facets.bannerDensity);
         if (bOpt?.match && !bOpt.match.test(item.name)) return false;
+      }
+
+      if (facets.glowColor !== "all") {
+        const glowOpt = MATERIAL_FACETS.glowColors.find((g) => g.id === facets.glowColor);
+        const text = `${item.name} ${item.description || ""}`;
+        if (glowOpt?.match && !glowOpt.match.test(text)) return false;
       }
 
       if (facets.voltage !== "all") {

@@ -15,6 +15,7 @@ export interface MaterialFacetState {
   vinylSurface: string;
   bannerDensity: string;
   voltage: string;
+  glowColor: string;
 }
 
 export const INITIAL_FACETS: MaterialFacetState = {
@@ -24,6 +25,7 @@ export const INITIAL_FACETS: MaterialFacetState = {
   vinylSurface: "all",
   bannerDensity: "all",
   voltage: "all",
+  glowColor: "all",
 };
 
 export const MATERIAL_FACETS = {
@@ -40,7 +42,7 @@ export const MATERIAL_FACETS = {
     { id: "10+", label: "10 мм+", match: /(?:^|[\s(])(?:10|12|15|20)\s*(?:мм|mm)/i },
   ] as FacetOption[],
 
-  // Цвета и прозрачность
+  // Цвета и оптика материалов
   colors: [
     { id: "all", label: "Все цвета" },
     { id: "transparent", label: "Прозрачный", match: /прозрачн/i },
@@ -73,11 +75,41 @@ export const MATERIAL_FACETS = {
     { id: "550", label: "550 г/м² Литой", match: /550\s*(?:гр|г)|литой/i },
   ] as FacetOption[],
 
-  // Напряжение для светотехники
+  // Напряжение (Вольтаж)
   voltages: [
     { id: "all", label: "Все" },
     { id: "12v", label: "12V", match: /12\s*(?:v|в)/i },
     { id: "24v", label: "24V", match: /24\s*(?:v|в)/i },
     { id: "220v", label: "220V", match: /220\s*(?:v|в)/i },
+  ] as FacetOption[],
+
+  // Свечение светодиодов и цветовая температура
+  glowColors: [
+    { id: "all", label: "Все свечения" },
+    {
+      id: "cold",
+      label: "Холодный (6500K–12000K)",
+      match: /(?:холодн|6[05]00\s*k|1[0123]000\s*k)/i,
+    },
+    {
+      id: "neutral",
+      label: "Нейтральный (4000K–5000K)",
+      match: /(?:нейтрал|4[05]00\s*k|5000\s*k)/i,
+    },
+    {
+      id: "warm",
+      label: "Теплый (3000K–3200K)",
+      match: /(?:тепл|3[012]00\s*k)/i,
+    },
+    {
+      id: "white",
+      label: "Белый (любой)",
+      match: /(?:бел(?:ый|ая|ое)|дневн)/i,
+    },
+    {
+      id: "colored_rgb",
+      label: "Цветной / RGB",
+      match: /(?:rgb|красн|син(?:ий|яя)|зелен|желт|розов|фиолет)/i,
+    },
   ] as FacetOption[],
 };
