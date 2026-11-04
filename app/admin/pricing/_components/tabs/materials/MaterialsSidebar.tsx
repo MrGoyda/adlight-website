@@ -1,12 +1,11 @@
 "use client";
 
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { MATERIAL_TAXONOMY } from "../../../_data/pricingDictionary";
 import {
-  MATERIAL_TAXONOMY,
   MATERIAL_FACETS,
-  FacetOption,
-} from "../../../_data/pricingDictionary";
+  MaterialFacetState,
+} from "../../../_data/materialFacets";
 import { SupplierData } from "../../../_types/pricingTypes";
 import {
   Layers,
@@ -21,7 +20,6 @@ import {
   SlidersHorizontal,
   RotateCcw,
   ChevronDown,
-  ChevronRight,
   CircleDot,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
@@ -45,16 +43,6 @@ export function renderCategoryIcon(iconType: string, className = "w-4 h-4") {
     default:
       return <Layers className={className} />;
   }
-}
-
-export interface MaterialFacetState {
-  thickness: string;
-  color: string;
-  sheetSize: string;
-  vinylSurface: string;
-  bannerDensity: string;
-  voltage: string;
-  glowColor: string;
 }
 
 interface MaterialsSidebarProps {
@@ -110,6 +98,8 @@ function MaterialsSidebar({
       .sort();
   }, [suppliers, uniqueSuppliersFromPrices]);
 
+  const subLower = (selectedSubcategory || "").toLowerCase();
+
   return (
     <aside className="w-full space-y-5 bg-white/90 backdrop-blur-md p-4 rounded-3xl border border-slate-200/80 shadow-xs">
       {/* 1. Тумблер: Только с фото (iOS Switch) */}
@@ -142,32 +132,31 @@ function MaterialsSidebar({
           role="switch"
           aria-checked={onlyWithPhoto}
           onClick={() => {
-            triggerHaptic("light");
+            triggerHaptic("medium");
             onToggleOnlyWithPhoto();
           }}
-          className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/20 ${
+          className={`w-11 h-6 rounded-full p-0.5 transition-colors duration-200 ease-in-out cursor-pointer focus:outline-hidden ${
             onlyWithPhoto ? "bg-orange-500" : "bg-slate-300"
           }`}
         >
-          <span
-            className={`block w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ease-spring ${
-              onlyWithPhoto ? "translate-x-5.5" : "translate-x-0.5"
+          <div
+            className={`w-5 h-5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ease-in-out ${
+              onlyWithPhoto ? "translate-x-5" : "translate-x-0"
             }`}
           />
         </button>
       </div>
 
-      {/* 2. Раздел: Иерархическое дерево Категорий и Подкатегорий */}
+      {/* 2. Раздел: Категории и дерево подкатегорий */}
       <div className="space-y-1.5">
         <div className="px-2 pb-1 text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center justify-between">
-          <span className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-slate-400" />
-            Каталог материалов
+          <span>Каталог материалов</span>
+          <span className="text-[10px] font-extrabold text-slate-400">
+            {MATERIAL_TAXONOMY.length}
           </span>
-          <span className="text-[10px] font-extrabold text-slate-400">{totalCount}</span>
         </div>
 
-        {/* Все категории (корневой узел) */}
+        {/* Кнопка "Все категории" */}
         <button
           type="button"
           onClick={() => {
@@ -178,16 +167,15 @@ function MaterialsSidebar({
           className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-bold transition text-left cursor-pointer active:scale-98 ${
             selectedCategory === "all"
               ? "bg-slate-900 text-white font-extrabold shadow-sm"
-              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
           }`}
         >
           <span className="flex items-center gap-2.5 truncate">
-            {renderCategoryIcon(
-              "layers",
-              `w-4 h-4 shrink-0 ${
+            <Layers
+              className={`w-4 h-4 shrink-0 transition ${
                 selectedCategory === "all" ? "text-orange-400" : "text-slate-400"
-              }`
-            )}
+              }`}
+            />
             <span className="truncate">Все категории</span>
           </span>
           <span
@@ -321,7 +309,7 @@ function MaterialsSidebar({
         </div>
       </div>
 
-      {/* 3. Раздел: Характеристики (Smart Facets 2026) */}
+      {/* 3. Раздел: Характеристики (Apple Pro Dynamic Contextual Facets 2026) */}
       {(selectedCategory === "sheets" ||
         selectedCategory === "vinyl" ||
         selectedCategory === "lighting" ||
@@ -348,9 +336,241 @@ function MaterialsSidebar({
             )}
           </div>
 
-          {/* А. Листовые материалы (Толщина, Цвет, Формат) */}
+          {/* ═══════════════ А. СВЕТОТЕХНИКА И ЭЛЕКТРИКА ═══════════════ */}
+          {selectedCategory === "lighting" && (
+            <div className="space-y-2.5">
+              {/* 1. Светодиодные модули: Линзы/точки */}
+              {subLower.includes("модул") && (
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                    Количество линз (диодов)
+                  </span>
+                  <div className="flex flex-wrap gap-1 px-1">
+                    {MATERIAL_FACETS.lensCounts.map((lc) => {
+                      const isAct = facets.lensCount === lc.id;
+                      return (
+                        <button
+                          key={lc.id}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            onFacetChange("lensCount", lc.id);
+                          }}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            isAct
+                              ? "bg-orange-500 text-white font-black shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          {lc.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Трансформаторы: Исполнение корпуса */}
+              {(subLower.includes("трансформатор") || subLower.includes("блок")) && (
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                    Исполнение корпуса
+                  </span>
+                  <div className="flex flex-wrap gap-1 px-1">
+                    {MATERIAL_FACETS.housingTypes.map((ht) => {
+                      const isAct = facets.housingType === ht.id;
+                      return (
+                        <button
+                          key={ht.id}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            onFacetChange("housingType", ht.id);
+                          }}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            isAct
+                              ? "bg-slate-900 text-white font-black shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          {ht.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Неон: Формат поставки */}
+              {subLower.includes("неон") && (
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                    Формат поставки
+                  </span>
+                  <div className="flex flex-wrap gap-1 px-1">
+                    {MATERIAL_FACETS.deliveryFormats.map((df) => {
+                      const isAct = facets.deliveryFormat === df.id;
+                      return (
+                        <button
+                          key={df.id}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            onFacetChange("deliveryFormat", df.id);
+                          }}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            isAct
+                              ? "bg-orange-500 text-white font-black shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          {df.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Мощность (Диоды, Блоки, Ленты) */}
+              {(!subLower.includes("неон") || facets.wattage !== "all") && (
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                    {subLower.includes("трансформатор") || subLower.includes("блок")
+                      ? "Мощность блока (W)"
+                      : "Мощность (W)"}
+                  </span>
+                  <div className="flex flex-wrap gap-1 px-1">
+                    {MATERIAL_FACETS.wattages
+                      .filter((w) => {
+                        if (subLower.includes("трансформатор") || subLower.includes("блок")) {
+                          return w.id === "all" || w.id.includes("60-100w") || w.id.includes("150-200w") || w.id.includes("300-400w");
+                        }
+                        if (subLower.includes("модул")) {
+                          return w.id === "all" || w.id === "0.5w" || w.id === "1.2w";
+                        }
+                        return true;
+                      })
+                      .map((w) => {
+                        const isAct = facets.wattage === w.id;
+                        return (
+                          <button
+                            key={w.id}
+                            type="button"
+                            onClick={() => {
+                              triggerHaptic("light");
+                              onFacetChange("wattage", w.id);
+                            }}
+                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                              isAct
+                                ? "bg-orange-500 text-white font-black shadow-2xs"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            {w.label}
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Свечение светодиодов и цветовая t° (для модулей, лент, неона, всех) */}
+              {!subLower.includes("трансформатор") && !subLower.includes("блок") && (
+                <div className="space-y-1 pt-0.5">
+                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                    Свечение и цветовая t°
+                  </span>
+                  <div className="flex flex-wrap gap-1 px-1">
+                    {MATERIAL_FACETS.glowColors.map((g) => {
+                      const isAct = facets.glowColor === g.id;
+                      return (
+                        <button
+                          key={g.id}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            onFacetChange("glowColor", g.id);
+                          }}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            isAct
+                              ? "bg-amber-500 text-white font-black shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          {g.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 6. Влагозащита (IP) */}
+              {(subLower.includes("модул") || subLower.includes("лент") || subLower === "all") && (
+                <div className="space-y-1 pt-0.5">
+                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                    Степень защиты (IP)
+                  </span>
+                  <div className="flex flex-wrap gap-1 px-1">
+                    {MATERIAL_FACETS.ipRatings.map((ip) => {
+                      const isAct = facets.ipRating === ip.id;
+                      return (
+                        <button
+                          key={ip.id}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            onFacetChange("ipRating", ip.id);
+                          }}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            isAct
+                              ? "bg-slate-900 text-white font-black shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          {ip.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 7. Напряжение питания (12V, 24V, 220V) */}
+              <div className="space-y-1 pt-0.5">
+                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                  Напряжение питания
+                </span>
+                <div className="flex flex-wrap gap-1 px-1">
+                  {MATERIAL_FACETS.voltages.map((volt) => {
+                    const isAct = facets.voltage === volt.id;
+                    return (
+                      <button
+                        key={volt.id}
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic("light");
+                          onFacetChange("voltage", volt.id);
+                        }}
+                        className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                          isAct
+                            ? "bg-slate-900 text-white font-black shadow-2xs"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {volt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══════════════ Б. ЛИСТОВЫЕ МАТЕРИАЛЫ ═══════════════ */}
           {(selectedCategory === "sheets" || selectedCategory === "all") && (
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {/* Толщина */}
               <div className="space-y-1">
                 <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
@@ -380,9 +600,72 @@ function MaterialsSidebar({
                 </div>
               </div>
 
-              {/* Цвет / Прозрачность (для Листовых) */}
+              {/* Плотность ПВХ */}
+              {selectedCategory === "sheets" && (subLower.includes("пвх") || subLower === "all") && (
+                <div className="space-y-1 pt-0.5">
+                  <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                    Плотность ПВХ
+                  </span>
+                  <div className="flex flex-wrap gap-1 px-1">
+                    {MATERIAL_FACETS.pvcDensities.map((p) => {
+                      const isAct = facets.pvcDensity === p.id;
+                      return (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            onFacetChange("pvcDensity", p.id);
+                          }}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            isAct
+                              ? "bg-slate-900 text-white font-black shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Стенка АКП */}
+              {selectedCategory === "sheets" &&
+                (subLower.includes("акп") || subLower.includes("алюмокомпозит") || subLower === "all") && (
+                  <div className="space-y-1 pt-0.5">
+                    <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
+                      Стенка алюминия АКП
+                    </span>
+                    <div className="flex flex-wrap gap-1 px-1">
+                      {MATERIAL_FACETS.compositeSkins.map((cs) => {
+                        const isAct = facets.compositeSkin === cs.id;
+                        return (
+                          <button
+                            key={cs.id}
+                            type="button"
+                            onClick={() => {
+                              triggerHaptic("light");
+                              onFacetChange("compositeSkin", cs.id);
+                            }}
+                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                              isAct
+                                ? "bg-slate-900 text-white font-black shadow-2xs"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            {cs.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+              {/* Цвет / Оптика (для Листовых) */}
               {selectedCategory === "sheets" && (
-                <div className="space-y-1 pt-1">
+                <div className="space-y-1 pt-0.5">
                   <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
                     Цвет и Оптика
                   </span>
@@ -413,7 +696,7 @@ function MaterialsSidebar({
 
               {/* Формат листа (для Листовых) */}
               {selectedCategory === "sheets" && (
-                <div className="space-y-1 pt-1">
+                <div className="space-y-1 pt-0.5">
                   <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
                     Размер листа
                   </span>
@@ -444,9 +727,9 @@ function MaterialsSidebar({
             </div>
           )}
 
-          {/* Б. Пленки и Баннеры (Поверхность и Плотность) */}
+          {/* ═══════════════ В. ПЛЕНКИ И БАННЕРЫ ═══════════════ */}
           {selectedCategory === "vinyl" && (
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="space-y-1">
                 <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
                   Тип поверхности
@@ -475,7 +758,7 @@ function MaterialsSidebar({
                 </div>
               </div>
 
-              <div className="space-y-1 pt-1">
+              <div className="space-y-1 pt-0.5">
                 <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
                   Плотность баннера
                 </span>
@@ -497,69 +780,6 @@ function MaterialsSidebar({
                         }`}
                       >
                         {b.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* В. Светотехника (Свечение светодиодов и Напряжение) */}
-          {selectedCategory === "lighting" && (
-            <div className="space-y-2.5">
-              {/* Свечение светодиодов */}
-              <div className="space-y-1">
-                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                  Свечение и цветовая t°
-                </span>
-                <div className="flex flex-wrap gap-1 px-1">
-                  {MATERIAL_FACETS.glowColors.map((g) => {
-                    const isAct = facets.glowColor === g.id;
-                    return (
-                      <button
-                        key={g.id}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic("light");
-                          onFacetChange("glowColor", g.id);
-                        }}
-                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                          isAct
-                            ? "bg-orange-500 text-white font-black shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {g.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Напряжение */}
-              <div className="space-y-1 pt-1">
-                <span className="text-[10px] font-extrabold text-slate-400 px-2 block">
-                  Напряжение питания
-                </span>
-                <div className="flex flex-wrap gap-1 px-1">
-                  {MATERIAL_FACETS.voltages.map((volt) => {
-                    const isAct = facets.voltage === volt.id;
-                    return (
-                      <button
-                        key={volt.id}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic("light");
-                          onFacetChange("voltage", volt.id);
-                        }}
-                        className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                          isAct
-                            ? "bg-slate-900 text-white font-black shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {volt.label}
                       </button>
                     );
                   })}

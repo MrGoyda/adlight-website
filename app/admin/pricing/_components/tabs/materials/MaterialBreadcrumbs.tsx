@@ -91,6 +91,7 @@ function MaterialBreadcrumbs({
             Характеристики:
           </span>
 
+          {/* Листовые */}
           {facets.thickness !== "all" && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-orange-100 text-orange-800 text-[11px] font-bold">
               {facets.thickness} мм
@@ -106,7 +107,7 @@ function MaterialBreadcrumbs({
 
           {facets.color !== "all" && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-200/80 text-slate-800 text-[11px] font-bold">
-              Цвет: {facets.color}
+              {MATERIAL_FACETS.colors.find((c) => c.id === facets.color)?.label || facets.color}
               <button
                 type="button"
                 onClick={() => onFacetChange("color", facets.color)}
@@ -119,7 +120,7 @@ function MaterialBreadcrumbs({
 
           {facets.sheetSize !== "all" && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-200/80 text-slate-800 text-[11px] font-bold">
-              {facets.sheetSize}
+              Формат: {MATERIAL_FACETS.sheetSizes.find((s) => s.id === facets.sheetSize)?.label || facets.sheetSize}
               <button
                 type="button"
                 onClick={() => onFacetChange("sheetSize", facets.sheetSize)}
@@ -130,9 +131,36 @@ function MaterialBreadcrumbs({
             </span>
           )}
 
+          {facets.pvcDensity !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-200/80 text-slate-800 text-[11px] font-bold">
+              Плотность: {MATERIAL_FACETS.pvcDensities.find((p) => p.id === facets.pvcDensity)?.label || facets.pvcDensity}
+              <button
+                type="button"
+                onClick={() => onFacetChange("pvcDensity", facets.pvcDensity)}
+                className="hover:text-slate-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {facets.compositeSkin !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-200/80 text-slate-800 text-[11px] font-bold">
+              Стенка: {MATERIAL_FACETS.compositeSkins.find((cs) => cs.id === facets.compositeSkin)?.label || facets.compositeSkin}
+              <button
+                type="button"
+                onClick={() => onFacetChange("compositeSkin", facets.compositeSkin)}
+                className="hover:text-slate-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {/* Пленки / баннеры */}
           {facets.vinylSurface !== "all" && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-orange-100 text-orange-800 text-[11px] font-bold">
-              {facets.vinylSurface}
+              {MATERIAL_FACETS.vinylSurfaces.find((v) => v.id === facets.vinylSurface)?.label || facets.vinylSurface}
               <button
                 type="button"
                 onClick={() => onFacetChange("vinylSurface", facets.vinylSurface)}
@@ -145,11 +173,38 @@ function MaterialBreadcrumbs({
 
           {facets.bannerDensity !== "all" && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-200/80 text-slate-800 text-[11px] font-bold">
-              {facets.bannerDensity}
+              {MATERIAL_FACETS.bannerDensities.find((b) => b.id === facets.bannerDensity)?.label || facets.bannerDensity}
               <button
                 type="button"
                 onClick={() => onFacetChange("bannerDensity", facets.bannerDensity)}
                 className="hover:text-slate-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {/* Светотехника */}
+          {facets.lensCount !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-orange-100 text-orange-900 text-[11px] font-bold">
+              {MATERIAL_FACETS.lensCounts.find((lc) => lc.id === facets.lensCount)?.label || facets.lensCount}
+              <button
+                type="button"
+                onClick={() => onFacetChange("lensCount", facets.lensCount)}
+                className="hover:text-orange-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {facets.wattage !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 text-[11px] font-bold">
+              {MATERIAL_FACETS.wattages.find((w) => w.id === facets.wattage)?.label || facets.wattage}
+              <button
+                type="button"
+                onClick={() => onFacetChange("wattage", facets.wattage)}
+                className="hover:text-amber-950 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -163,6 +218,45 @@ function MaterialBreadcrumbs({
                 type="button"
                 onClick={() => onFacetChange("glowColor", facets.glowColor)}
                 className="hover:text-yellow-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {facets.ipRating !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-100 text-blue-900 text-[11px] font-bold">
+              {MATERIAL_FACETS.ipRatings.find((ip) => ip.id === facets.ipRating)?.label || facets.ipRating}
+              <button
+                type="button"
+                onClick={() => onFacetChange("ipRating", facets.ipRating)}
+                className="hover:text-blue-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {facets.housingType !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-200/90 text-slate-800 text-[11px] font-bold">
+              {MATERIAL_FACETS.housingTypes.find((ht) => ht.id === facets.housingType)?.label || facets.housingType}
+              <button
+                type="button"
+                onClick={() => onFacetChange("housingType", facets.housingType)}
+                className="hover:text-slate-950 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+
+          {facets.deliveryFormat !== "all" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-orange-100 text-orange-900 text-[11px] font-bold">
+              {MATERIAL_FACETS.deliveryFormats.find((df) => df.id === facets.deliveryFormat)?.label || facets.deliveryFormat}
+              <button
+                type="button"
+                onClick={() => onFacetChange("deliveryFormat", facets.deliveryFormat)}
+                className="hover:text-orange-950 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
