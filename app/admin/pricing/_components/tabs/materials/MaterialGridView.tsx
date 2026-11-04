@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import MaterialGridCard from "./MaterialGridCard";
 
@@ -13,7 +13,7 @@ interface MaterialGridViewProps {
   onDeleteItem: (id: string) => Promise<void>;
 }
 
-export default function MaterialGridView({
+function MaterialGridView({
   items,
   selectedItemId,
   onSelectItem,
@@ -37,3 +37,5 @@ export default function MaterialGridView({
     </div>
   );
 }
+
+export default memo(MaterialGridView);

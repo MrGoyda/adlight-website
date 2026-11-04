@@ -16,7 +16,7 @@ interface MaterialToolbarProps {
   onOpenCreateModal: () => void;
 }
 
-export default function MaterialToolbar({
+function MaterialToolbar({
   searchQuery,
   onSearchChange,
   searchInputRef,
@@ -126,3 +126,5 @@ export default function MaterialToolbar({
     </div>
   );
 }
+
+export default React.memo(MaterialToolbar);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import { INVENTORY_UNITS } from "../../../_data/pricingDictionary";
 import {
@@ -25,7 +25,7 @@ interface MaterialTableRowProps {
   onDeleteItem: (id: string) => Promise<void>;
 }
 
-export default function MaterialTableRow({
+function MaterialTableRow({
   item,
   isSelected,
   onSelect,
@@ -71,7 +71,8 @@ export default function MaterialTableRow({
   return (
     <div
       onClick={() => onSelect?.(item)}
-      className={`p-3 sm:px-5 sm:py-3 transition flex flex-col md:grid md:grid-cols-12 md:gap-4 md:items-center gap-2.5 cursor-pointer select-none ${
+      style={{ contentVisibility: "auto", containIntrinsicSize: "0 60px" }}
+      className={`p-3 sm:px-5 sm:py-3 transition-colors flex flex-col md:grid md:grid-cols-12 md:gap-4 md:items-center gap-2.5 cursor-pointer select-none ${
         isSelected
           ? "bg-orange-50/70 border-l-4 border-l-orange-500"
           : "hover:bg-slate-50/90 border-l-4 border-l-transparent"
@@ -83,7 +84,7 @@ export default function MaterialTableRow({
         <div
           className={`w-11 h-11 rounded-xl border overflow-hidden shrink-0 flex items-center justify-center relative shadow-xs group ${
             item.imageUrl && !imgError
-              ? "border-slate-200/90 bg-slate-900/5 group-hover:border-orange-400 transition"
+              ? "border-slate-200/90 bg-slate-900/5 group-hover:border-orange-400 transition-colors"
               : "border-slate-200/80 bg-slate-100"
           }`}
         >
@@ -92,11 +93,12 @@ export default function MaterialTableRow({
               <img
                 src={item.imageUrl}
                 alt={item.name}
-                className="w-full h-full object-cover transition duration-300 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
+                decoding="async"
                 onError={() => setImgError(true)}
               />
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                 <ZoomIn className="w-3.5 h-3.5 drop-shadow" />
               </div>
             </>
@@ -233,14 +235,14 @@ export default function MaterialTableRow({
           <button
             type="button"
             onClick={handleStartInlineEdit}
-            className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200/80 hover:border-orange-200 transition cursor-pointer"
+            className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200/80 hover:border-orange-200 transition-colors cursor-pointer"
             title="Нажмите, чтобы быстро изменить цену"
           >
             <span className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-orange-600">
               {Number(item.price).toLocaleString("ru-RU")} ₸
             </span>
             <span className="text-[10px] font-bold text-slate-400">/ {unitShort}</span>
-            <Edit2 className="w-2.5 h-2.5 text-slate-300 group-hover:text-orange-500 transition ml-0.5" />
+            <Edit2 className="w-2.5 h-2.5 text-slate-300 group-hover:text-orange-500 transition-colors ml-0.5" />
           </button>
         )}
       </div>
@@ -270,3 +272,5 @@ export default function MaterialTableRow({
     </div>
   );
 }
+
+export default memo(MaterialTableRow);

@@ -17,7 +17,7 @@ interface MaterialBreadcrumbsProps {
   onResetFacets: () => void;
 }
 
-export default function MaterialBreadcrumbs({
+function MaterialBreadcrumbs({
   selectedCategory,
   selectedSubcategory,
   categoryLabel,
@@ -181,3 +181,5 @@ export default function MaterialBreadcrumbs({
     </div>
   );
 }
+
+export default React.memo(MaterialBreadcrumbs);

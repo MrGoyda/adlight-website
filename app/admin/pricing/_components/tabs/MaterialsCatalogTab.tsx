@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { SupplierData, SupplierPriceItem } from "../../_types/pricingTypes";
 import { useMaterialFilters } from "../../_hooks/useMaterialFilters";
 import MaterialsSidebar from "./materials/MaterialsSidebar";
@@ -10,6 +10,7 @@ import MaterialTableView from "./materials/MaterialTableView";
 import MaterialGridView from "./materials/MaterialGridView";
 import MaterialEmptyState from "./materials/MaterialEmptyState";
 import MaterialInspectorDrawer from "./materials/MaterialInspectorDrawer";
+import { Sparkles, ChevronDown } from "lucide-react";
 
 interface MaterialsCatalogTabProps {
   supplierPrices: SupplierPriceItem[];
@@ -19,6 +20,8 @@ interface MaterialsCatalogTabProps {
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
 }
+
+const BATCH_SIZE = 60;
 
 export default function MaterialsCatalogTab({
   supplierPrices,
@@ -65,27 +68,82 @@ export default function MaterialsCatalogTab({
     onQuickUpdatePrice,
   });
 
+  // Прогрессивная подгрузка элементов (60 штук за раз) для мгновенного скролла и 120 FPS
+  const [visibleLimit, setVisibleLimit] = useState(BATCH_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Сброс лимита при изменении поискового запроса или фильтрации
+  useEffect(() => {
+    setVisibleLimit(BATCH_SIZE);
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedSubcategory,
+    selectedSupplier,
+    sortBy,
+    onlyWithPhoto,
+    facets,
+  ]);
+
+  const visiblePrices = useMemo(() => {
+    return processedPrices.slice(0, visibleLimit);
+  }, [processedPrices, visibleLimit]);
+
+  const hasMore = visibleLimit < processedPrices.length;
+
+  const handleLoadMore = useCallback(() => {
+    setVisibleLimit((prev) => Math.min(prev + BATCH_SIZE, processedPrices.length));
+  }, [processedPrices.length]);
+
+  const handleLoadAll = useCallback(() => {
+    setVisibleLimit(processedPrices.length);
+  }, [processedPrices.length]);
+
+  // Аппаратный IntersectionObserver для плавной догрузки при приближении к концу списка
+  useEffect(() => {
+    if (!hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          handleLoadMore();
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    const el = sentinelRef.current;
+    if (el) observer.observe(el);
+    return () => {
+      if (el) observer.unobserve(el);
+    };
+  }, [hasMore, handleLoadMore]);
+
   // Автосинхронизация данных в открытом инспекторе при обновлении цен/свойств
-  React.useEffect(() => {
+  useEffect(() => {
     if (inspectingItem) {
       const fresh = supplierPrices.find((p) => p.id === inspectingItem.id);
       if (fresh) {
-        if (fresh.price !== inspectingItem.price || fresh.name !== inspectingItem.name || fresh.category !== inspectingItem.category) {
+        if (
+          fresh.price !== inspectingItem.price ||
+          fresh.name !== inspectingItem.name ||
+          fresh.category !== inspectingItem.category
+        ) {
           setInspectingItem(fresh);
         }
       } else {
-        // Позиция была удалена
         setInspectingItem(null);
       }
     }
-  }, [supplierPrices, inspectingItem]);
+  }, [supplierPrices, inspectingItem, setInspectingItem]);
 
-  const handleDeleteWithCleanup = async (id: string) => {
-    await onDeleteItem(id);
-    if (inspectingItem?.id === id) {
-      setInspectingItem(null);
-    }
-  };
+  const handleDeleteWithCleanup = useCallback(
+    async (id: string) => {
+      await onDeleteItem(id);
+      if (inspectingItem?.id === id) {
+        setInspectingItem(null);
+      }
+    },
+    [onDeleteItem, inspectingItem, setInspectingItem]
+  );
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr] gap-6 items-start w-full">
@@ -143,7 +201,7 @@ export default function MaterialsCatalogTab({
         {/* Информационная строка счетчика */}
         <div className="flex items-center justify-between px-2 text-xs font-bold text-slate-500">
           <span>
-            Показано: <b className="text-slate-900">{processedPrices.length}</b> из {supplierPrices.length} позиций
+            Показано: <b className="text-slate-900">{visiblePrices.length}</b> из {processedPrices.length} позиций
           </span>
           {inspectingItem && (
             <span className="text-[11px] text-orange-600 font-extrabold truncate max-w-[280px]">
@@ -152,7 +210,7 @@ export default function MaterialsCatalogTab({
           )}
         </div>
 
-        {/* Контент: Таблица или Сетка */}
+        {/* Контент: Таблица или Сетка с прогрессивным рендерингом */}
         {processedPrices.length === 0 ? (
           <MaterialEmptyState
             onResetFilters={handleResetAllFilters}
@@ -160,7 +218,7 @@ export default function MaterialsCatalogTab({
           />
         ) : viewMode === "table" ? (
           <MaterialTableView
-            items={processedPrices}
+            items={visiblePrices}
             selectedItemId={inspectingItem?.id || null}
             onSelectItem={setInspectingItem}
             onOpenEditModal={onOpenEditModal}
@@ -169,13 +227,39 @@ export default function MaterialsCatalogTab({
           />
         ) : (
           <MaterialGridView
-            items={processedPrices}
+            items={visiblePrices}
             selectedItemId={inspectingItem?.id || null}
             onSelectItem={setInspectingItem}
             onOpenEditModal={onOpenEditModal}
             onQuickUpdatePrice={handleQuickUpdateAndSync}
             onDeleteItem={handleDeleteWithCleanup}
           />
+        )}
+
+        {/* Сентинел плавной догрузки и кнопка раскрытия всех элементов */}
+        {hasMore && (
+          <div
+            ref={sentinelRef}
+            className="py-4 flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-slate-500"
+          >
+            <button
+              type="button"
+              onClick={handleLoadMore}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white border border-slate-200/90 font-bold text-slate-700 hover:border-orange-300 hover:text-orange-600 shadow-2xs transition cursor-pointer active:scale-95"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+              <span>Показать еще 60 позиций</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleLoadAll}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-slate-400 hover:text-slate-700 font-medium hover:underline cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3 text-orange-500" />
+              <span>Показать сразу все ({processedPrices.length})</span>
+            </button>
+          </div>
         )}
       </main>
 

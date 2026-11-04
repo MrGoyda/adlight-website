@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { memo } from "react";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import MaterialTableRow from "./MaterialTableRow";
 
@@ -13,7 +13,7 @@ interface MaterialTableViewProps {
   onDeleteItem: (id: string) => Promise<void>;
 }
 
-export default function MaterialTableView({
+function MaterialTableView({
   items,
   selectedItemId,
   onSelectItem,
@@ -49,3 +49,5 @@ export default function MaterialTableView({
     </div>
   );
 }
+
+export default memo(MaterialTableView);

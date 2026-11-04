@@ -79,7 +79,7 @@ interface MaterialsSidebarProps {
   hasActiveFacets: boolean;
 }
 
-export default function MaterialsSidebar({
+function MaterialsSidebar({
   selectedCategory,
   onSelectCategory,
   selectedSubcategory,
@@ -251,71 +251,69 @@ export default function MaterialsSidebar({
                   </div>
                 </button>
 
-                {/* Раскрывающийся список подкатегорий (Accordion) */}
-                <AnimatePresence initial={false}>
-                  {isCategoryActive && cat.subcategories.length > 0 && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2, ease: "easeInOut" }}
-                      className="overflow-hidden pl-3 ml-3 border-l-2 border-slate-200/80 space-y-0.5 py-1"
+                {/* Раскрывающийся список подкатегорий (Аппаратный CSS Grid Accordion) */}
+                <div
+                  className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out overflow-hidden pl-3 ml-3 border-l-2 border-slate-200/80 ${
+                    isCategoryActive && cat.subcategories.length > 0
+                      ? "grid-rows-[1fr] opacity-100 py-1"
+                      : "grid-rows-[0fr] opacity-0 py-0"
+                  }`}
+                >
+                  <div className="min-h-0 space-y-0.5">
+                    {/* Все позиции данной категории */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        onSelectSubcategory("all");
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer ${
+                        selectedSubcategory === "all"
+                          ? "bg-orange-500 text-white font-black shadow-2xs"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
                     >
-                      {/* Все позиции данной категории */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic("light");
-                          onSelectSubcategory("all");
-                        }}
-                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer ${
-                          selectedSubcategory === "all"
-                            ? "bg-orange-500 text-white font-black shadow-2xs"
-                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      <span className="truncate">Все позиции ({count})</span>
+                      <CircleDot
+                        className={`w-2.5 h-2.5 shrink-0 ${
+                          selectedSubcategory === "all" ? "text-white" : "text-transparent"
                         }`}
-                      >
-                        <span className="truncate">Все позиции ({count})</span>
-                        <CircleDot
-                          className={`w-2.5 h-2.5 shrink-0 ${
-                            selectedSubcategory === "all" ? "text-white" : "text-transparent"
-                          }`}
-                        />
-                      </button>
+                      />
+                    </button>
 
-                      {/* Каждая подкатегория с точным счетчиком */}
-                      {cat.subcategories.map((sub) => {
-                        const isSubActive = selectedSubcategory === sub;
-                        const subCount = subcategoryCounts[sub] ?? 0;
-                        return (
-                          <button
-                            key={sub}
-                            type="button"
-                            onClick={() => {
-                              triggerHaptic("light");
-                              onSelectSubcategory(sub);
-                            }}
-                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer group ${
+                    {/* Каждая подкатегория с точным счетчиком */}
+                    {cat.subcategories.map((sub) => {
+                      const isSubActive = selectedSubcategory === sub;
+                      const subCount = subcategoryCounts[sub] ?? 0;
+                      return (
+                        <button
+                          key={sub}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            onSelectSubcategory(sub);
+                          }}
+                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer group ${
+                            isSubActive
+                              ? "bg-orange-500 text-white font-black shadow-2xs"
+                              : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                          }`}
+                        >
+                          <span className="truncate pr-1">{sub}</span>
+                          <span
+                            className={`px-1.5 py-0.2 rounded-full text-[9px] font-black shrink-0 ${
                               isSubActive
-                                ? "bg-orange-500 text-white font-black shadow-2xs"
-                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                ? "bg-white/25 text-white"
+                                : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
                             }`}
                           >
-                            <span className="truncate pr-1">{sub}</span>
-                            <span
-                              className={`px-1.5 py-0.2 rounded-full text-[9px] font-black shrink-0 ${
-                                isSubActive
-                                  ? "bg-white/25 text-white"
-                                  : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
-                              }`}
-                            >
-                              {subCount}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                            {subCount}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -618,3 +616,5 @@ export default function MaterialsSidebar({
     </aside>
   );
 }
+
+export default React.memo(MaterialsSidebar);

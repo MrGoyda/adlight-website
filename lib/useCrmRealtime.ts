@@ -40,7 +40,12 @@ function playChime() {
     osc2.start();
     osc1.stop(ctx.currentTime + 0.45);
     osc2.stop(ctx.currentTime + 0.45);
-  } catch (e) {
+
+    // Предотвращение утечки AudioContext в Chromium (закрываем после воспроизведения)
+    setTimeout(() => {
+      ctx.close().catch(() => {});
+    }, 550);
+  } catch {
     // Аудио контекст может блокироваться браузером до первого клика — тихо игнорируем
   }
 }
@@ -54,6 +59,11 @@ export function useCrmRealtime() {
   const router = useRouter();
   const pathname = usePathname();
   const lastRefreshRef = useRef<number>(0);
+  const pathnameRef = useRef<string | null>(pathname);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -104,7 +114,7 @@ export function useCrmRealtime() {
         "postgres_changes",
         { event: "*", schema: "public", table: "DbTransaction" },
         () => {
-          if (pathname?.includes("/admin/finance")) {
+          if (pathnameRef.current?.includes("/admin/finance")) {
             safeRefresh();
           }
         }
@@ -114,16 +124,12 @@ export function useCrmRealtime() {
         "postgres_changes",
         { event: "*", schema: "public", table: "Project" },
         () => {
-          if (pathname?.includes("/admin/projects")) {
+          if (pathnameRef.current?.includes("/admin/projects")) {
             safeRefresh();
           }
         }
       )
-      .subscribe((status: string) => {
-        if (status === "SUBSCRIBED") {
-          // Успешно подключено к live-потоку
-        }
-      });
+      .subscribe();
 
     // Фоновая синхронизация при возвращении на вкладку (Focus / Visibility Sync)
     const handleVisibilityChange = () => {
@@ -140,5 +146,5 @@ export function useCrmRealtime() {
       window.removeEventListener("focus", safeRefresh);
       supabase.removeChannel(channel);
     };
-  }, [router, pathname]);
+  }, [router]);
 }

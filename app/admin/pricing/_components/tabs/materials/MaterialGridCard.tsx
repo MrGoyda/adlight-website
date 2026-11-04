@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import { INVENTORY_UNITS } from "../../../_data/pricingDictionary";
 import {
@@ -8,7 +8,6 @@ import {
   Handshake,
   ZoomIn,
   Edit2,
-  ExternalLink,
   Check,
   X,
 } from "lucide-react";
@@ -24,7 +23,7 @@ interface MaterialGridCardProps {
   onDeleteItem: (id: string) => Promise<void>;
 }
 
-export default function MaterialGridCard({
+function MaterialGridCard({
   item,
   isSelected,
   onSelect,
@@ -64,10 +63,11 @@ export default function MaterialGridCard({
         triggerHaptic("light");
         onSelect(item);
       }}
-      className={`group relative bg-white rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col overflow-hidden text-left ${
+      style={{ contentVisibility: "auto", containIntrinsicSize: "0 310px" }}
+      className={`group relative bg-white rounded-3xl border transition-colors duration-150 cursor-pointer flex flex-col overflow-hidden text-left ${
         isSelected
           ? "border-orange-500 ring-2 ring-orange-500/20 shadow-md"
-          : "border-slate-200/80 hover:border-slate-300 hover:shadow-lg hover:-translate-y-0.5"
+          : "border-slate-200/80 hover:border-slate-300 hover:shadow-md"
       }`}
     >
       {/* Медиа превью */}
@@ -76,8 +76,9 @@ export default function MaterialGridCard({
           <img
             src={item.imageUrl}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
             onError={() => setImgError(true)}
           />
         ) : isService ? (
@@ -94,22 +95,22 @@ export default function MaterialGridCard({
           </div>
         )}
 
-        {/* Наложение при наведении */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3 text-white pointer-events-none">
+        {/* Наложение при наведении (без GPU-тяжелого backdrop-blur) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-3 text-white pointer-events-none">
           <span className="text-[11px] font-bold flex items-center gap-1">
             <ZoomIn className="w-3.5 h-3.5" />
             Инспектор
           </span>
           {item.sourceUrl && (
-            <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-xs">
+            <span className="text-[10px] font-bold bg-black/60 px-2 py-0.5 rounded-full">
               Каталог
             </span>
           )}
         </div>
 
-        {/* Бейджи в верхних углах */}
+        {/* Бейджи в верхних углах (чистые цвета без backdrop-blur для высокой частоты кадров) */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
-          <span className="px-2 py-0.5 rounded-lg text-[10px] font-black tracking-wide bg-white/95 text-slate-800 shadow-2xs backdrop-blur-md">
+          <span className="px-2 py-0.5 rounded-lg text-[10px] font-black tracking-wide bg-white/95 text-slate-800 shadow-2xs border border-slate-100">
             {item.supplier}
           </span>
 
@@ -159,14 +160,14 @@ export default function MaterialGridCard({
                 type="button"
                 onClick={handleSaveInline}
                 disabled={isSavingInline}
-                className="p-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition"
+                className="p-1.5 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition cursor-pointer"
               >
                 <Check className="w-3 h-3" />
               </button>
               <button
                 type="button"
                 onClick={() => setIsInline(false)}
-                className="p-1.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 transition"
+                className="p-1.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 transition cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -202,3 +203,5 @@ export default function MaterialGridCard({
     </div>
   );
 }
+
+export default memo(MaterialGridCard);
