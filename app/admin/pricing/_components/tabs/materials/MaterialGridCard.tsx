@@ -13,6 +13,8 @@ import {
   Building2,
   ShoppingBag,
   Trash2,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -26,8 +28,9 @@ interface MaterialGridCardProps {
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
   onOpenSupplierInfo?: (supplierName: string) => void;
-  onAddToCart?: (item: SupplierPriceItem) => void;
+  onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
   onRemoveFromCart?: (id: string) => void;
+  onUpdateCartQuantity?: (priceItemId: string, newQty: number) => void;
   isInCart?: boolean;
   cartQuantity?: number;
 }
@@ -42,6 +45,7 @@ function MaterialGridCard({
   onOpenSupplierInfo,
   onAddToCart,
   onRemoveFromCart,
+  onUpdateCartQuantity,
   isInCart = false,
   cartQuantity = 0,
 }: MaterialGridCardProps) {
@@ -77,13 +81,33 @@ function MaterialGridCard({
     onOpenSupplierInfo?.(item.supplier);
   };
 
-  const handleCartClick = (e: React.MouseEvent) => {
+  const handleAddToCartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isInCart) {
+    onAddToCart?.(item, 1);
+  };
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic("light");
+    onUpdateCartQuantity?.(item.id, (cartQuantity || 0) + 1);
+  };
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if ((cartQuantity || 0) <= 1) {
       triggerHaptic("medium");
       onRemoveFromCart?.(item.id);
     } else {
-      onAddToCart?.(item);
+      triggerHaptic("light");
+      onUpdateCartQuantity?.(item.id, (cartQuantity || 0) - 1);
+    }
+  };
+
+  const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    const val = parseInt(e.target.value, 10);
+    if (!isNaN(val) && val > 0) {
+      onUpdateCartQuantity?.(item.id, val);
     }
   };
 
@@ -217,41 +241,65 @@ function MaterialGridCard({
               </div>
 
               <div
-                className="flex items-center gap-1"
+                className="flex items-center gap-1.5"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Кнопка "В корзину / Удалить из корзины" */}
-                {(onAddToCart || onRemoveFromCart) && (
-                  <button
-                    type="button"
-                    onClick={handleCartClick}
-                    className={`p-2 rounded-xl transition cursor-pointer flex items-center gap-1 group/cart ${
-                      isInCart
-                        ? "bg-slate-900 text-orange-400 hover:bg-rose-600 hover:text-white shadow-2xs"
-                        : "bg-orange-50 hover:bg-orange-500 hover:text-white text-orange-600"
-                    }`}
-                    title={
-                      isInCart
-                        ? pricingDict.table.tooltips.removeFromCart(cartQuantity)
-                        : pricingDict.table.tooltips.addToCart
-                    }
+                {/* Закупка: Кнопка добавления или микро-степпер количества */}
+                {isInCart ? (
+                  <div
+                    className="inline-flex items-center bg-slate-900 text-white rounded-xl p-0.5 shadow-2xs border border-slate-800 shrink-0"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    {isInCart ? (
-                      <>
-                        <ShoppingBag className="w-3.5 h-3.5 group-hover/cart:hidden" />
-                        <Trash2 className="w-3.5 h-3.5 hidden group-hover/cart:block" />
-                        <span className="text-[10px] font-black">{cartQuantity}</span>
-                      </>
-                    ) : (
+                    <button
+                      type="button"
+                      onClick={handleDecrement}
+                      className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-white/10 transition cursor-pointer"
+                      title={cartQuantity <= 1 ? "Удалить из корзины" : "Уменьшить на 1"}
+                    >
+                      {cartQuantity <= 1 ? (
+                        <Trash2 className="w-3 h-3 text-rose-400" />
+                      ) : (
+                        <Minus className="w-3 h-3" />
+                      )}
+                    </button>
+
+                    <input
+                      type="number"
+                      min="1"
+                      max="99999"
+                      value={cartQuantity}
+                      onChange={handleQuantityInputChange}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-8 text-center bg-transparent text-white font-black text-xs outline-none py-0.5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      title="Введите количество"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={handleIncrement}
+                      className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:text-orange-400 hover:bg-white/10 transition cursor-pointer"
+                      title="Увеличить на 1"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  onAddToCart && (
+                    <button
+                      type="button"
+                      onClick={handleAddToCartClick}
+                      className="p-2 rounded-xl bg-orange-50 hover:bg-orange-500 hover:text-white text-orange-600 transition cursor-pointer shrink-0"
+                      title={pricingDict.table.tooltips.addToCart}
+                    >
                       <ShoppingBag className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+                    </button>
+                  )
                 )}
 
                 <button
                   type="button"
                   onClick={() => onOpenEditModal(item)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
                   title={pricingDict.table.tooltips.edit}
                 >
                   <Edit2 className="w-3.5 h-3.5" />

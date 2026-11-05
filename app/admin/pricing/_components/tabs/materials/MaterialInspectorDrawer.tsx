@@ -33,6 +33,7 @@ interface MaterialInspectorDrawerProps {
   onOpenSupplierInfo?: (supplierName: string) => void;
   onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
   onRemoveFromCart?: (id: string) => void;
+  onUpdateCartQuantity?: (priceItemId: string, newQty: number) => void;
   isInCart?: boolean;
   cartQuantity?: number;
 }
@@ -46,6 +47,7 @@ function MaterialInspectorDrawer({
   onOpenSupplierInfo,
   onAddToCart,
   onRemoveFromCart,
+  onUpdateCartQuantity,
   isInCart = false,
   cartQuantity = 0,
 }: MaterialInspectorDrawerProps) {
@@ -122,6 +124,16 @@ function MaterialInspectorDrawer({
     if (!item) return;
     triggerHaptic("medium");
     onRemoveFromCart?.(item.id);
+  };
+
+  const handleDirectCartQtyChange = (newVal: number) => {
+    if (!item) return;
+    if (newVal <= 0) {
+      handleRemoveFromCart();
+    } else {
+      triggerHaptic("light");
+      onUpdateCartQuantity?.(item.id, newVal);
+    }
   };
 
   const fullScreenPhotoModal =
@@ -366,65 +378,102 @@ function MaterialInspectorDrawer({
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        {/* Степпер количества */}
-                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => setQuantityToAdd((q) => Math.max(1, q - 1))}
-                            className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
-                            title="Уменьшить"
-                          >
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
-                          <input
-                            type="number"
-                            min="1"
-                            value={quantityToAdd}
-                            onChange={(e) =>
-                              setQuantityToAdd(Math.max(1, parseInt(e.target.value, 10) || 1))
-                            }
-                            className="w-10 text-center font-black text-xs text-slate-900 outline-none"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setQuantityToAdd((q) => q + 1)}
-                            className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
-                            title="Увеличить"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
+
+                      {isInCart ? (
+                        <div className="flex items-center gap-2">
+                          {/* Прямой степпер текущего количества в корзине */}
+                          <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleDirectCartQtyChange(cartQuantity - 1)}
+                              className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
+                              title={cartQuantity <= 1 ? "Удалить из корзины" : "Уменьшить на 1"}
+                            >
+                              {cartQuantity <= 1 ? (
+                                <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                              ) : (
+                                <Minus className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <input
+                              type="number"
+                              min="1"
+                              max="99999"
+                              value={cartQuantity}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10);
+                                if (!isNaN(val) && val > 0) handleDirectCartQtyChange(val);
+                              }}
+                              className="w-12 text-center font-black text-sm text-slate-900 outline-none"
+                              title="Количество в корзине"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleDirectCartQtyChange(cartQuantity + 1)}
+                              className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
+                              title="Увеличить на 1"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Кнопка полного удаления из корзины */}
+                          {onRemoveFromCart && (
+                            <button
+                              type="button"
+                              onClick={handleRemoveFromCart}
+                              className="flex-1 py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                              title={pricingDict.modals.inspector.removeFromCartTooltip}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>{pricingDict.modals.inspector.removeFromCartButton}</span>
+                            </button>
+                          )}
                         </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          {/* Степпер количества для добавления */}
+                          <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => setQuantityToAdd((q) => Math.max(1, q - 1))}
+                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
+                              title="Уменьшить"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <input
+                              type="number"
+                              min="1"
+                              value={quantityToAdd}
+                              onChange={(e) =>
+                                setQuantityToAdd(Math.max(1, parseInt(e.target.value, 10) || 1))
+                              }
+                              className="w-10 text-center font-black text-xs text-slate-900 outline-none"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setQuantityToAdd((q) => q + 1)}
+                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer"
+                              title="Увеличить"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
 
-                        {/* Кнопка добавления в корзину */}
-                        <button
-                          type="button"
-                          onClick={handleAddToCart}
-                          className="flex-1 py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-orange-600/20 active:scale-95"
-                        >
-                          <ShoppingBag className="w-4 h-4" />
-                          <span>
-                            {isInCart
-                              ? `Добавить ещё (+${quantityToAdd} ${INVENTORY_UNITS[item.unit]?.short || "ед."})`
-                              : `В корзину (${quantityToAdd} ${INVENTORY_UNITS[item.unit]?.short || "ед."})`}
-                          </span>
-                        </button>
-
-                        {/* Кнопка удаления из корзины (если товар уже в корзине) */}
-                        {isInCart && onRemoveFromCart && (
+                          {/* Кнопка добавления в корзину */}
                           <button
                             type="button"
-                            onClick={handleRemoveFromCart}
-                            className="py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95"
-                            title={pricingDict.modals.inspector.removeFromCartTooltip}
+                            onClick={handleAddToCart}
+                            className="flex-1 py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-orange-600/20 active:scale-95"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            <span className="hidden sm:inline">
-                              {pricingDict.modals.inspector.removeFromCartButton}
+                            <ShoppingBag className="w-4 h-4" />
+                            <span>
+                              В корзину ({quantityToAdd} {INVENTORY_UNITS[item.unit]?.short || "ед."})
                             </span>
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   )}
 

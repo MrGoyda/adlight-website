@@ -13,8 +13,9 @@ interface MaterialTableViewProps {
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
   onOpenSupplierInfo?: (supplierName: string) => void;
-  onAddToCart?: (item: SupplierPriceItem) => void;
+  onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
   onRemoveFromCart?: (id: string) => void;
+  onUpdateCartQuantity?: (priceItemId: string, newQty: number) => void;
   isItemInCart?: (priceItemId: string) => boolean;
   getItemQuantity?: (priceItemId: string) => number;
 }
@@ -29,6 +30,7 @@ function MaterialTableView({
   onOpenSupplierInfo,
   onAddToCart,
   onRemoveFromCart,
+  onUpdateCartQuantity,
   isItemInCart,
   getItemQuantity,
 }: MaterialTableViewProps) {
@@ -36,11 +38,11 @@ function MaterialTableView({
     <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
       {/* Шапка колонок таблицы */}
       <div className="hidden md:grid md:grid-cols-12 md:gap-4 px-5 py-3 bg-slate-50/90 border-b border-slate-200/80 text-[11px] font-black text-slate-400 uppercase tracking-wider">
-        <div className="col-span-5">{pricingDict.table.columns.item}</div>
+        <div className="col-span-4">{pricingDict.table.columns.item}</div>
         <div className="col-span-2">{pricingDict.table.columns.subcategory}</div>
         <div className="col-span-2">{pricingDict.table.columns.supplier}</div>
-        <div className="col-span-2 text-right">{pricingDict.table.columns.costPrice}</div>
-        <div className="col-span-1 text-right">{pricingDict.table.columns.actions}</div>
+        <div className="col-span-2 text-right pr-3">{pricingDict.table.columns.costPrice}</div>
+        <div className="col-span-2 text-right">{pricingDict.table.columns.actions}</div>
       </div>
 
       {/* Список строк */}
@@ -57,6 +59,7 @@ function MaterialTableView({
             onOpenSupplierInfo={onOpenSupplierInfo}
             onAddToCart={onAddToCart}
             onRemoveFromCart={onRemoveFromCart}
+            onUpdateCartQuantity={onUpdateCartQuantity}
             isInCart={isItemInCart?.(item.id)}
             cartQuantity={getItemQuantity?.(item.id)}
           />
