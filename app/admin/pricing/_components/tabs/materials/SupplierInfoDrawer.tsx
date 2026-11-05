@@ -3,22 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { SupplierData } from "../../../_types/pricingTypes";
-import {
-  X,
-  Phone,
-  MapPin,
-  FileText,
-  Copy,
-  Check,
-  Building2,
-  ExternalLink,
-  Layers,
-  ArrowRight,
-} from "lucide-react";
-import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
-import { getCleanPhone, getWhatsAppUrl } from "@/lib/phoneUtils";
+import { X, FileText, Copy, Check, Layers, ArrowRight } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import { pricingDict } from "@/dictionaries/pricing";
+
+import SupplierContactPhone from "./supplier/SupplierContactPhone";
+import SupplierContactWhatsApp from "./supplier/SupplierContactWhatsApp";
+import SupplierContactAddress from "./supplier/SupplierContactAddress";
 
 interface SupplierInfoDrawerProps {
   isOpen: boolean;
@@ -29,7 +21,6 @@ interface SupplierInfoDrawerProps {
   catalogCount?: number;
 }
 
-// Известные контакты крупных поставщиков рекламных материалов РК (если в БД не заполнено)
 const KNOWN_SUPPLIER_DEFAULTS: Record<
   string,
   { phone: string; whatsapp: string; address: string; notes: string }
@@ -59,6 +50,7 @@ export default function SupplierInfoDrawer({
 }: SupplierInfoDrawerProps) {
   const [mounted, setMounted] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const t = pricingDict.modals.supplierInfo;
 
   useEffect(() => {
     setMounted(true);
@@ -74,13 +66,11 @@ export default function SupplierInfoDrawer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!mounted || !isOpen || !supplierName) return null;
+  if (!mounted || !isOpen || !supplierName || typeof document === "undefined") return null;
 
-  // Ищем поставщика в списке из БД
   const matchedSupplier = suppliers.find(
     (s) => s.name.trim().toLowerCase() === supplierName.trim().toLowerCase()
   );
-
   const defaults = KNOWN_SUPPLIER_DEFAULTS[supplierName.trim().toLowerCase()] || null;
 
   const phone = matchedSupplier?.phone || defaults?.phone || null;
@@ -88,14 +78,11 @@ export default function SupplierInfoDrawer({
   const address = matchedSupplier?.address || defaults?.address || null;
   const notes = matchedSupplier?.notes || defaults?.notes || null;
 
-  const cleanPhone = phone ? getCleanPhone(phone) : "";
-  const waUrl = whatsapp ? getWhatsAppUrl(whatsapp, "Здравствуйте! Обращаюсь от компании ADLight по поводу закупки материалов.") : "";
-
   const handleCopy = (text: string, fieldId: string, label: string) => {
     triggerHaptic("light");
     navigator.clipboard.writeText(text);
     setCopiedField(fieldId);
-    toast.success(`${label} скопирован`);
+    toast.success(t.copiedToast(label));
     setTimeout(() => {
       setCopiedField((curr) => (curr === fieldId ? null : curr));
     }, 2000);
@@ -107,7 +94,7 @@ export default function SupplierInfoDrawer({
     onClose();
   };
 
-  const drawerContent = (
+  return createPortal(
     <div
       className="fixed inset-0 z-[9990] flex justify-end bg-black/50 transition-opacity duration-200 animate-in fade-in"
       onClick={onClose}
@@ -124,7 +111,7 @@ export default function SupplierInfoDrawer({
             </div>
             <div className="min-w-0">
               <span className="text-[10px] font-black uppercase tracking-wider text-orange-600 block">
-                Карточка поставщика
+                {t.badge}
               </span>
               <h3 className="text-base sm:text-lg font-black text-slate-900 truncate">
                 {supplierName}
@@ -152,10 +139,10 @@ export default function SupplierInfoDrawer({
               </div>
               <div>
                 <span className="text-xs font-black text-slate-900 block">
-                  {catalogCount > 0 ? `${catalogCount} товаров в каталоге` : "Товары в базе CRM"}
+                  {t.catalogCountBadge(catalogCount)}
                 </span>
                 <span className="text-[10px] text-slate-400 font-bold block">
-                  Актуальные цены и остатки на складе
+                  {t.catalogSubtitle}
                 </span>
               </div>
             </div>
@@ -166,160 +153,39 @@ export default function SupplierInfoDrawer({
                 onClick={handleSelectInCatalog}
                 className="px-2.5 py-1.5 rounded-xl bg-orange-100 hover:bg-orange-200 text-orange-800 text-[11px] font-black transition cursor-pointer flex items-center gap-1 shrink-0"
               >
-                <span>Фильтр</span>
+                <span>{t.filterButton}</span>
                 <ArrowRight className="w-3 h-3" />
               </button>
             )}
           </div>
 
           {/* Телефон для связи */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-slate-500" />
-                Телефон для связи
-              </span>
-              {phone && (
-                <button
-                  type="button"
-                  onClick={() => handleCopy(phone, "phone", "Телефон")}
-                  className="text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                  title="Копировать номер"
-                >
-                  {copiedField === "phone" ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
-              )}
-            </div>
-
-            {phone ? (
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <a
-                  href={`tel:${cleanPhone}`}
-                  className="text-base font-black text-slate-900 hover:text-orange-600 transition"
-                >
-                  {phone}
-                </a>
-                <a
-                  href={`tel:${cleanPhone}`}
-                  className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Phone className="w-3 h-3" />
-                  <span>Позвонить</span>
-                </a>
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 italic">Телефон не указан</p>
-            )}
-          </div>
+          <SupplierContactPhone
+            phone={phone}
+            copied={copiedField === "phone"}
+            onCopy={handleCopy}
+          />
 
           {/* WhatsApp чат */}
-          <div className="bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-4 shadow-2xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                <WhatsAppIcon className="w-3.5 h-3.5" />
-                WhatsApp отдел продаж
-              </span>
-              {whatsapp && (
-                <button
-                  type="button"
-                  onClick={() => handleCopy(whatsapp, "whatsapp", "WhatsApp")}
-                  className="text-emerald-600 hover:text-emerald-900 transition cursor-pointer"
-                  title="Копировать номер WhatsApp"
-                >
-                  {copiedField === "whatsapp" ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-700" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
-              )}
-            </div>
-
-            {whatsapp ? (
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-sm font-black text-emerald-950 truncate">
-                  {whatsapp}
-                </span>
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-                >
-                  <WhatsAppIcon className="w-3.5 h-3.5" />
-                  <span>Написать в WhatsApp</span>
-                </a>
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 italic">WhatsApp не указан</p>
-            )}
-          </div>
+          <SupplierContactWhatsApp
+            whatsapp={whatsapp}
+            copied={copiedField === "whatsapp"}
+            onCopy={handleCopy}
+          />
 
           {/* Адрес склада / офиса */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-2xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                Адрес склада / Самовывоз
-              </span>
-              {address && (
-                <button
-                  type="button"
-                  onClick={() => handleCopy(address, "address", "Адрес")}
-                  className="text-slate-400 hover:text-slate-700 transition cursor-pointer"
-                  title="Копировать адрес"
-                >
-                  {copiedField === "address" ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                </button>
-              )}
-            </div>
-
-            {address ? (
-              <div className="space-y-2 pt-1">
-                <p className="text-xs font-bold text-slate-800 leading-snug">
-                  {address}
-                </p>
-                <div className="flex items-center gap-2 pt-0.5">
-                  <a
-                    href={`https://2gis.kz/search/${encodeURIComponent(address)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-extrabold text-orange-600 hover:underline"
-                  >
-                    <span>Открыть в 2GIS</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
-                  </a>
-                  <span className="text-slate-300">•</span>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-extrabold text-slate-500 hover:underline"
-                  >
-                    <span>Google Карты</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 italic">Адрес не заполнен</p>
-            )}
-          </div>
+          <SupplierContactAddress
+            address={address}
+            copied={copiedField === "address"}
+            onCopy={handleCopy}
+          />
 
           {/* Примечание и график */}
           {notes && (
             <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 shadow-2xs space-y-1.5">
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-slate-500" />
-                Условия и примечание
+                {t.notesLabel}
               </span>
               <p className="text-xs text-slate-600 leading-relaxed font-medium">
                 {notes}
@@ -349,12 +215,12 @@ export default function SupplierInfoDrawer({
             {copiedField === "all" ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Скопировано!</span>
+                <span>{t.copiedAllContacts}</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Скопировать контакты</span>
+                <span>{t.copyAllContacts}</span>
               </>
             )}
           </button>
@@ -364,12 +230,11 @@ export default function SupplierInfoDrawer({
             onClick={onClose}
             className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black transition cursor-pointer"
           >
-            Готово
+            {t.doneButton}
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
-
-  return createPortal(drawerContent, document.body);
 }
