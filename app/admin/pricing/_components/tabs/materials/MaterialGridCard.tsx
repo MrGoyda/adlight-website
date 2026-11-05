@@ -12,6 +12,7 @@ import {
   X,
   Building2,
   ShoppingBag,
+  Trash2,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -26,6 +27,7 @@ interface MaterialGridCardProps {
   onDeleteItem: (id: string) => Promise<void>;
   onOpenSupplierInfo?: (supplierName: string) => void;
   onAddToCart?: (item: SupplierPriceItem) => void;
+  onRemoveFromCart?: (id: string) => void;
   isInCart?: boolean;
   cartQuantity?: number;
 }
@@ -39,6 +41,7 @@ function MaterialGridCard({
   onDeleteItem,
   onOpenSupplierInfo,
   onAddToCart,
+  onRemoveFromCart,
   isInCart = false,
   cartQuantity = 0,
 }: MaterialGridCardProps) {
@@ -74,9 +77,14 @@ function MaterialGridCard({
     onOpenSupplierInfo?.(item.supplier);
   };
 
-  const handleAddToCartClick = (e: React.MouseEvent) => {
+  const handleCartClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onAddToCart?.(item);
+    if (isInCart) {
+      triggerHaptic("medium");
+      onRemoveFromCart?.(item.id);
+    } else {
+      onAddToCart?.(item);
+    }
   };
 
   return (
@@ -212,21 +220,30 @@ function MaterialGridCard({
                 className="flex items-center gap-1"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Кнопка "В корзину" */}
-                {onAddToCart && (
+                {/* Кнопка "В корзину / Удалить из корзины" */}
+                {(onAddToCart || onRemoveFromCart) && (
                   <button
                     type="button"
-                    onClick={handleAddToCartClick}
-                    className={`p-2 rounded-xl transition cursor-pointer flex items-center gap-1 ${
+                    onClick={handleCartClick}
+                    className={`p-2 rounded-xl transition cursor-pointer flex items-center gap-1 group/cart ${
                       isInCart
-                        ? "bg-slate-900 text-orange-400 shadow-2xs"
+                        ? "bg-slate-900 text-orange-400 hover:bg-rose-600 hover:text-white shadow-2xs"
                         : "bg-orange-50 hover:bg-orange-500 hover:text-white text-orange-600"
                     }`}
-                    title={isInCart ? pricingDict.table.badges.inCart(cartQuantity) : pricingDict.table.tooltips.addToCart}
+                    title={
+                      isInCart
+                        ? pricingDict.table.tooltips.removeFromCart(cartQuantity)
+                        : pricingDict.table.tooltips.addToCart
+                    }
                   >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    {isInCart && (
-                      <span className="text-[10px] font-black">{cartQuantity}</span>
+                    {isInCart ? (
+                      <>
+                        <ShoppingBag className="w-3.5 h-3.5 group-hover/cart:hidden" />
+                        <Trash2 className="w-3.5 h-3.5 hidden group-hover/cart:block" />
+                        <span className="text-[10px] font-black">{cartQuantity}</span>
+                      </>
+                    ) : (
+                      <ShoppingBag className="w-3.5 h-3.5" />
                     )}
                   </button>
                 )}

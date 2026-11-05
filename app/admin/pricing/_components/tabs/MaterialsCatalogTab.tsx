@@ -341,6 +341,7 @@ export default function MaterialsCatalogTab({
             onDeleteItem={handleDeleteWithCleanup}
             onOpenSupplierInfo={handleOpenSupplierInfo}
             onAddToCart={addToCart}
+            onRemoveFromCart={removeFromCart}
             isItemInCart={isItemInCart}
             getItemQuantity={getItemQuantity}
           />
@@ -354,6 +355,7 @@ export default function MaterialsCatalogTab({
             onDeleteItem={handleDeleteWithCleanup}
             onOpenSupplierInfo={handleOpenSupplierInfo}
             onAddToCart={addToCart}
+            onRemoveFromCart={removeFromCart}
             isItemInCart={isItemInCart}
             getItemQuantity={getItemQuantity}
           />
@@ -395,6 +397,7 @@ export default function MaterialsCatalogTab({
         onDeleteItem={handleDeleteWithCleanup}
         onOpenSupplierInfo={handleOpenSupplierInfo}
         onAddToCart={addToCart}
+        onRemoveFromCart={removeFromCart}
         isInCart={inspectingItem ? isItemInCart(inspectingItem.id) : false}
         cartQuantity={inspectingItem ? getItemQuantity(inspectingItem.id) : 0}
       />

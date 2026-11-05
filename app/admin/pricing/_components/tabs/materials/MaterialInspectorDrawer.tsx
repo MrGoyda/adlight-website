@@ -32,6 +32,7 @@ interface MaterialInspectorDrawerProps {
   onDeleteItem: (id: string) => Promise<void>;
   onOpenSupplierInfo?: (supplierName: string) => void;
   onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
+  onRemoveFromCart?: (id: string) => void;
   isInCart?: boolean;
   cartQuantity?: number;
 }
@@ -44,6 +45,7 @@ function MaterialInspectorDrawer({
   onDeleteItem,
   onOpenSupplierInfo,
   onAddToCart,
+  onRemoveFromCart,
   isInCart = false,
   cartQuantity = 0,
 }: MaterialInspectorDrawerProps) {
@@ -114,6 +116,12 @@ function MaterialInspectorDrawer({
   const handleAddToCart = () => {
     if (!item) return;
     onAddToCart?.(item, quantityToAdd);
+  };
+
+  const handleRemoveFromCart = () => {
+    if (!item) return;
+    triggerHaptic("medium");
+    onRemoveFromCart?.(item.id);
   };
 
   const fullScreenPhotoModal =
@@ -213,10 +221,22 @@ function MaterialInspectorDrawer({
                       {pricingDict.modals.inspector.badge}
                     </span>
                     {isInCart && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-900 text-orange-400 flex items-center gap-1">
-                        <ShoppingBag className="w-3 h-3" />
-                        <span>{pricingDict.modals.inspector.inCartBadge(cartQuantity)}</span>
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-900 text-orange-400 flex items-center gap-1">
+                          <ShoppingBag className="w-3 h-3" />
+                          <span>{pricingDict.modals.inspector.inCartBadge(cartQuantity)}</span>
+                        </span>
+                        {onRemoveFromCart && (
+                          <button
+                            type="button"
+                            onClick={handleRemoveFromCart}
+                            className="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                            title={pricingDict.modals.inspector.removeFromCartTooltip}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
 
@@ -333,9 +353,19 @@ function MaterialInspectorDrawer({
                   {/* Добавление в корзину закупки */}
                   {onAddToCart && (
                     <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-2.5">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
-                        Снабжение и закупка
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                          Снабжение и закупка
+                        </span>
+                        {isInCart && (
+                          <span className="text-[11px] font-extrabold text-orange-600 bg-orange-100/80 px-2 py-0.5 rounded-md">
+                            {pricingDict.modals.inspector.inCartStatus(
+                              cartQuantity,
+                              INVENTORY_UNITS[item.unit]?.short || "ед."
+                            )}
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         {/* Степпер количества */}
                         <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shrink-0">
@@ -379,6 +409,21 @@ function MaterialInspectorDrawer({
                               : `В корзину (${quantityToAdd} ${INVENTORY_UNITS[item.unit]?.short || "ед."})`}
                           </span>
                         </button>
+
+                        {/* Кнопка удаления из корзины (если товар уже в корзине) */}
+                        {isInCart && onRemoveFromCart && (
+                          <button
+                            type="button"
+                            onClick={handleRemoveFromCart}
+                            className="py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95"
+                            title={pricingDict.modals.inspector.removeFromCartTooltip}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">
+                              {pricingDict.modals.inspector.removeFromCartButton}
+                            </span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}

@@ -13,6 +13,7 @@ interface MaterialGridViewProps {
   onDeleteItem: (id: string) => Promise<void>;
   onOpenSupplierInfo?: (supplierName: string) => void;
   onAddToCart?: (item: SupplierPriceItem) => void;
+  onRemoveFromCart?: (id: string) => void;
   isItemInCart?: (priceItemId: string) => boolean;
   getItemQuantity?: (priceItemId: string) => number;
 }
@@ -26,6 +27,7 @@ function MaterialGridView({
   onDeleteItem,
   onOpenSupplierInfo,
   onAddToCart,
+  onRemoveFromCart,
   isItemInCart,
   getItemQuantity,
 }: MaterialGridViewProps) {
@@ -42,6 +44,7 @@ function MaterialGridView({
           onDeleteItem={onDeleteItem}
           onOpenSupplierInfo={onOpenSupplierInfo}
           onAddToCart={onAddToCart}
+          onRemoveFromCart={onRemoveFromCart}
           isInCart={isItemInCart?.(item.id)}
           cartQuantity={getItemQuantity?.(item.id)}
         />

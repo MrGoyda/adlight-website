@@ -5,6 +5,7 @@ import { SupplierPriceItem } from "../_types/pricingTypes";
 import { INVENTORY_UNITS } from "../_data/pricingDictionary";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import { pricingDict } from "@/dictionaries/pricing";
 
 export interface MaterialCartItem {
   id: string; // unique cart item id (priceItemId)
@@ -109,8 +110,16 @@ export function useMaterialCart() {
 
   // Удаление позиции
   const removeFromCart = useCallback((priceItemId: string) => {
-    triggerHaptic("light");
-    setItems((prev) => prev.filter((i) => i.priceItemId !== priceItemId));
+    triggerHaptic("medium");
+    setItems((prev) => {
+      const it = prev.find((i) => i.priceItemId === priceItemId);
+      if (it) {
+        setTimeout(() => {
+          toast.info(pricingDict.toasts.cartItemRemoved(it.name));
+        }, 0);
+      }
+      return prev.filter((i) => i.priceItemId !== priceItemId);
+    });
   }, []);
 
   // Удаление всех позиций одного поставщика
@@ -127,7 +136,7 @@ export function useMaterialCart() {
     triggerHaptic("medium");
     setItems([]);
     setTimeout(() => {
-      toast.info("Корзина закупа очищена");
+      toast.info(pricingDict.toasts.cartCleared);
     }, 0);
   }, []);
 
@@ -195,11 +204,24 @@ export function useMaterialCart() {
     [cartQuantityMap]
   );
 
+  // Переключение товара в корзине: если уже есть — удаляет, если нет — добавляет
+  const toggleCart = useCallback(
+    (priceItem: SupplierPriceItem, quantity = 1) => {
+      if (cartQuantityMap.has(priceItem.id)) {
+        removeFromCart(priceItem.id);
+      } else {
+        addToCart(priceItem, quantity);
+      }
+    },
+    [cartQuantityMap, removeFromCart, addToCart]
+  );
+
   return {
     items,
     isCartOpen,
     setIsCartOpen,
     addToCart,
+    toggleCart,
     updateQuantity,
     removeFromCart,
     clearSupplierItems,

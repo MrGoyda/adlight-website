@@ -101,6 +101,7 @@ export const pricingDict = {
       savePrice: "Сохранить цену",
       cancelPrice: "Отмена",
       addToCart: "Добавить в корзину закупки",
+      removeFromCart: (qty: number) => `Удалить из корзины (в корзине: ${qty})`,
       supplierCard: "Карточка поставщика",
     },
   },
@@ -242,6 +243,9 @@ export const pricingDict = {
       quickPriceUpdate: "Быстрое изменение себестоимости:",
       priceSave: "Сохранить",
       addToCartButton: "В корзину снабжения",
+      removeFromCartTooltip: "Удалить позицию из корзины закупки",
+      removeFromCartButton: "Удалить из корзины",
+      inCartStatus: (qty: number, unit: string) => `В корзине: ${qty} ${unit}`,
     },
   },
 
@@ -252,6 +256,7 @@ export const pricingDict = {
     priceUpdated: "Цена успешно обновлена",
     priceUpdateError: "Не удалось сохранить цену",
     cartItemAdded: (name: string, qty: number, unit: string) => `«${name}» (${qty} ${unit}) в корзине`,
+    cartItemRemoved: (name: string) => `«${name}» удалено из корзины`,
     cartCleared: "Корзина закупа очищена",
   },
 } as const;
