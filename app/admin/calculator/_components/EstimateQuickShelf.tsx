@@ -8,7 +8,8 @@ import {
   CalculatorWarehouseItem 
 } from "../_types/calculatorTypes";
 import { UNIT_LABELS } from "../_data/estimateSpreadsheetDictionary";
-import { matchSearchQuery } from "@/app/admin/pricing/_lib/smartSearch";
+import { matchSearchQuery } from "@/lib/search";
+import { recordSearchSelectionAction } from "@/lib/search/actions";
 
 interface EstimateQuickShelfProps {
   supplierPrices: CalculatorSupplierPrice[];
@@ -151,7 +152,18 @@ export default function EstimateQuickShelf({
               <button
                 key={p.id}
                 type="button"
-                onClick={() => onAddSupplierMaterial(p)}
+                onClick={() => {
+                  onAddSupplierMaterial(p);
+                  if (filterQuery.trim()) {
+                    recordSearchSelectionAction({
+                      query: filterQuery,
+                      entityId: p.id,
+                      entityType: "supplier_price",
+                      selectedTitle: p.name,
+                      context: "calculator_shelf",
+                    });
+                  }
+                }}
                 className="w-full text-left p-2.5 rounded-2xl border border-slate-100 hover:border-orange-300 hover:bg-orange-50/40 transition group flex items-center justify-between gap-2"
               >
                 <div className="min-w-0">
@@ -181,7 +193,18 @@ export default function EstimateQuickShelf({
               <button
                 key={w.id}
                 type="button"
-                onClick={() => onAddWorkOperation(w)}
+                onClick={() => {
+                  onAddWorkOperation(w);
+                  if (filterQuery.trim()) {
+                    recordSearchSelectionAction({
+                      query: filterQuery,
+                      entityId: w.id,
+                      entityType: "work_operation",
+                      selectedTitle: w.name,
+                      context: "calculator_shelf",
+                    });
+                  }
+                }}
                 className="w-full text-left p-2.5 rounded-2xl border border-slate-100 hover:border-indigo-300 hover:bg-indigo-50/40 transition group flex items-center justify-between gap-2"
               >
                 <div className="min-w-0">

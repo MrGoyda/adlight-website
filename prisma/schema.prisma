@@ -455,3 +455,48 @@ model EstimatePreset {
   @@index([isFavorite])
 }
 
+// ── Обучаемый интеллектуальный поиск (CRM + Будущий сайт) ─────────────
+
+model SearchQueryLog {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  query         String
+  normalized    String
+  context       String   @default("global") // "calculator", "pricing", "leads", "site"
+  resultsCount  Int      @default(0)
+  selectedId    String?  // ID выбранного элемента (клик)
+  selectedTitle String?  // Название выбранного элемента
+  userId        String?
+
+  @@index([normalized])
+  @@index([context])
+  @@index([createdAt])
+}
+
+model SearchSynonymRule {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  word        String   @unique // Слово, которое ищут (например "дибонд")
+  synonyms    String[] // Синонимы (["акп", "композит", "дибонд"])
+  description String?  // Описание
+  isActive    Boolean  @default(true)
+
+  @@index([word])
+}
+
+model SearchClickWeight {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  queryNorm  String   // Нормализованный запрос (например "пвх 5")
+  entityType String   // "supplier_price", "preset", "lead", "product"
+  entityId   String   // ID выбранной сущности
+  clickCount Int      @default(1) // Количество выборов менеджерами или клиентами
+
+  @@unique([queryNorm, entityId])
+  @@index([queryNorm])
+  @@index([entityId])
+}
+
+

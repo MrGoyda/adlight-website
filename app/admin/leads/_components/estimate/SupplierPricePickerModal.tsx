@@ -6,7 +6,8 @@ import { ParsedSupplierPrice } from "./types";
 import { Layers, X, Search, Handshake, Package } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { INVENTORY_UNITS } from "@/app/admin/pricing/_data/pricingDictionary";
-import { matchSearchQuery } from "@/app/admin/pricing/_lib/smartSearch";
+import { matchSearchQuery } from "@/lib/search";
+import { recordSearchSelectionAction } from "@/lib/search/actions";
 
 interface SupplierPricePickerModalProps {
   isOpen: boolean;
@@ -258,6 +259,15 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
                     onClick={() => {
                       triggerHaptic("light");
                       onSelect(p);
+                      if (pickerSearch.trim()) {
+                        recordSearchSelectionAction({
+                          query: pickerSearch,
+                          entityId: p.id,
+                          entityType: 'supplier_price',
+                          selectedTitle: p.originalName,
+                          context: 'lead_estimate',
+                        });
+                      }
                     }}
                     className="w-full p-2.5 rounded-2xl border border-slate-200/90 bg-white hover:border-purple-500 hover:bg-purple-50/40 text-left transition flex items-center gap-3 group shadow-2xs cursor-pointer active:scale-98"
                   >

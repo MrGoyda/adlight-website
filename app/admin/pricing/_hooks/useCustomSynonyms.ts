@@ -4,8 +4,13 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   SynonymRule,
   BUILT_IN_SYNONYM_RULES,
-} from "../_data/synonymsDictionary";
-import { buildSynonymLookup } from "../_lib/smartSearch";
+  buildSynonymLookup,
+} from "@/lib/search";
+import {
+  saveSearchSynonymAction,
+  getSearchSynonymsAction,
+  logSearchQueryAction,
+} from "@/lib/search/actions";
 import { triggerHaptic } from "@/lib/haptics";
 
 const CUSTOM_SYNONYMS_KEY = "adlight_custom_synonyms_v2";
@@ -44,6 +49,17 @@ export function useCustomSynonyms() {
       console.warn("[Synonyms] Ошибка чтения из localStorage:", e);
     } finally {
       setIsLoaded(true);
+      getSearchSynonymsAction().then((dbRules) => {
+        const customOnly = dbRules.filter((r) => !r.isBuiltIn);
+        if (customOnly.length > 0) {
+          setCustomRules((prev) => {
+            const map = new Map<string, SynonymRule>();
+            for (const r of prev) map.set(r.target.toLowerCase(), r);
+            for (const r of customOnly) map.set(r.target.toLowerCase(), r);
+            return Array.from(map.values());
+          });
+        }
+      }).catch(() => {});
     }
   }, []);
 
@@ -87,6 +103,11 @@ export function useCustomSynonyms() {
 
       const updated = [newRule, ...customRules];
       saveCustomRules(updated);
+      saveSearchSynonymAction({
+        word: cleanTarget,
+        synonyms: cleanAliases,
+        description: description,
+      }).catch(() => {});
 
       // Если этот синоним был в списке пустых запросов, удаляем его оттуда
       const remainingZeros = zeroQueries.filter(
@@ -118,6 +139,7 @@ export function useCustomSynonyms() {
     (query: string) => {
       const trimmed = query.trim().toLowerCase();
       if (!trimmed || trimmed.length < 2) return;
+      logSearchQueryAction(trimmed, 0, 'pricing').catch(() => {});
 
       setZeroQueries((prev) => {
         const existingIndex = prev.findIndex((z) => z.query.toLowerCase() === trimmed);

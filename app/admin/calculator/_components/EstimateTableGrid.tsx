@@ -11,7 +11,8 @@ import {
   CalculatorWarehouseItem 
 } from "../_types/calculatorTypes";
 import { ITEM_TYPE_META, UNIT_LABELS } from "../_data/estimateSpreadsheetDictionary";
-import { matchSearchQuery } from "@/app/admin/pricing/_lib/smartSearch";
+import { matchSearchQuery } from "@/lib/search";
+import { recordSearchSelectionAction, logSearchQueryAction } from "@/lib/search/actions";
 
 interface EstimateTableGridProps {
   items: SpreadsheetItem[];
@@ -94,6 +95,18 @@ export default function EstimateTableGrid({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Логирование нулевых запросов для обучения и пополнения словаря синонимов
+  useEffect(() => {
+    if (!inlineSearch || inlineSearch.trim().length < 3) return;
+    if (searchResults.length > 0) return;
+
+    const timer = setTimeout(() => {
+      logSearchQueryAction(inlineSearch, 0, "calculator");
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [inlineSearch, searchResults.length]);
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden transition-all duration-200">
@@ -285,10 +298,27 @@ export default function EstimateTableGrid({
                   key={`${res.type}_${res.id}`}
                   type="button"
                   onClick={() => {
+                    const currentQuery = inlineSearch;
                     if (res.type === "material") {
-                      onAddSupplierMaterial(res.raw as CalculatorSupplierPrice);
+                      const mat = res.raw as CalculatorSupplierPrice;
+                      onAddSupplierMaterial(mat);
+                      recordSearchSelectionAction({
+                        query: currentQuery,
+                        entityId: mat.id,
+                        entityType: "supplier_price",
+                        selectedTitle: mat.name,
+                        context: "calculator",
+                      });
                     } else {
-                      onAddWorkOperation(res.raw as CalculatorWorkOperation);
+                      const work = res.raw as CalculatorWorkOperation;
+                      onAddWorkOperation(work);
+                      recordSearchSelectionAction({
+                        query: currentQuery,
+                        entityId: work.id,
+                        entityType: "work_operation",
+                        selectedTitle: work.name,
+                        context: "calculator",
+                      });
                     }
                     setInlineSearch("");
                     setIsSearchOpen(false);
