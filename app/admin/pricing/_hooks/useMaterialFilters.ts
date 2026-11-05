@@ -553,11 +553,6 @@ export function useMaterialFilters({
       scoredList.push({ item, score });
     }
 
-    // Если был реальный поисковый запрос (>= 3 символов), но результат 0 — фиксируем
-    if (isSearching && deferredSearchQuery.trim().length >= 3 && scoredList.length === 0) {
-      onZeroResultQuery?.(deferredSearchQuery.trim());
-    }
-
     // Сортировка:
     // Всегда выводим избранные товары вверху списка!
     if (isSearching && sortBy === "default") {
@@ -607,9 +602,16 @@ export function useMaterialFilters({
     facets,
     applicableFacetKeys,
     activeSynonymMap,
-    onZeroResultQuery,
     taxonomy,
   ]);
+
+  // Фиксация запроса с 0 результатов в эффекте после завершения рендера
+  useEffect(() => {
+    const trimmed = deferredSearchQuery.trim();
+    if (trimmed.length >= 3 && processedPrices.length === 0 && supplierPrices.length > 0) {
+      onZeroResultQuery?.(trimmed);
+    }
+  }, [deferredSearchQuery, processedPrices.length, supplierPrices.length, onZeroResultQuery]);
 
   // Инлайн обновление цены с синхронизацией инспектора (мемоизировано)
   const handleQuickUpdateAndSync = useCallback(
