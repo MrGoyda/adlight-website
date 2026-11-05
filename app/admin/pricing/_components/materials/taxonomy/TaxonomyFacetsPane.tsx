@@ -10,6 +10,7 @@ import {
 } from "../../../_data/materialFacets";
 import { triggerHaptic } from "@/lib/haptics";
 import { pricingDict } from "@/dictionaries/pricing";
+import CustomSelect from "../../common/CustomSelect";
 
 interface TaxonomyFacetsPaneProps {
   activeCategory?: MaterialCategoryItem;
@@ -39,20 +40,18 @@ export default function TaxonomyFacetsPane({
         <label className="block text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1.5">
           {pricingDict.modals.taxonomy.facets.selectLabel}
         </label>
-        <select
+        <CustomSelect
           value={selectedSubForFacets}
-          onChange={(e) => {
+          onChange={(val) => {
             triggerHaptic("light");
-            onSelectSubForFacets(e.target.value);
+            onSelectSubForFacets(val);
           }}
-          className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none cursor-pointer"
-        >
-          {activeCategory.subcategories.map((s) => (
-            <option key={s} value={s}>
-              {s} ({subcategoryCounts[s] ?? 0} товаров)
-            </option>
-          ))}
-        </select>
+          options={activeCategory.subcategories.map((s) => ({
+            value: s,
+            label: s,
+            badge: `${subcategoryCounts[s] ?? 0} товаров`,
+          }))}
+        />
       </div>
 
       {/* Активные фильтры */}

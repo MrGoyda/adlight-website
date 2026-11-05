@@ -6,7 +6,44 @@ import { EstimateItemType, InventoryUnit } from "@prisma/client";
 import { WorkOperationItem } from "../../_types/pricingTypes";
 import { INVENTORY_UNITS, RATE_CATEGORIES } from "../../_data/pricingDictionary";
 import { triggerHaptic } from "@/lib/haptics";
+import CustomSelect from "../common/CustomSelect";
+import { renderRateCategoryIcon } from "./RateCategoryIcon";
+
 import BottomSheet from "@/components/ui/BottomSheet";
+import { pricingDict } from "@/dictionaries/pricing";
+
+const RATE_CATEGORY_OPTIONS = [
+  {
+    value: "LOGISTICS",
+    label: "Газель и Доставка (Логистика)",
+    icon: renderRateCategoryIcon("LOGISTICS", "w-4 h-4 text-blue-500"),
+  },
+  {
+    value: "EQUIPMENT",
+    label: "Автовышка и Спецтехника",
+    icon: renderRateCategoryIcon("EQUIPMENT", "w-4 h-4 text-amber-500"),
+  },
+  {
+    value: "ASSEMBLY",
+    label: "ЗП Сборщиков (Цех и Производство)",
+    icon: renderRateCategoryIcon("ASSEMBLY", "w-4 h-4 text-indigo-500"),
+  },
+  {
+    value: "INSTALLATION",
+    label: "ЗП Монтажников (Монтаж и Демонтаж)",
+    icon: renderRateCategoryIcon("INSTALLATION", "w-4 h-4 text-emerald-500"),
+  },
+  {
+    value: "CUSTOM",
+    label: "Прочие индивидуальные услуги",
+    icon: renderRateCategoryIcon("CUSTOM", "w-4 h-4 text-slate-500"),
+  },
+];
+
+const RATE_UNIT_OPTIONS = Object.entries(INVENTORY_UNITS).map(([key, val]) => ({
+  value: key,
+  label: `${val.label} (${val.short})`,
+}));
 
 interface RateModalProps {
   isOpen: boolean;
@@ -36,6 +73,7 @@ export default function RateModal({
   const [defaultCost, setDefaultCost] = useState<number | "">("");
   const [defaultPrice, setDefaultPrice] = useState<number | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const r = pricingDict.modals.rate;
 
   useEffect(() => {
     if (editingRate) {
@@ -98,9 +136,9 @@ export default function RateModal({
             </div>
             <div className="min-w-0">
               <h3 className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight truncate">
-                {editingRate ? "Редактировать тариф" : "Новый тариф сметы"}
+                {editingRate ? r.editTitle : r.createTitle}
               </h3>
-              <p className="text-[11px] text-slate-400 font-semibold truncate">Ставки работ, логистики или спецтехники</p>
+              <p className="text-[11px] text-slate-400 font-semibold truncate">{r.subtitle}</p>
             </div>
           </div>
 
@@ -112,7 +150,7 @@ export default function RateModal({
               type="button"
               onClick={onClose}
               className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
-              title="Закрыть (Esc)"
+              title={r.closeTooltip}
             >
               <X className="w-5 h-5" />
             </button>
@@ -126,57 +164,45 @@ export default function RateModal({
         >
           <div>
             <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-              Категория тарифа
+              {r.categoryLabel}
             </label>
-            <select
+            <CustomSelect
               value={type}
-              onChange={(e) => setType(e.target.value as EstimateItemType)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-black text-slate-900 focus:bg-white focus:border-indigo-500 outline-none cursor-pointer box-border"
-            >
-              <option value="LOGISTICS">🚚 Газель и Доставка (Логистика)</option>
-              <option value="EQUIPMENT">🏗️ Автовышка и Спецтехника</option>
-              <option value="ASSEMBLY">🛠️ ЗП Сборщиков (Цех и Производство)</option>
-              <option value="INSTALLATION">🪜 ЗП Монтажников (Монтаж и Демонтаж)</option>
-              <option value="CUSTOM">⚙️ Прочие индивидуальные услуги</option>
-            </select>
+              onChange={(val) => setType(val as EstimateItemType)}
+              options={RATE_CATEGORY_OPTIONS}
+            />
           </div>
 
           <div>
             <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-              Название услуги / операции *
+              {r.nameLabel}
             </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Напр. Сборка объемных световых букв"
+              placeholder={r.namePlaceholder}
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:bg-white focus:border-indigo-500 outline-none transition box-border"
             />
           </div>
 
           <div>
             <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-              Единица расчета
+              {r.unitLabel}
             </label>
-            <select
+            <CustomSelect
               value={unit}
-              onChange={(e) => setUnit(e.target.value as InventoryUnit)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-indigo-500 outline-none cursor-pointer box-border"
-            >
-              {Object.entries(INVENTORY_UNITS).map(([key, val]) => (
-                <option key={key} value={key}>
-                  {val.label} ({val.short})
-                </option>
-              ))}
-            </select>
+              onChange={(val) => setUnit(val as InventoryUnit)}
+              options={RATE_UNIT_OPTIONS}
+            />
           </div>
 
           {/* Ставки: ЗП и В смете */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
             <div className="min-w-0 w-full">
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-                ЗП мастера (Себестоимость)
+                {r.costLabel}
               </label>
               <div className="relative">
                 <input
@@ -197,7 +223,7 @@ export default function RateModal({
 
             <div className="min-w-0 w-full">
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-                Цена в смете (Клиенту)
+                {r.priceLabel}
               </label>
               <div className="relative">
                 <input
@@ -221,7 +247,7 @@ export default function RateModal({
           <div className="bg-indigo-50/70 border border-indigo-200/80 p-3 rounded-2xl flex items-center justify-between">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-indigo-600 shrink-0" />
-              <span className="text-xs font-bold text-indigo-950">Маржа компании:</span>
+              <span className="text-xs font-bold text-indigo-950">{r.marginLabel}</span>
             </div>
             <div className="text-right">
               <span className="text-sm font-black text-indigo-700">
@@ -239,7 +265,7 @@ export default function RateModal({
               onClick={onClose}
               className="px-4 py-2.5 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-bold text-xs transition cursor-pointer active:scale-95"
             >
-              Отмена
+              {r.cancel}
             </button>
             <button
               type="submit"
@@ -247,7 +273,7 @@ export default function RateModal({
               className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-600/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
-              <span>{isSubmitting ? "Сохранение..." : editingRate ? "Обновить тариф" : "Сохранить тариф"}</span>
+              <span>{isSubmitting ? "Сохранение..." : editingRate ? r.save : r.create}</span>
             </button>
           </div>
         </form>

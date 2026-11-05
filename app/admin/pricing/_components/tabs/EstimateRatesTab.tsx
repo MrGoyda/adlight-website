@@ -6,6 +6,8 @@ import { RATE_CATEGORIES } from "../../_data/pricingDictionary";
 import { EstimateItemType } from "@prisma/client";
 import { triggerHaptic } from "@/lib/haptics";
 import RateCategorySection from "./rates/RateCategorySection";
+import { renderRateCategoryIcon } from "../rates/RateCategoryIcon";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface EstimateRatesTabProps {
   workOperations: WorkOperationItem[];
@@ -51,7 +53,7 @@ export default function EstimateRatesTab({
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
-          Все категории ({workOperations.length})
+          {pricingDict.ratesTab.allCategories(workOperations.length)}
         </button>
 
         {CATEGORIES_TO_RENDER.map((catKey) => {
@@ -73,7 +75,9 @@ export default function EstimateRatesTab({
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
             >
-              <span>{catMeta.icon}</span>
+              <span className={`shrink-0 ${isActive ? "text-white" : "text-slate-500"}`}>
+                {renderRateCategoryIcon(catKey, "w-3.5 h-3.5")}
+              </span>
               <span>{catMeta.label}</span>
               <span className="opacity-70 text-[10px]">({count})</span>
             </button>

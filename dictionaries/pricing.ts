@@ -106,6 +106,28 @@ export const pricingDict = {
     },
   },
 
+  ratesTab: {
+    allCategories: (count: number) => `Все категории (${count})`,
+    addRateButton: "Добавить тариф",
+    positionsCount: (count: number) => `${count} позиций`,
+    emptyCategory: "Нет настроенных тарифов в этой категории. Нажмите «Добавить тариф».",
+    columns: {
+      operation: "Операция / Вид работы",
+      cost: "ЗП (Себестоимость)",
+      price: "Цена в смете",
+      margin: "Маржа / Наценка",
+      actions: "Действия",
+    },
+    row: {
+      unitLabel: "Ед. измерения:",
+      costMobile: "ЗП мастера:",
+      priceMobile: "В смете:",
+      marginMobile: "Маржа компании:",
+      editTooltip: "Редактировать тариф",
+      deleteTooltip: "Удалить тариф",
+    },
+  },
+
   emptyState: {
     title: "Ничего не найдено",
     description: "Попробуйте изменить поисковый запрос, сбросить фильтры характеристик или добавить новую позицию в каталог.",
@@ -229,6 +251,24 @@ export const pricingDict = {
       totalSum: "Итого закупка:",
       clearCart: "Очистить корзину",
       orderWhatsApp: "Заказать в WhatsApp",
+    },
+
+    rate: {
+      editTitle: "Редактировать тариф",
+      createTitle: "Новый тариф сметы",
+      subtitle: "Ставки работ, логистики или спецтехники",
+      closeTooltip: "Закрыть (Esc)",
+      categoryLabel: "Категория тарифа",
+      nameLabel: "Название услуги / операции *",
+      namePlaceholder: "Напр. Сборка объемных световых букв",
+      unitLabel: "Единица расчета",
+      costLabel: "ЗП мастера (Себестоимость)",
+      priceLabel: "В смете для клиента",
+      marginLabel: "Маржа компании:",
+      markupLabel: "наценка",
+      cancel: "Отмена",
+      save: "Сохранить изменения",
+      create: "Создать тариф",
     },
 
     inspector: {

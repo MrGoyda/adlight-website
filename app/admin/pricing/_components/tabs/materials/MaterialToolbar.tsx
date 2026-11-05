@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { SortOption, ViewMode } from "./types";
 import { pricingDict } from "@/dictionaries/pricing";
+import CustomSelect from "../../common/CustomSelect";
 
 interface MaterialToolbarProps {
   searchQuery: string;
@@ -37,6 +38,17 @@ function MaterialToolbar({
 }: MaterialToolbarProps) {
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const t = pricingDict.toolbar;
+
+  const sortOptions = useMemo(
+    () => [
+      { value: "default", label: t.sort.default, icon: <ArrowUpDown className="w-3.5 h-3.5" /> },
+      { value: "price_asc", label: t.sort.priceAsc, icon: <ArrowUpDown className="w-3.5 h-3.5" /> },
+      { value: "price_desc", label: t.sort.priceDesc, icon: <ArrowUpDown className="w-3.5 h-3.5" /> },
+      { value: "name_asc", label: t.sort.nameAsc, icon: <ArrowUpDown className="w-3.5 h-3.5" /> },
+      { value: "name_desc", label: t.sort.nameDesc, icon: <ArrowUpDown className="w-3.5 h-3.5" /> },
+    ],
+    [t.sort]
+  );
 
   useEffect(() => {
     setLocalQuery(searchQuery);
@@ -127,20 +139,14 @@ function MaterialToolbar({
         )}
 
         {/* Сортировка */}
-        <div className="relative">
-          <select
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="appearance-none pl-8 pr-7 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 focus:bg-white focus:border-orange-500 outline-none transition cursor-pointer"
-          >
-            <option value="default">{t.sort.default}</option>
-            <option value="price_asc">{t.sort.priceAsc}</option>
-            <option value="price_desc">{t.sort.priceDesc}</option>
-            <option value="name_asc">{t.sort.nameAsc}</option>
-            <option value="name_desc">{t.sort.nameDesc}</option>
-          </select>
-          <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
+        <CustomSelect
+          value={sortBy}
+          onChange={(val) => onSortChange(val as SortOption)}
+          options={sortOptions}
+          align="right"
+          className="w-auto min-w-[200px]"
+          buttonClassName="py-2.5 rounded-2xl bg-slate-50 border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100"
+        />
 
         {/* Переключатель вида (Segmented Control) */}
         <div className="flex items-center bg-slate-100 p-0.5 rounded-2xl border border-slate-200/80">

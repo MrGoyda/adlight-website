@@ -4,6 +4,7 @@ import React from "react";
 import { WorkOperationItem } from "../../../_types/pricingTypes";
 import { INVENTORY_UNITS } from "../../../_data/pricingDictionary";
 import { Edit2, Trash2 } from "lucide-react";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface RateRowItemProps {
   item: WorkOperationItem;
@@ -16,6 +17,7 @@ export default function RateRowItem({
   onOpenEditRateModal,
   onDeleteRate,
 }: RateRowItemProps) {
+  const rowDict = pricingDict.ratesTab.row;
   const unitShort = INVENTORY_UNITS[item.unit]?.short || "ед.";
   const margin = item.defaultPrice - item.defaultCost;
   const markupPercent =
@@ -30,14 +32,14 @@ export default function RateRowItem({
             {item.name}
           </span>
           <span className="text-[10px] font-bold text-slate-400">
-            Ед. измерения: {INVENTORY_UNITS[item.unit]?.label || item.unit} ({unitShort})
+            {rowDict.unitLabel} {INVENTORY_UNITS[item.unit]?.label || item.unit} ({unitShort})
           </span>
         </div>
       </div>
 
       {/* Себестоимость (ЗП) */}
       <div className="md:col-span-2 flex items-center justify-between md:justify-end gap-2">
-        <span className="text-[11px] font-bold text-slate-400 md:hidden">ЗП мастера:</span>
+        <span className="text-[11px] font-bold text-slate-400 md:hidden">{rowDict.costMobile}</span>
         <div className="text-right">
           <span className="text-xs sm:text-sm font-black text-slate-700">
             {Number(item.defaultCost).toLocaleString("ru-RU")} ₸
@@ -48,7 +50,7 @@ export default function RateRowItem({
 
       {/* Цена в смете */}
       <div className="md:col-span-2 flex items-center justify-between md:justify-end gap-2">
-        <span className="text-[11px] font-bold text-slate-400 md:hidden">В смете:</span>
+        <span className="text-[11px] font-bold text-slate-400 md:hidden">{rowDict.priceMobile}</span>
         <div className="text-right">
           <span className="text-xs sm:text-sm font-black text-emerald-600">
             {Number(item.defaultPrice).toLocaleString("ru-RU")} ₸
@@ -59,7 +61,7 @@ export default function RateRowItem({
 
       {/* Маржа и Наценка */}
       <div className="md:col-span-2 flex items-center justify-between md:justify-end gap-2">
-        <span className="text-[11px] font-bold text-slate-400 md:hidden">Маржа компании:</span>
+        <span className="text-[11px] font-bold text-slate-400 md:hidden">{rowDict.marginMobile}</span>
         <div className="text-right">
           <span className="text-xs font-black text-indigo-600">
             +{Number(margin).toLocaleString("ru-RU")} ₸
@@ -76,7 +78,7 @@ export default function RateRowItem({
           type="button"
           onClick={() => onOpenEditRateModal(item)}
           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
-          title="Редактировать тариф"
+          title={rowDict.editTooltip}
         >
           <Edit2 className="w-3.5 h-3.5" />
         </button>
@@ -84,7 +86,7 @@ export default function RateRowItem({
           type="button"
           onClick={() => onDeleteRate(item.id)}
           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-          title="Удалить тариф"
+          title={rowDict.deleteTooltip}
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>

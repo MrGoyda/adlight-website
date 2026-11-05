@@ -12,6 +12,7 @@ import { pricingDict } from "@/dictionaries/pricing";
 import MaterialImageUploader from "./modal/MaterialImageUploader";
 import MaterialCategorySelects from "./modal/MaterialCategorySelects";
 import MaterialSpecChips from "./modal/MaterialSpecChips";
+import CustomSelect from "../common/CustomSelect";
 
 // Умные подсказки характеристик по категориям для быстрого наполнения в 1 клик
 const SUGGESTED_SPECS_BY_CATEGORY: Record<string, string[]> = {
@@ -152,6 +153,25 @@ export default function MaterialModal({
     }
   }, [editingItem, suppliers, taxonomy, isOpen]);
 
+  const m = pricingDict.modals.material;
+
+  const unitOptions = useMemo(
+    () =>
+      Object.entries(INVENTORY_UNITS).map(([key, val]) => ({
+        value: key,
+        label: `${val.label} (${val.short})`,
+      })),
+    []
+  );
+
+  const supplierOptions = useMemo(
+    () => [
+      { value: "", label: m.fields.supplierManualOption },
+      ...suppliers.map((s) => ({ value: s.id, label: s.name })),
+    ],
+    [suppliers, m.fields.supplierManualOption]
+  );
+
   const handleSupplierSelect = (supId: string) => {
     setSupplierId(supId);
     const found = suppliers.find((s) => s.id === supId);
@@ -206,7 +226,6 @@ export default function MaterialModal({
   };
 
   const suggestedChips = SUGGESTED_SPECS_BY_CATEGORY[categoryId] || [];
-  const m = pricingDict.modals.material;
 
   return (
     <BottomSheet
@@ -345,17 +364,11 @@ export default function MaterialModal({
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
                 {m.fields.unit}
               </label>
-              <select
+              <CustomSelect
                 value={unit}
-                onChange={(e) => setUnit(e.target.value as InventoryUnit)}
-                className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none cursor-pointer box-border"
-              >
-                {Object.entries(INVENTORY_UNITS).map(([key, val]) => (
-                  <option key={key} value={key}>
-                    {val.label} ({val.short})
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setUnit(val as InventoryUnit)}
+                options={unitOptions}
+              />
             </div>
 
             <div className="min-w-0 w-full">
@@ -388,18 +401,11 @@ export default function MaterialModal({
               </label>
               <div className="space-y-2">
                 {suppliers.length > 0 && (
-                  <select
+                  <CustomSelect
                     value={supplierId}
-                    onChange={(e) => handleSupplierSelect(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none cursor-pointer box-border"
-                  >
-                    <option value="">{m.fields.supplierManualOption}</option>
-                    {suppliers.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={handleSupplierSelect}
+                    options={supplierOptions}
+                  />
                 )}
                 {(!supplierId || suppliers.length === 0) && (
                   <input
