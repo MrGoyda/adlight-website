@@ -172,19 +172,27 @@ export function useMaterialCart() {
     return Object.values(groups).sort((a, b) => b.subtotal - a.subtotal);
   }, [items]);
 
+  // O(1) хэш-таблица для мгновенного определения наличия и количества в корзине
+  const cartQuantityMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const i of items) {
+      map.set(i.priceItemId, i.quantity);
+    }
+    return map;
+  }, [items]);
+
   const isItemInCart = useCallback(
     (priceItemId: string) => {
-      return items.some((i) => i.priceItemId === priceItemId);
+      return cartQuantityMap.has(priceItemId);
     },
-    [items]
+    [cartQuantityMap]
   );
 
   const getItemQuantity = useCallback(
     (priceItemId: string) => {
-      const found = items.find((i) => i.priceItemId === priceItemId);
-      return found ? found.quantity : 0;
+      return cartQuantityMap.get(priceItemId) || 0;
     },
-    [items]
+    [cartQuantityMap]
   );
 
   return {

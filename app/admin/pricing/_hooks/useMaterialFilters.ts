@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, useDeferredValue } from "react";
 import { SupplierData, SupplierPriceItem } from "../_types/pricingTypes";
 import { MATERIAL_TAXONOMY, MaterialCategoryItem } from "../_data/pricingDictionary";
 import { BUILT_IN_SYNONYM_RULES } from "../_data/synonymsDictionary";
@@ -77,27 +77,27 @@ export function useMaterialFilters({
     return applicableFacetKeys.some((k) => facets[k] !== "all");
   }, [applicableFacetKeys, facets]);
 
-  const handleFacetChange = (key: keyof MaterialFacetState, value: string) => {
+  const handleFacetChange = useCallback((key: keyof MaterialFacetState, value: string) => {
     setFacets((prev) => ({
       ...prev,
       [key]: prev[key] === value ? "all" : value,
     }));
-  };
+  }, []);
 
-  const handleResetFacets = () => {
+  const handleResetFacets = useCallback(() => {
     setFacets(INITIAL_FACETS);
-  };
+  }, []);
 
-  const handleCategorySelect = (catId: string) => {
+  const handleCategorySelect = useCallback((catId: string) => {
     setSelectedCategory(catId);
     setSelectedSubcategoryState("all");
     handleResetFacets();
-  };
+  }, [handleResetFacets]);
 
-  const setSelectedSubcategory = (subcat: string) => {
+  const setSelectedSubcategory = useCallback((subcat: string) => {
     setSelectedSubcategoryState(subcat);
     handleResetFacets();
-  };
+  }, [handleResetFacets]);
 
   // Список уникальных поставщиков
   const uniqueSuppliersFromPrices = useMemo(() => {
@@ -161,11 +161,14 @@ export function useMaterialFilters({
 
   const activeSynonymMap = synonymMap || defaultSynonymLookup;
 
+  // Отложенное значение поисковой строки для 120 FPS без блокировки ввода
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+
   // Интеллектуальная фильтрация и умный поиск с ранжированием
   const processedPrices = useMemo(() => {
-    const isSearching = Boolean(searchQuery.trim());
+    const isSearching = Boolean(deferredSearchQuery.trim());
     const preparedQuery = isSearching
-      ? prepareSearchQuery(searchQuery, activeSynonymMap)
+      ? prepareSearchQuery(deferredSearchQuery, activeSynonymMap)
       : null;
     const scoredList: { item: SupplierPriceItem; score: number }[] = [];
 
@@ -237,8 +240,8 @@ export function useMaterialFilters({
     }
 
     // Если был реальный поисковый запрос (>= 3 символов), но результат 0 — фиксируем
-    if (isSearching && searchQuery.trim().length >= 3 && scoredList.length === 0) {
-      onZeroResultQuery?.(searchQuery.trim());
+    if (isSearching && deferredSearchQuery.trim().length >= 3 && scoredList.length === 0) {
+      onZeroResultQuery?.(deferredSearchQuery.trim());
     }
 
     // Сортировка:
@@ -270,7 +273,7 @@ export function useMaterialFilters({
     return scoredList.map((s) => s.item);
   }, [
     supplierPrices,
-    searchQuery,
+    deferredSearchQuery,
     selectedCategory,
     selectedSubcategory,
     selectedSupplier,
@@ -283,22 +286,23 @@ export function useMaterialFilters({
     taxonomy,
   ]);
 
-  // Инлайн обновление цены с синхронизацией инспектора
-  const handleQuickUpdateAndSync = async (id: string, newPrice: number) => {
-    await onQuickUpdatePrice(id, newPrice);
-    if (inspectingItem && inspectingItem.id === id) {
-      setInspectingItem((prev) => (prev ? { ...prev, price: newPrice } : null));
-    }
-  };
+  // Инлайн обновление цены с синхронизацией инспектора (мемоизировано)
+  const handleQuickUpdateAndSync = useCallback(
+    async (id: string, newPrice: number) => {
+      await onQuickUpdatePrice(id, newPrice);
+      setInspectingItem((prev) => (prev && prev.id === id ? { ...prev, price: newPrice } : prev));
+    },
+    [onQuickUpdatePrice]
+  );
 
-  const handleResetAllFilters = () => {
+  const handleResetAllFilters = useCallback(() => {
     setSearchQuery("");
     setSelectedCategory("all");
     setSelectedSubcategoryState("all");
     setSelectedSupplier("all");
     setOnlyWithPhoto(false);
     handleResetFacets();
-  };
+  }, [handleResetFacets]);
 
   return {
     searchQuery,

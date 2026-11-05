@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { SortOption, ViewMode } from "./types";
@@ -34,6 +34,29 @@ function MaterialToolbar({
   cartTotalSum = 0,
   onOpenCart,
 }: MaterialToolbarProps) {
+  // Локальное мгновенное состояние ввода (0ms задержки для 120 FPS)
+  const [localQuery, setLocalQuery] = useState(searchQuery);
+
+  // Синхронизация внешнего сброса
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  // Микро-дебаунс 90мс: предотвращает перерисовку сотен карточек на каждый символ при быстром наборе
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (localQuery !== searchQuery) {
+        onSearchChange(localQuery);
+      }
+    }, 90);
+    return () => clearTimeout(handler);
+  }, [localQuery, searchQuery, onSearchChange]);
+
+  const handleClear = () => {
+    setLocalQuery("");
+    onSearchChange("");
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
       {/* Живой поиск */}
@@ -42,8 +65,8 @@ function MaterialToolbar({
         <input
           ref={searchInputRef}
           type="text"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={localQuery}
+          onChange={(e) => setLocalQuery(e.target.value)}
           placeholder="Поиск по названию, характеристикам, поставщику..."
           autoComplete="off"
           autoCorrect="off"
@@ -51,10 +74,10 @@ function MaterialToolbar({
           className="w-full pl-10 pr-16 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none transition"
         />
         <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
-          {searchQuery ? (
+          {localQuery ? (
             <button
               type="button"
-              onClick={() => onSearchChange("")}
+              onClick={handleClear}
               className="p-1 rounded-md text-slate-400 hover:text-slate-700 cursor-pointer"
               title="Очистить поиск"
             >

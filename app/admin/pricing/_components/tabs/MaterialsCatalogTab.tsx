@@ -50,7 +50,7 @@ interface MaterialsCatalogTabProps {
   onClearZeroQueries?: () => void;
 }
 
-const BATCH_SIZE = 60;
+const BATCH_SIZE = 40;
 
 export default function MaterialsCatalogTab({
   supplierPrices,
@@ -226,12 +226,30 @@ export default function MaterialsCatalogTab({
   const handleDeleteWithCleanup = useCallback(
     async (id: string) => {
       await onDeleteItem(id);
-      if (inspectingItem?.id === id) {
-        setInspectingItem(null);
-      }
+      setInspectingItem((curr) => (curr?.id === id ? null : curr));
     },
-    [onDeleteItem, inspectingItem, setInspectingItem]
+    [onDeleteItem, setInspectingItem]
   );
+
+  const handleToggleOnlyWithPhoto = useCallback(() => {
+    setOnlyWithPhoto((prev) => !prev);
+  }, [setOnlyWithPhoto]);
+
+  const handleOpenTaxonomyManager = useCallback(() => {
+    setIsTaxonomyManagerOpen(true);
+  }, []);
+
+  const handleOpenCart = useCallback(() => {
+    setIsCartOpen(true);
+  }, [setIsCartOpen]);
+
+  const handleResetCategory = useCallback(() => {
+    handleCategorySelect("all");
+  }, [handleCategorySelect]);
+
+  const handleResetSubcategory = useCallback(() => {
+    setSelectedSubcategory("all");
+  }, [setSelectedSubcategory]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[290px_1fr] xl:grid-cols-[310px_1fr] 2xl:grid-cols-[330px_1fr] gap-6 items-start w-full">
@@ -246,7 +264,7 @@ export default function MaterialsCatalogTab({
         selectedSupplier={selectedSupplier}
         onSelectSupplier={setSelectedSupplier}
         onlyWithPhoto={onlyWithPhoto}
-        onToggleOnlyWithPhoto={() => setOnlyWithPhoto((prev) => !prev)}
+        onToggleOnlyWithPhoto={handleToggleOnlyWithPhoto}
         categoryCounts={categoryCounts}
         supplierCounts={supplierCounts}
         withPhotoCount={withPhotoCount}
@@ -264,7 +282,7 @@ export default function MaterialsCatalogTab({
       {/* 2. Основная рабочая зона */}
       <main className="w-full min-w-0 space-y-4">
         {/* Компактный Pro Toolbar & Хлебные крошки */}
-        <div className="bg-white/90 backdrop-blur-md p-3 sm:p-4 rounded-3xl border border-slate-200/90 shadow-xs space-y-3">
+        <div className="bg-white/95 p-3 sm:p-4 rounded-3xl border border-slate-200/90 shadow-xs space-y-3">
           <MaterialToolbar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -274,18 +292,18 @@ export default function MaterialsCatalogTab({
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onOpenCreateModal={onOpenCreateModal}
-            onOpenTaxonomyManager={() => setIsTaxonomyManagerOpen(true)}
+            onOpenTaxonomyManager={handleOpenTaxonomyManager}
             cartCount={uniquePositionsCount}
             cartTotalSum={cartTotalSum}
-            onOpenCart={() => setIsCartOpen(true)}
+            onOpenCart={handleOpenCart}
           />
 
           <MaterialBreadcrumbs
             selectedCategory={selectedCategory}
             selectedSubcategory={selectedSubcategory}
             categoryLabel={currentCategoryDef?.label}
-            onResetCategory={() => handleCategorySelect("all")}
-            onResetSubcategory={() => setSelectedSubcategory("all")}
+            onResetCategory={handleResetCategory}
+            onResetSubcategory={handleResetSubcategory}
             facets={facets}
             applicableFacetKeys={applicableFacetKeys}
             hasActiveFacets={hasActiveFacets}

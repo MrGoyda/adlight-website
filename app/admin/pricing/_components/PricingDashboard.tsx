@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { SupplierData, SupplierPriceItem, WorkOperationItem } from "../_types/pricingTypes";
 import PricingHeader from "./PricingHeader";
 import MaterialsCatalogTab from "./tabs/MaterialsCatalogTab";
@@ -81,6 +81,37 @@ export default function PricingDashboard({
     initialWorkOperations,
   });
 
+  const handleOpenCreateMaterial = useCallback(() => {
+    setEditingMaterial(null);
+    setIsMaterialModalOpen(true);
+  }, [setEditingMaterial, setIsMaterialModalOpen]);
+
+  const handleOpenEditMaterial = useCallback((item: SupplierPriceItem) => {
+    setEditingMaterial(item);
+    setIsMaterialModalOpen(true);
+  }, [setEditingMaterial, setIsMaterialModalOpen]);
+
+  const handleOpenCreateRate = useCallback((type?: any) => {
+    setEditingRate(null);
+    setDefaultRateType(type || "ASSEMBLY");
+    setIsRateModalOpen(true);
+  }, [setEditingRate, setDefaultRateType, setIsRateModalOpen]);
+
+  const handleOpenEditRate = useCallback((rate: any) => {
+    setEditingRate(rate);
+    setIsRateModalOpen(true);
+  }, [setEditingRate, setIsRateModalOpen]);
+
+  const handleOpenCreateSupplier = useCallback(() => {
+    setEditingSupplier(null);
+    setIsSupplierModalOpen(true);
+  }, [setEditingSupplier, setIsSupplierModalOpen]);
+
+  const handleOpenEditSupplier = useCallback((sup: any) => {
+    setEditingSupplier(sup);
+    setIsSupplierModalOpen(true);
+  }, [setEditingSupplier, setIsSupplierModalOpen]);
+
   return (
     <div className="space-y-6">
       {/* Шапка и переключатель вкладок */}
@@ -90,19 +121,9 @@ export default function PricingDashboard({
         materialsCount={supplierPrices.length}
         ratesCount={workOperations.length}
         suppliersCount={suppliers.length}
-        onOpenCreateMaterial={() => {
-          setEditingMaterial(null);
-          setIsMaterialModalOpen(true);
-        }}
-        onOpenCreateRate={() => {
-          setEditingRate(null);
-          setDefaultRateType("ASSEMBLY");
-          setIsRateModalOpen(true);
-        }}
-        onOpenCreateSupplier={() => {
-          setEditingSupplier(null);
-          setIsSupplierModalOpen(true);
-        }}
+        onOpenCreateMaterial={handleOpenCreateMaterial}
+        onOpenCreateRate={() => handleOpenCreateRate("ASSEMBLY")}
+        onOpenCreateSupplier={handleOpenCreateSupplier}
       />
 
       {/* Содержимое активной вкладки */}
@@ -110,14 +131,8 @@ export default function PricingDashboard({
         <MaterialsCatalogTab
           supplierPrices={supplierPrices}
           suppliers={suppliers}
-          onOpenCreateModal={() => {
-            setEditingMaterial(null);
-            setIsMaterialModalOpen(true);
-          }}
-          onOpenEditModal={(item) => {
-            setEditingMaterial(item);
-            setIsMaterialModalOpen(true);
-          }}
+          onOpenCreateModal={handleOpenCreateMaterial}
+          onOpenEditModal={handleOpenEditMaterial}
           onQuickUpdatePrice={handleQuickUpdatePrice}
           onDeleteItem={handleDeleteMaterial}
           taxonomy={taxonomy}
