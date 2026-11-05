@@ -347,8 +347,11 @@ model Supplier {
   updatedAt DateTime        @updatedAt
   name      String          @unique // Название поставщика (напр. "Демер")
   address   String?         // Адрес офиса/склада
-  phone     String?         // Телефонный номер
+  phone     String?         // Телефонный номер (основной)
+  phones    String[]        @default([]) // Список телефонных номеров
   whatsapp  String?         // Ссылка на WhatsApp (напр. https://wa.me/...)
+  website   String?         // Веб-сайт поставщика
+  instagram String?         // Instagram профиль
   notes     String?         // Заметки, контакты менеджеров и др.
   prices    SupplierPrice[]
 }

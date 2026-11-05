@@ -179,7 +179,10 @@ export function usePricingState({
     name: string;
     address?: string;
     phone?: string;
+    phones?: string[];
     whatsapp?: string;
+    website?: string;
+    instagram?: string;
     notes?: string;
   }) => {
     if (data.id) {

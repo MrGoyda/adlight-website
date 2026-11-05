@@ -5,7 +5,10 @@ export interface SupplierData {
   name: string;
   address?: string | null;
   phone?: string | null;
+  phones?: string[];
   whatsapp?: string | null;
+  website?: string | null;
+  instagram?: string | null;
   notes?: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;

@@ -266,18 +266,35 @@ export async function createSupplier(data: {
   name: string;
   address?: string;
   phone?: string;
+  phones?: string[];
   whatsapp?: string;
+  website?: string;
+  instagram?: string;
   notes?: string;
 }) {
   try {
     if (!data.name.trim()) return { error: "Название поставщика обязательно" };
 
+    const cleanPhones = (data.phones || [])
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    // Если передан единичный phone, но нет в массиве — добавим
+    if (data.phone?.trim() && !cleanPhones.includes(data.phone.trim())) {
+      cleanPhones.unshift(data.phone.trim());
+    }
+
+    const primaryPhone = cleanPhones[0] || data.phone?.trim() || null;
+
     const supplier = await prisma.supplier.create({
       data: {
         name: data.name.trim(),
         address: data.address?.trim() || null,
-        phone: data.phone?.trim() || null,
+        phone: primaryPhone,
+        phones: cleanPhones,
         whatsapp: data.whatsapp?.trim() || null,
+        website: data.website?.trim() || null,
+        instagram: data.instagram?.trim() || null,
         notes: data.notes?.trim() || null,
       },
       include: {
@@ -299,7 +316,10 @@ export async function updateSupplier(
     name?: string;
     address?: string;
     phone?: string;
+    phones?: string[];
     whatsapp?: string;
+    website?: string;
+    instagram?: string;
     notes?: string;
   }
 ) {
@@ -307,9 +327,22 @@ export async function updateSupplier(
     const updateData: any = {};
     if (data.name !== undefined) updateData.name = data.name.trim();
     if (data.address !== undefined) updateData.address = data.address.trim() || null;
-    if (data.phone !== undefined) updateData.phone = data.phone.trim() || null;
     if (data.whatsapp !== undefined) updateData.whatsapp = data.whatsapp.trim() || null;
+    if (data.website !== undefined) updateData.website = data.website.trim() || null;
+    if (data.instagram !== undefined) updateData.instagram = data.instagram.trim() || null;
     if (data.notes !== undefined) updateData.notes = data.notes.trim() || null;
+
+    if (data.phones !== undefined) {
+      const cleanPhones = data.phones.map((p) => p.trim()).filter(Boolean);
+      updateData.phones = cleanPhones;
+      updateData.phone = cleanPhones[0] || null;
+    } else if (data.phone !== undefined) {
+      const trimmed = data.phone.trim() || null;
+      updateData.phone = trimmed;
+      if (trimmed) {
+        updateData.phones = [trimmed];
+      }
+    }
 
     const supplier = await prisma.supplier.update({
       where: { id },

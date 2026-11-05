@@ -11,6 +11,7 @@ import { pricingDict } from "@/dictionaries/pricing";
 import SupplierContactPhone from "./supplier/SupplierContactPhone";
 import SupplierContactWhatsApp from "./supplier/SupplierContactWhatsApp";
 import SupplierContactAddress from "./supplier/SupplierContactAddress";
+import SupplierContactSocial from "./supplier/SupplierContactSocial";
 
 interface SupplierInfoDrawerProps {
   isOpen: boolean;
@@ -74,7 +75,15 @@ export default function SupplierInfoDrawer({
   const defaults = KNOWN_SUPPLIER_DEFAULTS[supplierName.trim().toLowerCase()] || null;
 
   const phone = matchedSupplier?.phone || defaults?.phone || null;
+  const phones =
+    matchedSupplier?.phones && matchedSupplier.phones.length > 0
+      ? matchedSupplier.phones
+      : phone
+      ? [phone]
+      : [];
   const whatsapp = matchedSupplier?.whatsapp || defaults?.whatsapp || phone;
+  const website = matchedSupplier?.website || null;
+  const instagram = matchedSupplier?.instagram || null;
   const address = matchedSupplier?.address || defaults?.address || null;
   const notes = matchedSupplier?.notes || defaults?.notes || null;
 
@@ -159,10 +168,10 @@ export default function SupplierInfoDrawer({
             )}
           </div>
 
-          {/* Телефон для связи */}
+          {/* Телефоны для связи */}
           <SupplierContactPhone
-            phone={phone}
-            copied={copiedField === "phone"}
+            phones={phones}
+            copiedField={copiedField}
             onCopy={handleCopy}
           />
 
@@ -171,6 +180,12 @@ export default function SupplierInfoDrawer({
             whatsapp={whatsapp}
             copied={copiedField === "whatsapp"}
             onCopy={handleCopy}
+          />
+
+          {/* Соцсети: Сайт и Инстаграм */}
+          <SupplierContactSocial
+            website={website}
+            instagram={instagram}
           />
 
           {/* Адрес склада / офиса */}
@@ -201,8 +216,10 @@ export default function SupplierInfoDrawer({
             onClick={() => {
               const fullText = [
                 `Поставщик: ${supplierName}`,
-                phone ? `Тел: ${phone}` : "",
+                phones.length > 0 ? `Тел: ${phones.join(", ")}` : "",
                 whatsapp ? `WhatsApp: ${whatsapp}` : "",
+                website ? `Сайт: ${website}` : "",
+                instagram ? `Instagram: ${instagram}` : "",
                 address ? `Адрес: ${address}` : "",
                 notes ? `Примечание: ${notes}` : "",
               ]
