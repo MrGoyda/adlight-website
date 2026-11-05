@@ -11,6 +11,7 @@ import RateModal from "./rates/RateModal";
 import SupplierModal from "./suppliers/SupplierModal";
 import { usePricingState } from "../_hooks/usePricingState";
 import { useCustomTaxonomy } from "../_hooks/useCustomTaxonomy";
+import { useCustomSynonyms } from "../_hooks/useCustomSynonyms";
 
 interface PricingDashboardProps {
   initialSuppliers: SupplierData[];
@@ -34,6 +35,16 @@ export default function PricingDashboard({
     updateSubcategoryFacets,
     resetToDefaults,
   } = useCustomTaxonomy();
+
+  const {
+    synonymMap,
+    allRules: synonymRules,
+    zeroQueries,
+    addCustomSynonym,
+    deleteCustomSynonym,
+    logZeroResultQuery,
+    clearZeroResultQueries,
+  } = useCustomSynonyms();
 
   const {
     activeTab,
@@ -118,6 +129,13 @@ export default function PricingDashboard({
           getSubcategoryFacetKeys={getSubcategoryFacetKeys}
           updateSubcategoryFacets={updateSubcategoryFacets}
           resetToDefaults={resetToDefaults}
+          synonymMap={synonymMap}
+          onZeroResultQuery={logZeroResultQuery}
+          synonymRules={synonymRules}
+          zeroQueries={zeroQueries}
+          onAddCustomSynonym={addCustomSynonym}
+          onDeleteCustomSynonym={deleteCustomSynonym}
+          onClearZeroQueries={clearZeroResultQueries}
         />
       )}
 

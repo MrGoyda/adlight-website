@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { SupplierData, SupplierPriceItem } from "../_types/pricingTypes";
 import { MATERIAL_TAXONOMY, MaterialCategoryItem } from "../_data/pricingDictionary";
+import { BUILT_IN_SYNONYM_RULES } from "../_data/synonymsDictionary";
+import { calculateItemRelevance, buildSynonymLookup } from "../_lib/smartSearch";
 import {
   MATERIAL_FACETS,
   INITIAL_FACETS,
@@ -21,6 +23,8 @@ interface UseMaterialFiltersProps {
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   taxonomy?: MaterialCategoryItem[];
   getFacetKeys?: (categoryId: string, subcategory: string) => (keyof MaterialFacetState)[];
+  synonymMap?: Map<string, string[]>;
+  onZeroResultQuery?: (q: string) => void;
 }
 
 export function useMaterialFilters({
@@ -29,6 +33,8 @@ export function useMaterialFilters({
   onQuickUpdatePrice,
   taxonomy = MATERIAL_TAXONOMY,
   getFacetKeys,
+  synonymMap,
+  onZeroResultQuery,
 }: UseMaterialFiltersProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -144,40 +150,37 @@ export function useMaterialFilters({
     return taxonomy.find((c) => c.id === selectedCategory);
   }, [taxonomy, selectedCategory]);
 
-  // Фильтрация и сортировка данных
+  // Активная карта синонимов (встроенная или переданная)
+  const defaultSynonymLookup = useMemo(() => {
+    return buildSynonymLookup(BUILT_IN_SYNONYM_RULES);
+  }, []);
+
+  const activeSynonymMap = synonymMap || defaultSynonymLookup;
+
+  // Интеллектуальная фильтрация и умный поиск с ранжированием
   const processedPrices = useMemo(() => {
-    let result = supplierPrices.filter((item) => {
+    const isSearching = Boolean(searchQuery.trim());
+    const scoredList: { item: SupplierPriceItem; score: number }[] = [];
+
+    for (const item of supplierPrices) {
       // 1. Фильтр "Только с фото"
       if (onlyWithPhoto && (!item.imageUrl || !item.imageUrl.trim())) {
-        return false;
+        continue;
       }
 
-      // 2. Живой поиск
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = item.name.toLowerCase().includes(q);
-        const matchesSupplier = item.supplier.toLowerCase().includes(q);
-        const matchesCat = (item.category || "").toLowerCase().includes(q);
-        const matchesSubcat = (item.subcategory || "").toLowerCase().includes(q);
-        const matchesDesc = (item.description || "").toLowerCase().includes(q);
-        if (!matchesName && !matchesSupplier && !matchesCat && !matchesSubcat && !matchesDesc) {
-          return false;
-        }
-      }
-
-      // 3. Поставщик
+      // 2. Поставщик
       if (selectedSupplier !== "all") {
-        if (item.supplier.toLowerCase() !== selectedSupplier.toLowerCase()) return false;
+        if (item.supplier.toLowerCase() !== selectedSupplier.toLowerCase()) continue;
       }
 
-      // 4. Категория
+      // 3. Категория
       if (selectedCategory !== "all") {
         if (selectedCategory === "services") {
           if (!item.isService && !(item.category || "").toLowerCase().includes("перезаказ")) {
-            return false;
+            continue;
           }
         } else {
-          const categoryDef = MATERIAL_TAXONOMY.find((c) => c.id === selectedCategory);
+          const categoryDef = taxonomy.find((c) => c.id === selectedCategory);
           if (categoryDef) {
             const matchesCategory =
               (item.category || "").trim().toLowerCase() === categoryDef.label.toLowerCase();
@@ -185,58 +188,79 @@ export function useMaterialFilters({
               (s) => s.toLowerCase() === (item.subcategory || "").trim().toLowerCase()
             );
             if (!matchesCategory && !matchesSubcategory) {
-              return false;
+              continue;
             }
           }
         }
       }
 
-      // 5. Подкатегория
+      // 4. Подкатегория
       if (selectedSubcategory !== "all") {
         if (
           (item.subcategory || "").trim().toLowerCase() !== selectedSubcategory.trim().toLowerCase()
         ) {
-          return false;
+          continue;
         }
       }
 
-      // 6. Динамические характеристики со строгой изоляцией
+      // 5. Динамические характеристики со строгой изоляцией
       const fullItemText = `${item.name} ${item.description || ""}`;
-
+      let passesFacets = true;
       for (const facetKey of applicableFacetKeys) {
         const val = facets[facetKey];
         if (val && val !== "all") {
           const options = FACET_CONFIG_MAP[facetKey];
           const matchedOpt = options?.find((o) => o.id === val);
           if (matchedOpt?.match && !matchedOpt.match.test(fullItemText)) {
-            return false;
+            passesFacets = false;
+            break;
           }
         }
       }
+      if (!passesFacets) continue;
 
-      return true;
-    });
+      // 6. Умный поиск (Smart Multi-token & Synonyms Scoring)
+      let score = 100;
+      if (isSearching) {
+        score = calculateItemRelevance(item, searchQuery, activeSynonymMap);
+        if (score <= 0) continue;
+      }
 
-    // Сортировка
-    if (sortBy === "default") {
-      result = [...result].sort((a, b) => {
-        const aHasImg = Boolean(a.imageUrl && a.imageUrl.trim());
-        const bHasImg = Boolean(b.imageUrl && b.imageUrl.trim());
-        if (aHasImg && !bHasImg) return -1;
-        if (!aHasImg && bHasImg) return 1;
-        return a.name.localeCompare(b.name, "ru");
-      });
-    } else if (sortBy === "price_asc") {
-      result = [...result].sort((a, b) => Number(a.price) - Number(b.price));
-    } else if (sortBy === "price_desc") {
-      result = [...result].sort((a, b) => Number(b.price) - Number(a.price));
-    } else if (sortBy === "name_asc") {
-      result = [...result].sort((a, b) => a.name.localeCompare(b.name, "ru"));
-    } else if (sortBy === "name_desc") {
-      result = [...result].sort((a, b) => b.name.localeCompare(a.name, "ru"));
+      scoredList.push({ item, score });
     }
 
-    return result;
+    // Если был реальный поисковый запрос (>= 3 символов), но результат 0 — фиксируем
+    if (isSearching && searchQuery.trim().length >= 3 && scoredList.length === 0) {
+      onZeroResultQuery?.(searchQuery.trim());
+    }
+
+    // Сортировка:
+    // Если идет поиск и режим сортировки "default" — выводим по релевантности (Scoring)!
+    if (isSearching && sortBy === "default") {
+      scoredList.sort((a, b) => b.score - a.score);
+      return scoredList.map((s) => s.item);
+    }
+
+    // Стандартные сортировки
+    if (sortBy === "default") {
+      scoredList.sort((a, b) => {
+        const aHasImg = Boolean(a.item.imageUrl && a.item.imageUrl.trim());
+        const bHasImg = Boolean(b.item.imageUrl && b.item.imageUrl.trim());
+        if (aHasImg && !bHasImg) return -1;
+        if (!aHasImg && bHasImg) return 1;
+        return a.item.name.localeCompare(b.item.name, "ru");
+      });
+    } else if (sortBy === "price_asc") {
+      scoredList.sort((a, b) => Number(a.item.price) - Number(b.item.price));
+    } else if (sortBy === "price_desc") {
+      scoredList.sort((a, b) => Number(b.item.price) - Number(a.item.price));
+    } else if (sortBy === "name_asc") {
+      scoredList.sort((a, b) => a.item.name.localeCompare(b.item.name, "ru"));
+    } else if (sortBy === "name_desc") {
+      scoredList.sort((a, b) => b.item.name.localeCompare(a.item.name, "ru"));
+    }
+
+    return scoredList.map((s) => s.item);
   }, [
     supplierPrices,
     searchQuery,
@@ -247,6 +271,9 @@ export function useMaterialFilters({
     onlyWithPhoto,
     facets,
     applicableFacetKeys,
+    activeSynonymMap,
+    onZeroResultQuery,
+    taxonomy,
   ]);
 
   // Инлайн обновление цены с синхронизацией инспектора

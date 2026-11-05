@@ -16,6 +16,8 @@ import MaterialCartDrawer from "./materials/MaterialCartDrawer";
 import TaxonomyManagerModal from "../materials/TaxonomyManagerModal";
 import { MaterialCategoryItem } from "../../_data/pricingDictionary";
 import { MaterialFacetState } from "../../_data/materialFacets";
+import { SynonymRule } from "../../_data/synonymsDictionary";
+import { ZeroResultQuery } from "../../_hooks/useCustomSynonyms";
 import { Sparkles, ChevronDown } from "lucide-react";
 
 interface MaterialsCatalogTabProps {
@@ -38,6 +40,14 @@ interface MaterialsCatalogTabProps {
     keys: (keyof MaterialFacetState)[]
   ) => void;
   resetToDefaults: () => void;
+  // Умный поиск и синонимы
+  synonymMap?: Map<string, string[]>;
+  onZeroResultQuery?: (q: string) => void;
+  synonymRules?: SynonymRule[];
+  zeroQueries?: ZeroResultQuery[];
+  onAddCustomSynonym?: (target: string, aliases: string[], description?: string) => boolean;
+  onDeleteCustomSynonym?: (ruleId: string) => boolean;
+  onClearZeroQueries?: () => void;
 }
 
 const BATCH_SIZE = 60;
@@ -58,6 +68,13 @@ export default function MaterialsCatalogTab({
   getSubcategoryFacetKeys,
   updateSubcategoryFacets,
   resetToDefaults,
+  synonymMap,
+  onZeroResultQuery,
+  synonymRules = [],
+  zeroQueries = [],
+  onAddCustomSynonym,
+  onDeleteCustomSynonym,
+  onClearZeroQueries,
 }: MaterialsCatalogTabProps) {
   const [isTaxonomyManagerOpen, setIsTaxonomyManagerOpen] = useState(false);
 
@@ -99,6 +116,8 @@ export default function MaterialsCatalogTab({
     onQuickUpdatePrice,
     taxonomy,
     getFacetKeys: getSubcategoryFacetKeys,
+    synonymMap,
+    onZeroResultQuery,
   });
 
   // Управление корзиной закупки (снабжение)
@@ -403,6 +422,11 @@ export default function MaterialsCatalogTab({
         getSubcategoryFacetKeys={getSubcategoryFacetKeys}
         onUpdateSubcategoryFacets={updateSubcategoryFacets}
         onResetToDefaults={resetToDefaults}
+        synonymRules={synonymRules}
+        zeroQueries={zeroQueries}
+        onAddCustomSynonym={onAddCustomSynonym}
+        onDeleteCustomSynonym={onDeleteCustomSynonym}
+        onClearZeroQueries={onClearZeroQueries}
       />
     </div>
   );
