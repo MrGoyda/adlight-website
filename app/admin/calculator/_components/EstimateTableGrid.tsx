@@ -109,9 +109,9 @@ export default function EstimateTableGrid({
   }, [inlineSearch, searchResults.length]);
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden transition-all duration-200">
+    <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs transition-all duration-200 relative">
       {/* Десктопная ультралегкая таблица */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-t-3xl">
         <table className="w-full text-left border-collapse min-w-[760px]">
           <thead>
             <tr className="bg-slate-50/75 border-b border-slate-100 text-[11px] font-semibold text-slate-400 uppercase tracking-wider select-none">
@@ -269,7 +269,7 @@ export default function EstimateTableGrid({
       </div>
 
       {/* Быстрая строка добавления снизу (Quick Add / Smart Autocomplete) */}
-      <div className="p-3 bg-slate-50/50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 relative">
+      <div className="p-3 bg-slate-50/50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 relative rounded-b-3xl z-30">
         <div ref={searchContainerRef} className="flex-1 min-w-[260px] relative">
           <div className="relative flex items-center">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
@@ -283,15 +283,16 @@ export default function EstimateTableGrid({
               }}
               onFocus={() => setIsSearchOpen(true)}
               placeholder="Начните вводить название материала или работы для авто-вставки..."
-              className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-slate-200 rounded-xl placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition"
+              className="w-full pl-9 pr-4 py-2 text-xs bg-white border border-slate-200 rounded-xl placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition shadow-2xs"
             />
           </div>
 
-          {/* Всплывающие результаты автокомплита */}
+          {/* Всплывающие результаты автокомплита поверх таблицы и окон */}
           {isSearchOpen && searchResults.length > 0 && (
-            <div className="absolute left-0 bottom-full mb-2 w-full max-h-72 bg-white rounded-2xl border border-slate-200/90 shadow-xl overflow-y-auto z-40 p-1 divide-y divide-slate-50">
-              <div className="p-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Быстрое добавление в 1 клик
+            <div className="absolute left-0 bottom-full mb-2 w-full max-h-80 bg-white rounded-2xl border border-slate-200 shadow-2xl ring-1 ring-slate-900/10 overflow-y-auto z-50 p-1.5 divide-y divide-slate-100">
+              <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between bg-slate-50/80 rounded-xl mb-1">
+                <span>Быстрое добавление в 1 клик</span>
+                <span className="text-[10px] text-orange-600 font-mono font-medium">{searchResults.length} вар.</span>
               </div>
               {searchResults.map((res) => (
                 <button
