@@ -5,7 +5,6 @@ import {
   X,
   Save,
   Building2,
-  Phone,
   MapPin,
   MessageCircle,
   Globe,

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, memo } from "react";
+import React, { useEffect, memo } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "../../../_hooks/useIsMounted";
 import { motion, AnimatePresence } from "framer-motion";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import { X, Trash2, Edit2, ShoppingBag, Star } from "lucide-react";
@@ -42,12 +43,8 @@ function MaterialInspectorDrawer({
   isInCart = false,
   cartQuantity = 0,
 }: MaterialInspectorDrawerProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const t = pricingDict.modals.inspector;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Закрытие по клавише Escape
   useEffect(() => {

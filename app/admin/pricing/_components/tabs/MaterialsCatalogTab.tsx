@@ -162,22 +162,17 @@ export default function MaterialsCatalogTab({
     [setSelectedSupplier]
   );
 
-  // Прогрессивная подгрузка элементов (60 штук за раз) для мгновенного скролла и 120 FPS
+  // Прогрессивная подгрузка элементов (BATCH_SIZE штук за раз)
   const [visibleLimit, setVisibleLimit] = useState(BATCH_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Сброс лимита при изменении поискового запроса или фильтрации
-  useEffect(() => {
+  // Сброс лимита при изменении поискового запроса или фильтрации (паттерн React: resetting state on change)
+  const filterKey = `${searchQuery}|${selectedCategory}|${selectedSubcategory}|${selectedSupplier}|${sortBy}|${onlyWithPhoto}|${onlyFavorites}|${JSON.stringify(facets)}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (prevFilterKey !== filterKey) {
+    setPrevFilterKey(filterKey);
     setVisibleLimit(BATCH_SIZE);
-  }, [
-    searchQuery,
-    selectedCategory,
-    selectedSubcategory,
-    selectedSupplier,
-    sortBy,
-    onlyWithPhoto,
-    facets,
-  ]);
+  }
 
   const visiblePrices = useMemo(() => {
     return processedPrices.slice(0, visibleLimit);

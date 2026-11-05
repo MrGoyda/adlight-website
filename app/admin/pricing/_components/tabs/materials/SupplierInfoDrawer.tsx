@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "../../../_hooks/useIsMounted";
 import { SupplierData } from "../../../_types/pricingTypes";
 import { X, FileText, Copy, Check, Layers, ArrowRight } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
@@ -49,13 +50,9 @@ export default function SupplierInfoDrawer({
   onFilterBySupplier,
   catalogCount = 0,
 }: SupplierInfoDrawerProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const t = pricingDict.modals.supplierInfo;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Закрытие по клавише Esc
   useEffect(() => {

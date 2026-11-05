@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { X, Sliders, FolderTree, Filter, Sparkles } from "lucide-react";
 import BottomSheet from "@/components/ui/BottomSheet";
 import ConfirmDialog from "../common/ConfirmDialog";
@@ -62,7 +62,7 @@ export default function TaxonomyManagerModal({
 }: TaxonomyManagerModalProps) {
   const [selectedCatId, setSelectedCatId] = useState<string>(taxonomy[0]?.id || "sheets");
   const [activeTab, setActiveTab] = useState<"subcategories" | "facets" | "synonyms">("subcategories");
-  const [selectedSubForFacets, setSelectedSubForFacets] = useState<string>("");
+  const [rawSelectedSub, setRawSelectedSub] = useState<string>("");
   const t = pricingDict.modals.taxonomy;
 
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -80,16 +80,10 @@ export default function TaxonomyManagerModal({
   });
 
   const activeCategory = taxonomy.find((c) => c.id === selectedCatId) || taxonomy[0];
-
-  useEffect(() => {
-    if (activeCategory?.subcategories.length > 0) {
-      if (!activeCategory.subcategories.includes(selectedSubForFacets)) {
-        setSelectedSubForFacets(activeCategory.subcategories[0]);
-      }
-    } else {
-      setSelectedSubForFacets("");
-    }
-  }, [activeCategory, selectedSubForFacets]);
+  const selectedSubForFacets =
+    (activeCategory?.subcategories.includes(rawSelectedSub)
+      ? rawSelectedSub
+      : activeCategory?.subcategories[0]) || "";
 
   const handleRequestDeleteSub = (subName: string) => {
     triggerHaptic("medium");
@@ -287,7 +281,7 @@ export default function TaxonomyManagerModal({
                   activeCategory={activeCategory}
                   subcategoryCounts={subcategoryCounts}
                   selectedSubForFacets={selectedSubForFacets}
-                  onSelectSubForFacets={setSelectedSubForFacets}
+                  onSelectSubForFacets={setRawSelectedSub}
                   currentSubFacets={currentSubFacets}
                   onToggleFacet={handleToggleFacet}
                   allFacetKeys={allFacetKeys}

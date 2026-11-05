@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "../../../_hooks/useIsMounted";
 import { MaterialCartItem } from "../../../_hooks/useMaterialCart";
 import { SupplierData } from "../../../_types/pricingTypes";
 import { X, ShoppingBag, Trash2 } from "lucide-react";
@@ -45,12 +46,8 @@ export default function MaterialCartDrawer({
   totalQuantity,
   onOpenSupplierInfo,
 }: MaterialCartDrawerProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
   const t = pricingDict.modals.cart;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Закрытие по клавише Esc
   useEffect(() => {

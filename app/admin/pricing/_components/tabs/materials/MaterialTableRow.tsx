@@ -1,26 +1,23 @@
 "use client";
 
 import React, { useState, memo } from "react";
+import Image from "next/image";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import { INVENTORY_UNITS } from "../../../_data/pricingDictionary";
 import {
   Package,
-  Edit2,
-  Trash2,
-  Check,
-  X,
   Handshake,
   ZoomIn,
   Building2,
-  ShoppingBag,
-  Plus,
-  Minus,
   Star,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
-import { toast } from "@/lib/toast";
 import { pricingDict } from "@/dictionaries/pricing";
 import { cn } from "@/lib/utils";
+
+import MaterialRowQuickPrice from "./table/MaterialRowQuickPrice";
+import MaterialRowCartControl from "./table/MaterialRowCartControl";
+import MaterialRowActions from "./table/MaterialRowActions";
 
 interface MaterialTableRowProps {
   item: SupplierPriceItem;
@@ -53,76 +50,15 @@ function MaterialTableRow({
   isInCart = false,
   cartQuantity = 0,
 }: MaterialTableRowProps) {
-  const [isInline, setIsInline] = useState(false);
-  const [inlinePriceValue, setInlinePriceValue] = useState<number | "">(item.price);
-  const [isSavingInline, setIsSavingInline] = useState(false);
   const [imgError, setImgError] = useState(false);
-
   const unitShort = INVENTORY_UNITS[item.unit]?.short || "ед.";
-
-  const handleStartInlineEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    triggerHaptic("light");
-    setIsInline(true);
-    setInlinePriceValue(item.price);
-  };
-
-  const handleSaveInlineEdit = async (e?: React.MouseEvent | React.KeyboardEvent) => {
-    if (e) e.stopPropagation();
-    if (inlinePriceValue === "" || isNaN(Number(inlinePriceValue))) {
-      setIsInline(false);
-      return;
-    }
-
-    setIsSavingInline(true);
-    triggerHaptic("medium");
-    try {
-      await onQuickUpdatePrice(item.id, Number(inlinePriceValue));
-      setIsInline(false);
-    } catch {
-      toast.error(pricingDict.toasts.priceUpdateError);
-    } finally {
-      setIsSavingInline(false);
-    }
-  };
+  const isService = Boolean(item.isService);
 
   const handleSupplierClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("light");
     onOpenSupplierInfo?.(item.supplier);
   };
-
-  const handleAddToCartClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onAddToCart?.(item, 1);
-  };
-
-  const handleIncrement = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    triggerHaptic("light");
-    onUpdateCartQuantity?.(item.id, (cartQuantity || 0) + 1);
-  };
-
-  const handleDecrement = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if ((cartQuantity || 0) <= 1) {
-      triggerHaptic("medium");
-      onRemoveFromCart?.(item.id);
-    } else {
-      triggerHaptic("light");
-      onUpdateCartQuantity?.(item.id, (cartQuantity || 0) - 1);
-    }
-  };
-
-  const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-    const val = parseInt(e.target.value, 10);
-    if (!isNaN(val) && val > 0) {
-      onUpdateCartQuantity?.(item.id, val);
-    }
-  };
-
-  const isService = Boolean(item.isService);
 
   return (
     <div
@@ -168,12 +104,13 @@ function MaterialTableRow({
         >
           {item.imageUrl && !imgError ? (
             <>
-              <img
+              <Image
                 src={item.imageUrl}
                 alt={item.name}
+                width={44}
+                height={44}
+                unoptimized
                 className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105 transform-gpu will-change-transform"
-                loading="lazy"
-                decoding="async"
                 onError={() => setImgError(true)}
               />
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
@@ -268,57 +205,12 @@ function MaterialTableRow({
       {/* Цена (с возможностью inline-редактирования) */}
       <div className="md:col-span-2 flex items-center justify-between md:justify-end gap-2 pr-3">
         <span className="text-[11px] font-bold text-slate-400 md:hidden">Стоимость:</span>
-
-        {isInline ? (
-          <div
-            className="flex items-center gap-1"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <input
-              type="number"
-              autoFocus
-              value={inlinePriceValue}
-              onChange={(e) =>
-                setInlinePriceValue(e.target.value ? Number(e.target.value) : "")
-              }
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSaveInlineEdit(e);
-                if (e.key === "Escape") setIsInline(false);
-              }}
-              className="w-24 px-2 py-1 rounded-lg border border-orange-400 bg-white text-xs font-black text-slate-900 outline-none text-right"
-            />
-            <button
-              type="button"
-              onClick={handleSaveInlineEdit}
-              disabled={isSavingInline}
-              className="p-1 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition cursor-pointer"
-              title={pricingDict.table.tooltips.savePrice}
-            >
-              <Check className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsInline(false)}
-              className="p-1 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition cursor-pointer"
-              title={pricingDict.table.tooltips.cancelPrice}
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={handleStartInlineEdit}
-            className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-50 hover:bg-orange-50 border border-slate-200/80 hover:border-orange-200 transition-colors cursor-pointer"
-            title="Нажмите, чтобы быстро изменить цену"
-          >
-            <span className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-orange-600">
-              {Number(item.price).toLocaleString("ru-RU")} ₸
-            </span>
-            <span className="text-[10px] font-bold text-slate-400">/ {unitShort}</span>
-            <Edit2 className="w-2.5 h-2.5 text-slate-300 group-hover:text-orange-500 transition-colors ml-0.5" />
-          </button>
-        )}
+        <MaterialRowQuickPrice
+          itemId={item.id}
+          price={item.price}
+          unitShort={unitShort}
+          onQuickUpdatePrice={onQuickUpdatePrice}
+        />
       </div>
 
       {/* Кнопки действий: Корзина, Редактирование, Удаление */}
@@ -326,75 +218,20 @@ function MaterialTableRow({
         className="md:col-span-2 flex items-center justify-between md:justify-end gap-1.5 pt-1 md:pt-0 border-t md:border-t-0 border-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Закупка: Кнопка добавления или микро-степпер количества */}
-        {isInCart ? (
-          <div
-            className="inline-flex items-center bg-slate-900 text-white rounded-xl p-0.5 shadow-2xs border border-slate-800 shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={handleDecrement}
-              className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-white/10 transition cursor-pointer"
-              title={cartQuantity <= 1 ? "Удалить из корзины" : "Уменьшить на 1"}
-            >
-              {cartQuantity <= 1 ? (
-                <Trash2 className="w-3 h-3 text-rose-400" />
-              ) : (
-                <Minus className="w-3 h-3" />
-              )}
-            </button>
+        <MaterialRowCartControl
+          item={item}
+          isInCart={isInCart}
+          cartQuantity={cartQuantity}
+          onAddToCart={onAddToCart}
+          onRemoveFromCart={onRemoveFromCart}
+          onUpdateCartQuantity={onUpdateCartQuantity}
+        />
 
-            <input
-              type="number"
-              min="1"
-              max="99999"
-              value={cartQuantity}
-              onChange={handleQuantityInputChange}
-              onClick={(e) => e.stopPropagation()}
-              className="w-8 text-center bg-transparent text-white font-black text-xs outline-none py-0.5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              title="Введите количество"
-            />
-
-            <button
-              type="button"
-              onClick={handleIncrement}
-              className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:text-orange-400 hover:bg-white/10 transition cursor-pointer"
-              title="Увеличить на 1"
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-          </div>
-        ) : (
-          onAddToCart && (
-            <button
-              type="button"
-              onClick={handleAddToCartClick}
-              className="p-1.5 rounded-xl bg-slate-100 hover:bg-orange-500 hover:text-white text-slate-600 transition cursor-pointer shrink-0"
-              title={pricingDict.table.tooltips.addToCart}
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-            </button>
-          )
-        )}
-
-        <button
-          type="button"
-          onClick={() => onOpenEditModal(item)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
-          title={pricingDict.table.tooltips.edit}
-        >
-          <Edit2 className="w-3.5 h-3.5" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onDeleteItem(item.id)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0"
-          title={pricingDict.table.tooltips.delete}
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+        <MaterialRowActions
+          item={item}
+          onOpenEditModal={onOpenEditModal}
+          onDeleteItem={onDeleteItem}
+        />
       </div>
     </div>
   );

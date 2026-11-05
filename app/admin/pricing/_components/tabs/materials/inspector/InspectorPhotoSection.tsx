@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { ZoomIn, Handshake, Package, X } from "lucide-react";
 import { SupplierPriceItem } from "../../../../_types/pricingTypes";
@@ -21,11 +22,13 @@ export default function InspectorPhotoSection({ item }: InspectorPhotoSectionPro
       <div className="relative aspect-16/10 rounded-2xl bg-slate-100 overflow-hidden border border-slate-200/80 shadow-xs flex items-center justify-center group">
         {item.imageUrl ? (
           <>
-            <img
+            <Image
               src={item.imageUrl}
               alt={item.name}
+              width={600}
+              height={375}
+              unoptimized
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-102"
-              decoding="async"
             />
             <button
               type="button"
@@ -74,11 +77,13 @@ export default function InspectorPhotoSection({ item }: InspectorPhotoSectionPro
                 </button>
 
                 <div className="bg-slate-100 aspect-4/3 flex items-center justify-center overflow-hidden">
-                  <img
+                  <Image
                     src={item.imageUrl}
                     alt={item.name}
+                    width={800}
+                    height={600}
+                    unoptimized
                     className="w-full h-full object-contain max-h-[75vh]"
-                    decoding="async"
                   />
                 </div>
 

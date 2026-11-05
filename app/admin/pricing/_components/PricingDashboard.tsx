@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
+import { EstimateItemType } from "@prisma/client";
 import { SupplierData, SupplierPriceItem, WorkOperationItem } from "../_types/pricingTypes";
 import PricingHeader from "./PricingHeader";
 import MaterialsCatalogTab from "./tabs/MaterialsCatalogTab";
@@ -92,13 +93,13 @@ export default function PricingDashboard({
     setIsMaterialModalOpen(true);
   }, [setEditingMaterial, setIsMaterialModalOpen]);
 
-  const handleOpenCreateRate = useCallback((type?: any) => {
+  const handleOpenCreateRate = useCallback((type?: EstimateItemType) => {
     setEditingRate(null);
     setDefaultRateType(type || "ASSEMBLY");
     setIsRateModalOpen(true);
   }, [setEditingRate, setDefaultRateType, setIsRateModalOpen]);
 
-  const handleOpenEditRate = useCallback((rate: any) => {
+  const handleOpenEditRate = useCallback((rate: WorkOperationItem) => {
     setEditingRate(rate);
     setIsRateModalOpen(true);
   }, [setEditingRate, setIsRateModalOpen]);
@@ -108,7 +109,7 @@ export default function PricingDashboard({
     setIsSupplierModalOpen(true);
   }, [setEditingSupplier, setIsSupplierModalOpen]);
 
-  const handleOpenEditSupplier = useCallback((sup: any) => {
+  const handleOpenEditSupplier = useCallback((sup: SupplierData) => {
     setEditingSupplier(sup);
     setIsSupplierModalOpen(true);
   }, [setEditingSupplier, setIsSupplierModalOpen]);
@@ -159,15 +160,8 @@ export default function PricingDashboard({
       {activeTab === "rates" && (
         <EstimateRatesTab
           workOperations={workOperations}
-          onOpenCreateRateModal={(type) => {
-            setEditingRate(null);
-            setDefaultRateType(type);
-            setIsRateModalOpen(true);
-          }}
-          onOpenEditRateModal={(rate) => {
-            setEditingRate(rate);
-            setIsRateModalOpen(true);
-          }}
+          onOpenCreateRateModal={handleOpenCreateRate}
+          onOpenEditRateModal={handleOpenEditRate}
           onDeleteRate={handleDeleteRate}
         />
       )}
@@ -175,14 +169,8 @@ export default function PricingDashboard({
       {activeTab === "suppliers" && (
         <SuppliersTab
           suppliers={suppliers}
-          onOpenCreateSupplierModal={() => {
-            setEditingSupplier(null);
-            setIsSupplierModalOpen(true);
-          }}
-          onOpenEditSupplierModal={(sup) => {
-            setEditingSupplier(sup);
-            setIsSupplierModalOpen(true);
-          }}
+          onOpenCreateSupplierModal={handleOpenCreateSupplier}
+          onOpenEditSupplierModal={handleOpenEditSupplier}
           onDeleteSupplier={handleDeleteSupplier}
           onSelectSupplierForMaterials={() => {
             setActiveTab("materials");

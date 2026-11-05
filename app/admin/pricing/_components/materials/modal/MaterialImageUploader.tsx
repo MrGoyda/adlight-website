@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import Image from "next/image";
 import { Image as ImageIcon, Upload, Loader2 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -51,9 +52,10 @@ export default function MaterialImageUploader({
       } else {
         throw new Error(data.error || "Не удалось получить URL");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Ошибка загрузки фото:", err);
-      toast.error(pricingDict.toasts.photoUploadError(err.message));
+      const errMsg = err instanceof Error ? err.message : "Не удалось загрузить фото";
+      toast.error(pricingDict.toasts.photoUploadError(errMsg));
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -86,9 +88,12 @@ export default function MaterialImageUploader({
               <span className="text-[9px] font-bold">{f.photoUploading}</span>
             </div>
           ) : imageUrl ? (
-            <img
+            <Image
               src={imageUrl}
               alt="Предпросмотр"
+              width={64}
+              height={64}
+              unoptimized
               className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLElement).style.display = "none";

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Package, Plus, Minus, X } from "lucide-react";
 import { MaterialCartItem } from "../../../../_hooks/useMaterialCart";
 
@@ -22,11 +23,13 @@ export default function CartItemRow({
       {/* Фото товара */}
       <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center">
         {item.imageUrl ? (
-          <img
+          <Image
             src={item.imageUrl}
             alt={item.name}
+            width={48}
+            height={48}
+            unoptimized
             className="w-full h-full object-cover"
-            loading="lazy"
           />
         ) : (
           <Package className="w-5 h-5 text-slate-400" />

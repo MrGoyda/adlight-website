@@ -288,7 +288,6 @@ export function isItemInSubcategory(item: SupplierPriceItem, selectedSubcategory
 
 export function useMaterialFilters({
   supplierPrices,
-  suppliers,
   onQuickUpdatePrice,
   taxonomy = MATERIAL_TAXONOMY,
   getFacetKeys,

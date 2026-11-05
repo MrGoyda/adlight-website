@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { X, Save, Calculator, TrendingUp } from "lucide-react";
 import { EstimateItemType, InventoryUnit } from "@prisma/client";
 import { WorkOperationItem } from "../../_types/pricingTypes";
-import { INVENTORY_UNITS, RATE_CATEGORIES } from "../../_data/pricingDictionary";
+import { INVENTORY_UNITS } from "../../_data/pricingDictionary";
 import { triggerHaptic } from "@/lib/haptics";
 import CustomSelect from "../common/CustomSelect";
 import { renderRateCategoryIcon } from "./RateCategoryIcon";

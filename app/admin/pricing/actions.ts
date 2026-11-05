@@ -2,8 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { EstimateItemType, InventoryUnit } from "@prisma/client";
+import { Prisma, EstimateItemType, InventoryUnit } from "@prisma/client";
 import { DEFAULT_WORK_OPERATIONS } from "./_data/pricingDictionary";
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error) return error.message;
+  return fallback;
+}
 
 /**
  * Получение всех данных раздела: Материалы, Тарифы работ, Поставщики
@@ -55,10 +60,10 @@ export async function getPricingData() {
       supplierPrices: JSON.parse(JSON.stringify(supplierPrices)),
       workOperations: JSON.parse(JSON.stringify(workOperations)),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка при получении данных прайсов:", error);
     return {
-      error: error.message || "Не удалось загрузить данные",
+      error: getErrorMessage(error, "Не удалось загрузить данные"),
       suppliers: [],
       supplierPrices: [],
       workOperations: [],
@@ -109,9 +114,9 @@ export async function createSupplierPrice(data: {
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка создания товара:", error);
-    return { error: error.message || "Не удалось создать товар" };
+    return { error: getErrorMessage(error, "Не удалось создать товар") };
   }
 }
 
@@ -132,7 +137,7 @@ export async function updateSupplierPrice(
   }
 ) {
   try {
-    const updateData: any = {};
+    const updateData: Prisma.SupplierPriceUpdateInput = {};
     if (data.name !== undefined) updateData.name = data.name.trim();
     if (data.supplier !== undefined) updateData.supplier = data.supplier.trim();
     if (data.price !== undefined) updateData.price = Number(data.price) || 0;
@@ -143,7 +148,11 @@ export async function updateSupplierPrice(
     if (data.description !== undefined) updateData.description = data.description?.trim() || null;
     if (data.sourceUrl !== undefined) updateData.sourceUrl = data.sourceUrl?.trim() || null;
     if (data.isService !== undefined) updateData.isService = Boolean(data.isService);
-    if (data.supplierId !== undefined) updateData.supplierId = data.supplierId || null;
+    if (data.supplierId !== undefined) {
+      updateData.supplierObj = data.supplierId
+        ? { connect: { id: data.supplierId } }
+        : { disconnect: true };
+    }
 
     const item = await prisma.supplierPrice.update({
       where: { id },
@@ -156,9 +165,9 @@ export async function updateSupplierPrice(
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка обновления товара:", error);
-    return { error: error.message || "Не удалось обновить товар" };
+    return { error: getErrorMessage(error, "Не удалось обновить товар") };
   }
 }
 
@@ -171,9 +180,9 @@ export async function deleteSupplierPrice(id: string) {
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка удаления товара:", error);
-    return { error: error.message || "Не удалось удалить товар" };
+    return { error: getErrorMessage(error, "Не удалось удалить товар") };
   }
 }
 
@@ -192,9 +201,9 @@ export async function toggleMaterialFavorite(id: string, isFavorite: boolean) {
 
     revalidatePath("/admin/pricing");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка переключения избранного:", error);
-    return { error: error.message || "Не удалось обновить избранное" };
+    return { error: getErrorMessage(error, "Не удалось обновить избранное") };
   }
 }
 
@@ -226,9 +235,9 @@ export async function createWorkOperation(data: {
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка создания тарифа:", error);
-    return { error: error.message || "Не удалось создать тариф" };
+    return { error: getErrorMessage(error, "Не удалось создать тариф") };
   }
 }
 
@@ -243,7 +252,7 @@ export async function updateWorkOperation(
   }
 ) {
   try {
-    const updateData: any = {};
+    const updateData: Prisma.WorkOperationUpdateInput = {};
     if (data.type !== undefined) updateData.type = data.type;
     if (data.name !== undefined) updateData.name = data.name.trim();
     if (data.unit !== undefined) updateData.unit = data.unit;
@@ -258,9 +267,9 @@ export async function updateWorkOperation(
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка обновления тарифа:", error);
-    return { error: error.message || "Не удалось обновить тариф" };
+    return { error: getErrorMessage(error, "Не удалось обновить тариф") };
   }
 }
 
@@ -273,9 +282,9 @@ export async function deleteWorkOperation(id: string) {
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка удаления тарифа:", error);
-    return { error: error.message || "Не удалось удалить тариф" };
+    return { error: getErrorMessage(error, "Не удалось удалить тариф") };
   }
 }
 
@@ -325,9 +334,9 @@ export async function createSupplier(data: {
 
     revalidatePath("/admin/pricing");
     return { success: true, data: JSON.parse(JSON.stringify(supplier)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка создания поставщика:", error);
-    return { error: error.message || "Не удалось создать поставщика" };
+    return { error: getErrorMessage(error, "Не удалось создать поставщика") };
   }
 }
 
@@ -345,7 +354,7 @@ export async function updateSupplier(
   }
 ) {
   try {
-    const updateData: any = {};
+    const updateData: Prisma.SupplierUpdateInput = {};
     if (data.name !== undefined) updateData.name = data.name.trim();
     if (data.address !== undefined) updateData.address = data.address.trim() || null;
     if (data.whatsapp !== undefined) updateData.whatsapp = data.whatsapp.trim() || null;
@@ -375,9 +384,9 @@ export async function updateSupplier(
 
     revalidatePath("/admin/pricing");
     return { success: true, data: JSON.parse(JSON.stringify(supplier)) };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка обновления поставщика:", error);
-    return { error: error.message || "Не удалось обновить поставщика" };
+    return { error: getErrorMessage(error, "Не удалось обновить поставщика") };
   }
 }
 
@@ -389,8 +398,8 @@ export async function deleteSupplier(id: string) {
 
     revalidatePath("/admin/pricing");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка удаления поставщика:", error);
-    return { error: error.message || "Не удалось удалить поставщика" };
+    return { error: getErrorMessage(error, "Не удалось удалить поставщика") };
   }
 }
