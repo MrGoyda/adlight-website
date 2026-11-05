@@ -119,7 +119,7 @@ function MaterialInspectorDrawer({
     isZoomOpen && item?.imageUrl
       ? createPortal(
           <div
-            className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200 cursor-zoom-out"
+            className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200 cursor-zoom-out"
             onClick={() => setIsZoomOpen(false)}
           >
             <div
@@ -194,7 +194,7 @@ function MaterialInspectorDrawer({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
                 onClick={onClose}
-                className="fixed inset-0 z-[9980] bg-black/40 backdrop-blur-xs"
+                className="fixed inset-0 z-[9980] bg-black/50"
               />
 
               {/* Выезжающая панель инспектора */}

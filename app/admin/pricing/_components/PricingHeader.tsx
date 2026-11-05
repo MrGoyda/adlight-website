@@ -16,7 +16,7 @@ interface PricingHeaderProps {
   onOpenCreateSupplier: () => void;
 }
 
-export default function PricingHeader({
+function PricingHeader({
   activeTab,
   onChangeTab,
   materialsCount,
@@ -145,3 +145,5 @@ export default function PricingHeader({
     </div>
   );
 }
+
+export default React.memo(PricingHeader);

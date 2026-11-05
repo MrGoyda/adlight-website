@@ -108,7 +108,7 @@ function MaterialsSidebar({
   }, [suppliers, uniqueSuppliersFromPrices]);
 
   return (
-    <aside className="w-full space-y-5 bg-white/90 backdrop-blur-md p-4 rounded-3xl border border-slate-200/80 shadow-xs">
+    <aside className="w-full space-y-5 bg-white p-4 rounded-3xl border border-slate-200/90 shadow-xs">
       {/* 1. Тумблер: Только с фото (iOS Switch) */}
       <div className="bg-slate-50/90 rounded-2xl p-3 border border-slate-200/70 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">

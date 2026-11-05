@@ -217,7 +217,7 @@ export default function MaterialModal({
     >
       <div className="flex flex-col h-full w-full max-w-full overflow-hidden">
         {/* Шапка */}
-        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-20 shrink-0 w-full">
+        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-20 shrink-0 w-full">
           <div className="flex items-center gap-2.5 min-w-0">
             <div
               className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
@@ -444,7 +444,7 @@ export default function MaterialModal({
         </form>
 
         {/* Фиксированный подвал действий */}
-        <div className="p-3.5 sm:px-6 sm:py-4 border-t border-slate-100 bg-white/95 backdrop-blur-md flex items-center justify-between shrink-0">
+        <div className="p-3.5 sm:px-6 sm:py-4 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
           <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold">
             <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono font-bold text-slate-500">
               ⌘ Enter

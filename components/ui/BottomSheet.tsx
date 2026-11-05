@@ -196,7 +196,7 @@ export default function BottomSheet({
           triggerHaptic("light");
           onClose();
         }}
-        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs cursor-pointer z-10 transition-opacity duration-300 ease-out will-change-opacity ${
+        className={`fixed inset-0 bg-slate-950/60 cursor-pointer z-10 transition-opacity duration-300 ease-out will-change-opacity ${
           isVisible ? "opacity-100" : "opacity-0"
         }`}
       />

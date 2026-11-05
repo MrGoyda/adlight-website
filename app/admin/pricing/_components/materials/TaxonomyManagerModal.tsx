@@ -156,7 +156,7 @@ export default function TaxonomyManagerModal({
       >
         <div className="flex flex-col h-full w-full max-w-full overflow-hidden">
           {/* Шапка */}
-          <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-20 shrink-0 w-full">
+          <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-20 shrink-0 w-full">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-xl bg-slate-900 text-orange-400 flex items-center justify-center shrink-0">
                 <Sliders className="w-4 h-4" />
@@ -307,7 +307,7 @@ export default function TaxonomyManagerModal({
           </div>
 
           {/* Фиксированный подвал */}
-          <div className="p-3 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-white/95 backdrop-blur-md flex items-center justify-between shrink-0">
+          <div className="p-3 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
             <div className="text-[11px] text-slate-400 font-medium">
               Все изменения сохраняются автоматически
             </div>

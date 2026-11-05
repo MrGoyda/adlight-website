@@ -83,7 +83,7 @@ export default function SupplierModal({
     >
       <div className="flex flex-col h-full w-full max-w-full overflow-hidden overflow-x-hidden">
         {/* Шапка */}
-        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-20 shrink-0 w-full">
+        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-20 shrink-0 w-full">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
               <Building2 className="w-4 h-4" />
