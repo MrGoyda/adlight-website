@@ -160,9 +160,9 @@ export default function BottomSheet({
   // Динамический класс позиционирования для десктопа
   let containerPositionClass = "flex flex-col justify-end items-center";
   if (desktopVariant === "drawer") {
-    containerPositionClass = "flex flex-col justify-end items-center lg:justify-start lg:items-end";
+    containerPositionClass = "flex flex-col justify-end items-center sm:justify-start sm:items-end";
   } else if (desktopVariant === "modal") {
-    containerPositionClass = "flex flex-col justify-end items-center lg:justify-center lg:items-center lg:p-6";
+    containerPositionClass = "flex flex-col justify-end items-center sm:justify-center sm:items-center sm:p-4 md:p-6";
   }
 
   // Динамический стиль анимации и размеров
@@ -171,14 +171,14 @@ export default function BottomSheet({
   // На десктопе в режиме modal: fade + scale
   let desktopClassNames = "";
   if (desktopVariant === "drawer") {
-    desktopClassNames = `lg:rounded-t-none lg:rounded-l-3xl lg:border-t-0 lg:border-l lg:border-slate-200/80 lg:shadow-2xl lg:h-full lg:max-h-full ${desktopWidth}`;
+    desktopClassNames = `sm:rounded-t-none sm:rounded-l-3xl sm:border-t-0 sm:border-l sm:border-slate-200/80 sm:shadow-2xl sm:h-full sm:max-h-full ${desktopWidth}`;
   } else if (desktopVariant === "modal") {
-    desktopClassNames = `lg:rounded-3xl lg:border lg:border-slate-200/80 lg:shadow-2xl lg:h-auto ${maxHeight} ${desktopWidth || maxWidth}`;
+    desktopClassNames = `sm:rounded-[28px] sm:border sm:border-slate-200/90 sm:shadow-2xl sm:shadow-slate-950/25 sm:h-auto sm:max-h-[88vh] sm:my-auto ${desktopWidth || maxWidth}`;
   }
 
   // Определение стилей трансформации:
-  // 1. На мобилке (< lg): всегда снизу вверх (translateY)
-  // 2. На десктопе (>= lg):
+  // 1. На мобилке (< sm): всегда снизу вверх (translateY)
+  // 2. На десктопе (>= sm):
   //    - drawer: выезжает справа (translateX(100%) -> translateX(0))
   //    - modal: центрируется со scale(0.95) -> scale(1) и opacity
   //    - sheet: снизу вверх
@@ -207,14 +207,14 @@ export default function BottomSheet({
           isDrawer
             ? `${
                 isVisible
-                  ? "translate-y-0 lg:translate-x-0 opacity-100"
-                  : "translate-y-full lg:translate-y-0 lg:translate-x-full opacity-0 lg:opacity-100"
+                  ? "translate-y-0 sm:translate-x-0 opacity-100"
+                  : "translate-y-full sm:translate-y-0 sm:translate-x-full opacity-0 sm:opacity-100"
               }`
             : isModal
             ? `${
                 isVisible
-                  ? "translate-y-0 lg:scale-100 opacity-100"
-                  : "translate-y-full lg:translate-y-0 lg:scale-95 opacity-0"
+                  ? "translate-y-0 sm:scale-100 opacity-100"
+                  : "translate-y-full sm:translate-y-0 sm:scale-95 opacity-0"
               }`
             : `${isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`
         } ${desktopClassNames} ${className}`}
@@ -234,7 +234,7 @@ export default function BottomSheet({
             onMouseMove={handleTouchMove}
             onMouseUp={handleTouchEnd}
             className={`pt-2.5 pb-1 flex justify-center shrink-0 cursor-grab active:cursor-grabbing bg-white select-none touch-none w-full max-w-full ${
-              desktopVariant !== "sheet" ? "lg:hidden" : ""
+              desktopVariant !== "sheet" ? "sm:hidden" : ""
             }`}
           >
             <div className="w-12 h-1.5 bg-slate-300 hover:bg-slate-400 rounded-full transition-colors pointer-events-none" />

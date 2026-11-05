@@ -156,6 +156,20 @@ export default function MaterialModal({
   // Состояние загрузки изображения
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Горячая клавиша ⌘Enter / Ctrl+Enter для быстрого сохранения
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        formRef.current?.requestSubmit();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   // Доступные подкатегории для выбранной категории
   const currentCategoryDef = useMemo(() => {
@@ -334,8 +348,9 @@ export default function MaterialModal({
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      maxWidth="max-w-xl"
-      maxHeight="max-h-[94dvh]"
+      desktopVariant="modal"
+      desktopWidth="sm:max-w-2xl lg:max-w-3xl"
+      maxHeight="max-h-[94dvh] sm:max-h-[88vh]"
       className="bg-white"
     >
       <div className="flex flex-col h-full w-full max-w-full overflow-hidden">
@@ -367,17 +382,25 @@ export default function MaterialModal({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-400 bg-slate-100 rounded border border-slate-200">
+              Esc
+            </kbd>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
+              title="Закрыть (Esc)"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Форма */}
         <form
+          ref={formRef}
+          id="material-modal-form"
           onSubmit={handleSubmit}
           className="p-4 sm:p-6 space-y-4 overflow-y-auto overflow-x-hidden w-full max-w-full touch-pan-y [touch-action:pan-y] overscroll-contain flex-1"
         >
@@ -537,36 +560,54 @@ export default function MaterialModal({
             </div>
           </div>
 
-          {/* Поставщик */}
-          <div>
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-              {isService ? "Подрядчик / Исполнитель *" : "Поставщик материала *"}
-            </label>
-            <div className="space-y-2">
-              {suppliers.length > 0 && (
-                <select
-                  value={supplierId}
-                  onChange={(e) => handleSupplierSelect(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none cursor-pointer box-border"
-                >
-                  <option value="">Другой / Вручную</option>
-                  {suppliers.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-              {(!supplierId || suppliers.length === 0) && (
+          {/* Поставщик и Ссылка на сайт (2 колонки на планшете/десктопе) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full">
+            <div>
+              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
+                {isService ? "Подрядчик / Исполнитель *" : "Поставщик материала *"}
+              </label>
+              <div className="space-y-2">
+                {suppliers.length > 0 && (
+                  <select
+                    value={supplierId}
+                    onChange={(e) => handleSupplierSelect(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none cursor-pointer box-border"
+                  >
+                    <option value="">Другой / Вручную</option>
+                    {suppliers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {(!supplierId || suppliers.length === 0) && (
+                  <input
+                    type="text"
+                    required
+                    value={supplier}
+                    onChange={(e) => setSupplier(e.target.value)}
+                    placeholder={isService ? "Имя подрядчика" : "Имя поставщика (SignTech)"}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none box-border"
+                  />
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
+                Ссылка на товар у поставщика
+              </label>
+              <div className="relative">
                 <input
-                  type="text"
-                  required
-                  value={supplier}
-                  onChange={(e) => setSupplier(e.target.value)}
-                  placeholder={isService ? "Имя подрядчика" : "Имя поставщика (SignTech)"}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none box-border"
+                  type="url"
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  placeholder="https://signtech.kz/catalog/..."
+                  className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:bg-white focus:border-orange-500 outline-none box-border"
                 />
-              )}
+                <LinkIcon className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
           </div>
 
@@ -643,23 +684,6 @@ export default function MaterialModal({
             </div>
           </div>
 
-          {/* Ссылка на сайт поставщика */}
-          <div>
-            <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1">
-              Ссылка на товар на сайте поставщика
-            </label>
-            <div className="relative">
-              <input
-                type="url"
-                value={sourceUrl}
-                onChange={(e) => setSourceUrl(e.target.value)}
-                placeholder="https://signtech.kz/catalog/..."
-                className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:bg-white focus:border-orange-500 outline-none box-border"
-              />
-              <LinkIcon className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
           {/* Характеристики с умными быстрыми чипами */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
@@ -703,28 +727,47 @@ export default function MaterialModal({
               className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:bg-white focus:border-orange-500 outline-none resize-none box-border"
             />
           </div>
+        </form>
 
-          {/* Кнопка отправки */}
-          <div className="pt-2">
+        {/* Фиксированный подвал действий */}
+        <div className="p-3.5 sm:px-6 sm:py-4 border-t border-slate-100 bg-white/95 backdrop-blur-md flex items-center justify-between shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold">
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono font-bold text-slate-500">
+              ⌘ Enter
+            </kbd>
+            <span>для быстрого сохранения</span>
+          </div>
+
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition active:scale-95 cursor-pointer disabled:opacity-50"
+            >
+              Отмена
+            </button>
+
             <button
               type="submit"
+              form="material-modal-form"
               disabled={isSubmitting || !name.trim() || !supplier.trim()}
-              className="w-full py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-extrabold text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-orange-500/20 active:scale-98"
+              className="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white font-extrabold text-xs transition flex items-center gap-2 cursor-pointer shadow-md shadow-orange-600/20 active:scale-95"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Сохранение...</span>
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4" />
+                  <Save className="w-3.5 h-3.5" />
                   <span>{editingItem ? "Сохранить изменения" : "Создать позицию"}</span>
                 </>
               )}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </BottomSheet>
   );

@@ -76,8 +76,9 @@ export default function SupplierModal({
     <BottomSheet
       isOpen={isOpen}
       onClose={onClose}
-      maxWidth="max-w-md"
-      maxHeight="max-h-[92dvh]"
+      desktopVariant="modal"
+      desktopWidth="sm:max-w-xl"
+      maxHeight="max-h-[92dvh] sm:max-h-[85vh]"
       className="bg-white"
     >
       <div className="flex flex-col h-full w-full max-w-full overflow-hidden overflow-x-hidden">
@@ -95,13 +96,19 @@ export default function SupplierModal({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-400 bg-slate-100 rounded border border-slate-200">
+              Esc
+            </kbd>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
+              title="Закрыть (Esc)"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Форма */}

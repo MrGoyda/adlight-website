@@ -190,8 +190,9 @@ export default function TaxonomyManagerModal({
       <BottomSheet
         isOpen={isOpen}
         onClose={onClose}
-        maxWidth="max-w-4xl"
-        maxHeight="max-h-[92dvh]"
+        desktopVariant="modal"
+        desktopWidth="sm:max-w-4xl lg:max-w-5xl"
+        maxHeight="max-h-[92dvh] sm:max-h-[85vh] sm:h-[80vh]"
         className="bg-white"
       >
         <div className="flex flex-col h-full w-full max-w-full overflow-hidden">
@@ -211,13 +212,19 @@ export default function TaxonomyManagerModal({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-400 bg-slate-100 rounded border border-slate-200">
+                Esc
+              </kbd>
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
+                title="Закрыть (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Двухколоночный интерфейс управления */}
@@ -518,6 +525,21 @@ export default function TaxonomyManagerModal({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Фиксированный подвал */}
+          <div className="p-3 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-white/95 backdrop-blur-md flex items-center justify-between shrink-0">
+            <div className="text-[11px] text-slate-400 font-medium">
+              Все изменения сохраняются автоматически
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs transition active:scale-95 cursor-pointer shadow-xs"
+            >
+              Закрыть
+            </button>
           </div>
         </div>
       </BottomSheet>
