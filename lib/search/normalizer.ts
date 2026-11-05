@@ -41,13 +41,19 @@ export function convertKeyboardLayout(text: string): { ru: string; en: string } 
   return { ru, en };
 }
 
+// Быстрый LRU-кэш для нормализации текста (избегает 40 000+ запусков regex при поиске по каталогу)
+const NORMALIZE_CACHE_LIMIT = 5000;
+const normalizeCache = new Map<string, string>();
+
 /**
  * Нормализация текста: регистр, буква ё, объединение единиц измерения, очистка пунктуации
  */
 export function normalizeSearchText(text: string): string {
   if (!text) return "";
+  const cached = normalizeCache.get(text);
+  if (cached !== undefined) return cached;
 
-  return text
+  const result = text
     .toLowerCase()
     .replace(/ё/g, "е")
     // Замена русской буквы "х" и звездочки в размерах на латинскую "x" (2.05х3.05 -> 2.05x3.05)
@@ -63,19 +69,37 @@ export function normalizeSearchText(text: string): string {
     .replace(/[«»""''()[\]{}_,;!?/\\+-]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+  if (normalizeCache.size >= NORMALIZE_CACHE_LIMIT) {
+    const firstKey = normalizeCache.keys().next().value;
+    if (firstKey) normalizeCache.delete(firstKey);
+  }
+  normalizeCache.set(text, result);
+  return result;
 }
+
+const stemCache = new Map<string, string>();
 
 /**
  * Простое отсечение типичных русских окончаний для поиска по корню (Стемминг)
  */
 export function stemRussianWord(word: string): string {
   if (word.length <= 3) return word;
+  const cached = stemCache.get(word);
+  if (cached !== undefined) return cached;
 
-  return word
+  const result = word
     .replace(/(овыми|ового|овому|овых|ными|ного|ному|ных|лями|тель|вать|ение|ения)$/i, "")
     .replace(/(овый|овая|овое|овые|ный|ная|ное|ные|ний|няя|нее|ние)$/i, "")
     .replace(/(ами|ями|ов|ев|ей|ом|ем|ам|ям|ах|ях|ую|юю|ой|ей|ою|ею)$/i, "")
     .replace(/(а|е|и|й|о|у|ы|ь|я)$/i, "");
+
+  if (stemCache.size >= 3000) {
+    const firstKey = stemCache.keys().next().value;
+    if (firstKey) stemCache.delete(firstKey);
+  }
+  stemCache.set(word, result);
+  return result;
 }
 
 /**

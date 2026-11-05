@@ -204,6 +204,8 @@ export function buildSynonymLookup(rules: SynonymRule[]): Map<string, string[]> 
   return map;
 }
 
+const expandVariantsCache = new Map<string, string[]>();
+
 /**
  * Расширение поискового токена всеми известными синонимами, раскладками и транслитом
  */
@@ -211,10 +213,16 @@ export function expandTokenVariants(
   token: string,
   synonymMap: Map<string, string[]> = new Map()
 ): string[] {
-  const variants = new Set<string>();
   const clean = token.toLowerCase().replace(/ё/g, "е").trim();
   if (!clean) return [];
 
+  const isDefaultMap = synonymMap.size === 0;
+  if (isDefaultMap) {
+    const cached = expandVariantsCache.get(clean);
+    if (cached !== undefined) return cached;
+  }
+
+  const variants = new Set<string>();
   variants.add(clean);
 
   // 1. Прямой транслит (demer ⇄ демер, signtech ⇄ сайнтек)
@@ -242,5 +250,15 @@ export function expandTokenVariants(
     }
   }
 
-  return Array.from(variants).filter(Boolean);
+  const result = Array.from(variants).filter(Boolean);
+
+  if (isDefaultMap) {
+    if (expandVariantsCache.size >= 3000) {
+      const firstKey = expandVariantsCache.keys().next().value;
+      if (firstKey) expandVariantsCache.delete(firstKey);
+    }
+    expandVariantsCache.set(clean, result);
+  }
+
+  return result;
 }

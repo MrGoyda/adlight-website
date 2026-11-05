@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useDeferredValue } from "react";
 import { Star, Zap, Package, Search, Boxes, Layers, Scissors, Wrench } from "lucide-react";
 import { 
   CalculatorSupplierPrice, 
@@ -42,15 +42,16 @@ export default function EstimateQuickShelf({
   const [activeTab, setActiveTab] = useState<TabType>("favorites");
   const [shelfCategory, setShelfCategory] = useState("all");
   const [filterQuery, setFilterQuery] = useState("");
+  const deferredFilter = useDeferredValue(filterQuery);
 
   // Избранные материалы поставщиков
   const favoritePrices = useMemo(() => {
     return supplierPrices.filter((p) => p.isFavorite);
   }, [supplierPrices]);
 
-  // Фильтрация избранного
+  // Фильтрация избранного на базе deferredFilter
   const filteredFavorites = useMemo(() => {
-    if (!filterQuery.trim()) return favoritePrices;
+    if (!deferredFilter.trim()) return favoritePrices;
     return favoritePrices.filter((p) =>
       matchSearchQuery(
         {
@@ -60,12 +61,12 @@ export default function EstimateQuickShelf({
           subcategory: p.subcategory,
           description: p.description,
         },
-        filterQuery
+        deferredFilter
       )
     );
-  }, [favoritePrices, filterQuery]);
+  }, [favoritePrices, deferredFilter]);
 
-  // Фильтрация полного каталога прайсов
+  // Фильтрация полного каталога прайсов на базе deferredFilter
   const filteredCatalog = useMemo(() => {
     return supplierPrices.filter((p) => {
       // 1. Фильтр категории
@@ -77,7 +78,7 @@ export default function EstimateQuickShelf({
         }
       }
       // 2. Фильтр поисковой строки
-      if (filterQuery.trim()) {
+      if (deferredFilter.trim()) {
         return matchSearchQuery(
           {
             name: p.name,
@@ -86,24 +87,24 @@ export default function EstimateQuickShelf({
             subcategory: p.subcategory,
             description: p.description,
           },
-          filterQuery
+          deferredFilter
         );
       }
       return true;
     });
-  }, [supplierPrices, shelfCategory, filterQuery]);
+  }, [supplierPrices, shelfCategory, deferredFilter]);
 
   const filteredRates = useMemo(() => {
-    if (!filterQuery.trim()) return workOperations;
-    return workOperations.filter((w) => matchSearchQuery({ name: w.name }, filterQuery));
-  }, [workOperations, filterQuery]);
+    if (!deferredFilter.trim()) return workOperations;
+    return workOperations.filter((w) => matchSearchQuery({ name: w.name }, deferredFilter));
+  }, [workOperations, deferredFilter]);
 
   const filteredWarehouse = useMemo(() => {
-    if (!filterQuery.trim()) return warehouseItems;
+    if (!deferredFilter.trim()) return warehouseItems;
     return warehouseItems.filter((w) =>
-      matchSearchQuery({ name: w.name, category: w.category }, filterQuery)
+      matchSearchQuery({ name: w.name, category: w.category }, deferredFilter)
     );
-  }, [warehouseItems, filterQuery]);
+  }, [warehouseItems, deferredFilter]);
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-4 flex flex-col h-full min-h-[440px]">

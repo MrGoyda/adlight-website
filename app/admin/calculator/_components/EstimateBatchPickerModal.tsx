@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useDeferredValue } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -51,14 +51,17 @@ export default function EstimateBatchPickerModal({
   onAddWorkOperation,
 }: EstimateBatchPickerModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearch = useDeferredValue(searchQuery);
   const [activeTab, setActiveTab] = useState<"materials" | "works">("materials");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSupplier, setSelectedSupplier] = useState("all");
   const [addedCounts, setAddedCounts] = useState<Record<string, number>>({});
+  const [visibleCount, setVisibleCount] = useState(40);
 
   const handleClose = useCallback(() => {
     setAddedCounts({});
     setSearchQuery("");
+    setVisibleCount(40);
     onClose();
   }, [onClose]);
 
@@ -82,7 +85,7 @@ export default function EstimateBatchPickerModal({
     return Array.from(set);
   }, [supplierPrices]);
 
-  // Фильтрация материалов
+  // Фильтрация материалов на базе отложенного поиска useDeferredValue
   const filteredMaterials = useMemo(() => {
     return supplierPrices.filter((p) => {
       // 1. Поставщик
@@ -98,7 +101,7 @@ export default function EstimateBatchPickerModal({
         }
       }
       // 3. Поисковый запрос
-      if (searchQuery.trim()) {
+      if (deferredSearch.trim()) {
         return matchSearchQuery(
           {
             name: p.name,
@@ -107,28 +110,32 @@ export default function EstimateBatchPickerModal({
             subcategory: p.subcategory,
             description: p.description,
           },
-          searchQuery
+          deferredSearch
         );
       }
       return true;
     });
-  }, [supplierPrices, selectedSupplier, selectedCategory, searchQuery]);
+  }, [supplierPrices, selectedSupplier, selectedCategory, deferredSearch]);
+
+  const displayedMaterials = useMemo(() => {
+    return filteredMaterials.slice(0, visibleCount);
+  }, [filteredMaterials, visibleCount]);
 
   // Фильтрация работ цеха
   const filteredWorks = useMemo(() => {
     return workOperations.filter((w) => {
-      if (searchQuery.trim()) {
+      if (deferredSearch.trim()) {
         return matchSearchQuery(
           {
             name: w.name,
             description: w.type === "ASSEMBLY" ? "Сборка цеха" : "Монтажные работы",
           },
-          searchQuery
+          deferredSearch
         );
       }
       return true;
     });
-  }, [workOperations, searchQuery]);
+  }, [workOperations, deferredSearch]);
 
   const totalAdded = Object.values(addedCounts).reduce((acc, c) => acc + c, 0);
 
@@ -228,7 +235,10 @@ export default function EstimateBatchPickerModal({
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setVisibleCount(40);
+                  }}
                   placeholder="Поиск по названию, толщине, цвету, бренду (например: акрил 3мм молочный)..."
                   className="w-full pl-10 pr-9 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-2xl placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition"
                   autoFocus
@@ -236,7 +246,10 @@ export default function EstimateBatchPickerModal({
                 {searchQuery && (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setVisibleCount(40);
+                    }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -248,7 +261,10 @@ export default function EstimateBatchPickerModal({
               <div className="flex p-1 bg-slate-100 rounded-2xl shrink-0 text-xs font-semibold">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("materials")}
+                  onClick={() => {
+                    setActiveTab("materials");
+                    setVisibleCount(40);
+                  }}
                   className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
                     activeTab === "materials"
                       ? "bg-white text-slate-900 shadow-2xs"
@@ -259,7 +275,10 @@ export default function EstimateBatchPickerModal({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("works")}
+                  onClick={() => {
+                    setActiveTab("works");
+                    setVisibleCount(40);
+                  }}
                   className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
                     activeTab === "works"
                       ? "bg-white text-slate-900 shadow-2xs"
@@ -283,7 +302,10 @@ export default function EstimateBatchPickerModal({
                       <button
                         key={cat.id}
                         type="button"
-                        onClick={() => setSelectedCategory(cat.id)}
+                        onClick={() => {
+                          setSelectedCategory(cat.id);
+                          setVisibleCount(40);
+                        }}
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl font-medium shrink-0 transition cursor-pointer ${
                           isSelected
                             ? "bg-orange-500 text-white shadow-2xs shadow-orange-500/20"
@@ -303,7 +325,10 @@ export default function EstimateBatchPickerModal({
                     <span className="text-slate-400 font-medium">Поставщик:</span>
                     <button
                       type="button"
-                      onClick={() => setSelectedSupplier("all")}
+                      onClick={() => {
+                        setSelectedSupplier("all");
+                        setVisibleCount(40);
+                      }}
                       className={`px-2 py-0.5 rounded-lg font-medium transition cursor-pointer ${
                         selectedSupplier === "all"
                           ? "bg-slate-800 text-white"
@@ -316,7 +341,10 @@ export default function EstimateBatchPickerModal({
                       <button
                         key={sup}
                         type="button"
-                        onClick={() => setSelectedSupplier(sup)}
+                        onClick={() => {
+                          setSelectedSupplier(sup);
+                          setVisibleCount(40);
+                        }}
                         className={`px-2 py-0.5 rounded-lg font-medium transition cursor-pointer ${
                           selectedSupplier === sup
                             ? "bg-slate-800 text-white"
@@ -342,7 +370,7 @@ export default function EstimateBatchPickerModal({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {filteredMaterials.map((p) => {
+                  {displayedMaterials.map((p) => {
                     const count = addedCounts[p.id] || 0;
                     return (
                       <div
@@ -398,6 +426,18 @@ export default function EstimateBatchPickerModal({
                       </div>
                     );
                   })}
+
+                  {visibleCount < filteredMaterials.length && (
+                    <div className="col-span-full pt-2 pb-1 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setVisibleCount((prev) => prev + 40)}
+                        className="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+                      >
+                        Показать ещё (+40 из {filteredMaterials.length - visibleCount} ост.)
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             ) : (

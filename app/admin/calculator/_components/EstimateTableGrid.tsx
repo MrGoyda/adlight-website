@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useDeferredValue } from "react";
 import { EstimateItemType, InventoryUnit } from "@prisma/client";
-import { Trash2, Plus, Search, Layers, Cpu, Boxes } from "lucide-react";
+import { Plus, Search, Layers, Cpu, Boxes } from "lucide-react";
 import EstimateBatchPickerModal from "./EstimateBatchPickerModal";
+import { EstimateTableRow } from "./EstimateTableRow";
 import { triggerHaptic } from "@/lib/haptics";
 import { 
   SpreadsheetItem, 
@@ -11,7 +12,7 @@ import {
   CalculatorWorkOperation, 
   CalculatorWarehouseItem 
 } from "../_types/calculatorTypes";
-import { ITEM_TYPE_META, UNIT_LABELS } from "../_data/estimateSpreadsheetDictionary";
+import { UNIT_LABELS } from "../_data/estimateSpreadsheetDictionary";
 import { matchSearchQuery } from "@/lib/search";
 import { recordSearchSelectionAction, logSearchQueryAction } from "@/lib/search/actions";
 
@@ -47,15 +48,16 @@ export default function EstimateTableGrid({
   onAddWorkOperation,
 }: EstimateTableGridProps) {
   const [inlineSearch, setInlineSearch] = useState("");
+  const deferredInlineSearch = useDeferredValue(inlineSearch);
   const [inlineCategory, setInlineCategory] = useState("all");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBatchPickerOpen, setIsBatchPickerOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Фильтрация подсказок инлайн-поиска (независимо от регистра, порядка слов и единиц)
+  // Фильтрация подсказок инлайн-поиска (на базе отложенного ввода useDeferredValue)
   const searchResults = React.useMemo(() => {
-    if (!inlineSearch.trim() || inlineSearch.trim().length < 2) return [];
+    if (!deferredInlineSearch.trim() || deferredInlineSearch.trim().length < 2) return [];
 
     const matchedMaterials = supplierPrices
       .filter((p) =>
@@ -67,7 +69,7 @@ export default function EstimateTableGrid({
             subcategory: p.subcategory,
             description: p.description,
           },
-          inlineSearch
+          deferredInlineSearch
         )
       )
       .slice(0, 5)
@@ -82,7 +84,7 @@ export default function EstimateTableGrid({
       }));
 
     const matchedWorks = workOperations
-      .filter((w) => matchSearchQuery({ name: w.name }, inlineSearch))
+      .filter((w) => matchSearchQuery({ name: w.name }, deferredInlineSearch))
       .slice(0, 4)
       .map((w) => ({
         type: "work" as const,
@@ -95,11 +97,11 @@ export default function EstimateTableGrid({
       }));
 
     return [...matchedMaterials, ...matchedWorks];
-  }, [inlineSearch, supplierPrices, workOperations]);
+  }, [deferredInlineSearch, supplierPrices, workOperations]);
 
   // Подсказки при пустом поиске (интерактивная шпаргалка по категориям и ходовым позициям)
   const cheatSheetResults = React.useMemo(() => {
-    if (inlineSearch.trim().length >= 2) return [];
+    if (deferredInlineSearch.trim().length >= 2) return [];
 
     let filtered = supplierPrices;
     if (inlineCategory !== "all") {
@@ -136,7 +138,7 @@ export default function EstimateTableGrid({
     }));
 
     return [...materials, ...works];
-  }, [inlineSearch, inlineCategory, supplierPrices, workOperations]);
+  }, [deferredInlineSearch, inlineCategory, supplierPrices, workOperations]);
 
   const displayResults = inlineSearch.trim().length >= 2 ? searchResults : cheatSheetResults;
 
@@ -195,129 +197,15 @@ export default function EstimateTableGrid({
                 </td>
               </tr>
             ) : (
-              items.map((item, idx) => {
-                const totalItemCost = (Number(item.quantity) || 0) * (Number(item.costPrice) || 0);
-                const totalItemSell = (Number(item.quantity) || 0) * (Number(item.sellPrice) || 0);
-                const itemMargin = totalItemSell - totalItemCost;
-                const itemMarginPercent = totalItemSell > 0 ? Math.round((itemMargin / totalItemSell) * 100) : 0;
-
-                const meta = ITEM_TYPE_META[item.type] || ITEM_TYPE_META.CUSTOM;
-                const TypeIcon = meta.icon;
-
-                return (
-                  <tr
-                    key={item.id}
-                    className="group hover:bg-slate-50/70 transition-colors duration-150"
-                  >
-                    {/* Номер */}
-                    <td className="py-2.5 px-4 text-center text-slate-400 font-mono text-[11px]">
-                      {idx + 1}
-                    </td>
-
-                    {/* Название */}
-                    <td className="py-2.5 px-4">
-                      <input
-                        type="text"
-                        value={item.name}
-                        onChange={(e) => onUpdateItem(item.id, "name", e.target.value)}
-                        placeholder="Введите название материала или услуги..."
-                        className="w-full bg-transparent font-medium text-slate-900 placeholder:text-slate-300 focus:outline-none focus:bg-white focus:ring-1 focus:ring-orange-500/30 rounded-lg px-2 py-1 -ml-2 transition"
-                      />
-                    </td>
-
-                    {/* Категория */}
-                    <td className="py-2.5 px-3">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-semibold border ${meta.badgeColor}`}>
-                        <TypeIcon className="w-3 h-3" />
-                        <span>{meta.shortLabel}</span>
-                      </span>
-                    </td>
-
-                    {/* Количество */}
-                    <td className="py-2.5 px-3 text-right">
-                      <input
-                        type="number"
-                        min="0"
-                        step="any"
-                        value={item.quantity === 0 ? "" : item.quantity}
-                        onChange={(e) => onUpdateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
-                        className="w-20 text-right font-medium text-slate-900 bg-transparent focus:bg-white focus:ring-1 focus:ring-orange-500/30 rounded-lg px-1.5 py-1 focus:outline-none transition"
-                      />
-                    </td>
-
-                    {/* Единица измерения */}
-                    <td className="py-2.5 px-3">
-                      <select
-                        value={item.unit}
-                        onChange={(e) => onUpdateItem(item.id, "unit", e.target.value as InventoryUnit)}
-                        className="bg-transparent text-[11px] font-medium text-slate-600 focus:outline-none focus:bg-white rounded-lg px-1 py-1 cursor-pointer"
-                      >
-                        {(Object.keys(UNIT_LABELS) as InventoryUnit[]).map((u) => (
-                          <option key={u} value={u}>
-                            {UNIT_LABELS[u]}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-
-                    {/* Себестоимость (закупка) */}
-                    <td className="py-2.5 px-3 text-right">
-                      <input
-                        type="number"
-                        min="0"
-                        value={item.costPrice === 0 ? "" : item.costPrice}
-                        onChange={(e) => onUpdateItem(item.id, "costPrice", parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        className="w-24 text-right font-mono text-slate-600 bg-transparent focus:bg-white focus:ring-1 focus:ring-orange-500/30 rounded-lg px-1.5 py-1 focus:outline-none transition"
-                      />
-                    </td>
-
-                    {/* Цена продажи */}
-                    <td className="py-2.5 px-3 text-right">
-                      <input
-                        type="number"
-                        min="0"
-                        value={item.sellPrice === 0 ? "" : item.sellPrice}
-                        onChange={(e) => onUpdateItem(item.id, "sellPrice", parseFloat(e.target.value) || 0)}
-                        placeholder="0"
-                        className="w-24 text-right font-mono font-semibold text-slate-900 bg-transparent focus:bg-white focus:ring-1 focus:ring-orange-500/30 rounded-lg px-1.5 py-1 focus:outline-none transition"
-                      />
-                    </td>
-
-                    {/* Итоговая сумма по строке */}
-                    <td className="py-2.5 px-3 text-right font-mono font-semibold text-slate-900">
-                      {totalItemSell.toLocaleString("ru-RU")} ₸
-                    </td>
-
-                    {/* Маржа бейдж */}
-                    <td className="py-2.5 px-3 text-center">
-                      <span
-                        className={`inline-block px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          itemMarginPercent >= 35
-                            ? "bg-emerald-50 text-emerald-700"
-                            : itemMarginPercent >= 20
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-rose-50 text-rose-700"
-                        }`}
-                      >
-                        {itemMarginPercent > 0 ? `+${itemMarginPercent}%` : `${itemMarginPercent}%`}
-                      </span>
-                    </td>
-
-                    {/* Удаление */}
-                    <td className="py-2.5 px-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => onRemoveItem(item.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition"
-                        title="Удалить строку"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
+              items.map((item, idx) => (
+                <EstimateTableRow
+                  key={item.id}
+                  item={item}
+                  index={idx}
+                  onUpdateItem={onUpdateItem}
+                  onRemoveItem={onRemoveItem}
+                />
+              ))
             )}
           </tbody>
         </table>
