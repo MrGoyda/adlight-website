@@ -186,7 +186,7 @@ export default function MaterialsCatalogTab({
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr] gap-6 items-start w-full">
+    <div className="grid grid-cols-1 lg:grid-cols-[290px_1fr] xl:grid-cols-[310px_1fr] 2xl:grid-cols-[330px_1fr] gap-6 items-start w-full">
       {/* 1. Левый macOS-сайдбар навигации */}
       <MaterialsSidebar
         selectedCategory={selectedCategory}

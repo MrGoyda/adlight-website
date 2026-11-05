@@ -169,22 +169,22 @@ function MaterialsSidebar({
             onSelectCategory("all");
             onSelectSubcategory("all");
           }}
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-bold transition text-left cursor-pointer active:scale-98 ${
+          className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-2xl text-xs font-bold transition text-left cursor-pointer active:scale-98 ${
             selectedCategory === "all"
               ? "bg-slate-900 text-white font-extrabold shadow-sm"
               : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
           }`}
         >
-          <span className="flex items-center gap-2.5 truncate">
+          <span className="flex items-center gap-2.5 min-w-0">
             <Layers
               className={`w-4 h-4 shrink-0 transition ${
                 selectedCategory === "all" ? "text-orange-400" : "text-slate-400"
               }`}
             />
-            <span className="truncate">Все категории</span>
+            <span className="leading-snug break-words">Все категории</span>
           </span>
           <span
-            className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+            className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${
               selectedCategory === "all"
                 ? "bg-white/20 text-white"
                 : "bg-slate-100 text-slate-500"
@@ -209,25 +209,25 @@ function MaterialsSidebar({
                     onSelectCategory(cat.id);
                     onSelectSubcategory("all");
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-bold transition text-left cursor-pointer active:scale-98 group ${
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-2xl text-xs font-bold transition text-left cursor-pointer active:scale-98 group ${
                     isCategoryActive
                       ? "bg-slate-900 text-white font-extrabold shadow-sm"
                       : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
-                  <span className="flex items-center gap-2.5 truncate">
+                  <span className="flex items-center gap-2.5 min-w-0">
                     {renderCategoryIcon(
                       cat.iconType,
                       `w-4 h-4 shrink-0 transition ${
                         isCategoryActive ? "text-orange-400" : "text-slate-400 group-hover:text-slate-700"
                       }`
                     )}
-                    <span className="truncate">{cat.label}</span>
+                    <span className="leading-snug break-words">{cat.label}</span>
                   </span>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0 ml-1">
                     <span
-                      className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                      className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
                         isCategoryActive
                           ? "bg-white/20 text-white"
                           : "bg-slate-100 text-slate-500"
@@ -261,13 +261,13 @@ function MaterialsSidebar({
                         triggerHaptic("light");
                         onSelectSubcategory("all");
                       }}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer ${
+                      className={`w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer ${
                         selectedSubcategory === "all"
                           ? "bg-orange-500 text-white font-black shadow-2xs"
                           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                       }`}
                     >
-                      <span className="truncate">Все позиции ({count})</span>
+                      <span className="min-w-0 leading-snug break-words">Все позиции ({count})</span>
                       <CircleDot
                         className={`w-2.5 h-2.5 shrink-0 ${
                           selectedSubcategory === "all" ? "text-white" : "text-transparent"
@@ -287,15 +287,15 @@ function MaterialsSidebar({
                             triggerHaptic("light");
                             onSelectSubcategory(sub);
                           }}
-                          className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer group ${
+                          className={`w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition text-left cursor-pointer group ${
                             isSubActive
                               ? "bg-orange-500 text-white font-black shadow-2xs"
                               : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                           }`}
                         >
-                          <span className="truncate pr-1">{sub}</span>
+                          <span className="min-w-0 leading-snug break-words">{sub}</span>
                           <span
-                            className={`px-1.5 py-0.2 rounded-full text-[9px] font-black shrink-0 ${
+                            className={`px-1.5 py-0.5 rounded-full text-[9px] font-black shrink-0 ${
                               isSubActive
                                 ? "bg-white/25 text-white"
                                 : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
