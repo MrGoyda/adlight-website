@@ -112,8 +112,15 @@ export default function MaterialModal({
   useEffect(() => {
     if (editingItem) {
       setName(editingItem.name || "");
-      setSupplier(editingItem.supplier || "");
-      setSupplierId(editingItem.supplierId || "");
+      const supMatch = editingItem.supplierId
+        ? suppliers.find((s) => s.id === editingItem.supplierId)
+        : suppliers.find(
+            (s) =>
+              s.name.trim().toLowerCase() ===
+              (editingItem.supplier || "").trim().toLowerCase()
+          );
+      setSupplier(editingItem.supplier || supMatch?.name || "");
+      setSupplierId(editingItem.supplierId || supMatch?.id || "");
       setPrice(editingItem.price || "");
       setUnit(editingItem.unit || "SQUARE_METER");
       setImageUrl(editingItem.imageUrl || "");

@@ -73,6 +73,8 @@ export default function PricingDashboard({
     handleQuickUpdatePrice,
     handleDeleteMaterial,
     handleToggleFavorite,
+    handleRenameSubcategoryInPrices,
+    handleDeleteSubcategoryInPrices,
     handleSaveRate,
     handleDeleteRate,
     handleSaveSupplier,
@@ -114,6 +116,28 @@ export default function PricingDashboard({
     setIsSupplierModalOpen(true);
   }, [setEditingSupplier, setIsSupplierModalOpen]);
 
+  const handleRenameSubcategoryWithSync = useCallback(
+    (catId: string, oldName: string, newName: string) => {
+      const ok = renameSubcategory(catId, oldName, newName);
+      if (ok) {
+        handleRenameSubcategoryInPrices(oldName, newName);
+      }
+      return ok;
+    },
+    [renameSubcategory, handleRenameSubcategoryInPrices]
+  );
+
+  const handleDeleteSubcategoryWithSync = useCallback(
+    (catId: string, subName: string) => {
+      const ok = deleteSubcategory(catId, subName);
+      if (ok) {
+        handleDeleteSubcategoryInPrices(subName);
+      }
+      return ok;
+    },
+    [deleteSubcategory, handleDeleteSubcategoryInPrices]
+  );
+
   return (
     <div className="space-y-6">
       {/* Шапка и переключатель вкладок */}
@@ -140,8 +164,8 @@ export default function PricingDashboard({
           onToggleFavorite={handleToggleFavorite}
           taxonomy={taxonomy}
           addSubcategory={addSubcategory}
-          renameSubcategory={renameSubcategory}
-          deleteSubcategory={deleteSubcategory}
+          renameSubcategory={handleRenameSubcategoryWithSync}
+          deleteSubcategory={handleDeleteSubcategoryWithSync}
           addCategory={addCategory}
           deleteCategory={deleteCategory}
           getSubcategoryFacetKeys={getSubcategoryFacetKeys}

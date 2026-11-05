@@ -207,6 +207,55 @@ export async function toggleMaterialFavorite(id: string, isFavorite: boolean) {
   }
 }
 
+/**
+ * Массовое обновление подкатегории у товаров при переименовании в таксономии
+ */
+export async function renameSubcategoryInMaterials(oldSubName: string, newSubName: string) {
+  try {
+    const trimmedOld = oldSubName.trim();
+    const trimmedNew = newSubName.trim();
+    if (!trimmedOld || !trimmedNew || trimmedOld === trimmedNew) {
+      return { success: true, count: 0 };
+    }
+
+    const result = await prisma.supplierPrice.updateMany({
+      where: { subcategory: trimmedOld },
+      data: { subcategory: trimmedNew },
+    });
+
+    revalidatePath("/admin/pricing");
+    revalidatePath("/admin/leads");
+    return { success: true, count: result.count };
+  } catch (error: unknown) {
+    console.error("Ошибка переименования подкатегории у товаров:", error);
+    return { error: getErrorMessage(error, "Не удалось обновить подкатегорию в базе") };
+  }
+}
+
+/**
+ * Очистка подкатегории у товаров при ее удалении из таксономии
+ */
+export async function deleteSubcategoryInMaterials(subName: string) {
+  try {
+    const trimmed = subName.trim();
+    if (!trimmed) {
+      return { success: true, count: 0 };
+    }
+
+    const result = await prisma.supplierPrice.updateMany({
+      where: { subcategory: trimmed },
+      data: { subcategory: null },
+    });
+
+    revalidatePath("/admin/pricing");
+    revalidatePath("/admin/leads");
+    return { success: true, count: result.count };
+  } catch (error: unknown) {
+    console.error("Ошибка удаления подкатегории у товаров:", error);
+    return { error: getErrorMessage(error, "Не удалось удалить подкатегорию у товаров") };
+  }
+}
+
 // ════════════════════════════════════════════════════════════════════
 // 2. CRUD ДЛЯ ТАРИФОВ И ВИДОВ РАБОТ (WorkOperation)
 // ════════════════════════════════════════════════════════════════════

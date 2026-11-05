@@ -214,7 +214,13 @@ export default function MaterialsCatalogTab({
         if (
           fresh.price !== inspectingItem.price ||
           fresh.name !== inspectingItem.name ||
-          fresh.category !== inspectingItem.category
+          fresh.category !== inspectingItem.category ||
+          fresh.subcategory !== inspectingItem.subcategory ||
+          fresh.imageUrl !== inspectingItem.imageUrl ||
+          fresh.description !== inspectingItem.description ||
+          fresh.supplier !== inspectingItem.supplier ||
+          fresh.isFavorite !== inspectingItem.isFavorite ||
+          fresh.unit !== inspectingItem.unit
         ) {
           setInspectingItem(fresh);
         }
@@ -228,8 +234,9 @@ export default function MaterialsCatalogTab({
     async (id: string) => {
       await onDeleteItem(id);
       setInspectingItem((curr) => (curr?.id === id ? null : curr));
+      removeFromCart(id);
     },
-    [onDeleteItem, setInspectingItem]
+    [onDeleteItem, setInspectingItem, removeFromCart]
   );
 
   const handleToggleOnlyWithPhoto = useCallback(() => {

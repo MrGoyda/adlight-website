@@ -7,6 +7,8 @@ import {
   updateSupplierPrice,
   deleteSupplierPrice,
   toggleMaterialFavorite,
+  renameSubcategoryInMaterials,
+  deleteSubcategoryInMaterials,
   createWorkOperation,
   updateWorkOperation,
   deleteWorkOperation,
@@ -135,6 +137,26 @@ export function usePricingState({
       setSupplierPrices((prev) =>
         prev.map((p) => (p.id === id ? { ...p, isFavorite: currentStatus } : p))
       );
+    }
+  };
+
+  const handleRenameSubcategoryInPrices = async (oldName: string, newName: string) => {
+    setSupplierPrices((prev) =>
+      prev.map((p) => (p.subcategory === oldName ? { ...p, subcategory: newName } : p))
+    );
+    const res = await renameSubcategoryInMaterials(oldName, newName);
+    if (res.error) {
+      toast.error(res.error);
+    }
+  };
+
+  const handleDeleteSubcategoryInPrices = async (subName: string) => {
+    setSupplierPrices((prev) =>
+      prev.map((p) => (p.subcategory === subName ? { ...p, subcategory: null } : p))
+    );
+    const res = await deleteSubcategoryInMaterials(subName);
+    if (res.error) {
+      toast.error(res.error);
     }
   };
 
@@ -275,6 +297,8 @@ export function usePricingState({
     handleQuickUpdatePrice,
     handleDeleteMaterial,
     handleToggleFavorite,
+    handleRenameSubcategoryInPrices,
+    handleDeleteSubcategoryInPrices,
     handleSaveRate,
     handleDeleteRate,
     handleSaveSupplier,

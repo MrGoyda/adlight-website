@@ -160,11 +160,15 @@ export function isItemInCategory(
     }
   }
 
-  // 3. Совпадение по списку подкатегорий
-  return categoryDef.subcategories.some((s) => {
-    const sLower = s.toLowerCase();
-    return itemSub === sLower || itemSub.includes(sLower) || sLower.includes(itemSub);
-  });
+  // 3. Совпадение по списку подкатегорий (только если подкатегория указана)
+  if (itemSub) {
+    return categoryDef.subcategories.some((s) => {
+      const sLower = s.toLowerCase();
+      return itemSub === sLower || itemSub.includes(sLower) || sLower.includes(itemSub);
+    });
+  }
+
+  return false;
 }
 
 /**
@@ -174,7 +178,10 @@ export function isItemInSubcategory(item: SupplierPriceItem, selectedSubcategory
   if (selectedSubcategory === "all") return true;
 
   const itemSub = (item.subcategory || "").trim().toLowerCase();
+  if (!itemSub) return false;
+
   const target = selectedSubcategory.trim().toLowerCase();
+  if (!target) return false;
 
   if (itemSub === target) return true;
   if (itemSub.includes(target) || target.includes(itemSub)) return true;
