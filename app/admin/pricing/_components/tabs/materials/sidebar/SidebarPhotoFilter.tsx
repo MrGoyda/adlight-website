@@ -21,27 +21,24 @@ export default function SidebarPhotoFilter({
 
   return (
     <div className="bg-slate-50/90 rounded-2xl p-3 border border-slate-200/70 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <div
           className={cn(
             "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition",
             onlyWithPhoto
-              ? "bg-orange-500 text-white shadow-xs"
+              ? "bg-slate-900 text-white shadow-xs"
               : "bg-slate-200/80 text-slate-500"
           )}
         >
           <ImageIcon className="w-4 h-4" />
         </div>
-        <div className="min-w-0">
-          <div className="text-xs font-black text-slate-900 truncate flex items-center gap-1.5">
-            <span>{t.title}</span>
-            <span className="text-[10px] font-extrabold text-orange-600 bg-orange-100/80 px-1.5 py-0.2 rounded-md">
-              {withPhotoCount}
-            </span>
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium truncate">
-            {t.subtitle}
-          </div>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-xs font-black text-slate-900 truncate">
+            {t.title}
+          </span>
+          <span className="text-[10px] font-extrabold text-slate-700 bg-slate-200/80 px-2 py-0.5 rounded-full shrink-0">
+            {withPhotoCount}
+          </span>
         </div>
       </div>
 
@@ -55,7 +52,7 @@ export default function SidebarPhotoFilter({
         }}
         className={cn(
           "w-11 h-6 rounded-full p-0.5 transition-colors duration-200 ease-in-out cursor-pointer focus:outline-hidden",
-          onlyWithPhoto ? "bg-orange-500" : "bg-slate-300"
+          onlyWithPhoto ? "bg-slate-900" : "bg-slate-300"
         )}
       >
         <div
