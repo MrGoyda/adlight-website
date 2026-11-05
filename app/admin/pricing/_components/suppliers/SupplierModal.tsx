@@ -24,13 +24,13 @@ interface SupplierModalProps {
   onSave: (data: {
     id?: string;
     name: string;
-    address?: string;
-    phone?: string;
+    address?: string | null;
+    phone?: string | null;
     phones?: string[];
-    whatsapp?: string;
-    website?: string;
-    instagram?: string;
-    notes?: string;
+    whatsapp?: string | null;
+    website?: string | null;
+    instagram?: string | null;
+    notes?: string | null;
   }) => Promise<void>;
   editingSupplier?: SupplierData | null;
 }
@@ -114,12 +114,12 @@ export default function SupplierModal({
         id: editingSupplier?.id,
         name: name.trim(),
         phones: cleanPhones,
-        phone: cleanPhones[0] || undefined,
-        whatsapp: whatsapp.trim() || undefined,
-        website: website.trim() || undefined,
-        instagram: instagram.trim() || undefined,
-        address: address.trim() || undefined,
-        notes: notes.trim() || undefined,
+        phone: cleanPhones[0] || null,
+        whatsapp: whatsapp.trim() || null,
+        website: website.trim() || null,
+        instagram: instagram.trim() || null,
+        address: address.trim() || null,
+        notes: notes.trim() || null,
       });
       onClose();
     } finally {

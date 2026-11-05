@@ -199,13 +199,13 @@ export function usePricingState({
   const handleSaveSupplier = async (data: {
     id?: string;
     name: string;
-    address?: string;
-    phone?: string;
+    address?: string | null;
+    phone?: string | null;
     phones?: string[];
-    whatsapp?: string;
-    website?: string;
-    instagram?: string;
-    notes?: string;
+    whatsapp?: string | null;
+    website?: string | null;
+    instagram?: string | null;
+    notes?: string | null;
   }) => {
     if (data.id) {
       const res = await updateSupplier(data.id, data);

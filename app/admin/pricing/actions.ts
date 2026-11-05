@@ -294,13 +294,13 @@ export async function deleteWorkOperation(id: string) {
 
 export async function createSupplier(data: {
   name: string;
-  address?: string;
-  phone?: string;
+  address?: string | null;
+  phone?: string | null;
   phones?: string[];
-  whatsapp?: string;
-  website?: string;
-  instagram?: string;
-  notes?: string;
+  whatsapp?: string | null;
+  website?: string | null;
+  instagram?: string | null;
+  notes?: string | null;
 }) {
   try {
     if (!data.name.trim()) return { error: "Название поставщика обязательно" };
@@ -344,33 +344,35 @@ export async function updateSupplier(
   id: string,
   data: {
     name?: string;
-    address?: string;
-    phone?: string;
+    address?: string | null;
+    phone?: string | null;
     phones?: string[];
-    whatsapp?: string;
-    website?: string;
-    instagram?: string;
-    notes?: string;
+    whatsapp?: string | null;
+    website?: string | null;
+    instagram?: string | null;
+    notes?: string | null;
   }
 ) {
   try {
     const updateData: Prisma.SupplierUpdateInput = {};
     if (data.name !== undefined) updateData.name = data.name.trim();
-    if (data.address !== undefined) updateData.address = data.address.trim() || null;
-    if (data.whatsapp !== undefined) updateData.whatsapp = data.whatsapp.trim() || null;
-    if (data.website !== undefined) updateData.website = data.website.trim() || null;
-    if (data.instagram !== undefined) updateData.instagram = data.instagram.trim() || null;
-    if (data.notes !== undefined) updateData.notes = data.notes.trim() || null;
+    if (data.address !== undefined) updateData.address = data.address?.trim() || null;
+    if (data.whatsapp !== undefined) updateData.whatsapp = data.whatsapp?.trim() || null;
+    if (data.website !== undefined) updateData.website = data.website?.trim() || null;
+    if (data.instagram !== undefined) updateData.instagram = data.instagram?.trim() || null;
+    if (data.notes !== undefined) updateData.notes = data.notes?.trim() || null;
 
     if (data.phones !== undefined) {
       const cleanPhones = data.phones.map((p) => p.trim()).filter(Boolean);
       updateData.phones = cleanPhones;
       updateData.phone = cleanPhones[0] || null;
     } else if (data.phone !== undefined) {
-      const trimmed = data.phone.trim() || null;
+      const trimmed = data.phone?.trim() || null;
       updateData.phone = trimmed;
       if (trimmed) {
         updateData.phones = [trimmed];
+      } else {
+        updateData.phones = [];
       }
     }
 
