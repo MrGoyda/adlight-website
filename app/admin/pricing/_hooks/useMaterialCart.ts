@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { SupplierPriceItem } from "../_types/pricingTypes";
 import { INVENTORY_UNITS } from "../_data/pricingDictionary";
 import { triggerHaptic } from "@/lib/haptics";
@@ -27,6 +27,12 @@ export function useMaterialCart() {
   const [items, setItems] = useState<MaterialCartItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Храним актуальный список items в ref для безопасных сайд-эффектов вне рендера
+  const itemsRef = useRef(items);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   // 1. Гидратация из localStorage
   useEffect(() => {
@@ -95,32 +101,33 @@ export function useMaterialCart() {
     }, 0);
   }, []);
 
-  // Изменение количества
-  const updateQuantity = useCallback((priceItemId: string, newQty: number) => {
-    if (newQty <= 0) {
-      triggerHaptic("light");
-      setItems((prev) => prev.filter((i) => i.priceItemId !== priceItemId));
-      return;
-    }
-    triggerHaptic("light");
-    setItems((prev) =>
-      prev.map((i) => (i.priceItemId === priceItemId ? { ...i, quantity: newQty } : i))
-    );
-  }, []);
-
-  // Удаление позиции
+  // Удаление позиции (чистая функция обновления состояния + одиночный toast вне рендера)
   const removeFromCart = useCallback((priceItemId: string) => {
     triggerHaptic("medium");
-    setItems((prev) => {
-      const it = prev.find((i) => i.priceItemId === priceItemId);
-      if (it) {
-        setTimeout(() => {
-          toast.info(pricingDict.toasts.cartItemRemoved(it.name));
-        }, 0);
-      }
-      return prev.filter((i) => i.priceItemId !== priceItemId);
-    });
+    const itemToRemove = itemsRef.current.find((i) => i.priceItemId === priceItemId);
+    setItems((prev) => prev.filter((i) => i.priceItemId !== priceItemId));
+
+    if (itemToRemove) {
+      setTimeout(() => {
+        toast.info(pricingDict.toasts.cartItemRemoved(itemToRemove.name));
+      }, 0);
+    }
   }, []);
+
+  // Изменение количества
+  const updateQuantity = useCallback(
+    (priceItemId: string, newQty: number) => {
+      if (newQty <= 0) {
+        removeFromCart(priceItemId);
+        return;
+      }
+      triggerHaptic("light");
+      setItems((prev) =>
+        prev.map((i) => (i.priceItemId === priceItemId ? { ...i, quantity: newQty } : i))
+      );
+    },
+    [removeFromCart]
+  );
 
   // Удаление всех позиций одного поставщика
   const clearSupplierItems = useCallback((supplierName: string) => {
