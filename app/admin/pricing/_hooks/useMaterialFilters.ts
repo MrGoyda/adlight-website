@@ -10,10 +10,8 @@ import {
   buildSynonymLookup,
 } from "../_lib/smartSearch";
 import {
-  MATERIAL_FACETS,
   INITIAL_FACETS,
   MaterialFacetState,
-  FacetOption,
   getApplicableFacetKeys,
   FACET_CONFIG_MAP,
 } from "../_data/materialFacets";
@@ -29,6 +27,263 @@ interface UseMaterialFiltersProps {
   getFacetKeys?: (categoryId: string, subcategory: string) => (keyof MaterialFacetState)[];
   synonymMap?: Map<string, string[]>;
   onZeroResultQuery?: (q: string) => void;
+}
+
+/**
+ * Интеллектуальное сопоставление категории товара с категорией таксономии
+ */
+export function isItemInCategory(
+  item: SupplierPriceItem,
+  catId: string,
+  taxonomy: MaterialCategoryItem[]
+): boolean {
+  if (catId === "all") return true;
+
+  const itemCat = (item.category || "").trim().toLowerCase();
+  const itemSub = (item.subcategory || "").trim().toLowerCase();
+
+  if (catId === "services") {
+    return Boolean(
+      item.isService ||
+        itemCat.includes("перезаказ") ||
+        itemSub.includes("перезаказ") ||
+        itemCat.includes("услуг")
+    );
+  }
+
+  const categoryDef = taxonomy.find((c) => c.id === catId);
+  if (!categoryDef) return false;
+
+  const catLabel = categoryDef.label.toLowerCase();
+
+  // 1. Прямое совпадение по имени категории
+  if (itemCat === catLabel || itemCat.includes(catLabel) || catLabel.includes(itemCat)) {
+    return true;
+  }
+
+  // 2. Семантические синонимы по ключу категории
+  if (catId === "sheets") {
+    if (
+      itemCat.includes("лист") ||
+      itemSub.includes("пвх") ||
+      itemSub.includes("акрил") ||
+      itemSub.includes("оргстекл") ||
+      itemSub.includes("композит") ||
+      itemSub.includes("акп") ||
+      itemSub.includes("пэт") ||
+      itemSub.includes("ромарк") ||
+      itemSub.includes("abs") ||
+      itemSub.includes("поликарбонат") ||
+      itemSub.includes("полистирол")
+    ) {
+      return true;
+    }
+  }
+
+  if (catId === "lighting") {
+    if (
+      itemCat.includes("свет") ||
+      itemCat.includes("электр") ||
+      itemCat.includes("блок") ||
+      itemCat.includes("трансформатор") ||
+      itemSub.includes("модул") ||
+      itemSub.includes("лент") ||
+      itemSub.includes("неон") ||
+      itemSub.includes("трансформатор") ||
+      itemSub.includes("блок") ||
+      itemSub.includes("драйвер") ||
+      itemSub.includes("прожектор") ||
+      itemSub.includes("ламп") ||
+      itemSub.includes("контроллер") ||
+      itemSub.includes("провод") ||
+      itemSub.includes("кабел")
+    ) {
+      return true;
+    }
+  }
+
+  if (catId === "vinyl") {
+    if (
+      itemCat.includes("пленк") ||
+      itemCat.includes("баннер") ||
+      itemCat.includes("рулон") ||
+      itemCat.includes("винил") ||
+      itemSub.includes("пленк") ||
+      itemSub.includes("баннер") ||
+      itemSub.includes("винил") ||
+      itemSub.includes("бэклит") ||
+      itemSub.includes("холст") ||
+      itemSub.includes("ламина") ||
+      itemSub.includes("флекс") ||
+      itemSub.includes("v-mark")
+    ) {
+      return true;
+    }
+  }
+
+  if (catId === "profiles") {
+    if (
+      itemCat.includes("профил") ||
+      itemCat.includes("металл") ||
+      itemSub.includes("профил") ||
+      itemSub.includes("труб") ||
+      itemSub.includes("багет") ||
+      itemSub.includes("кайма")
+    ) {
+      return true;
+    }
+  }
+
+  if (catId === "hardware") {
+    if (
+      itemCat.includes("клей") ||
+      itemCat.includes("скотч") ||
+      itemCat.includes("крепеж") ||
+      itemCat.includes("химия") ||
+      itemCat.includes("краск") ||
+      itemCat.includes("чернил") ||
+      itemCat.includes("инструмент") ||
+      itemCat.includes("станок") ||
+      itemCat.includes("фрез") ||
+      itemSub.includes("клей") ||
+      itemSub.includes("скотч") ||
+      itemSub.includes("люверс") ||
+      itemSub.includes("держател") ||
+      itemSub.includes("метиз") ||
+      itemSub.includes("фрез") ||
+      itemSub.includes("сверл") ||
+      itemSub.includes("ракел") ||
+      itemSub.includes("резак") ||
+      itemSub.includes("краск")
+    ) {
+      return true;
+    }
+  }
+
+  // 3. Совпадение по списку подкатегорий
+  return categoryDef.subcategories.some((s) => {
+    const sLower = s.toLowerCase();
+    return itemSub === sLower || itemSub.includes(sLower) || sLower.includes(itemSub);
+  });
+}
+
+/**
+ * Интеллектуальное сопоставление подкатегории товара
+ */
+export function isItemInSubcategory(item: SupplierPriceItem, selectedSubcategory: string): boolean {
+  if (selectedSubcategory === "all") return true;
+
+  const itemSub = (item.subcategory || "").trim().toLowerCase();
+  const target = selectedSubcategory.trim().toLowerCase();
+
+  if (itemSub === target) return true;
+  if (itemSub.includes(target) || target.includes(itemSub)) return true;
+
+  // Синонимические сопоставления подкатегорий
+  if (target.includes("акрил") || target.includes("оргстекло")) {
+    return itemSub.includes("акрил") || itemSub.includes("оргстекло");
+  }
+  if (target.includes("пвх")) {
+    return itemSub.includes("пвх");
+  }
+  if (target.includes("акп") || target.includes("алюмокомпозит")) {
+    return itemSub.includes("акп") || itemSub.includes("алюмокомпозит") || itemSub.includes("композит");
+  }
+  if (target.includes("пэт") || target.includes("pvc") || target.includes("пластиковые")) {
+    return itemSub.includes("пэт") || itemSub.includes("pvc") || itemSub.includes("пластиковые");
+  }
+  if (target.includes("ромарк") || target.includes("abs")) {
+    return itemSub.includes("ромарк") || itemSub.includes("abs");
+  }
+  if (target.includes("модул")) {
+    return itemSub.includes("модул");
+  }
+  if (target.includes("трансформатор") || target.includes("блок")) {
+    return itemSub.includes("блок") || itemSub.includes("трансформатор");
+  }
+  if (target.includes("неон")) {
+    return itemSub.includes("неон");
+  }
+  if (target.includes("лент")) {
+    return itemSub.includes("лент");
+  }
+  if (target.includes("баннер")) {
+    return itemSub.includes("баннер");
+  }
+  if (target.includes("плоттер") || target.includes("641") || target.includes("v-mark")) {
+    return (
+      itemSub.includes("плоттер") ||
+      itemSub.includes("641") ||
+      itemSub.includes("v-mark") ||
+      itemSub.includes("demer")
+    );
+  }
+  if (target.includes("8500") || target.includes("транслюцент") || target.includes("светорассе")) {
+    return (
+      itemSub.includes("8500") ||
+      itemSub.includes("транслюцент") ||
+      itemSub.includes("светорассе")
+    );
+  }
+  if (target.includes("монтажн") || target.includes("витражн")) {
+    return itemSub.includes("монтажн") || itemSub.includes("витражн");
+  }
+  if (target.includes("печать") || target.includes("ламинац")) {
+    return itemSub.includes("печать") || itemSub.includes("ламинац");
+  }
+  if (target.includes("холст") || target.includes("бэклит") || target.includes("ткани")) {
+    return (
+      itemSub.includes("холст") ||
+      itemSub.includes("бэклит") ||
+      itemSub.includes("ткани") ||
+      itemSub.includes("фотобумаг") ||
+      itemSub.includes("флекс") ||
+      itemSub.includes("винил")
+    );
+  }
+  if (target.includes("скотч")) {
+    return itemSub.includes("скотч");
+  }
+  if (target.includes("клей") || target.includes("cosmofen")) {
+    return itemSub.includes("клей") || itemSub.includes("cosmofen");
+  }
+  if (target.includes("держател") || target.includes("люверс") || target.includes("метиз")) {
+    return itemSub.includes("держател") || itemSub.includes("люверс") || itemSub.includes("метиз");
+  }
+  if (target.includes("краск") || target.includes("чернил")) {
+    return itemSub.includes("краск") || itemSub.includes("чернил");
+  }
+  if (target.includes("инструмент") || target.includes("ракел") || target.includes("резак")) {
+    return itemSub.includes("инструмент") || itemSub.includes("ракел") || itemSub.includes("резак");
+  }
+  if (
+    target.includes("фрез") ||
+    target.includes("гравер") ||
+    target.includes("сверл") ||
+    target.includes("чпу")
+  ) {
+    return (
+      itemSub.includes("фрез") ||
+      itemSub.includes("гравер") ||
+      itemSub.includes("сверл") ||
+      itemSub.includes("чпу")
+    );
+  }
+  if (
+    target.includes("профил") ||
+    target.includes("короб") ||
+    target.includes("кайма") ||
+    target.includes("багет")
+  ) {
+    return (
+      itemSub.includes("профил") ||
+      itemSub.includes("короб") ||
+      itemSub.includes("кайма") ||
+      itemSub.includes("багет")
+    );
+  }
+
+  return false;
 }
 
 export function useMaterialFilters({
@@ -88,66 +343,113 @@ export function useMaterialFilters({
     setFacets(INITIAL_FACETS);
   }, []);
 
-  const handleCategorySelect = useCallback((catId: string) => {
-    setSelectedCategory(catId);
-    setSelectedSubcategoryState("all");
-    handleResetFacets();
-  }, [handleResetFacets]);
+  const handleCategorySelect = useCallback(
+    (catId: string) => {
+      setSelectedCategory(catId);
+      setSelectedSubcategoryState("all");
+      handleResetFacets();
+    },
+    [handleResetFacets]
+  );
 
-  const setSelectedSubcategory = useCallback((subcat: string) => {
-    setSelectedSubcategoryState(subcat);
-    handleResetFacets();
-  }, [handleResetFacets]);
+  const setSelectedSubcategory = useCallback(
+    (subcat: string) => {
+      setSelectedSubcategoryState(subcat);
+      handleResetFacets();
+    },
+    [handleResetFacets]
+  );
+
+  const handleSupplierSelect = useCallback(
+    (sup: string) => {
+      setSelectedSupplier(sup);
+      setSelectedSubcategoryState("all");
+      handleResetFacets();
+    },
+    [handleResetFacets]
+  );
 
   // Список уникальных поставщиков
   const uniqueSuppliersFromPrices = useMemo(() => {
     return Array.from(new Set(supplierPrices.map((p) => p.supplier))).filter(Boolean);
   }, [supplierPrices]);
 
-  // Считаем распределение по категориям
+  // Считаем распределение по категориям с учетом выбранного поставщика
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: supplierPrices.length };
+    const counts: Record<string, number> = { all: 0 };
     for (const item of supplierPrices) {
-      const itemCat = (item.category || "").trim().toLowerCase();
-      if (item.isService || itemCat.includes("перезаказ")) {
-        counts["services"] = (counts["services"] || 0) + 1;
+      if (selectedSupplier !== "all") {
+        const targetSup = selectedSupplier.toLowerCase().trim();
+        const itemSup = item.supplier.toLowerCase().trim();
+        if (itemSup !== targetSup && !itemSup.includes(targetSup) && !targetSup.includes(itemSup)) {
+          continue;
+        }
       }
+      counts["all"] = (counts["all"] || 0) + 1;
       for (const cat of taxonomy) {
-        if (itemCat === cat.label.toLowerCase()) {
+        if (isItemInCategory(item, cat.id, taxonomy)) {
           counts[cat.id] = (counts[cat.id] || 0) + 1;
         }
       }
     }
     return counts;
-  }, [supplierPrices, taxonomy]);
+  }, [supplierPrices, taxonomy, selectedSupplier]);
 
-  // Считаем распределение по подкатегориям
+  // Считаем распределение по подкатегориям с учетом выбранного поставщика
   const subcategoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const item of supplierPrices) {
-      if (item.subcategory) {
-        const sub = item.subcategory.trim();
-        counts[sub] = (counts[sub] || 0) + 1;
+    for (const cat of taxonomy) {
+      for (const sub of cat.subcategories) {
+        counts[sub] = supplierPrices.filter((p) => {
+          if (selectedSupplier !== "all") {
+            const targetSup = selectedSupplier.toLowerCase().trim();
+            const itemSup = p.supplier.toLowerCase().trim();
+            if (
+              itemSup !== targetSup &&
+              !itemSup.includes(targetSup) &&
+              !targetSup.includes(itemSup)
+            ) {
+              return false;
+            }
+          }
+          return isItemInCategory(p, cat.id, taxonomy) && isItemInSubcategory(p, sub);
+        }).length;
       }
     }
     return counts;
-  }, [supplierPrices]);
+  }, [supplierPrices, taxonomy, selectedSupplier]);
 
-  // Считаем распределение по поставщикам
+  // Считаем распределение по поставщикам с учетом выбранной категории
   const supplierCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: supplierPrices.length };
+    const counts: Record<string, number> = { all: 0 };
     for (const item of supplierPrices) {
-      if (item.supplier) {
-        counts[item.supplier] = (counts[item.supplier] || 0) + 1;
+      if (selectedCategory !== "all" && !isItemInCategory(item, selectedCategory, taxonomy)) {
+        continue;
       }
+      counts["all"] = (counts["all"] || 0) + 1;
+      const sup = item.supplier || "Неизвестный";
+      counts[sup] = (counts[sup] || 0) + 1;
     }
     return counts;
-  }, [supplierPrices]);
+  }, [supplierPrices, selectedCategory, taxonomy]);
 
-  // Количество товаров с фото
+  // Количество товаров с фото с учетом категории и поставщика
   const withPhotoCount = useMemo(() => {
-    return supplierPrices.filter((p) => Boolean(p.imageUrl && p.imageUrl.trim())).length;
-  }, [supplierPrices]);
+    return supplierPrices.filter((p) => {
+      if (!p.imageUrl || !p.imageUrl.trim()) return false;
+      if (selectedSupplier !== "all") {
+        const targetSup = selectedSupplier.toLowerCase().trim();
+        const itemSup = p.supplier.toLowerCase().trim();
+        if (itemSup !== targetSup && !itemSup.includes(targetSup) && !targetSup.includes(itemSup)) {
+          return false;
+        }
+      }
+      if (selectedCategory !== "all" && !isItemInCategory(p, selectedCategory, taxonomy)) {
+        return false;
+      }
+      return true;
+    }).length;
+  }, [supplierPrices, selectedSupplier, selectedCategory, taxonomy]);
 
   // Текущая выбранная категория
   const currentCategoryDef = useMemo(() => {
@@ -180,35 +482,23 @@ export function useMaterialFilters({
 
       // 2. Поставщик
       if (selectedSupplier !== "all") {
-        if (item.supplier.toLowerCase() !== selectedSupplier.toLowerCase()) continue;
+        const targetSup = selectedSupplier.toLowerCase().trim();
+        const itemSup = item.supplier.toLowerCase().trim();
+        if (itemSup !== targetSup && !itemSup.includes(targetSup) && !targetSup.includes(itemSup)) {
+          continue;
+        }
       }
 
       // 3. Категория
       if (selectedCategory !== "all") {
-        if (selectedCategory === "services") {
-          if (!item.isService && !(item.category || "").toLowerCase().includes("перезаказ")) {
-            continue;
-          }
-        } else {
-          const categoryDef = taxonomy.find((c) => c.id === selectedCategory);
-          if (categoryDef) {
-            const matchesCategory =
-              (item.category || "").trim().toLowerCase() === categoryDef.label.toLowerCase();
-            const matchesSubcategory = categoryDef.subcategories.some(
-              (s) => s.toLowerCase() === (item.subcategory || "").trim().toLowerCase()
-            );
-            if (!matchesCategory && !matchesSubcategory) {
-              continue;
-            }
-          }
+        if (!isItemInCategory(item, selectedCategory, taxonomy)) {
+          continue;
         }
       }
 
       // 4. Подкатегория
       if (selectedSubcategory !== "all") {
-        if (
-          (item.subcategory || "").trim().toLowerCase() !== selectedSubcategory.trim().toLowerCase()
-        ) {
+        if (!isItemInSubcategory(item, selectedSubcategory)) {
           continue;
         }
       }
@@ -265,7 +555,7 @@ export function useMaterialFilters({
     } else if (sortBy === "price_desc") {
       scoredList.sort((a, b) => Number(b.item.price) - Number(a.item.price));
     } else if (sortBy === "name_asc") {
-      scoredList.sort((a, b) => a.item.name.localeCompare(b.item.name, "ru"));
+      scoredList.sort((a, b) => a.item.name.localeCompare(a.item.name, "ru"));
     } else if (sortBy === "name_desc") {
       scoredList.sort((a, b) => b.item.name.localeCompare(a.item.name, "ru"));
     }
@@ -312,7 +602,7 @@ export function useMaterialFilters({
     selectedSubcategory,
     setSelectedSubcategory,
     selectedSupplier,
-    setSelectedSupplier,
+    setSelectedSupplier: handleSupplierSelect,
     sortBy,
     setSortBy,
     onlyWithPhoto,

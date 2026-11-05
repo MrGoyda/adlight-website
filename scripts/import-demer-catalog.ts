@@ -72,107 +72,95 @@ function resolveTaxonomy(
   if (sec.includes("листовые")) {
     const category = "Листовые материалы";
     if (sub.includes("пвх") && !sub.includes("пэт")) return { category, subcategory: "Вспененный листовой ПВХ" };
-    if (sub.includes("оргстекло")) return { category, subcategory: "Листовое оргстекло" };
-    if (sub.includes("акрил")) return { category, subcategory: "Листовой акрил" };
+    if (sub.includes("оргстекло") || sub.includes("акрил")) return { category, subcategory: "Листовой акрил и Оргстекло" };
     if (sub.includes("алюкобонд")) return { category, subcategory: "Алюмокомпозит (АКП)" };
-    if (sub.includes("пэт") || sub.includes("листовой")) return { category, subcategory: "ПЭТ и жесткий листовой пластик" };
-    if (sub.includes("abs") || sub.includes("пластик")) return { category, subcategory: "Двухслойный пластик ABS (Ромарк)" };
-    return { category, subcategory: "Листовые пластики" };
+    if (sub.includes("пэт") || sub.includes("листовой")) return { category, subcategory: "Пластиковые листы ПЭТ / PVC" };
+    if (sub.includes("abs") || sub.includes("пластик")) return { category, subcategory: "Двухслойный пластик (Ромарк / ABS)" };
+    return { category, subcategory: "Вспененный листовой ПВХ" };
   }
 
-  // 2. Рулонные материалы
+  // 2. Рулонные материалы -> Пленки и Баннеры
   if (sec.includes("рулонные")) {
-    const category = "Рулонные материалы";
+    const category = "Пленки и Баннеры";
     if (name.includes("баннер") || name.includes("сетка")) return { category, subcategory: "Баннерная ткань и сетка" };
-    if (name.includes("бэклит")) return { category, subcategory: "Бэклит (Backlit)" };
-    if (name.includes("холст")) return { category, subcategory: "Холсты для печати" };
-    if (name.includes("ламинат")) return { category, subcategory: "Пленки для холодной ламинации" };
-    if (name.includes("флажная")) return { category, subcategory: "Ткани для печати" };
-    if (name.includes("фотобумага")) return { category, subcategory: "Фотобумага для печати" };
-    if (name.includes("флекс")) return { category, subcategory: "Термотрансферный флекс" };
-    if (name.includes("магнит")) return { category, subcategory: "Магнитный винил" };
-    return { category, subcategory: "Самоклеящиеся пленки для печати" };
+    if (name.includes("бэклит") || name.includes("холст") || name.includes("флажная") || name.includes("фотобумага") || name.includes("флекс") || name.includes("магнит")) {
+      return { category, subcategory: "Холсты, бэклит и ткани для печати" };
+    }
+    return { category, subcategory: "Пленки для печати и ламинация" };
   }
 
-  // 3. Светодиоды, неон и освещение
+  // 3. Светодиоды, неон и освещение -> Светотехника и Электрика
   if (sec.includes("светодиоды") || sec.includes("освещение")) {
-    const category = "Светотехника";
-    if (sub.includes("модули")) return { category, subcategory: "Светодиодные модули" };
-    if (sub.includes("ленты") || sub.includes("неон")) return { category, subcategory: "Светодиодные ленты и гибкий неон" };
-    if (sub.includes("лампы") || sub.includes("прожектор")) return { category, subcategory: "Прожекторы и лампы" };
-    return { category, subcategory: "Светодиодная продукция" };
+    const category = "Светотехника и Электрика";
+    if (sub.includes("модули")) return { category, subcategory: "Светодиодные модули (линзованные)" };
+    if (sub.includes("неон")) return { category, subcategory: "Гибкий неон 12V / 24V" };
+    if (sub.includes("ленты")) return { category, subcategory: "Светодиодные ленты" };
+    if (sub.includes("лампы") || sub.includes("прожектор")) return { category, subcategory: "Прожекторы, лампы и освещение" };
+    return { category, subcategory: "Светодиодные модули (линзованные)" };
   }
 
-  // 4. Блоки питания, трансформаторы и управление
+  // 4. Блоки питания, трансформаторы и управление -> Светотехника и Электрика
   if (sec.includes("блоки питания") || sec.includes("трансфоматоры") || sec.includes("управление")) {
-    const category = "Блоки питания и электротехника";
-    if (sub.includes("закрытые")) return { category, subcategory: "Блоки питания закрытые (IP67 12V)" };
-    if (sub.includes("полузакрытые")) return { category, subcategory: "Блоки питания полузакрытые (12V)" };
-    if (sub.includes("открытые")) return { category, subcategory: "Блоки питания открытые (12V / 5V)" };
-    if (sub.includes("контроллеры") || sub.includes("кабель")) return { category, subcategory: "Контроллеры, провод и электротовары" };
-    return { category, subcategory: "Трансформаторы и блоки питания" };
+    const category = "Светотехника и Электрика";
+    if (sub.includes("закрытые") || sub.includes("полузакрытые") || sub.includes("открытые")) {
+      return { category, subcategory: "Блоки питания (трансформаторы)" };
+    }
+    if (sub.includes("контроллеры")) return { category, subcategory: "Контроллеры и диммеры" };
+    return { category, subcategory: "Кабели, провода и клеммы" };
   }
 
-  // 5. Скотч, клей и химия
+  // 5. Скотч, клей и химия -> Клеи, Скотчи и Крепеж
   if (sec.includes("скотч") || sec.includes("клей") || sec.includes("химия")) {
-    const category = "Клеи, скотч и химия";
-    if (name.includes("скотч")) return { category, subcategory: "Двухсторонний скотч" };
+    const category = "Клеи, Скотчи и Крепеж";
+    if (name.includes("скотч")) return { category, subcategory: "Двусторонние вспененные скотчи" };
     if (name.includes("клей") || name.includes("cosmofen") || name.includes("активатор") || name.includes("ca-12")) {
-      return { category, subcategory: "Клеи и активаторы (Cosmofen и др.)" };
+      return { category, subcategory: "Клеи и герметики (монтажные, 2-х компонентные)" };
     }
-    return { category, subcategory: "Химия и очистители" };
+    return { category, subcategory: "Специальные и малярные ленты" };
   }
 
-  // 6. Алюминиевые профили
+  // 6. Алюминиевые профили -> Профили и Металл
   if (sec.includes("профили")) {
-    return { category: "Профили и фурнитура", subcategory: "Алюминиевые профили" };
+    return { category: "Профили и Металл", subcategory: "Алюминиевые профили для световых коробов и рамок" };
   }
 
-  // 7. Краски и сольвенты
+  // 7. Краски и сольвенты -> Клеи, Скотчи и Крепеж
   if (sec.includes("краски") || sec.includes("сольвенты")) {
-    const category = "Краски и чернила";
-    if (sub.includes("аэрозольные") || name.includes("bosny") || name.includes("краска-спрей")) {
-      return { category, subcategory: "Аэрозольные краски Bosny" };
-    }
-    return { category, subcategory: "Сольвентные и экосольвентные чернила" };
+    return { category: "Клеи, Скотчи и Крепеж", subcategory: "Аэрозольные краски и чернила" };
   }
 
   // 8. Оборудование, конструкции и инструменты
   if (sec.includes("оборудование") || sec.includes("инструменты")) {
-    const category = "Инструменты и оборудование";
-    if (sub.includes("мобильные") || sub.includes("конструкции")) return { category, subcategory: "Мобильные стенды и конструкции" };
+    if (sub.includes("кайма") || sub.includes("багет")) {
+      return { category: "Профили и Металл", subcategory: "Кайма и багетный профиль" };
+    }
     if (sub.includes("дистанционные") || sub.includes("держатели") || sub.includes("фурнитура")) {
-      return { category, subcategory: "Дистанционные держатели и люверсы" };
+      return { category: "Клеи, Скотчи и Крепеж", subcategory: "Дистанционные держатели и метизы" };
     }
-    if (sub.includes("резаки") || sub.includes("ракели") || sub.includes("лезвия")) {
-      return { category, subcategory: "Монтажный инструмент и ракели" };
-    }
-    if (sub.includes("кайма") || sub.includes("багет")) return { category, subcategory: "Кайма и багетный профиль" };
-    return { category, subcategory: "Инструменты для наружной рекламы" };
+    return { category: "Клеи, Скотчи и Крепеж", subcategory: "Монтажный инструмент, резаки и ракели" };
   }
 
-  // 9. Фрезы, сверла и запчасти для станков
+  // 9. Фрезы, сверла и запчасти для станков -> Клеи, Скотчи и Крепеж
   if (sec.includes("фрезы") || sec.includes("сверла")) {
-    const category = "Расходные материалы для станков";
-    if (name.includes("гравировочн")) return { category, subcategory: "Гравировальные граверы" };
-    if (name.includes("фрезерн") || name.includes("фреза")) return { category, subcategory: "Спиральные и концевые фрезы" };
-    if (name.includes("плоттер") || name.includes("roland")) return { category, subcategory: "Ножи для плоттера" };
-    return { category, subcategory: "Сверла, цанги и комплектующие ЧПУ" };
+    return { category: "Клеи, Скотчи и Крепеж", subcategory: "Фрезы, сверла и комплектующие ЧПУ" };
   }
 
-  // 10. Цветные, транслюцентные и витражные пленки
+  // 10. Цветные, транслюцентные и витражные пленки -> Пленки и Баннеры
   if (sec.includes("пленки") || sec.includes("цветные")) {
-    const category = "Самоклеящиеся пленки";
-    if (sub.includes("v-mark")) return { category, subcategory: "Цветные плоттерные пленки V-MARK" };
-    if (sub.includes("транслюцентная")) return { category, subcategory: "Транслюцентные пленки DEMER" };
-    if (sub.includes("1,07")) return { category, subcategory: "Цветные пленки DEMER (1.07м)" };
-    if (sub.includes("1,22")) return { category, subcategory: "Цветные пленки DEMER (1.22м)" };
-    if (sub.includes("светоотражающие")) return { category, subcategory: "Светоотражающие пленки DMR" };
-    if (sub.includes("витражные") || sub.includes("монтажные")) return { category, subcategory: "Витражные и монтажные пленки" };
-    return { category, subcategory: "Плоттерные пленки" };
+    const category = "Пленки и Баннеры";
+    if (sub.includes("v-mark") || sub.includes("1,07") || sub.includes("1,22")) {
+      return { category, subcategory: "Плоттерные пленки (Oracal 641 / V-MARK)" };
+    }
+    if (sub.includes("транслюцентная")) {
+      return { category, subcategory: "Светорассеивающие пленки (Oracal 8500 / DEMER)" };
+    }
+    if (sub.includes("светоотражающие")) {
+      return { category, subcategory: "Световозвращающие и перфорированные пленки" };
+    }
+    return { category, subcategory: "Монтажные и витражные пленки" };
   }
 
-  return { category: "Материалы для рекламы", subcategory: "Прочие материалы" };
+  return { category: "Листовые материалы", subcategory: "Вспененный листовой ПВХ" };
 }
 
 interface ParsedItem {

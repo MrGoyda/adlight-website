@@ -5,8 +5,8 @@ import { MATERIAL_TAXONOMY, MaterialCategoryItem } from "../_data/pricingDiction
 import { MaterialFacetState, getApplicableFacetKeys } from "../_data/materialFacets";
 import { triggerHaptic } from "@/lib/haptics";
 
-const TAXONOMY_STORAGE_KEY = "adlight_custom_taxonomy_v2";
-const FACETS_STORAGE_KEY = "adlight_custom_facets_v2";
+const TAXONOMY_STORAGE_KEY = "adlight_custom_taxonomy_v3";
+const FACETS_STORAGE_KEY = "adlight_custom_facets_v3";
 
 export function useCustomTaxonomy() {
   const [taxonomy, setTaxonomy] = useState<MaterialCategoryItem[]>(MATERIAL_TAXONOMY);
