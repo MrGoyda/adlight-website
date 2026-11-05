@@ -3,6 +3,7 @@
 import React from "react";
 import { ChevronRight, X, SlidersHorizontal } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { pricingDict } from "@/dictionaries/pricing";
 import {
   MaterialFacetState,
   FACET_LABELS,
@@ -49,7 +50,7 @@ function MaterialBreadcrumbs({
             }}
             className="text-slate-400 hover:text-slate-700 transition font-bold cursor-pointer"
           >
-            Все материалы
+            {pricingDict.breadcrumbs.allMaterials}
           </button>
           <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
           <button
@@ -136,7 +137,7 @@ function MaterialBreadcrumbs({
             }}
             className="text-[11px] font-extrabold text-slate-500 hover:text-slate-800 hover:underline ml-auto cursor-pointer"
           >
-            Сбросить всё
+            {pricingDict.breadcrumbs.resetAllFilters}
           </button>
         </div>
       )}

@@ -22,6 +22,7 @@ import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { getCleanPhone, getWhatsAppUrl } from "@/lib/phoneUtils";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface MaterialCartDrawerProps {
   isOpen: boolean;
@@ -185,7 +186,7 @@ export default function MaterialCartDrawer({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-slate-900 truncate">
-                  Корзина закупки
+                  {pricingDict.modals.cart.title}
                 </h3>
                 {uniquePositionsCount > 0 && (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-800">
@@ -205,7 +206,7 @@ export default function MaterialCartDrawer({
                 type="button"
                 onClick={onClearCart}
                 className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                title="Очистить всю корзину"
+                title={pricingDict.modals.cart.clearCart}
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -231,10 +232,10 @@ export default function MaterialCartDrawer({
               </div>
               <div className="space-y-1 max-w-xs">
                 <h4 className="text-base font-extrabold text-slate-800">
-                  Корзина закупки пуста
+                  {pricingDict.modals.cart.emptyTitle}
                 </h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Добавляйте необходимые материалы из каталога кнопкой «В корзину», чтобы сразу сформировать заказ поставщикам.
+                  {pricingDict.modals.cart.emptySubtitle}
                 </p>
               </div>
               <button

@@ -7,6 +7,7 @@ import { SupplierData, SupplierPriceItem } from "../../_types/pricingTypes";
 import { INVENTORY_UNITS, MATERIAL_TAXONOMY, MaterialCategoryItem } from "../../_data/pricingDictionary";
 import { triggerHaptic } from "@/lib/haptics";
 import BottomSheet from "@/components/ui/BottomSheet";
+import { pricingDict } from "@/dictionaries/pricing";
 
 import MaterialImageUploader from "./modal/MaterialImageUploader";
 import MaterialCategorySelects from "./modal/MaterialCategorySelects";
@@ -205,6 +206,7 @@ export default function MaterialModal({
   };
 
   const suggestedChips = SUGGESTED_SPECS_BY_CATEGORY[categoryId] || [];
+  const m = pricingDict.modals.material;
 
   return (
     <BottomSheet
@@ -230,16 +232,16 @@ export default function MaterialModal({
               <h3 className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight truncate">
                 {editingItem
                   ? isService
-                    ? "Редактировать услугу подрядчика"
-                    : "Редактировать позицию"
+                    ? m.titleServiceEdit
+                    : m.titleEdit
                   : isService
-                  ? "Новая услуга подрядчика (перезаказ)"
-                  : "Новый материал / товар"}
+                  ? m.titleServiceNew
+                  : m.titleNew}
               </h3>
               <p className="text-[11px] text-slate-400 font-semibold truncate">
                 {isService
-                  ? "Внешние подрядчики (фрезеровка, УФ-печать, гибка)"
-                  : "Каталог себестоимости и закупа"}
+                  ? m.subtitleService
+                  : m.subtitleMaterial}
               </p>
             </div>
           </div>
@@ -278,10 +280,10 @@ export default function MaterialModal({
               </div>
               <div>
                 <p className="text-xs font-black text-slate-900 leading-tight">
-                  Перезаказ услуги у подрядчика
+                  {m.serviceSwitch.title}
                 </p>
                 <p className="text-[10px] text-slate-400 font-medium">
-                  Фрезеровка, лазерная резка, УФ-печать, гибка
+                  {m.serviceSwitch.subtitle}
                 </p>
               </div>
             </div>
@@ -309,7 +311,7 @@ export default function MaterialModal({
           {/* Название */}
           <div>
             <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-              {isService ? "Название услуги подрядчика *" : "Название материала / товара *"}
+              {isService ? m.fields.nameService : m.fields.name}
             </label>
             <input
               type="text"
@@ -318,8 +320,8 @@ export default function MaterialModal({
               onChange={(e) => setName(e.target.value)}
               placeholder={
                 isService
-                  ? "Напр. Фрезерная резка АКП / акрила"
-                  : "Напр. Акрил 3мм молочный Plexiglas (2.05x3.05м)"
+                  ? m.fields.nameServicePlaceholder
+                  : m.fields.namePlaceholder
               }
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none transition box-border"
             />
@@ -341,7 +343,7 @@ export default function MaterialModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
             <div className="min-w-0 w-full">
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-                Единица измерения
+                {m.fields.unit}
               </label>
               <select
                 value={unit}
@@ -358,7 +360,7 @@ export default function MaterialModal({
 
             <div className="min-w-0 w-full">
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-                Себестоимость (₸) *
+                {m.fields.price}
               </label>
               <div className="relative">
                 <input
@@ -368,7 +370,7 @@ export default function MaterialModal({
                   step="any"
                   value={price}
                   onChange={(e) => setPrice(e.target.value ? parseFloat(e.target.value) : "")}
-                  placeholder="0.00"
+                  placeholder={m.fields.pricePlaceholder}
                   className="w-full pl-3.5 pr-8 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-black text-slate-900 focus:bg-white focus:border-orange-500 outline-none transition box-border"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">
@@ -382,7 +384,7 @@ export default function MaterialModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full">
             <div>
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-                {isService ? "Подрядчик / Исполнитель *" : "Поставщик материала *"}
+                {isService ? m.fields.supplierService : m.fields.supplier}
               </label>
               <div className="space-y-2">
                 {suppliers.length > 0 && (
@@ -391,7 +393,7 @@ export default function MaterialModal({
                     onChange={(e) => handleSupplierSelect(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none cursor-pointer box-border"
                   >
-                    <option value="">Другой / Вручную</option>
+                    <option value="">{m.fields.supplierManualOption}</option>
                     {suppliers.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name}
@@ -414,14 +416,14 @@ export default function MaterialModal({
 
             <div>
               <label className="block text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
-                Ссылка на товар у поставщика
+                {m.fields.sourceUrl}
               </label>
               <div className="relative">
                 <input
                   type="url"
                   value={sourceUrl}
                   onChange={(e) => setSourceUrl(e.target.value)}
-                  placeholder="https://signtech.kz/catalog/..."
+                  placeholder={m.fields.sourceUrlPlaceholder}
                   className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:bg-white focus:border-orange-500 outline-none box-border"
                 />
                 <LinkIcon className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -449,7 +451,7 @@ export default function MaterialModal({
             <kbd className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono font-bold text-slate-500">
               ⌘ Enter
             </kbd>
-            <span>для быстрого сохранения</span>
+            <span>{m.footer.hotkeyHint}</span>
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
@@ -459,7 +461,7 @@ export default function MaterialModal({
               disabled={isSubmitting}
               className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition active:scale-95 cursor-pointer disabled:opacity-50"
             >
-              Отмена
+              {m.footer.cancel}
             </button>
 
             <button
@@ -471,12 +473,12 @@ export default function MaterialModal({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Сохранение...</span>
+                  <span>{m.footer.saving}</span>
                 </>
               ) : (
                 <>
                   <Save className="w-3.5 h-3.5" />
-                  <span>{editingItem ? "Сохранить изменения" : "Создать позицию"}</span>
+                  <span>{editingItem ? m.footer.save : m.footer.create}</span>
                 </>
               )}
             </button>

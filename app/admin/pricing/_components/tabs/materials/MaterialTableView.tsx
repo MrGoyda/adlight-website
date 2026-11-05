@@ -3,6 +3,7 @@
 import React, { memo } from "react";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
 import MaterialTableRow from "./MaterialTableRow";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface MaterialTableViewProps {
   items: SupplierPriceItem[];
@@ -33,11 +34,11 @@ function MaterialTableView({
     <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
       {/* Шапка колонок таблицы */}
       <div className="hidden md:grid md:grid-cols-12 md:gap-4 px-5 py-3 bg-slate-50/90 border-b border-slate-200/80 text-[11px] font-black text-slate-400 uppercase tracking-wider">
-        <div className="col-span-5">Материал / Услуга</div>
-        <div className="col-span-2">Подкатегория</div>
-        <div className="col-span-2">Поставщик</div>
-        <div className="col-span-2 text-right">Себестоимость</div>
-        <div className="col-span-1 text-right">Действия</div>
+        <div className="col-span-5">{pricingDict.table.columns.item}</div>
+        <div className="col-span-2">{pricingDict.table.columns.subcategory}</div>
+        <div className="col-span-2">{pricingDict.table.columns.supplier}</div>
+        <div className="col-span-2 text-right">{pricingDict.table.columns.costPrice}</div>
+        <div className="col-span-1 text-right">{pricingDict.table.columns.actions}</div>
       </div>
 
       {/* Список строк */}

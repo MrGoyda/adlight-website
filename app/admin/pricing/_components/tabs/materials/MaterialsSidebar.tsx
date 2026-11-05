@@ -26,6 +26,7 @@ import {
   Info,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { pricingDict } from "@/dictionaries/pricing";
 
 // Хелпер для монохромных Lucide-иконок
 export function renderCategoryIcon(iconType: string, className = "w-4 h-4") {
@@ -123,13 +124,13 @@ function MaterialsSidebar({
           </div>
           <div className="min-w-0">
             <div className="text-xs font-black text-slate-900 truncate flex items-center gap-1.5">
-              <span>С фото</span>
+              <span>{pricingDict.sidebar.photoFilter.title}</span>
               <span className="text-[10px] font-extrabold text-orange-600 bg-orange-100/80 px-1.5 py-0.2 rounded-md">
                 {withPhotoCount}
               </span>
             </div>
             <div className="text-[10px] text-slate-400 font-medium truncate">
-              Cloudflare R2
+              {pricingDict.sidebar.photoFilter.subtitle}
             </div>
           </div>
         </div>
@@ -157,7 +158,7 @@ function MaterialsSidebar({
       {/* 2. Раздел: Категории и дерево подкатегорий */}
       <div className="space-y-1.5">
         <div className="px-2 pb-1 text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center justify-between">
-          <span>Каталог материалов</span>
+          <span>{pricingDict.sidebar.categories.title}</span>
           <span className="text-[10px] font-extrabold text-slate-400">
             {taxonomy.length}
           </span>
@@ -183,7 +184,7 @@ function MaterialsSidebar({
                 selectedCategory === "all" ? "text-orange-400" : "text-slate-400"
               }`}
             />
-            <span className="leading-snug break-words">Все категории</span>
+            <span className="leading-snug break-words">{pricingDict.sidebar.categories.all}</span>
           </span>
           <span
             className={`px-1.5 py-0.5 rounded-full text-[10px] font-black shrink-0 ${

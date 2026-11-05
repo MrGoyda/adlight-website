@@ -9,6 +9,7 @@ import {
   FACET_CONFIG_MAP,
 } from "../../../_data/materialFacets";
 import { triggerHaptic } from "@/lib/haptics";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface TaxonomyFacetsPaneProps {
   activeCategory?: MaterialCategoryItem;
@@ -36,7 +37,7 @@ export default function TaxonomyFacetsPane({
       {/* Выбор подкатегории для настройки */}
       <div>
         <label className="block text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1.5">
-          Выберите подкатегорию для настройки фильтров:
+          {pricingDict.modals.taxonomy.facets.selectLabel}
         </label>
         <select
           value={selectedSubForFacets}
@@ -58,10 +59,10 @@ export default function TaxonomyFacetsPane({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-            Активные фильтры в сайдбаре:
+            {pricingDict.sidebar.facets.title}:
           </span>
           <span className="text-[10px] font-extrabold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-md">
-            {currentSubFacets.length} активно
+            {pricingDict.modals.taxonomy.facets.activeBadge(currentSubFacets.length)}
           </span>
         </div>
 
@@ -85,7 +86,7 @@ export default function TaxonomyFacetsPane({
                 <div className="min-w-0 pr-2">
                   <p className="leading-snug break-words">{label}</p>
                   <p className="text-[10px] text-slate-400 font-medium">
-                    {optionsCount} знач.
+                    {pricingDict.modals.taxonomy.facets.optionsCount(optionsCount)}
                   </p>
                 </div>
 

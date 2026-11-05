@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { SortOption, ViewMode } from "./types";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface MaterialToolbarProps {
   searchQuery: string;
@@ -34,15 +35,13 @@ function MaterialToolbar({
   cartTotalSum = 0,
   onOpenCart,
 }: MaterialToolbarProps) {
-  // Локальное мгновенное состояние ввода (0ms задержки для 120 FPS)
   const [localQuery, setLocalQuery] = useState(searchQuery);
+  const t = pricingDict.toolbar;
 
-  // Синхронизация внешнего сброса
   useEffect(() => {
     setLocalQuery(searchQuery);
   }, [searchQuery]);
 
-  // Микро-дебаунс 90мс: предотвращает перерисовку сотен карточек на каждый символ при быстром наборе
   useEffect(() => {
     const handler = setTimeout(() => {
       if (localQuery !== searchQuery) {
@@ -67,7 +66,7 @@ function MaterialToolbar({
           type="text"
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
-          placeholder="Поиск по названию, характеристикам, поставщику..."
+          placeholder={t.searchPlaceholder}
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
@@ -79,7 +78,7 @@ function MaterialToolbar({
               type="button"
               onClick={handleClear}
               className="p-1 rounded-md text-slate-400 hover:text-slate-700 cursor-pointer"
-              title="Очистить поиск"
+              title={t.clearSearchTooltip}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -106,14 +105,14 @@ function MaterialToolbar({
                 ? "bg-slate-900 text-white border-slate-900 shadow-md shadow-slate-900/10 hover:bg-slate-800"
                 : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
             }`}
-            title="Открыть корзину закупки"
+            title={t.cartButton}
           >
             <ShoppingBag
               className={`w-4 h-4 transition-transform ${
                 cartCount > 0 ? "text-orange-400 animate-bounce duration-1000" : "text-slate-500"
               }`}
             />
-            <span className="hidden md:inline">Закупка</span>
+            <span className="hidden md:inline">{t.cartButton}</span>
             {cartCount > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-orange-500 text-white text-[10px] font-black">
                 {cartCount}
@@ -134,11 +133,11 @@ function MaterialToolbar({
             onChange={(e) => onSortChange(e.target.value as SortOption)}
             className="appearance-none pl-8 pr-7 py-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 focus:bg-white focus:border-orange-500 outline-none transition cursor-pointer"
           >
-            <option value="default">С фото первыми ⭐</option>
-            <option value="price_asc">Сначала дешевле (↑)</option>
-            <option value="price_desc">Сначала дороже (↓)</option>
-            <option value="name_asc">Название: А → Я</option>
-            <option value="name_desc">Название: Я → А</option>
+            <option value="default">{t.sort.default}</option>
+            <option value="price_asc">{t.sort.priceAsc}</option>
+            <option value="price_desc">{t.sort.priceDesc}</option>
+            <option value="name_asc">{t.sort.nameAsc}</option>
+            <option value="name_desc">{t.sort.nameDesc}</option>
           </select>
           <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
@@ -156,7 +155,7 @@ function MaterialToolbar({
                 ? "bg-white text-slate-900 shadow-2xs font-extrabold"
                 : "text-slate-400 hover:text-slate-700"
             }`}
-            title="Вид списком (таблица)"
+            title={t.viewMode.table}
           >
             <List className="w-4 h-4" />
           </button>
@@ -171,7 +170,7 @@ function MaterialToolbar({
                 ? "bg-white text-slate-900 shadow-2xs font-extrabold"
                 : "text-slate-400 hover:text-slate-700"
             }`}
-            title="Вид плиткой (сетка)"
+            title={t.viewMode.grid}
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
@@ -186,10 +185,10 @@ function MaterialToolbar({
               onOpenTaxonomyManager();
             }}
             className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 border border-slate-200/80 text-xs font-bold transition active:scale-95 cursor-pointer shrink-0"
-            title="Центр управления категориями и фильтрами"
+            title={t.taxonomyButton}
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
-            <span className="hidden xl:inline">Категории и фильтры</span>
+            <span className="hidden xl:inline">{t.taxonomyButton}</span>
           </button>
         )}
 
@@ -200,8 +199,8 @@ function MaterialToolbar({
           className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black shadow-md shadow-orange-600/20 transition active:scale-95 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Добавить материал</span>
-          <span className="sm:hidden">Создать</span>
+          <span className="hidden sm:inline">{t.addMaterialButton}</span>
+          <span className="sm:hidden">{t.createShort}</span>
         </button>
       </div>
     </div>

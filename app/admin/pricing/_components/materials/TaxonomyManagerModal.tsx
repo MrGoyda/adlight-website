@@ -10,6 +10,7 @@ import { SynonymRule } from "../../_data/synonymsDictionary";
 import { ZeroResultQuery } from "../../_hooks/useCustomSynonyms";
 import { renderCategoryIcon } from "../tabs/materials/MaterialsSidebar";
 import { triggerHaptic } from "@/lib/haptics";
+import { pricingDict } from "@/dictionaries/pricing";
 
 import TaxonomyCategorySidebar from "./taxonomy/TaxonomyCategorySidebar";
 import TaxonomySubcategoriesPane from "./taxonomy/TaxonomySubcategoriesPane";
@@ -62,6 +63,7 @@ export default function TaxonomyManagerModal({
   const [selectedCatId, setSelectedCatId] = useState<string>(taxonomy[0]?.id || "sheets");
   const [activeTab, setActiveTab] = useState<"subcategories" | "facets" | "synonyms">("subcategories");
   const [selectedSubForFacets, setSelectedSubForFacets] = useState<string>("");
+  const t = pricingDict.modals.taxonomy;
 
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -94,11 +96,11 @@ export default function TaxonomyManagerModal({
     const count = subcategoryCounts[subName] ?? 0;
     setConfirmDialog({
       isOpen: true,
-      title: "Удалить подкатегорию?",
+      title: t.confirm.deleteSubTitle,
       description:
         count > 0
-          ? `В подкатегории «${subName}» сейчас находится ${count} позиций. Если удалить подкатегорию, эти товары останутся в категории, но потеряют привязку.`
-          : `Вы уверены, что хотите удалить подкатегорию «${subName}»?`,
+          ? t.confirm.deleteSubDescriptionWithCount(subName, count)
+          : t.confirm.deleteSubDescription(subName),
       variant: "danger",
       onConfirm: () => {
         onDeleteSubcategory(selectedCatId, subName);
@@ -111,9 +113,8 @@ export default function TaxonomyManagerModal({
     triggerHaptic("medium");
     setConfirmDialog({
       isOpen: true,
-      title: "Сбросить к заводским настройкам?",
-      description:
-        "Все созданные вами подкатегории и кастомные фильтры будут возвращены к исходной структуре таксономии по умолчанию.",
+      title: t.confirm.resetTitle,
+      description: t.confirm.resetDescription,
       variant: "warning",
       onConfirm: () => {
         onResetToDefaults();
@@ -163,10 +164,10 @@ export default function TaxonomyManagerModal({
               </div>
               <div className="min-w-0">
                 <h3 className="font-extrabold text-slate-900 text-sm sm:text-base leading-tight truncate">
-                  Центр управления каталогом и фильтрами
+                  {t.title}
                 </h3>
                 <p className="text-[11px] text-slate-400 font-semibold truncate">
-                  Настройка категорий, подкатегорий и характеристик сайдбара
+                  {t.subtitle}
                 </p>
               </div>
             </div>
@@ -231,7 +232,7 @@ export default function TaxonomyManagerModal({
                     }`}
                   >
                     <FolderTree className="w-3.5 h-3.5" />
-                    <span>Подкатегории</span>
+                    <span>{t.tabs.subcategories}</span>
                   </button>
                   <button
                     type="button"
@@ -246,7 +247,7 @@ export default function TaxonomyManagerModal({
                     }`}
                   >
                     <Filter className="w-3.5 h-3.5" />
-                    <span>Фильтры</span>
+                    <span>{t.tabs.facets}</span>
                   </button>
                   <button
                     type="button"
@@ -261,7 +262,7 @@ export default function TaxonomyManagerModal({
                     }`}
                   >
                     <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-                    <span>Синонимы и сленг</span>
+                    <span>{t.tabs.synonyms}</span>
                     {zeroQueries.length > 0 && (
                       <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" title="Есть запросы без результатов" />
                     )}
@@ -309,7 +310,7 @@ export default function TaxonomyManagerModal({
           {/* Фиксированный подвал */}
           <div className="p-3 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
             <div className="text-[11px] text-slate-400 font-medium">
-              Все изменения сохраняются автоматически
+              {t.footer.autoSave}
             </div>
 
             <button
@@ -317,7 +318,7 @@ export default function TaxonomyManagerModal({
               onClick={onClose}
               className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs transition active:scale-95 cursor-pointer shadow-xs"
             >
-              Закрыть
+              {t.footer.close}
             </button>
           </div>
         </div>

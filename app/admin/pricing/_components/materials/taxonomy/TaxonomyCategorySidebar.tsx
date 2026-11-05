@@ -5,6 +5,7 @@ import { RotateCcw } from "lucide-react";
 import { MaterialCategoryItem } from "../../../_data/pricingDictionary";
 import { renderCategoryIcon } from "../../tabs/materials/MaterialsSidebar";
 import { triggerHaptic } from "@/lib/haptics";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface TaxonomyCategorySidebarProps {
   taxonomy: MaterialCategoryItem[];
@@ -25,7 +26,7 @@ export default function TaxonomyCategorySidebar({
     <div className="p-3 sm:p-4 border-r border-slate-100 bg-slate-50/70 overflow-y-auto space-y-1.5 flex flex-col justify-between">
       <div className="space-y-1">
         <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-2 block mb-1">
-          Категории ({taxonomy.length})
+          {pricingDict.modals.taxonomy.sidebar.categoriesTitle(taxonomy.length)}
         </span>
 
         {taxonomy.map((cat) => {
@@ -72,10 +73,10 @@ export default function TaxonomyCategorySidebar({
           type="button"
           onClick={onRequestResetDefaults}
           className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-          title="Вернуть изначальную структуру"
+          title={pricingDict.modals.taxonomy.sidebar.resetDefaults}
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          <span>Сбросить к заводским</span>
+          <span>{pricingDict.modals.taxonomy.sidebar.resetDefaults}</span>
         </button>
       </div>
     </div>

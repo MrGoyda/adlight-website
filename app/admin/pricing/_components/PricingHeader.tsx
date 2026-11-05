@@ -2,8 +2,9 @@
 
 import React from "react";
 import { PricingTabType } from "../_types/pricingTypes";
-import { Package, Calculator, Building2, Plus, Sparkles } from "lucide-react";
+import { Package, Calculator, Building2, Plus, Boxes } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface PricingHeaderProps {
   activeTab: PricingTabType;
@@ -29,24 +30,24 @@ function PricingHeader({
   const tabs = [
     {
       id: "materials" as PricingTabType,
-      label: "Каталог товаров и материалов",
-      shortLabel: "Материалы",
+      label: pricingDict.header.tabs.materials.label,
+      shortLabel: pricingDict.header.tabs.materials.shortLabel,
       icon: Package,
       count: materialsCount,
       color: "text-orange-600",
     },
     {
       id: "rates" as PricingTabType,
-      label: "Тарифы сметы (Газель, Вышка, ЗП)",
-      shortLabel: "Тарифы сметы",
+      label: pricingDict.header.tabs.rates.label,
+      shortLabel: pricingDict.header.tabs.rates.shortLabel,
       icon: Calculator,
       count: ratesCount,
       color: "text-indigo-600",
     },
     {
       id: "suppliers" as PricingTabType,
-      label: "База поставщиков",
-      shortLabel: "Поставщики",
+      label: pricingDict.header.tabs.suppliers.label,
+      shortLabel: pricingDict.header.tabs.suppliers.shortLabel,
       icon: Building2,
       count: suppliersCount,
       color: "text-blue-600",
@@ -58,17 +59,19 @@ function PricingHeader({
       {/* Верхний ряд: Заголовок + Главная кнопка действия */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-md shadow-orange-500/20">
-              <Sparkles className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs shrink-0">
+              <Boxes className="w-5 h-5 text-slate-100" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              База товаров и Тарифы сметы
-            </h1>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                {pricingDict.header.title}
+              </h1>
+              <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-0.5">
+                {pricingDict.header.subtitle}
+              </p>
+            </div>
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-            Единый центр управления себестоимостью, прайсами поставщиков, логистикой и ставками ЗП
-          </p>
         </div>
 
         {/* Быстрое добавление в текущей вкладке */}
@@ -80,7 +83,7 @@ function PricingHeader({
               className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-black shadow-md shadow-orange-600/20 transition active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Добавить материал</span>
+              <span>{pricingDict.header.actions.addMaterial}</span>
             </button>
           )}
 
@@ -91,7 +94,7 @@ function PricingHeader({
               className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-black shadow-md shadow-indigo-600/20 transition active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Новый тариф сметы</span>
+              <span>{pricingDict.header.actions.addRate}</span>
             </button>
           )}
 
@@ -102,18 +105,17 @@ function PricingHeader({
               className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-black shadow-md shadow-blue-600/20 transition active:scale-95 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Новый поставщик</span>
+              <span>{pricingDict.header.actions.addSupplier}</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Табы переключения */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-slate-200/80 rounded-2xl overflow-x-auto no-scrollbar shadow-inner">
+      {/* Нижний ряд: Табы переключения секций */}
+      <div className="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl overflow-x-auto">
         {tabs.map((t) => {
           const isActive = activeTab === t.id;
           const Icon = t.icon;
-
           return (
             <button
               key={t.id}

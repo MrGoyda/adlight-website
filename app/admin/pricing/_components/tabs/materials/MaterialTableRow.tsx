@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface MaterialTableRowProps {
   item: SupplierPriceItem;
@@ -70,7 +71,7 @@ function MaterialTableRow({
       await onQuickUpdatePrice(item.id, Number(inlinePriceValue));
       setIsInline(false);
     } catch {
-      toast.error("Не удалось сохранить цену");
+      toast.error(pricingDict.toasts.priceUpdateError);
     } finally {
       setIsSavingInline(false);
     }
@@ -140,7 +141,7 @@ function MaterialTableRow({
             {isService ? (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200">
                 <Handshake className="w-2.5 h-2.5" />
-                Перезаказ
+                {pricingDict.table.badges.service}
               </span>
             ) : null}
 
@@ -228,7 +229,7 @@ function MaterialTableRow({
               onClick={handleSaveInlineEdit}
               disabled={isSavingInline}
               className="p-1 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition cursor-pointer"
-              title="Сохранить цену"
+              title={pricingDict.table.tooltips.savePrice}
             >
               <Check className="w-3.5 h-3.5" />
             </button>
@@ -236,7 +237,7 @@ function MaterialTableRow({
               type="button"
               onClick={() => setIsInline(false)}
               className="p-1 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition cursor-pointer"
-              title="Отмена"
+              title={pricingDict.table.tooltips.cancelPrice}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -272,7 +273,7 @@ function MaterialTableRow({
                 ? "bg-slate-900 text-orange-400 shadow-2xs"
                 : "bg-slate-100 hover:bg-orange-500 hover:text-white text-slate-600"
             }`}
-            title={isInCart ? `В корзине (${cartQuantity} ${unitShort})` : "Добавить в корзину закупки"}
+            title={isInCart ? pricingDict.table.badges.inCart(cartQuantity) : pricingDict.table.tooltips.addToCart}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             {isInCart && (
@@ -285,7 +286,7 @@ function MaterialTableRow({
           type="button"
           onClick={() => onOpenEditModal(item)}
           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
-          title="Редактировать позицию"
+          title={pricingDict.table.tooltips.edit}
         >
           <Edit2 className="w-3.5 h-3.5" />
         </button>
@@ -294,7 +295,7 @@ function MaterialTableRow({
           type="button"
           onClick={() => onDeleteItem(item.id)}
           className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-          title="Удалить позицию"
+          title={pricingDict.table.tooltips.delete}
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>

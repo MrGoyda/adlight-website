@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface MaterialGridCardProps {
   item: SupplierPriceItem;
@@ -61,7 +62,7 @@ function MaterialGridCard({
       await onQuickUpdatePrice(item.id, Number(inlinePriceValue));
       setIsInline(false);
     } catch {
-      toast.error("Не удалось сохранить цену");
+      toast.error(pricingDict.toasts.priceUpdateError);
     } finally {
       setIsSavingInline(false);
     }
@@ -106,7 +107,7 @@ function MaterialGridCard({
           <div className="w-full h-full bg-purple-50 text-purple-600 flex flex-col items-center justify-center gap-1.5">
             <Handshake className="w-8 h-8" />
             <span className="text-[10px] font-black uppercase tracking-wider text-purple-700">
-              Подрядчик
+              {pricingDict.table.badges.service}
             </span>
           </div>
         ) : (
@@ -221,7 +222,7 @@ function MaterialGridCard({
                         ? "bg-slate-900 text-orange-400 shadow-2xs"
                         : "bg-orange-50 hover:bg-orange-500 hover:text-white text-orange-600"
                     }`}
-                    title={isInCart ? `В корзине (${cartQuantity} ${unitShort})` : "Добавить в корзину закупки"}
+                    title={isInCart ? pricingDict.table.badges.inCart(cartQuantity) : pricingDict.table.tooltips.addToCart}
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     {isInCart && (
@@ -234,7 +235,7 @@ function MaterialGridCard({
                   type="button"
                   onClick={() => onOpenEditModal(item)}
                   className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
-                  title="Редактировать"
+                  title={pricingDict.table.tooltips.edit}
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>

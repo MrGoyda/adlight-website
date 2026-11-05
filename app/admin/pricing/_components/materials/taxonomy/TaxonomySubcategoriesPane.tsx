@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Plus, Edit2, Trash2, Check, X } from "lucide-react";
 import { MaterialCategoryItem } from "../../../_data/pricingDictionary";
 import { triggerHaptic } from "@/lib/haptics";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface TaxonomySubcategoriesPaneProps {
   activeCategory?: MaterialCategoryItem;
@@ -58,7 +59,7 @@ export default function TaxonomySubcategoriesPane({
           type="text"
           value={newSubName}
           onChange={(e) => setNewSubName(e.target.value)}
-          placeholder={`Новая подкатегория в «${activeCategory.label}»...`}
+          placeholder={pricingDict.modals.taxonomy.subcategories.addPlaceholder(activeCategory.label)}
           className="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 outline-none transition"
         />
         <button
@@ -67,7 +68,7 @@ export default function TaxonomySubcategoriesPane({
           className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white text-xs font-black transition cursor-pointer active:scale-98 shrink-0"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Добавить</span>
+          <span>{pricingDict.modals.taxonomy.subcategories.addButton}</span>
         </button>
       </form>
 
@@ -99,7 +100,7 @@ export default function TaxonomySubcategoriesPane({
                     type="button"
                     onClick={() => handleSaveRename(sub)}
                     className="p-1 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition cursor-pointer"
-                    title="Сохранить"
+                    title={pricingDict.modals.taxonomy.subcategories.saveTooltip}
                   >
                     <Check className="w-3.5 h-3.5" />
                   </button>
@@ -107,7 +108,7 @@ export default function TaxonomySubcategoriesPane({
                     type="button"
                     onClick={() => setEditingSubOldName(null)}
                     className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
-                    title="Отмена"
+                    title={pricingDict.modals.taxonomy.subcategories.cancelTooltip}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -124,16 +125,16 @@ export default function TaxonomySubcategoriesPane({
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span
                       className="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-600"
-                      title={`Количество позиций в базе: ${count}`}
+                      title={pricingDict.modals.taxonomy.subcategories.itemsCount(count)}
                     >
-                      {count} поз.
+                      {pricingDict.modals.taxonomy.subcategories.itemsCount(count)}
                     </span>
 
                     <button
                       type="button"
                       onClick={() => handleStartRename(sub)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
-                      title="Переименовать подкатегорию"
+                      title={pricingDict.modals.taxonomy.subcategories.renameTooltip}
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
@@ -142,7 +143,7 @@ export default function TaxonomySubcategoriesPane({
                       type="button"
                       onClick={() => onRequestDeleteSubcategory(sub)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
-                      title="Удалить подкатегорию"
+                      title={pricingDict.modals.taxonomy.subcategories.deleteTooltip}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

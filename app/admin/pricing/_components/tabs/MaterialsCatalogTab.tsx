@@ -19,6 +19,7 @@ import { MaterialFacetState } from "../../_data/materialFacets";
 import { SynonymRule } from "../../_data/synonymsDictionary";
 import { ZeroResultQuery } from "../../_hooks/useCustomSynonyms";
 import { Sparkles, ChevronDown } from "lucide-react";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface MaterialsCatalogTabProps {
   supplierPrices: SupplierPriceItem[];
@@ -315,11 +316,11 @@ export default function MaterialsCatalogTab({
         {/* Информационная строка счетчика */}
         <div className="flex items-center justify-between px-2 text-xs font-bold text-slate-500">
           <span>
-            Показано: <b className="text-slate-900">{visiblePrices.length}</b> из {processedPrices.length} позиций
+            {pricingDict.toolbar.counter.shown(visiblePrices.length, processedPrices.length)}
           </span>
           {inspectingItem && (
             <span className="text-[11px] text-orange-600 font-extrabold truncate max-w-[280px]">
-              Выбрано: {inspectingItem.name}
+              {pricingDict.toolbar.counter.selected(inspectingItem.name)}
             </span>
           )}
         </div>

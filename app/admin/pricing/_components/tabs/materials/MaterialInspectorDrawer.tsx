@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
+import { pricingDict } from "@/dictionaries/pricing";
 
 interface MaterialInspectorDrawerProps {
   item: SupplierPriceItem | null;
@@ -87,7 +88,7 @@ function MaterialInspectorDrawer({
     triggerHaptic("light");
     navigator.clipboard.writeText(item.name);
     setCopied(true);
-    toast.success("Наименование скопировано");
+    toast.success(pricingDict.modals.inspector.copiedNotice);
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -102,9 +103,9 @@ function MaterialInspectorDrawer({
     try {
       await onQuickUpdatePrice(item.id, Number(priceInput));
       setIsEditingPrice(false);
-      toast.success("Цена успешно обновлена");
+      toast.success(pricingDict.toasts.priceUpdated);
     } catch {
-      toast.error("Ошибка при сохранении цены");
+      toast.error(pricingDict.toasts.priceUpdateError);
     } finally {
       setIsSavingPrice(false);
     }
@@ -209,12 +210,12 @@ function MaterialInspectorDrawer({
                 <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-white shrink-0">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span className="px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-orange-100 text-orange-800">
-                      Инспектор материала
+                      {pricingDict.modals.inspector.badge}
                     </span>
                     {isInCart && (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-900 text-orange-400 flex items-center gap-1">
                         <ShoppingBag className="w-3 h-3" />
-                        <span>В корзине ({cartQuantity})</span>
+                        <span>{pricingDict.modals.inspector.inCartBadge(cartQuantity)}</span>
                       </span>
                     )}
                   </div>
@@ -295,7 +296,7 @@ function MaterialInspectorDrawer({
                           disabled={isSavingPrice}
                           className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black transition cursor-pointer"
                         >
-                          Сохранить
+                          {pricingDict.modals.inspector.priceSave}
                         </button>
                         <button
                           type="button"
