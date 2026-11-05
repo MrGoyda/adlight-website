@@ -4,7 +4,11 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { SupplierData, SupplierPriceItem } from "../_types/pricingTypes";
 import { MATERIAL_TAXONOMY, MaterialCategoryItem } from "../_data/pricingDictionary";
 import { BUILT_IN_SYNONYM_RULES } from "../_data/synonymsDictionary";
-import { calculateItemRelevance, buildSynonymLookup } from "../_lib/smartSearch";
+import {
+  prepareSearchQuery,
+  calculatePreparedRelevance,
+  buildSynonymLookup,
+} from "../_lib/smartSearch";
 import {
   MATERIAL_FACETS,
   INITIAL_FACETS,
@@ -160,6 +164,9 @@ export function useMaterialFilters({
   // Интеллектуальная фильтрация и умный поиск с ранжированием
   const processedPrices = useMemo(() => {
     const isSearching = Boolean(searchQuery.trim());
+    const preparedQuery = isSearching
+      ? prepareSearchQuery(searchQuery, activeSynonymMap)
+      : null;
     const scoredList: { item: SupplierPriceItem; score: number }[] = [];
 
     for (const item of supplierPrices) {
@@ -219,10 +226,10 @@ export function useMaterialFilters({
       }
       if (!passesFacets) continue;
 
-      // 6. Умный поиск (Smart Multi-token & Synonyms Scoring)
+      // 6. Умный поиск (Smart Multi-token & Synonyms Scoring с прекомпиляцией)
       let score = 100;
-      if (isSearching) {
-        score = calculateItemRelevance(item, searchQuery, activeSynonymMap);
+      if (preparedQuery) {
+        score = calculatePreparedRelevance(item, preparedQuery);
         if (score <= 0) continue;
       }
 

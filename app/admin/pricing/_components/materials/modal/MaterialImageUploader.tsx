@@ -1,0 +1,134 @@
+"use client";
+
+import React, { useRef, useState } from "react";
+import { Image as ImageIcon, Upload, Loader2 } from "lucide-react";
+import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
+
+interface MaterialImageUploaderProps {
+  imageUrl: string;
+  onImageUrlChange: (url: string) => void;
+}
+
+export default function MaterialImageUploader({
+  imageUrl,
+  onImageUrlChange,
+}: MaterialImageUploaderProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Пожалуйста, выберите файл изображения (JPG, PNG, WebP)");
+      return;
+    }
+
+    setIsUploading(true);
+    triggerHaptic("light");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "materials");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data.publicUrl) {
+        onImageUrlChange(data.publicUrl);
+        toast.success("Фотография сохранена в Cloudflare R2");
+        triggerHaptic("medium");
+      } else {
+        throw new Error(data.error || "Не удалось получить URL");
+      }
+    } catch (err: any) {
+      console.error("Ошибка загрузки фото:", err);
+      toast.error(`Ошибка загрузки: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+      <div className="flex items-center justify-between">
+        <label className="text-[11px] font-black text-slate-700 flex items-center gap-1.5">
+          <ImageIcon className="w-3.5 h-3.5 text-orange-500" />
+          <span>Фотография позиции (Cloudflare R2)</span>
+        </label>
+        {imageUrl && (
+          <button
+            type="button"
+            onClick={() => onImageUrlChange("")}
+            className="text-[10px] text-red-500 font-bold hover:underline cursor-pointer"
+          >
+            Удалить фото
+          </button>
+        )}
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center relative shadow-xs">
+          {isUploading ? (
+            <div className="flex flex-col items-center justify-center gap-1 text-orange-600">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-[9px] font-bold">R2...</span>
+            </div>
+          ) : imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="Предпросмотр"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <ImageIcon className="w-6 h-6 text-slate-300" />
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 space-y-2">
+          {/* Скрытый input для выбора файла */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={isUploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition cursor-pointer active:scale-98 disabled:opacity-50 shadow-2xs"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>{isUploading ? "Загрузка..." : "Загрузить фото"}</span>
+            </button>
+            <span className="text-[10px] text-slate-400">или вставьте URL:</span>
+          </div>
+
+          <input
+            type="url"
+            value={imageUrl}
+            onChange={(e) => onImageUrlChange(e.target.value)}
+            placeholder="https://media.adlight.kz/materials/... или ссылка на фото"
+            className="w-full px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-900 focus:border-orange-500 outline-none transition box-border"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
