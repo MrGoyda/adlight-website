@@ -13,6 +13,9 @@ import MaterialEmptyState from "./materials/MaterialEmptyState";
 import MaterialInspectorDrawer from "./materials/MaterialInspectorDrawer";
 import SupplierInfoDrawer from "./materials/SupplierInfoDrawer";
 import MaterialCartDrawer from "./materials/MaterialCartDrawer";
+import TaxonomyManagerModal from "../materials/TaxonomyManagerModal";
+import { MaterialCategoryItem } from "../../_data/pricingDictionary";
+import { MaterialFacetState } from "../../_data/materialFacets";
 import { Sparkles, ChevronDown } from "lucide-react";
 
 interface MaterialsCatalogTabProps {
@@ -22,6 +25,19 @@ interface MaterialsCatalogTabProps {
   onOpenEditModal: (item: SupplierPriceItem) => void;
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
+  taxonomy: MaterialCategoryItem[];
+  addSubcategory: (catId: string, subName: string) => boolean;
+  renameSubcategory: (catId: string, oldName: string, newName: string) => boolean;
+  deleteSubcategory: (catId: string, subName: string) => boolean;
+  addCategory: (cat: MaterialCategoryItem) => boolean;
+  deleteCategory: (catId: string) => boolean;
+  getSubcategoryFacetKeys: (catId: string, subName: string) => (keyof MaterialFacetState)[];
+  updateSubcategoryFacets: (
+    catId: string,
+    subName: string,
+    keys: (keyof MaterialFacetState)[]
+  ) => void;
+  resetToDefaults: () => void;
 }
 
 const BATCH_SIZE = 60;
@@ -33,7 +49,18 @@ export default function MaterialsCatalogTab({
   onOpenEditModal,
   onQuickUpdatePrice,
   onDeleteItem,
+  taxonomy,
+  addSubcategory,
+  renameSubcategory,
+  deleteSubcategory,
+  addCategory,
+  deleteCategory,
+  getSubcategoryFacetKeys,
+  updateSubcategoryFacets,
+  resetToDefaults,
 }: MaterialsCatalogTabProps) {
+  const [isTaxonomyManagerOpen, setIsTaxonomyManagerOpen] = useState(false);
+
   const {
     searchQuery,
     setSearchQuery,
@@ -70,6 +97,8 @@ export default function MaterialsCatalogTab({
     supplierPrices,
     suppliers,
     onQuickUpdatePrice,
+    taxonomy,
+    getFacetKeys: getSubcategoryFacetKeys,
   });
 
   // Управление корзиной закупки (снабжение)
@@ -189,6 +218,7 @@ export default function MaterialsCatalogTab({
     <div className="grid grid-cols-1 lg:grid-cols-[290px_1fr] xl:grid-cols-[310px_1fr] 2xl:grid-cols-[330px_1fr] gap-6 items-start w-full">
       {/* 1. Левый macOS-сайдбар навигации */}
       <MaterialsSidebar
+        taxonomy={taxonomy}
         selectedCategory={selectedCategory}
         onSelectCategory={handleCategorySelect}
         selectedSubcategory={selectedSubcategory}
@@ -225,6 +255,7 @@ export default function MaterialsCatalogTab({
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onOpenCreateModal={onOpenCreateModal}
+            onOpenTaxonomyManager={() => setIsTaxonomyManagerOpen(true)}
             cartCount={uniquePositionsCount}
             cartTotalSum={cartTotalSum}
             onOpenCart={() => setIsCartOpen(true)}
@@ -355,6 +386,23 @@ export default function MaterialsCatalogTab({
         uniquePositionsCount={uniquePositionsCount}
         totalQuantity={totalQuantity}
         onOpenSupplierInfo={handleOpenSupplierInfo}
+      />
+
+      {/* 6. Центр управления категориями и умными фильтрами */}
+      <TaxonomyManagerModal
+        isOpen={isTaxonomyManagerOpen}
+        onClose={() => setIsTaxonomyManagerOpen(false)}
+        taxonomy={taxonomy}
+        categoryCounts={categoryCounts}
+        subcategoryCounts={subcategoryCounts}
+        onAddSubcategory={addSubcategory}
+        onRenameSubcategory={renameSubcategory}
+        onDeleteSubcategory={deleteSubcategory}
+        onAddCategory={addCategory}
+        onDeleteCategory={deleteCategory}
+        getSubcategoryFacetKeys={getSubcategoryFacetKeys}
+        onUpdateSubcategoryFacets={updateSubcategoryFacets}
+        onResetToDefaults={resetToDefaults}
       />
     </div>
   );

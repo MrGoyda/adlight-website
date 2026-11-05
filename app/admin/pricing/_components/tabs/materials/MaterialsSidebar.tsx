@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MATERIAL_TAXONOMY } from "../../../_data/pricingDictionary";
+import { MATERIAL_TAXONOMY, MaterialCategoryItem } from "../../../_data/pricingDictionary";
 import {
   MATERIAL_FACETS,
   MaterialFacetState,
@@ -71,6 +71,7 @@ interface MaterialsSidebarProps {
   onResetFacets: () => void;
   hasActiveFacets: boolean;
   onOpenSupplierInfo?: (supplierName: string) => void;
+  taxonomy?: MaterialCategoryItem[];
 }
 
 function MaterialsSidebar({
@@ -95,6 +96,7 @@ function MaterialsSidebar({
   onResetFacets,
   hasActiveFacets,
   onOpenSupplierInfo,
+  taxonomy = MATERIAL_TAXONOMY,
 }: MaterialsSidebarProps) {
   // Список уникальных поставщиков
   const allSupplierNames = React.useMemo(() => {
@@ -157,7 +159,7 @@ function MaterialsSidebar({
         <div className="px-2 pb-1 text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center justify-between">
           <span>Каталог материалов</span>
           <span className="text-[10px] font-extrabold text-slate-400">
-            {MATERIAL_TAXONOMY.length}
+            {taxonomy.length}
           </span>
         </div>
 
@@ -196,7 +198,7 @@ function MaterialsSidebar({
 
         {/* Дерево категорий и раскрывающихся подкатегорий */}
         <div className="space-y-1">
-          {MATERIAL_TAXONOMY.map((cat) => {
+          {taxonomy.map((cat) => {
             const isCategoryActive = selectedCategory === cat.id;
             const count = categoryCounts[cat.id] ?? 0;
             return (

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag } from "lucide-react";
+import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag, SlidersHorizontal } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { SortOption, ViewMode } from "./types";
 
@@ -14,6 +14,7 @@ interface MaterialToolbarProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
   onOpenCreateModal: () => void;
+  onOpenTaxonomyManager?: () => void;
   cartCount?: number;
   cartTotalSum?: number;
   onOpenCart?: () => void;
@@ -28,6 +29,7 @@ function MaterialToolbar({
   viewMode,
   onViewModeChange,
   onOpenCreateModal,
+  onOpenTaxonomyManager,
   cartCount = 0,
   cartTotalSum = 0,
   onOpenCart,
@@ -151,6 +153,22 @@ function MaterialToolbar({
             <LayoutGrid className="w-4 h-4" />
           </button>
         </div>
+
+        {/* Кнопка открытия Центра управления категориями и фильтрами */}
+        {onOpenTaxonomyManager && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("light");
+              onOpenTaxonomyManager();
+            }}
+            className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 hover:text-slate-900 border border-slate-200/80 text-xs font-bold transition active:scale-95 cursor-pointer shrink-0"
+            title="Центр управления категориями и фильтрами"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+            <span className="hidden xl:inline">Категории и фильтры</span>
+          </button>
+        )}
 
         {/* Кнопка создания позиции */}
         <button

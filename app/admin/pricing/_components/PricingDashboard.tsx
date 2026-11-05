@@ -10,6 +10,7 @@ import MaterialModal from "./materials/MaterialModal";
 import RateModal from "./rates/RateModal";
 import SupplierModal from "./suppliers/SupplierModal";
 import { usePricingState } from "../_hooks/usePricingState";
+import { useCustomTaxonomy } from "../_hooks/useCustomTaxonomy";
 
 interface PricingDashboardProps {
   initialSuppliers: SupplierData[];
@@ -22,6 +23,18 @@ export default function PricingDashboard({
   initialSupplierPrices,
   initialWorkOperations,
 }: PricingDashboardProps) {
+  const {
+    taxonomy,
+    addSubcategory,
+    renameSubcategory,
+    deleteSubcategory,
+    addCategory,
+    deleteCategory,
+    getSubcategoryFacetKeys,
+    updateSubcategoryFacets,
+    resetToDefaults,
+  } = useCustomTaxonomy();
+
   const {
     activeTab,
     setActiveTab,
@@ -96,6 +109,15 @@ export default function PricingDashboard({
           }}
           onQuickUpdatePrice={handleQuickUpdatePrice}
           onDeleteItem={handleDeleteMaterial}
+          taxonomy={taxonomy}
+          addSubcategory={addSubcategory}
+          renameSubcategory={renameSubcategory}
+          deleteSubcategory={deleteSubcategory}
+          addCategory={addCategory}
+          deleteCategory={deleteCategory}
+          getSubcategoryFacetKeys={getSubcategoryFacetKeys}
+          updateSubcategoryFacets={updateSubcategoryFacets}
+          resetToDefaults={resetToDefaults}
         />
       )}
 
@@ -140,6 +162,7 @@ export default function PricingDashboard({
         onSave={handleSaveMaterial}
         editingItem={editingMaterial}
         suppliers={suppliers}
+        taxonomy={taxonomy}
       />
 
       {/* Модальное окно создания/редактирования тарифа сметы */}

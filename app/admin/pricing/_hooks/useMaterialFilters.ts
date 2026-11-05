@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { SupplierData, SupplierPriceItem } from "../_types/pricingTypes";
-import { MATERIAL_TAXONOMY } from "../_data/pricingDictionary";
+import { MATERIAL_TAXONOMY, MaterialCategoryItem } from "../_data/pricingDictionary";
 import {
   MATERIAL_FACETS,
   INITIAL_FACETS,
@@ -19,12 +19,16 @@ interface UseMaterialFiltersProps {
   supplierPrices: SupplierPriceItem[];
   suppliers: SupplierData[];
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
+  taxonomy?: MaterialCategoryItem[];
+  getFacetKeys?: (categoryId: string, subcategory: string) => (keyof MaterialFacetState)[];
 }
 
 export function useMaterialFilters({
   supplierPrices,
   suppliers,
   onQuickUpdatePrice,
+  taxonomy = MATERIAL_TAXONOMY,
+  getFacetKeys,
 }: UseMaterialFiltersProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -52,8 +56,11 @@ export function useMaterialFilters({
 
   // Список применимых ключей фасетов для текущей категории и подкатегории (Строгая изоляция)
   const applicableFacetKeys = useMemo(() => {
+    if (getFacetKeys) {
+      return getFacetKeys(selectedCategory, selectedSubcategory);
+    }
     return getApplicableFacetKeys(selectedCategory, selectedSubcategory);
-  }, [selectedCategory, selectedSubcategory]);
+  }, [selectedCategory, selectedSubcategory, getFacetKeys]);
 
   // Проверка активности фильтров только среди применимых ключей
   const hasActiveFacets = useMemo(() => {
@@ -95,14 +102,14 @@ export function useMaterialFilters({
       if (item.isService || itemCat.includes("перезаказ")) {
         counts["services"] = (counts["services"] || 0) + 1;
       }
-      for (const cat of MATERIAL_TAXONOMY) {
+      for (const cat of taxonomy) {
         if (itemCat === cat.label.toLowerCase()) {
           counts[cat.id] = (counts[cat.id] || 0) + 1;
         }
       }
     }
     return counts;
-  }, [supplierPrices]);
+  }, [supplierPrices, taxonomy]);
 
   // Считаем распределение по подкатегориям
   const subcategoryCounts = useMemo(() => {
@@ -134,8 +141,8 @@ export function useMaterialFilters({
 
   // Текущая выбранная категория
   const currentCategoryDef = useMemo(() => {
-    return MATERIAL_TAXONOMY.find((c) => c.id === selectedCategory);
-  }, [selectedCategory]);
+    return taxonomy.find((c) => c.id === selectedCategory);
+  }, [taxonomy, selectedCategory]);
 
   // Фильтрация и сортировка данных
   const processedPrices = useMemo(() => {
