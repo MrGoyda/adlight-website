@@ -192,6 +192,45 @@ export const BUILT_IN_SYNONYM_RULES: SynonymRule[] = [
     description: "УФ и широкоформатная печать",
     isBuiltIn: true,
   },
+
+  // ── 7. Поставщики и бренды ───────────────────────────────────────
+  {
+    id: "syn_demer",
+    target: "демер",
+    aliases: ["demer", "дмер", "дмр"],
+    description: "Поставщик Демер",
+    isBuiltIn: true,
+  },
+  {
+    id: "syn_signtech",
+    target: "signtech",
+    aliases: ["сайнтек", "сигнтек", "сайнтекст", "сайнтеч"],
+    description: "Поставщик Signtech",
+    isBuiltIn: true,
+  },
+
+  // ── 8. Цвета и оптика ─────────────────────────────────────────────
+  {
+    id: "syn_color_white",
+    target: "белый",
+    aliases: ["молочный", "опал", "white", "белая", "белое", "светорассеивающий", "светорассеивающая"],
+    description: "Белый и молочный рассеивающий цвет",
+    isBuiltIn: true,
+  },
+  {
+    id: "syn_color_black",
+    target: "черный",
+    aliases: ["чёрный", "black", "черная", "чёрная", "черное"],
+    description: "Черный цвет",
+    isBuiltIn: true,
+  },
+  {
+    id: "syn_color_clear",
+    target: "прозрачный",
+    aliases: ["прозрач", "прозрачная", "прозрачное", "clear"],
+    description: "Прозрачный акрил / стекло",
+    isBuiltIn: true,
+  },
 ];
 
 // ── Карта переключения раскладки клавиатуры (QWERTY ⇄ ЙЦУКЕН) ────────

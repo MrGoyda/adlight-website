@@ -8,6 +8,7 @@ import {
   CalculatorWarehouseItem 
 } from "../_types/calculatorTypes";
 import { UNIT_LABELS } from "../_data/estimateSpreadsheetDictionary";
+import { matchSearchQuery } from "@/app/admin/pricing/_lib/smartSearch";
 
 interface EstimateQuickShelfProps {
   supplierPrices: CalculatorSupplierPrice[];
@@ -36,23 +37,33 @@ export default function EstimateQuickShelf({
     return supplierPrices.filter((p) => p.isFavorite);
   }, [supplierPrices]);
 
-  // Фильтрация текущего списка
+  // Фильтрация текущего списка (умный регистронезависимый поиск)
   const filteredFavorites = useMemo(() => {
     if (!filterQuery.trim()) return favoritePrices;
-    const q = filterQuery.toLowerCase();
-    return favoritePrices.filter((p) => p.name.toLowerCase().includes(q) || p.supplier.toLowerCase().includes(q));
+    return favoritePrices.filter((p) =>
+      matchSearchQuery(
+        {
+          name: p.name,
+          supplier: p.supplier,
+          category: p.category,
+          subcategory: p.subcategory,
+          description: p.description,
+        },
+        filterQuery
+      )
+    );
   }, [favoritePrices, filterQuery]);
 
   const filteredRates = useMemo(() => {
     if (!filterQuery.trim()) return workOperations;
-    const q = filterQuery.toLowerCase();
-    return workOperations.filter((w) => w.name.toLowerCase().includes(q));
+    return workOperations.filter((w) => matchSearchQuery({ name: w.name }, filterQuery));
   }, [workOperations, filterQuery]);
 
   const filteredWarehouse = useMemo(() => {
     if (!filterQuery.trim()) return warehouseItems;
-    const q = filterQuery.toLowerCase();
-    return warehouseItems.filter((w) => w.name.toLowerCase().includes(q));
+    return warehouseItems.filter((w) =>
+      matchSearchQuery({ name: w.name, category: w.category }, filterQuery)
+    );
   }, [warehouseItems, filterQuery]);
 
   return (

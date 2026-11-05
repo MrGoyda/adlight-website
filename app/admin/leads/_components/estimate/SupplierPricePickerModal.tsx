@@ -3,9 +3,10 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ParsedSupplierPrice } from "./types";
-import { Layers, X, Search, Check, ExternalLink, Handshake, Package, Image as ImageIcon } from "lucide-react";
+import { Layers, X, Search, Handshake, Package } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { INVENTORY_UNITS } from "@/app/admin/pricing/_data/pricingDictionary";
+import { matchSearchQuery } from "@/app/admin/pricing/_lib/smartSearch";
 
 interface SupplierPricePickerModalProps {
   isOpen: boolean;
@@ -38,27 +39,20 @@ export const SupplierPricePickerModal: React.FC<SupplierPricePickerModalProps> =
     );
   }, [pickerCategory, parsedPrices]);
 
-  const uniqueSpecs = useMemo(() => {
-    if (!pickerCategory || !pickerType) return [];
-    return Array.from(
-      new Set(
-        parsedPrices
-          .filter((p) => p.category === pickerCategory && p.materialType === pickerType)
-          .map((p) => p.spec)
-      )
-    );
-  }, [pickerCategory, pickerType, parsedPrices]);
 
   const searchResults = useMemo(() => {
     if (!pickerSearch.trim()) return [];
-    const q = pickerSearch.toLowerCase().trim();
-    return parsedPrices.filter(
-      (p) =>
-        p.originalName.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.materialType.toLowerCase().includes(q) ||
-        p.spec.toLowerCase().includes(q) ||
-        p.supplier.toLowerCase().includes(q)
+    return parsedPrices.filter((p) =>
+      matchSearchQuery(
+        {
+          name: p.originalName,
+          supplier: p.supplier,
+          category: p.category,
+          subcategory: p.subcategory,
+          description: (p.materialType || '') + ' ' + (p.spec || '') + ' ' + (p.detail || ''),
+        },
+        pickerSearch
+      )
     );
   }, [pickerSearch, parsedPrices]);
 

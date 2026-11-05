@@ -11,6 +11,7 @@ import {
   CalculatorWarehouseItem 
 } from "../_types/calculatorTypes";
 import { ITEM_TYPE_META, UNIT_LABELS } from "../_data/estimateSpreadsheetDictionary";
+import { matchSearchQuery } from "@/app/admin/pricing/_lib/smartSearch";
 
 interface EstimateTableGridProps {
   items: SpreadsheetItem[];
@@ -39,13 +40,23 @@ export default function EstimateTableGrid({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Фильтрация подсказок инлайн-поиска
+  // Фильтрация подсказок инлайн-поиска (независимо от регистра, порядка слов и единиц)
   const searchResults = React.useMemo(() => {
-    if (!inlineSearch.trim() || inlineSearch.length < 2) return [];
-    const q = inlineSearch.toLowerCase().trim();
+    if (!inlineSearch.trim() || inlineSearch.trim().length < 2) return [];
 
     const matchedMaterials = supplierPrices
-      .filter((p) => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)))
+      .filter((p) =>
+        matchSearchQuery(
+          {
+            name: p.name,
+            supplier: p.supplier,
+            category: p.category,
+            subcategory: p.subcategory,
+            description: p.description,
+          },
+          inlineSearch
+        )
+      )
       .slice(0, 5)
       .map((p) => ({
         type: "material" as const,
@@ -58,7 +69,7 @@ export default function EstimateTableGrid({
       }));
 
     const matchedWorks = workOperations
-      .filter((w) => w.name.toLowerCase().includes(q))
+      .filter((w) => matchSearchQuery({ name: w.name }, inlineSearch))
       .slice(0, 4)
       .map((w) => ({
         type: "work" as const,

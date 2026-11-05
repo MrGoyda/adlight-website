@@ -2,22 +2,42 @@
  * Интеллектуальный поисковый движок для каталога материалов и услуг.
  * Возможности:
  * 1. Мульти-токенизация (независимый порядок слов).
- * 2. Автоматическое исправление раскладки (QWERTY ⇄ ЙЦУКЕН).
- * 3. Нормализация единиц (3мм = 3 мм, 12v = 12в, 2.05х3.05 = 2.05x3.05).
- * 4. Словарь синонимов и сленга рекламного производства (встроенный + кастомный).
- * 5. Стемминг корней и прощение опечаток (Fuzzy / Levenshtein).
- * 6. Ранжирование по релевантности (Scoring).
+ * 2. Полная нечувствительность к регистру (Case-Insensitive & Unicode).
+ * 3. Нормализация единиц (3мм = 3 мм = 3mm, 12v = 12в = 12 V, 2.05х3.05 = 2.05x3.05 = 2.05*3.05).
+ * 4. Замена буквы "ё" на "е" (плёнка = пленка, чёрный = черный).
+ * 5. Автоматическое исправление раскладки (QWERTY ⇄ ЙЦУКЕН).
+ * 6. Транслитерация брендов (Demer ⇄ Демер, Signtech ⇄ Сайнтек, Oracal ⇄ Оракал).
+ * 7. Словарь синонимов и сленга рекламного производства.
+ * 8. Мягкий нечеткий поиск (Fuzzy / Levenshtein) без жесткого отсечения при опечатках.
  */
 
 import { SupplierPriceItem } from "../_types/pricingTypes";
 import { EN_TO_RU_KEYBOARD, RU_TO_EN_KEYBOARD, SynonymRule } from "../_data/synonymsDictionary";
 
+const TRANSLIT_PAIRS: Record<string, string> = {
+  demer: "демер",
+  демер: "demer",
+  signtech: "сайнтек",
+  сайнтек: "signtech",
+  сигнтек: "signtech",
+  akril: "акрил",
+  акрил: "akril",
+  oracal: "оракал",
+  оракал: "oracal",
+  cosmofen: "космофен",
+  космофен: "cosmofen",
+  unext: "юнекст",
+  юнекст: "unext",
+  led: "диод",
+  лед: "led",
+};
+
 /**
  * Переключение раскладки клавиатуры при опечатках менеджера
  */
 export function convertKeyboardLayout(text: string): { ru: string; en: string } {
-  const lower = text.toLowerCase();
-  
+  const lower = text.toLowerCase().replace(/ё/g, "е");
+
   let ru = "";
   for (const ch of lower) {
     ru += EN_TO_RU_KEYBOARD[ch] || ch;
@@ -32,19 +52,25 @@ export function convertKeyboardLayout(text: string): { ru: string; en: string } 
 }
 
 /**
- * Нормализация текста: удаление лишних знаков, приведение единиц и размеров
+ * Нормализация текста: регистр, буква ё, объединение единиц измерения, очистка пунктуации
  */
 export function normalizeSearchText(text: string): string {
   if (!text) return "";
 
   return text
     .toLowerCase()
-    // Замена русской буквы "х" в размерах на латинскую "x" (2.05х3.05 -> 2.05x3.05)
-    .replace(/(\d+)\s*[хx]\s*(\d+)/gi, "$1x$2")
-    // Отделение цифр от единиц (3мм -> 3 мм, 12v -> 12 v, 200w -> 200 w)
-    .replace(/(\d+)\s*(мм|mm|см|cm|м|m|v|в|w|вт|ватт|volt|вольт)\b/gi, "$1 $2")
-    // Замена дефисов, слешей и точек между буквами на пробелы для разделения слов
-    .replace(/[«»""''()[\]{}_,;!?]/g, " ")
+    .replace(/ё/g, "е")
+    // Замена русской буквы "х" и звездочки в размерах на латинскую "x" (2.05х3.05 -> 2.05x3.05)
+    .replace(/(\d+)\s*[хx*]\s*(\d+)/gi, "$1x$2")
+    // Приведение мощностей и напряжений (100 вт -> 100w, 12 в -> 12v)
+    .replace(/(\d+)\s*(?:вт|w|ватт|watt)(?!\w)/gi, "$1w")
+    .replace(/(\d+)\s*(?:в|v|volt|вольт)(?!\w)/gi, "$1v")
+    // Приведение толщин и длин (3 мм -> 3mm, 10 см -> 10cm)
+    .replace(/(\d+)\s*(?:мм|mm)(?!\w)/gi, "$1mm")
+    .replace(/(\d+)\s*(?:см|cm)(?!\w)/gi, "$1cm")
+    .replace(/(\d+)\s*(?:м|m)(?!\w)/gi, "$1m")
+    // Замена дефисов, скобок и спецсимволов на пробелы
+    .replace(/[«»""''()[\]{}_,;!?/\\+-]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -86,9 +112,9 @@ export function getLevenshteinDistance(a: string, b: string): number {
         matrix[i][j] = matrix[i - 1][j - 1];
       } else {
         matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // замена
-          matrix[i][j - 1] + 1,     // вставка
-          matrix[i - 1][j] + 1      // удаление
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
         );
       }
     }
@@ -104,8 +130,11 @@ export function buildSynonymLookup(rules: SynonymRule[]): Map<string, string[]> 
   const map = new Map<string, string[]>();
 
   for (const rule of rules) {
-    const canonical = rule.target.toLowerCase().trim();
-    const allForms = [canonical, ...rule.aliases.map((a) => a.toLowerCase().trim())];
+    const canonical = rule.target.toLowerCase().replace(/ё/g, "е").trim();
+    const allForms = [
+      canonical,
+      ...rule.aliases.map((a) => a.toLowerCase().replace(/ё/g, "е").trim()),
+    ];
 
     for (const form of allForms) {
       if (!form) continue;
@@ -119,21 +148,26 @@ export function buildSynonymLookup(rules: SynonymRule[]): Map<string, string[]> 
 }
 
 /**
- * Расширение поискового токена всеми известными синонимами и альтернативными раскладками
+ * Расширение поискового токена всеми известными синонимами, раскладками и транслитом
  */
 export function expandTokenVariants(token: string, synonymMap: Map<string, string[]>): string[] {
   const variants = new Set<string>();
-  const clean = token.toLowerCase().trim();
+  const clean = token.toLowerCase().replace(/ё/g, "е").trim();
   if (!clean) return [];
 
   variants.add(clean);
 
-  // 1. Раскладка клавиатуры (на случай опечатки типа "frhbk" -> "акрил")
+  // 1. Прямой транслит (demer ⇄ демер, signtech ⇄ сайнтек)
+  if (TRANSLIT_PAIRS[clean]) {
+    variants.add(TRANSLIT_PAIRS[clean]);
+  }
+
+  // 2. Раскладка клавиатуры (на случай опечатки типа "frhbk" -> "акрил")
   const { ru, en } = convertKeyboardLayout(clean);
   if (ru && ru !== clean) variants.add(ru);
   if (en && en !== clean) variants.add(en);
 
-  // 2. Синонимы из словаря
+  // 3. Синонимы из словаря
   for (const v of Array.from(variants)) {
     const synonyms = synonymMap.get(v);
     if (synonyms) {
@@ -141,7 +175,7 @@ export function expandTokenVariants(token: string, synonymMap: Map<string, strin
     }
   }
 
-  // 3. Добавление основ слов (стемминг)
+  // 4. Добавление основ слов (стемминг)
   for (const v of Array.from(variants)) {
     if (v.length >= 4) {
       variants.add(stemRussianWord(v));
@@ -169,9 +203,7 @@ export interface PreparedSearchQuery {
 }
 
 /**
- * Высокопроизводительная предварительная компиляция поискового запроса.
- * Выполняется РОВНО ОДИН РАЗ за ввод пользователя, а не 750 раз для каждого товара!
- * Ускоряет живой поиск до 70х (0.5мс на 1000 позиций).
+ * Предварительная компиляция поискового запроса
  */
 export function prepareSearchQuery(
   query: string,
@@ -179,7 +211,7 @@ export function prepareSearchQuery(
 ): PreparedSearchQuery | null {
   if (!query || !query.trim()) return null;
 
-  const raw = query.toLowerCase().trim();
+  const raw = query.toLowerCase().replace(/ё/g, "е").trim();
   const normalized = normalizeSearchText(query);
   const rawTokens = normalized.split(/\s+/).filter((t) => t.length > 0);
 
@@ -195,7 +227,7 @@ export function prepareSearchQuery(
 }
 
 /**
- * Быстрый подсчет релевантности товара с использованием скомпилированного запроса
+ * Подсчет релевантности товара с использованием нормализации и нечувствительности к регистру
  */
 export function calculatePreparedRelevance(
   item: SupplierPriceItem,
@@ -203,23 +235,19 @@ export function calculatePreparedRelevance(
 ): number {
   const { raw, normalized, tokens } = prepared;
 
-  const itemName = (item.name || "").toLowerCase();
-  const itemDesc = (item.description || "").toLowerCase();
-  const itemCategory = (item.category || "").toLowerCase();
-  const itemSubcategory = (item.subcategory || "").toLowerCase();
-  const itemSupplier = (item.supplier || "").toLowerCase();
+  const itemName = normalizeSearchText(item.name || "");
+  const itemDesc = normalizeSearchText(item.description || "");
+  const itemCategory = normalizeSearchText(item.category || "");
+  const itemSubcategory = normalizeSearchText(item.subcategory || "");
+  const itemSupplier = normalizeSearchText(item.supplier || "");
+
+  const fullItemText = `${itemName} ${itemSupplier} ${itemCategory} ${itemSubcategory} ${itemDesc}`;
 
   let totalScore = 0;
 
-  // 1. Прямое точное совпадение всей строки целиком (Джекпот!)
-  if (itemName.includes(raw) || itemName.includes(normalized)) {
+  // 1. Прямое совпадение всей фразы целиком
+  if (fullItemText.includes(raw) || fullItemText.includes(normalized)) {
     totalScore += 250;
-  } else if (
-    itemDesc.includes(raw) ||
-    itemSubcategory.includes(raw) ||
-    itemCategory.includes(raw)
-  ) {
-    totalScore += 120;
   }
 
   // 2. Проверка каждого скомпилированного токена запроса
@@ -230,7 +258,6 @@ export function calculatePreparedRelevance(
     let tokenMatched = false;
     let tokenBestWeight = 0;
 
-    // Быстрый перебор предвычисленных вариантов синонимов
     for (let j = 0; j < variants.length; j++) {
       const v = variants[j];
       if (itemName.includes(v)) {
@@ -238,30 +265,32 @@ export function calculatePreparedRelevance(
         tokenBestWeight = 60;
         break;
       }
+      if (itemSupplier.includes(v)) {
+        tokenMatched = true;
+        tokenBestWeight = Math.max(tokenBestWeight, 50);
+        break;
+      }
       if (itemSubcategory.includes(v) || itemCategory.includes(v)) {
         tokenMatched = true;
         tokenBestWeight = Math.max(tokenBestWeight, 35);
       } else if (itemDesc.includes(v)) {
         tokenMatched = true;
-        tokenBestWeight = Math.max(tokenBestWeight, 30);
-      } else if (itemSupplier.includes(v)) {
-        tokenMatched = true;
-        tokenBestWeight = Math.max(tokenBestWeight, 20);
+        tokenBestWeight = Math.max(tokenBestWeight, 25);
       }
     }
 
-    // Если точное/синонимичное совпадение не сработало, проверяем стемминг и опечатки
-    if (!tokenMatched && token.length >= 4) {
-      if (itemName.includes(stem)) {
+    // Проверка стемминга и опечаток
+    if (!tokenMatched && token.length >= 3) {
+      if (itemName.includes(stem) || itemSupplier.includes(stem)) {
         tokenMatched = true;
         tokenBestWeight = 25;
       } else {
         const nameWords = itemName.split(/\s+/);
         for (let k = 0; k < nameWords.length; k++) {
           const nw = nameWords[k];
-          if (nw.length >= 4 && Math.abs(nw.length - token.length) <= 2) {
+          if (nw.length >= 3 && Math.abs(nw.length - token.length) <= 2) {
             const dist = getLevenshteinDistance(nw, token);
-            if (dist <= 1 || (token.length >= 7 && dist <= 2)) {
+            if (dist <= 1 || (token.length >= 6 && dist <= 2)) {
               tokenMatched = true;
               tokenBestWeight = 20;
               break;
@@ -274,33 +303,73 @@ export function calculatePreparedRelevance(
     if (tokenMatched) {
       matchedTokensCount++;
       totalScore += tokenBestWeight;
-    } else {
-      // Ранний выход: если хотя бы один токен не совпал, товар не подходит
-      return 0;
     }
   }
 
-  if (matchedTokensCount < tokens.length) {
+  // Одиночный токен обязан совпасть
+  if (tokens.length === 1 && matchedTokensCount === 0) {
     return 0;
   }
 
-  // Бонус за наличие качественной фотографии
-  if (item.imageUrl && item.imageUrl.trim()) {
-    totalScore += 5;
+  // Все токены совпали (100% покрытие запроса)
+  if (matchedTokensCount === tokens.length) {
+    return totalScore + (matchedTokensCount * 25);
   }
 
-  return totalScore;
+  // Длинный запрос (3+ слова): допускаем совпадение большинства слов
+  if (tokens.length >= 3 && matchedTokensCount >= tokens.length - 1) {
+    return totalScore;
+  }
+
+  return 0;
 }
 
 /**
- * Интеллектуальный подсчет релевантности товара поисковому запросу (обратная совместимость)
+ * Универсальный быстрый матчер для любого объекта (используется в таблице калькулятора, полке и пикерах)
  */
-export function calculateItemRelevance(
-  item: SupplierPriceItem,
-  query: string,
-  synonymMap: Map<string, string[]>
-): number {
-  const prepared = prepareSearchQuery(query, synonymMap);
-  if (!prepared) return 100;
-  return calculatePreparedRelevance(item, prepared);
+export function matchSearchQuery(
+  item: {
+    name: string;
+    supplier?: string | null;
+    category?: string | null;
+    subcategory?: string | null;
+    description?: string | null;
+  },
+  query: string
+): boolean {
+  if (!query || !query.trim()) return true;
+
+  const qClean = normalizeSearchText(query);
+  const qTokens = qClean.split(/\s+/).filter((t) => t.length > 0);
+  if (qTokens.length === 0) return true;
+
+  const itemFullText = normalizeSearchText(
+    `${item.name} ${item.supplier || ""} ${item.category || ""} ${item.subcategory || ""} ${item.description || ""}`
+  );
+
+  // Точное совпадение всей строки
+  if (itemFullText.includes(qClean)) return true;
+
+  let matched = 0;
+  for (const token of qTokens) {
+    const variants = expandTokenVariants(token, new Map());
+    let found = false;
+
+    for (const v of variants) {
+      if (itemFullText.includes(v)) {
+        found = true;
+        break;
+      }
+    }
+
+    if (found) {
+      matched++;
+    }
+  }
+
+  if (qTokens.length === 1) return matched > 0;
+  if (matched === qTokens.length) return true;
+  if (qTokens.length >= 3 && matched >= qTokens.length - 1) return true;
+
+  return false;
 }
