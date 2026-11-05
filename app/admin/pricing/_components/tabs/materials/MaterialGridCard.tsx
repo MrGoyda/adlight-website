@@ -15,10 +15,12 @@ import {
   Trash2,
   Plus,
   Minus,
+  Star,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { pricingDict } from "@/dictionaries/pricing";
+import { cn } from "@/lib/utils";
 
 interface MaterialGridCardProps {
   item: SupplierPriceItem;
@@ -31,6 +33,7 @@ interface MaterialGridCardProps {
   onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
   onRemoveFromCart?: (id: string) => void;
   onUpdateCartQuantity?: (priceItemId: string, newQty: number) => void;
+  onToggleFavorite?: (id: string, currentStatus?: boolean) => void;
   isInCart?: boolean;
   cartQuantity?: number;
 }
@@ -46,6 +49,7 @@ function MaterialGridCard({
   onAddToCart,
   onRemoveFromCart,
   onUpdateCartQuantity,
+  onToggleFavorite,
   isInCart = false,
   cartQuantity = 0,
 }: MaterialGridCardProps) {
@@ -157,23 +161,53 @@ function MaterialGridCard({
           </span>
         </div>
 
-        {/* Бейджи в верхних углах */}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+        {/* Бейджи в верхних углах и кнопка избранного */}
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              type="button"
+              onClick={handleSupplierClick}
+              className="px-2 py-0.5 rounded-lg text-[10px] font-black tracking-wide bg-white/95 hover:bg-orange-50 text-slate-800 hover:text-orange-700 shadow-2xs border border-slate-100 transition cursor-pointer flex items-center gap-1"
+              title="Контакты поставщика"
+            >
+              <Building2 className="w-2.5 h-2.5 text-slate-400" />
+              <span className="truncate max-w-[120px]">{item.supplier}</span>
+            </button>
+
+            {item.isFavorite && (
+              <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-xs flex items-center gap-0.5">
+                <Star className="w-2.5 h-2.5 fill-slate-950" />
+                {pricingDict.table.badges.favorite}
+              </span>
+            )}
+
+            {isService && (
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-600 text-white shadow-xs">
+                Услуга
+              </span>
+            )}
+          </div>
+
           <button
             type="button"
-            onClick={handleSupplierClick}
-            className="px-2 py-0.5 rounded-lg text-[10px] font-black tracking-wide bg-white/95 hover:bg-orange-50 text-slate-800 hover:text-orange-700 shadow-2xs border border-slate-100 transition cursor-pointer flex items-center gap-1"
-            title="Контакты поставщика"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite?.(item.id, item.isFavorite);
+            }}
+            className={cn(
+              "w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xs",
+              item.isFavorite
+                ? "bg-amber-400 text-slate-950 shadow-amber-400/40"
+                : "bg-white/90 backdrop-blur-md text-slate-400 hover:text-amber-500 hover:bg-white"
+            )}
+            title={
+              item.isFavorite
+                ? pricingDict.table.tooltips.favoriteRemove
+                : pricingDict.table.tooltips.favoriteAdd
+            }
           >
-            <Building2 className="w-2.5 h-2.5 text-slate-400" />
-            <span className="truncate max-w-[120px]">{item.supplier}</span>
+            <Star className={cn("w-3.5 h-3.5", item.isFavorite && "fill-slate-950")} />
           </button>
-
-          {isService && (
-            <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-600 text-white shadow-xs">
-              Услуга
-            </span>
-          )}
         </div>
       </div>
 

@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag, SlidersHorizontal } from "lucide-react";
+import { Search, X, ArrowUpDown, List, LayoutGrid, Plus, ShoppingBag, SlidersHorizontal, Star } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { SortOption, ViewMode } from "./types";
 import { pricingDict } from "@/dictionaries/pricing";
+import { cn } from "@/lib/utils";
 import CustomSelect from "../../common/CustomSelect";
 
 interface MaterialToolbarProps {
@@ -20,6 +21,9 @@ interface MaterialToolbarProps {
   cartCount?: number;
   cartTotalSum?: number;
   onOpenCart?: () => void;
+  onlyFavorites?: boolean;
+  onToggleOnlyFavorites?: () => void;
+  favoritesCount?: number;
 }
 
 function MaterialToolbar({
@@ -35,6 +39,9 @@ function MaterialToolbar({
   cartCount = 0,
   cartTotalSum = 0,
   onOpenCart,
+  onlyFavorites = false,
+  onToggleOnlyFavorites,
+  favoritesCount = 0,
 }: MaterialToolbarProps) {
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const t = pricingDict.toolbar;
@@ -133,6 +140,42 @@ function MaterialToolbar({
             {cartTotalSum > 0 && (
               <span className="hidden lg:inline text-orange-300 font-extrabold text-[11px]">
                 {cartTotalSum.toLocaleString("ru-RU")} ₸
+              </span>
+            )}
+          </button>
+        )}
+
+        {/* Быстрый фильтр: Избранное (Часто покупаем) */}
+        {onToggleOnlyFavorites && (
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("medium");
+              onToggleOnlyFavorites();
+            }}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-2.5 rounded-2xl text-xs font-black transition cursor-pointer border shrink-0",
+              onlyFavorites
+                ? "bg-amber-400 text-slate-950 border-amber-400 shadow-sm shadow-amber-400/30"
+                : "bg-white hover:bg-slate-50 text-slate-600 border-slate-200"
+            )}
+            title={t.favoritesTooltip}
+          >
+            <Star
+              className={cn(
+                "w-3.5 h-3.5",
+                onlyFavorites ? "fill-slate-950 text-slate-950" : "text-amber-500 fill-amber-400"
+              )}
+            />
+            <span className="hidden sm:inline">{t.favoritesButton}</span>
+            {favoritesCount > 0 && (
+              <span
+                className={cn(
+                  "px-1.5 py-0.2 rounded-full text-[10px] font-black",
+                  onlyFavorites ? "bg-slate-950 text-amber-300" : "bg-amber-100 text-amber-800"
+                )}
+              >
+                {favoritesCount}
               </span>
             )}
           </button>

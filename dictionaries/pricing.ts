@@ -33,6 +33,10 @@ export const pricingDict = {
       title: "С фото",
       subtitle: "Только с изображениями",
     },
+    favoritesFilter: {
+      title: "Часто закупаем",
+      subtitle: "Избранные материалы",
+    },
     categories: {
       title: "Каталог материалов",
       all: "Все категории",
@@ -60,9 +64,11 @@ export const pricingDict = {
     taxonomyButton: "Категории и фильтры",
     addMaterialButton: "Добавить материал",
     createShort: "Создать",
+    favoritesButton: "Часто покупаем",
+    favoritesTooltip: "Показать только часто закупаемые материалы",
     sort: {
       title: "Сортировка",
-      default: "По умолчанию (по фото)",
+      default: "По умолчанию (избранное сверху)",
       priceAsc: "Сначала дешевле",
       priceDesc: "Сначала дороже",
       nameAsc: "По названию (А–Я)",
@@ -98,6 +104,7 @@ export const pricingDict = {
     },
     badges: {
       service: "Перезаказ",
+      favorite: "Часто покупаем",
       inCart: (qty: number) => `В корзине (${qty})`,
     },
     tooltips: {
@@ -109,6 +116,8 @@ export const pricingDict = {
       addToCart: "Добавить в корзину закупки",
       removeFromCart: (qty: number) => `Удалить из корзины (в корзине: ${qty})`,
       supplierCard: "Карточка поставщика",
+      favoriteAdd: "Добавить в избранное (часто закупаем)",
+      favoriteRemove: "Убрать из избранного",
     },
   },
 

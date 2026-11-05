@@ -71,6 +71,7 @@ export default function PricingDashboard({
     handleSaveMaterial,
     handleQuickUpdatePrice,
     handleDeleteMaterial,
+    handleToggleFavorite,
     handleSaveRate,
     handleDeleteRate,
     handleSaveSupplier,
@@ -135,6 +136,7 @@ export default function PricingDashboard({
           onOpenEditModal={handleOpenEditMaterial}
           onQuickUpdatePrice={handleQuickUpdatePrice}
           onDeleteItem={handleDeleteMaterial}
+          onToggleFavorite={handleToggleFavorite}
           taxonomy={taxonomy}
           addSubcategory={addSubcategory}
           renameSubcategory={renameSubcategory}

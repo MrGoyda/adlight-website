@@ -16,6 +16,7 @@ interface MaterialTableViewProps {
   onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
   onRemoveFromCart?: (id: string) => void;
   onUpdateCartQuantity?: (priceItemId: string, newQty: number) => void;
+  onToggleFavorite?: (id: string, currentStatus?: boolean) => void;
   isItemInCart?: (priceItemId: string) => boolean;
   getItemQuantity?: (priceItemId: string) => number;
 }
@@ -31,6 +32,7 @@ function MaterialTableView({
   onAddToCart,
   onRemoveFromCart,
   onUpdateCartQuantity,
+  onToggleFavorite,
   isItemInCart,
   getItemQuantity,
 }: MaterialTableViewProps) {
@@ -60,6 +62,7 @@ function MaterialTableView({
             onAddToCart={onAddToCart}
             onRemoveFromCart={onRemoveFromCart}
             onUpdateCartQuantity={onUpdateCartQuantity}
+            onToggleFavorite={onToggleFavorite}
             isInCart={isItemInCart?.(item.id)}
             cartQuantity={getItemQuantity?.(item.id)}
           />

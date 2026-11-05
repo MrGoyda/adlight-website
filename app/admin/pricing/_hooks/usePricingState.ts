@@ -6,6 +6,7 @@ import {
   createSupplierPrice,
   updateSupplierPrice,
   deleteSupplierPrice,
+  toggleMaterialFavorite,
   createWorkOperation,
   updateWorkOperation,
   deleteWorkOperation,
@@ -114,6 +115,27 @@ export function usePricingState({
         }
       },
     });
+  };
+
+  const handleToggleFavorite = async (id: string, currentStatus?: boolean) => {
+    const nextStatus = !currentStatus;
+    triggerHaptic("medium");
+    setSupplierPrices((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isFavorite: nextStatus } : p))
+    );
+    toast.success(
+      nextStatus
+        ? "Товар добавлен в избранное (часто покупаем)"
+        : "Товар удален из избранного"
+    );
+
+    const res = await toggleMaterialFavorite(id, nextStatus);
+    if (res.error) {
+      toast.error(res.error);
+      setSupplierPrices((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isFavorite: currentStatus } : p))
+      );
+    }
   };
 
   // ════════════════════════════════════════════════════════════════════
@@ -252,6 +274,7 @@ export function usePricingState({
     handleSaveMaterial,
     handleQuickUpdatePrice,
     handleDeleteMaterial,
+    handleToggleFavorite,
     handleSaveRate,
     handleDeleteRate,
     handleSaveSupplier,

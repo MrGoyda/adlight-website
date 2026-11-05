@@ -370,6 +370,7 @@ model SupplierPrice {
   description String?       // Описание, спецификация, размеры
   sourceUrl   String?       // Ссылка на товар у поставщика (signtech.kz и т.д.)
   isService   Boolean       @default(false) // Является ли перезаказом услуги (фрезеровка, лазер, печать)
+  isFavorite  Boolean       @default(false) // Избранный / часто закупаемый товар
   
   supplierId  String?
   supplierObj Supplier?     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
@@ -378,6 +379,7 @@ model SupplierPrice {
   @@index([name])
   @@index([category])
   @@index([subcategory])
+  @@index([isFavorite])
   @@index([isService])
 }
 

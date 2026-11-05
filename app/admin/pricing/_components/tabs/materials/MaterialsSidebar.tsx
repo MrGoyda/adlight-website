@@ -6,6 +6,7 @@ import { MATERIAL_TAXONOMY, MaterialCategoryItem } from "../../../_data/pricingD
 import { MaterialFacetState } from "../../../_data/materialFacets";
 
 import SidebarPhotoFilter from "./sidebar/SidebarPhotoFilter";
+import SidebarFavoritesFilter from "./sidebar/SidebarFavoritesFilter";
 import SidebarCategoriesTree from "./sidebar/SidebarCategoriesTree";
 import SidebarFacetsList from "./sidebar/SidebarFacetsList";
 import SidebarSuppliersList from "./sidebar/SidebarSuppliersList";
@@ -22,9 +23,12 @@ interface MaterialsSidebarProps {
   onSelectSupplier: (sup: string) => void;
   onlyWithPhoto: boolean;
   onToggleOnlyWithPhoto: () => void;
+  onlyFavorites: boolean;
+  onToggleOnlyFavorites: () => void;
   categoryCounts: Record<string, number>;
   supplierCounts: Record<string, number>;
   withPhotoCount: number;
+  favoritesCount: number;
   totalCount: number;
   suppliers: SupplierData[];
   uniqueSuppliersFromPrices: string[];
@@ -47,9 +51,12 @@ function MaterialsSidebar({
   onSelectSupplier,
   onlyWithPhoto,
   onToggleOnlyWithPhoto,
+  onlyFavorites,
+  onToggleOnlyFavorites,
   categoryCounts,
   supplierCounts,
   withPhotoCount,
+  favoritesCount,
   totalCount,
   suppliers,
   uniqueSuppliersFromPrices,
@@ -72,12 +79,19 @@ function MaterialsSidebar({
 
   return (
     <aside className="w-full space-y-5 bg-white p-4 rounded-3xl border border-slate-200/90 shadow-xs">
-      {/* 1. Тумблер: Только с фото */}
-      <SidebarPhotoFilter
-        onlyWithPhoto={onlyWithPhoto}
-        onToggleOnlyWithPhoto={onToggleOnlyWithPhoto}
-        withPhotoCount={withPhotoCount}
-      />
+      {/* 1. Тумблеры быстрых фильтров */}
+      <div className="space-y-2">
+        <SidebarFavoritesFilter
+          onlyFavorites={onlyFavorites}
+          onToggleOnlyFavorites={onToggleOnlyFavorites}
+          favoritesCount={favoritesCount}
+        />
+        <SidebarPhotoFilter
+          onlyWithPhoto={onlyWithPhoto}
+          onToggleOnlyWithPhoto={onToggleOnlyWithPhoto}
+          withPhotoCount={withPhotoCount}
+        />
+      </div>
 
       {/* 2. Раздел: Категории и дерево подкатегорий */}
       <SidebarCategoriesTree

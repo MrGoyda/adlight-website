@@ -15,10 +15,12 @@ import {
   ShoppingBag,
   Plus,
   Minus,
+  Star,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { pricingDict } from "@/dictionaries/pricing";
+import { cn } from "@/lib/utils";
 
 interface MaterialTableRowProps {
   item: SupplierPriceItem;
@@ -31,6 +33,7 @@ interface MaterialTableRowProps {
   onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
   onRemoveFromCart?: (id: string) => void;
   onUpdateCartQuantity?: (priceItemId: string, newQty: number) => void;
+  onToggleFavorite?: (id: string, currentStatus?: boolean) => void;
   isInCart?: boolean;
   cartQuantity?: number;
 }
@@ -46,6 +49,7 @@ function MaterialTableRow({
   onAddToCart,
   onRemoveFromCart,
   onUpdateCartQuantity,
+  onToggleFavorite,
   isInCart = false,
   cartQuantity = 0,
 }: MaterialTableRowProps) {
@@ -131,7 +135,29 @@ function MaterialTableRow({
       }`}
     >
       {/* Фото и Наименование */}
-      <div className="md:col-span-4 flex items-center gap-3">
+      <div className="md:col-span-4 flex items-center gap-2.5">
+        {/* Кнопка быстрого добавления в избранное (часто закупаем) */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleFavorite?.(item.id, item.isFavorite);
+          }}
+          className={cn(
+            "p-1.5 rounded-xl transition cursor-pointer shrink-0",
+            item.isFavorite
+              ? "text-amber-500 hover:text-amber-600 bg-amber-50/90"
+              : "text-slate-300 hover:text-amber-400 hover:bg-slate-100"
+          )}
+          title={
+            item.isFavorite
+              ? pricingDict.table.tooltips.favoriteRemove
+              : pricingDict.table.tooltips.favoriteAdd
+          }
+        >
+          <Star className={cn("w-4 h-4", item.isFavorite && "fill-amber-400")} />
+        </button>
+
         {/* Превью фото позиции */}
         <div
           className={`w-11 h-11 rounded-xl border overflow-hidden shrink-0 flex items-center justify-center relative shadow-xs group ${
@@ -168,6 +194,13 @@ function MaterialTableRow({
         {/* Заголовок, категория и метка */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 flex-wrap">
+            {item.isFavorite ? (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/80">
+                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
+                {pricingDict.table.badges.favorite}
+              </span>
+            ) : null}
+
             {isService ? (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200">
                 <Handshake className="w-2.5 h-2.5" />

@@ -29,6 +29,7 @@ export interface SupplierPriceItem {
   description?: string | null;
   sourceUrl?: string | null;
   isService?: boolean;
+  isFavorite?: boolean;
   supplierId?: string | null;
   supplierObj?: SupplierData | null;
   createdAt: string | Date;

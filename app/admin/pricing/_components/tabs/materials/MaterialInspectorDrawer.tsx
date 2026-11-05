@@ -4,8 +4,9 @@ import React, { useState, useEffect, memo } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { SupplierPriceItem } from "../../../_types/pricingTypes";
-import { X, Trash2, Edit2, ShoppingBag } from "lucide-react";
+import { X, Trash2, Edit2, ShoppingBag, Star } from "lucide-react";
 import { pricingDict } from "@/dictionaries/pricing";
+import { cn } from "@/lib/utils";
 
 import InspectorPhotoSection from "./inspector/InspectorPhotoSection";
 import InspectorPriceSection from "./inspector/InspectorPriceSection";
@@ -22,6 +23,7 @@ interface MaterialInspectorDrawerProps {
   onAddToCart?: (item: SupplierPriceItem, quantity?: number) => void;
   onRemoveFromCart?: (id: string) => void;
   onUpdateCartQuantity?: (priceItemId: string, newQty: number) => void;
+  onToggleFavorite?: (id: string, currentStatus?: boolean) => void;
   isInCart?: boolean;
   cartQuantity?: number;
 }
@@ -36,6 +38,7 @@ function MaterialInspectorDrawer({
   onAddToCart,
   onRemoveFromCart,
   onUpdateCartQuantity,
+  onToggleFavorite,
   isInCart = false,
   cartQuantity = 0,
 }: MaterialInspectorDrawerProps) {
@@ -107,14 +110,41 @@ function MaterialInspectorDrawer({
                 )}
               </div>
 
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
-                title="Закрыть (Esc)"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {onToggleFavorite && (
+                  <button
+                    type="button"
+                    onClick={() => onToggleFavorite(item.id, item.isFavorite)}
+                    className={cn(
+                      "px-2.5 py-1.5 rounded-xl transition cursor-pointer flex items-center gap-1.5 text-xs font-black",
+                      item.isFavorite
+                        ? "bg-amber-400 text-slate-950 shadow-xs"
+                        : "bg-slate-100 text-slate-600 hover:text-amber-500 hover:bg-slate-200/80"
+                    )}
+                    title={
+                      item.isFavorite
+                        ? pricingDict.table.tooltips.favoriteRemove
+                        : pricingDict.table.tooltips.favoriteAdd
+                    }
+                  >
+                    <Star
+                      className={cn("w-3.5 h-3.5", item.isFavorite && "fill-slate-950")}
+                    />
+                    <span className="hidden sm:inline">
+                      {item.isFavorite ? "В избранном" : "В избранное"}
+                    </span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+                  title="Закрыть (Esc)"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* 2. Тело инспектора */}

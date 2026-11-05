@@ -28,6 +28,7 @@ interface MaterialsCatalogTabProps {
   onOpenEditModal: (item: SupplierPriceItem) => void;
   onQuickUpdatePrice: (id: string, newPrice: number) => Promise<void>;
   onDeleteItem: (id: string) => Promise<void>;
+  onToggleFavorite?: (id: string, currentStatus?: boolean) => Promise<void> | void;
   taxonomy: MaterialCategoryItem[];
   addSubcategory: (catId: string, subName: string) => boolean;
   renameSubcategory: (catId: string, oldName: string, newName: string) => boolean;
@@ -60,6 +61,7 @@ export default function MaterialsCatalogTab({
   onOpenEditModal,
   onQuickUpdatePrice,
   onDeleteItem,
+  onToggleFavorite,
   taxonomy,
   addSubcategory,
   renameSubcategory,
@@ -92,6 +94,8 @@ export default function MaterialsCatalogTab({
     setSortBy,
     onlyWithPhoto,
     setOnlyWithPhoto,
+    onlyFavorites,
+    setOnlyFavorites,
     viewMode,
     setViewMode,
     inspectingItem,
@@ -109,6 +113,7 @@ export default function MaterialsCatalogTab({
     subcategoryCounts,
     supplierCounts,
     withPhotoCount,
+    favoritesCount,
     currentCategoryDef,
     processedPrices,
   } = useMaterialFilters({
@@ -236,6 +241,10 @@ export default function MaterialsCatalogTab({
     setOnlyWithPhoto((prev) => !prev);
   }, [setOnlyWithPhoto]);
 
+  const handleToggleOnlyFavorites = useCallback(() => {
+    setOnlyFavorites((prev) => !prev);
+  }, [setOnlyFavorites]);
+
   const handleOpenTaxonomyManager = useCallback(() => {
     setIsTaxonomyManagerOpen(true);
   }, []);
@@ -266,9 +275,12 @@ export default function MaterialsCatalogTab({
         onSelectSupplier={setSelectedSupplier}
         onlyWithPhoto={onlyWithPhoto}
         onToggleOnlyWithPhoto={handleToggleOnlyWithPhoto}
+        onlyFavorites={onlyFavorites}
+        onToggleOnlyFavorites={handleToggleOnlyFavorites}
         categoryCounts={categoryCounts}
         supplierCounts={supplierCounts}
         withPhotoCount={withPhotoCount}
+        favoritesCount={favoritesCount}
         totalCount={supplierPrices.length}
         suppliers={suppliers}
         uniqueSuppliersFromPrices={uniqueSuppliersFromPrices}
@@ -292,6 +304,9 @@ export default function MaterialsCatalogTab({
             onSortChange={setSortBy}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
+            onlyFavorites={onlyFavorites}
+            onToggleOnlyFavorites={handleToggleOnlyFavorites}
+            favoritesCount={favoritesCount}
             onOpenCreateModal={onOpenCreateModal}
             onOpenTaxonomyManager={handleOpenTaxonomyManager}
             cartCount={uniquePositionsCount}
@@ -339,6 +354,7 @@ export default function MaterialsCatalogTab({
             onOpenEditModal={onOpenEditModal}
             onQuickUpdatePrice={handleQuickUpdateAndSync}
             onDeleteItem={handleDeleteWithCleanup}
+            onToggleFavorite={onToggleFavorite}
             onOpenSupplierInfo={handleOpenSupplierInfo}
             onAddToCart={addToCart}
             onRemoveFromCart={removeFromCart}
@@ -354,6 +370,7 @@ export default function MaterialsCatalogTab({
             onOpenEditModal={onOpenEditModal}
             onQuickUpdatePrice={handleQuickUpdateAndSync}
             onDeleteItem={handleDeleteWithCleanup}
+            onToggleFavorite={onToggleFavorite}
             onOpenSupplierInfo={handleOpenSupplierInfo}
             onAddToCart={addToCart}
             onRemoveFromCart={removeFromCart}
@@ -397,6 +414,7 @@ export default function MaterialsCatalogTab({
         onOpenEditModal={onOpenEditModal}
         onQuickUpdatePrice={handleQuickUpdateAndSync}
         onDeleteItem={handleDeleteWithCleanup}
+        onToggleFavorite={onToggleFavorite}
         onOpenSupplierInfo={handleOpenSupplierInfo}
         onAddToCart={addToCart}
         onRemoveFromCart={removeFromCart}

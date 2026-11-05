@@ -39,7 +39,7 @@ export async function getPricingData() {
         },
       }),
       prisma.supplierPrice.findMany({
-        orderBy: [{ supplier: "asc" }, { name: "asc" }],
+        orderBy: [{ isFavorite: "desc" }, { supplier: "asc" }, { name: "asc" }],
         include: {
           supplierObj: true,
         },
@@ -174,6 +174,27 @@ export async function deleteSupplierPrice(id: string) {
   } catch (error: any) {
     console.error("Ошибка удаления товара:", error);
     return { error: error.message || "Не удалось удалить товар" };
+  }
+}
+
+/**
+ * Переключение статуса "Избранное" для материала (часто закупаемые позиции)
+ */
+export async function toggleMaterialFavorite(id: string, isFavorite: boolean) {
+  try {
+    const item = await prisma.supplierPrice.update({
+      where: { id },
+      data: { isFavorite },
+      include: {
+        supplierObj: true,
+      },
+    });
+
+    revalidatePath("/admin/pricing");
+    return { success: true, data: JSON.parse(JSON.stringify(item)) };
+  } catch (error: any) {
+    console.error("Ошибка переключения избранного:", error);
+    return { error: error.message || "Не удалось обновить избранное" };
   }
 }
 

@@ -301,6 +301,7 @@ export function useMaterialFilters({
   const [selectedSupplier, setSelectedSupplier] = useState("all");
   const [sortBy, setSortBy] = useState<SortOption>("default");
   const [onlyWithPhoto, setOnlyWithPhoto] = useState(false);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [inspectingItem, setInspectingItem] = useState<SupplierPriceItem | null>(null);
   const [facets, setFacets] = useState<MaterialFacetState>(INITIAL_FACETS);
@@ -451,6 +452,24 @@ export function useMaterialFilters({
     }).length;
   }, [supplierPrices, selectedSupplier, selectedCategory, taxonomy]);
 
+  // Количество избранных товаров (часто закупаемые позиции)
+  const favoritesCount = useMemo(() => {
+    return supplierPrices.filter((p) => {
+      if (!p.isFavorite) return false;
+      if (selectedSupplier !== "all") {
+        const targetSup = selectedSupplier.toLowerCase().trim();
+        const itemSup = p.supplier.toLowerCase().trim();
+        if (itemSup !== targetSup && !itemSup.includes(targetSup) && !targetSup.includes(itemSup)) {
+          return false;
+        }
+      }
+      if (selectedCategory !== "all" && !isItemInCategory(p, selectedCategory, taxonomy)) {
+        return false;
+      }
+      return true;
+    }).length;
+  }, [supplierPrices, selectedSupplier, selectedCategory, taxonomy]);
+
   // Текущая выбранная категория
   const currentCategoryDef = useMemo(() => {
     return taxonomy.find((c) => c.id === selectedCategory);
@@ -475,6 +494,11 @@ export function useMaterialFilters({
     const scoredList: { item: SupplierPriceItem; score: number }[] = [];
 
     for (const item of supplierPrices) {
+      // 0. Фильтр "Только избранное" (часто закупаемые)
+      if (onlyFavorites && !item.isFavorite) {
+        continue;
+      }
+
       // 1. Фильтр "Только с фото"
       if (onlyWithPhoto && (!item.imageUrl || !item.imageUrl.trim())) {
         continue;
@@ -535,30 +559,40 @@ export function useMaterialFilters({
     }
 
     // Сортировка:
-    // Если идет поиск и режим сортировки "default" — выводим по релевантности (Scoring)!
+    // Всегда выводим избранные товары вверху списка!
     if (isSearching && sortBy === "default") {
-      scoredList.sort((a, b) => b.score - a.score);
+      scoredList.sort((a, b) => {
+        const aFav = Boolean(a.item.isFavorite);
+        const bFav = Boolean(b.item.isFavorite);
+        if (aFav !== bFav) return aFav ? -1 : 1;
+        return b.score - a.score;
+      });
       return scoredList.map((s) => s.item);
     }
 
-    // Стандартные сортировки
-    if (sortBy === "default") {
-      scoredList.sort((a, b) => {
+    // Стандартные сортировки с выводом избранных сверху
+    scoredList.sort((a, b) => {
+      const aFav = Boolean(a.item.isFavorite);
+      const bFav = Boolean(b.item.isFavorite);
+      if (aFav !== bFav) return aFav ? -1 : 1;
+
+      if (sortBy === "default") {
         const aHasImg = Boolean(a.item.imageUrl && a.item.imageUrl.trim());
         const bHasImg = Boolean(b.item.imageUrl && b.item.imageUrl.trim());
         if (aHasImg && !bHasImg) return -1;
         if (!aHasImg && bHasImg) return 1;
         return a.item.name.localeCompare(b.item.name, "ru");
-      });
-    } else if (sortBy === "price_asc") {
-      scoredList.sort((a, b) => Number(a.item.price) - Number(b.item.price));
-    } else if (sortBy === "price_desc") {
-      scoredList.sort((a, b) => Number(b.item.price) - Number(a.item.price));
-    } else if (sortBy === "name_asc") {
-      scoredList.sort((a, b) => a.item.name.localeCompare(a.item.name, "ru"));
-    } else if (sortBy === "name_desc") {
-      scoredList.sort((a, b) => b.item.name.localeCompare(a.item.name, "ru"));
-    }
+      } else if (sortBy === "price_asc") {
+        return Number(a.item.price) - Number(b.item.price);
+      } else if (sortBy === "price_desc") {
+        return Number(b.item.price) - Number(a.item.price);
+      } else if (sortBy === "name_asc") {
+        return a.item.name.localeCompare(b.item.name, "ru");
+      } else if (sortBy === "name_desc") {
+        return b.item.name.localeCompare(a.item.name, "ru");
+      }
+      return 0;
+    });
 
     return scoredList.map((s) => s.item);
   }, [
@@ -569,6 +603,7 @@ export function useMaterialFilters({
     selectedSupplier,
     sortBy,
     onlyWithPhoto,
+    onlyFavorites,
     facets,
     applicableFacetKeys,
     activeSynonymMap,
@@ -591,6 +626,7 @@ export function useMaterialFilters({
     setSelectedSubcategoryState("all");
     setSelectedSupplier("all");
     setOnlyWithPhoto(false);
+    setOnlyFavorites(false);
     handleResetFacets();
   }, [handleResetFacets]);
 
@@ -607,6 +643,9 @@ export function useMaterialFilters({
     setSortBy,
     onlyWithPhoto,
     setOnlyWithPhoto,
+    onlyFavorites,
+    setOnlyFavorites,
+    favoritesCount,
     viewMode,
     setViewMode,
     inspectingItem,
