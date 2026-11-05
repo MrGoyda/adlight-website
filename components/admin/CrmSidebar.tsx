@@ -19,7 +19,8 @@ import {
   ChevronRight,
   Sparkles,
   Radio,
-  ExternalLink
+  ExternalLink,
+  Calculator
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { triggerHaptic } from "@/lib/haptics";
@@ -101,6 +102,7 @@ export default function CrmSidebar({
       items: [
         { label: "Склад материалов", href: "/admin/warehouse", icon: Warehouse },
         { label: "Тарифы и прайсы", href: "/admin/pricing", icon: Tags },
+        { label: "Калькулятор смет", href: "/admin/calculator", icon: Calculator },
       ],
     },
     {

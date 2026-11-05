@@ -440,3 +440,18 @@ model WorkOperation {
   defaultPrice Float            @default(0) // Цена для клиента
   isCustom     Boolean          @default(false)
 }
+
+model EstimatePreset {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   // Название шаблона (напр. "Лайтбокс 2×1м", "Объемные буквы 30см")
+  category    String?  // Категория ("Лайтбоксы", "Буквы", "Вывески", "Неон", "Монтаж")
+  description String?  // Краткая подсказка по расходу/составу
+  items       Json     // Array<{ type, name, quantity, unit, costPrice, sellPrice, supplierPriceId, warehouseItemId }>
+  isFavorite  Boolean  @default(false)
+
+  @@index([category])
+  @@index([isFavorite])
+}
+

@@ -75,6 +75,7 @@ export default function CrmBottomBar({
   const moreNavItems = [
     { label: "Склад материалов", href: "/admin/warehouse", icon: Warehouse },
     { label: "Тарифы и прайсы", href: "/admin/pricing", icon: Tags },
+    { label: "Калькулятор смет", href: "/admin/calculator", icon: Calculator },
     { label: "База клиентов", href: "/admin/clients", icon: Users },
     { label: "Компании / Реквизиты", href: "/admin/companies", icon: Building2 },
     { label: "Сквозная аналитика", href: "/admin/analytics", icon: BarChart3 },

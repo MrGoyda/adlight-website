@@ -12,6 +12,8 @@ import { EstimateFooter } from "./estimate/EstimateFooter";
 import { SupplierPricePickerModal } from "./estimate/SupplierPricePickerModal";
 import { WorkOperationPickerModal } from "./estimate/WorkOperationPickerModal";
 import BottomSheet from "@/components/ui/BottomSheet";
+import EstimatePresetsModal from "@/app/admin/calculator/_components/EstimatePresetsModal";
+import SavePresetModal from "@/app/admin/calculator/_components/SavePresetModal";
 
 export default function EstimateModal({
   isOpen,
@@ -53,6 +55,9 @@ export default function EstimateModal({
     handleSave,
     handleDiscardDraft,
     handleDeductStock,
+    presets,
+    handleApplyPreset,
+    handleCopyClientProposal,
   } = useEstimateState({
     isOpen,
     onClose,
@@ -66,6 +71,8 @@ export default function EstimateModal({
   });
 
   const { totalCost, totalSell, margin, marginPercent } = breakdown;
+  const [isPresetsModalOpen, setIsPresetsModalOpen] = React.useState(false);
+  const [isSavePresetModalOpen, setIsSavePresetModalOpen] = React.useState(false);
   const hasStockMaterials = items.some((i) => i.type === "MATERIAL_STOCK" && i.warehouseItemId);
 
   return (
@@ -112,7 +119,14 @@ export default function EstimateModal({
       </div>
 
       {/* Топ-бар кнопок добавления категорий */}
-      <EstimateTopBar onAddItem={handleAddItem} />
+      <EstimateTopBar 
+        onAddItem={handleAddItem} 
+        onOpenPresets={() => setIsPresetsModalOpen(true)}
+        onOpenSavePreset={() => setIsSavePresetModalOpen(true)}
+        onCopyProposal={handleCopyClientProposal}
+        hasItems={items.length > 0}
+        presetsCount={presets?.length || 0}
+      />
 
       {/* Оповещение о восстановлении несохраненного черновика из кэша */}
       {restoredDraftInfo && (
@@ -238,6 +252,36 @@ export default function EstimateModal({
       />
 
       {/* Модалка выбора операций сборки и монтажа */}
+      {/* Модальное окно готовых пресетов */}
+      {isPresetsModalOpen && (
+        <EstimatePresetsModal
+          isOpen={isPresetsModalOpen}
+          onClose={() => setIsPresetsModalOpen(false)}
+          presets={presets || []}
+          onApplyPreset={handleApplyPreset}
+        />
+      )}
+
+      {/* Модальное окно сохранения шаблона */}
+      {isSavePresetModalOpen && (
+        <SavePresetModal
+          isOpen={isSavePresetModalOpen}
+          onClose={() => setIsSavePresetModalOpen(false)}
+          items={items.map((i, idx) => ({
+            id: i.id || `item_${idx}`,
+            type: i.type,
+            name: i.name,
+            quantity: Number(i.quantity) || 1,
+            unit: i.unit || "PIECE",
+            costPrice: Number(i.costPrice) || 0,
+            sellPrice: Number(i.sellPrice) || 0,
+            supplierPriceId: i.supplierPriceId,
+            warehouseItemId: i.warehouseItemId,
+          }))}
+          onSavedSuccess={() => {}}
+        />
+      )}
+
       <WorkOperationPickerModal
         isOpen={activeWorkOperationPickerIdx !== null}
         itemIndex={activeWorkOperationPickerIdx}

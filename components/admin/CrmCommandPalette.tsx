@@ -86,6 +86,13 @@ export default function CrmCommandPalette({
       onSelect: () => router.push("/admin/pricing"),
     },
     {
+      id: "nav-calculator",
+      title: "Перейти: Калькулятор сметы и пресеты",
+      category: "Навигация",
+      icon: Calculator,
+      onSelect: () => router.push("/admin/calculator"),
+    },
+    {
       id: "nav-clients",
       title: "Перейти: База Клиентов",
       category: "Навигация",

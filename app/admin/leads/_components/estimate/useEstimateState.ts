@@ -25,6 +25,9 @@ import {
 } from "./utils";
 import { DEFAULT_MARGIN_MULTIPLIER } from "./constants";
 import { ESTIMATE_DEFAULT_SERVICES } from "../../_data/estimateDictionary";
+import { getCalculatorData } from "@/app/admin/calculator/calculatorActions";
+import { EstimatePresetData } from "@/app/admin/calculator/_types/calculatorTypes";
+import { UNIT_LABELS } from "./constants";
 
 interface UseEstimateStateProps {
   isOpen: boolean;
@@ -85,6 +88,7 @@ export function useEstimateState({
 
   // Справочник видов работ из БД
   const [workOperations, setWorkOperations] = useState<WorkOperationItem[]>([]);
+  const [presets, setPresets] = useState<EstimatePresetData[]>([]);
 
   // Состояния для кастомных выпадающих списков
   const [activePickerIdx, setActivePickerIdx] = useState<number | null>(null);
@@ -130,6 +134,11 @@ export function useEstimateState({
       getWorkOperations().then((res) => {
         if (res?.data) {
           setWorkOperations(res.data as WorkOperationItem[]);
+        }
+      });
+      getCalculatorData().then((res) => {
+        if (res.success && res.data?.presets) {
+          setPresets(res.data.presets);
         }
       });
     } else {
@@ -418,7 +427,66 @@ export function useEstimateState({
     });
   };
 
+    const handleApplyPreset = (preset: EstimatePresetData, mode: "replace" | "append" = "append") => {
+    triggerHaptic("success");
+    const newItems: EstimateItem[] = preset.items.map((pi) => ({
+      type: pi.type,
+      name: pi.name,
+      quantity: pi.quantity || 1,
+      unit: pi.unit || null,
+      costPrice: pi.costPrice || 0,
+      sellPrice: pi.sellPrice || 0,
+      supplierPriceId: pi.supplierPriceId,
+      warehouseItemId: pi.warehouseItemId,
+    }));
+
+    if (mode === "replace") {
+      setItems(newItems);
+      toast.success(`Применен пресет: ${preset.name}`);
+    } else {
+      setItems((prev) => [...prev, ...newItems]);
+      toast.success(`Добавлены позиции из пресета: ${preset.name}`);
+    }
+  };
+
+  const handleCopyClientProposal = async () => {
+    triggerHaptic("success");
+    if (items.length === 0) {
+      toast.error("Смета пуста, нечего копировать");
+      return;
+    }
+
+    const lines: string[] = [
+      "✨ *Коммерческое предложение | Рекламно-производственная компания ADLight*",
+      "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+      "📍 *Состав проекта и спецификация:*",
+    ];
+
+    items.forEach((item, idx) => {
+      const q = Number(item.quantity) || 1;
+      const u = item.unit ? UNIT_LABELS[item.unit] || "ед." : "шт.";
+      const s = (Number(item.sellPrice) || 0) * q;
+      lines.push(`${idx + 1}. ${item.name} — ${q} ${u} (${s.toLocaleString("ru-RU")} ₸)`);
+    });
+
+    lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    lines.push(`💰 *ИТОГО К ОПЛАТЕ: ${breakdown.totalSell.toLocaleString("ru-RU")} ₸*`);
+    lines.push("⏱ Срок изготовления: 3–5 рабочих дней");
+    lines.push("🛡 Гарантия на светотехнику и монтаж: 12 месяцев");
+
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      toast.success("Текст КП для WhatsApp скопирован в буфер обмена!");
+    } catch {
+      toast.error("Не удалось скопировать текст");
+    }
+  };
+
   return {
+    presets,
+    setPresets,
+    handleApplyPreset,
+    handleCopyClientProposal,
     items,
     setItems,
     stockDeducted,
