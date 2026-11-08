@@ -5,6 +5,7 @@ import { InventoryUnit } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { WarehouseItemData } from "./_types/warehouseTypes";
+import { invalidateSupplierPricesCache } from "@/lib/cachedQueries";
 
 // Zod схемы валидации для безопасности API
 const WarehouseItemSchema = z.object({
@@ -98,6 +99,7 @@ export async function createWarehouseItem(rawData: {
       return item;
     });
 
+    invalidateSupplierPricesCache();
     revalidatePath("/admin/warehouse");
     revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
@@ -260,6 +262,7 @@ export async function saveWarehouseMaterialUnified(payload: {
       return warehouseItem;
     });
 
+    invalidateSupplierPricesCache();
     revalidatePath("/admin/warehouse");
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/calculator");
@@ -297,6 +300,7 @@ export async function updateWarehouseItem(
       },
     });
 
+    invalidateSupplierPricesCache();
     revalidatePath("/admin/warehouse");
     revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
@@ -351,6 +355,7 @@ export async function adjustWarehouseStock(
       return updated;
     });
 
+    invalidateSupplierPricesCache();
     revalidatePath("/admin/warehouse");
     revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
@@ -366,6 +371,7 @@ export async function deleteWarehouseItem(id: string) {
     await prisma.warehouseItem.delete({
       where: { id },
     });
+    invalidateSupplierPricesCache();
     revalidatePath("/admin/warehouse");
     revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
@@ -442,6 +448,7 @@ export async function intakeFromSupplierPrice(data: {
       return targetItem;
     });
 
+    invalidateSupplierPricesCache();
     revalidatePath("/admin/warehouse");
     revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");

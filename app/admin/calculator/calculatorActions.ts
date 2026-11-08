@@ -12,34 +12,23 @@ import {
   EstimatePresetItem,
   CalculatorInitialData
 } from "./_types/calculatorTypes";
+import { 
+  getCachedCalculatorPrices, 
+  getCachedWorkOperations, 
+  getCachedEstimatePresets,
+  invalidatePresetsCache 
+} from "@/lib/cachedQueries";
 
 export async function getCalculatorData(): Promise<{ success: boolean; data?: CalculatorInitialData; error?: string }> {
   try {
+    const t0 = Date.now();
     const [warehouseRaw, supplierRaw, workOperationsRaw, presetsRaw, leadsRaw] = await Promise.all([
       prisma.warehouseItem.findMany({
         orderBy: { name: "asc" },
       }),
-      prisma.supplierPrice.findMany({
-        orderBy: [
-          { isFavorite: "desc" },
-          { supplier: "asc" },
-          { name: "asc" },
-        ],
-        include: {
-          supplierObj: {
-            select: { id: true, phone: true, whatsapp: true, address: true },
-          },
-        },
-      }),
-      prisma.workOperation.findMany({
-        orderBy: { name: "asc" },
-      }),
-      prisma.estimatePreset.findMany({
-        orderBy: [
-          { isFavorite: "desc" },
-          { name: "asc" },
-        ],
-      }),
+      getCachedCalculatorPrices(),
+      getCachedWorkOperations(),
+      getCachedEstimatePresets(),
       prisma.lead.findMany({
         where: {
           status: { in: ["NEW", "IN_PROGRESS", "ESTIMATE"] },
@@ -51,9 +40,10 @@ export async function getCalculatorData(): Promise<{ success: boolean; data?: Ca
           status: true,
         },
         orderBy: { createdAt: "desc" },
-        take: 50,
+        take: 30,
       }),
     ]);
+    console.log(`[PERF] getCalculatorData (cached) took: ${Date.now() - t0}ms (prices: ${supplierRaw.length}, ops: ${workOperationsRaw.length})`);
 
     // Если пресетов в БД еще нет, автоматически инициализируем базовые типовые шаблоны
     let finalPresets = presetsRaw;
@@ -97,12 +87,8 @@ export async function getCalculatorData(): Promise<{ success: boolean; data?: Ca
       unit: s.unit,
       category: s.category,
       subcategory: s.subcategory,
-      imageUrl: s.imageUrl,
-      description: s.description,
-      sourceUrl: s.sourceUrl,
       isService: s.isService,
       isFavorite: s.isFavorite,
-      supplierObj: s.supplierObj,
     }));
 
     const workOperations: CalculatorWorkOperation[] = workOperationsRaw.map((op) => ({
@@ -192,6 +178,7 @@ export async function saveEstimatePreset(data: {
       });
     }
 
+    invalidatePresetsCache();
     revalidatePath("/admin/calculator");
     return {
       success: true,
@@ -220,6 +207,7 @@ export async function deleteEstimatePreset(id: string) {
     await prisma.estimatePreset.delete({
       where: { id },
     });
+    invalidatePresetsCache();
     revalidatePath("/admin/calculator");
     return { success: true };
   } catch (error) {
@@ -237,6 +225,7 @@ export async function togglePresetFavorite(id: string, isFavorite: boolean) {
       where: { id },
       data: { isFavorite },
     });
+    invalidatePresetsCache();
     revalidatePath("/admin/calculator");
     return { success: true, isFavorite: updated.isFavorite };
   } catch (error) {
@@ -339,6 +328,7 @@ export async function saveEstimateToLead(
     });
 
     revalidatePath("/admin/leads");
+    invalidatePresetsCache();
     revalidatePath("/admin/calculator");
     return { success: true, data: result };
   } catch (error) {
@@ -415,6 +405,7 @@ export async function createLeadFromEstimate(
     });
 
     revalidatePath("/admin/leads");
+    invalidatePresetsCache();
     revalidatePath("/admin/calculator");
     return { success: true, data: result };
   } catch (error) {

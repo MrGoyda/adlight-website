@@ -3,7 +3,14 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { Prisma, EstimateItemType, InventoryUnit } from "@prisma/client";
-import { DEFAULT_WORK_OPERATIONS } from "./_data/pricingDictionary";
+import { 
+  getCachedSuppliers, 
+  getCachedCatalogPrices, 
+  getCachedWorkOperations,
+  invalidateSupplierPricesCache,
+  invalidateSuppliersCache,
+  invalidateWorkOperationsCache
+} from "@/lib/cachedQueries";
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error) return error.message;
@@ -11,76 +18,39 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 /**
- * Получение всех данных раздела: Материалы, Тарифы работ, Поставщики
+ * Получение всех данных раздела: Материалы, Тарифы работ, Поставщики (кэшировано)
  */
 export async function getPricingData() {
   try {
-    const [suppliers, supplierPrices, initialOperations] = await Promise.all([
-      prisma.supplier.findMany({
-        orderBy: { name: "asc" },
-        include: {
-          _count: {
-            select: { prices: true },
-          },
-        },
-      }),
-      prisma.supplierPrice.findMany({
-        orderBy: [{ isFavorite: "desc" }, { supplier: "asc" }, { name: "asc" }],
-        include: {
-          supplierObj: true,
-        },
-      }),
-      prisma.workOperation.findMany({
-        orderBy: [{ type: "asc" }, { name: "asc" }],
-      }),
+    const [suppliers, supplierPrices, workOperations] = await Promise.all([
+      getCachedSuppliers(),
+      getCachedCatalogPrices(),
+      getCachedWorkOperations(),
     ]);
-
-    let workOperations = initialOperations;
-
-    // Инициализация базовых тарифов работ только при первом запуске (если таблица пуста)
-    if (workOperations.length === 0) {
-      for (const op of DEFAULT_WORK_OPERATIONS) {
-        await prisma.workOperation.upsert({
-          where: { name: op.name },
-          update: {},
-          create: {
-            type: op.type,
-            name: op.name,
-            unit: op.unit,
-            defaultCost: op.defaultCost,
-            defaultPrice: op.defaultPrice,
-            isCustom: false,
-          },
-        });
-      }
-      workOperations = await prisma.workOperation.findMany({
-        orderBy: [{ type: "asc" }, { name: "asc" }],
-      });
-    }
 
     return {
       success: true,
       suppliers: suppliers.map((s) => ({
         ...s,
-        createdAt: s.createdAt.toISOString(),
-        updatedAt: s.updatedAt.toISOString(),
+        createdAt: typeof s.createdAt === "string" ? s.createdAt : s.createdAt.toISOString(),
+        updatedAt: typeof s.updatedAt === "string" ? s.updatedAt : s.updatedAt.toISOString(),
       })),
       supplierPrices: supplierPrices.map((sp) => ({
         ...sp,
-        createdAt: sp.createdAt.toISOString(),
-        updatedAt: sp.updatedAt.toISOString(),
+        createdAt: typeof sp.createdAt === "string" ? sp.createdAt : sp.createdAt.toISOString(),
+        updatedAt: typeof sp.updatedAt === "string" ? sp.updatedAt : sp.updatedAt.toISOString(),
         supplierObj: sp.supplierObj
           ? {
               ...sp.supplierObj,
-              createdAt: sp.supplierObj.createdAt.toISOString(),
-              updatedAt: sp.supplierObj.updatedAt.toISOString(),
+              createdAt: typeof sp.supplierObj.createdAt === "string" ? sp.supplierObj.createdAt : sp.supplierObj.createdAt.toISOString(),
+              updatedAt: typeof sp.supplierObj.updatedAt === "string" ? sp.supplierObj.updatedAt : sp.supplierObj.updatedAt.toISOString(),
             }
           : null,
       })),
       workOperations: workOperations.map((wo) => ({
         ...wo,
-        createdAt: wo.createdAt.toISOString(),
-        updatedAt: wo.updatedAt.toISOString(),
+        createdAt: typeof wo.createdAt === "string" ? wo.createdAt : wo.createdAt.toISOString(),
+        updatedAt: typeof wo.updatedAt === "string" ? wo.updatedAt : wo.updatedAt.toISOString(),
       })),
     };
   } catch (error: unknown) {
@@ -134,6 +104,8 @@ export async function createSupplierPrice(data: {
       },
     });
 
+    invalidateSupplierPricesCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
@@ -185,6 +157,8 @@ export async function updateSupplierPrice(
       },
     });
 
+    invalidateSupplierPricesCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
@@ -200,6 +174,8 @@ export async function deleteSupplierPrice(id: string) {
       where: { id },
     });
 
+    invalidateSupplierPricesCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true };
@@ -222,6 +198,7 @@ export async function toggleMaterialFavorite(id: string, isFavorite: boolean) {
       },
     });
 
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
   } catch (error: unknown) {
@@ -246,6 +223,8 @@ export async function renameSubcategoryInMaterials(oldSubName: string, newSubNam
       data: { subcategory: trimmedNew },
     });
 
+    invalidateSupplierPricesCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, count: result.count };
@@ -270,6 +249,8 @@ export async function deleteSubcategoryInMaterials(subName: string) {
       data: { subcategory: null },
     });
 
+    invalidateSupplierPricesCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, count: result.count };
@@ -304,6 +285,8 @@ export async function createWorkOperation(data: {
       },
     });
 
+    invalidateWorkOperationsCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
@@ -336,6 +319,8 @@ export async function updateWorkOperation(
       data: updateData,
     });
 
+    invalidateWorkOperationsCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true, data: JSON.parse(JSON.stringify(item)) };
@@ -351,6 +336,8 @@ export async function deleteWorkOperation(id: string) {
       where: { id },
     });
 
+    invalidateWorkOperationsCache();
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     revalidatePath("/admin/leads");
     return { success: true };
@@ -404,6 +391,7 @@ export async function createSupplier(data: {
       },
     });
 
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     return { success: true, data: JSON.parse(JSON.stringify(supplier)) };
   } catch (error: unknown) {
@@ -456,6 +444,7 @@ export async function updateSupplier(
       },
     });
 
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     return { success: true, data: JSON.parse(JSON.stringify(supplier)) };
   } catch (error: unknown) {
@@ -470,6 +459,7 @@ export async function deleteSupplier(id: string) {
       where: { id },
     });
 
+    invalidateSuppliersCache();
     revalidatePath("/admin/pricing");
     return { success: true };
   } catch (error: unknown) {

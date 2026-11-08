@@ -8,6 +8,7 @@ import {
   WarehouseTransactionData 
 } from "./_types/warehouseTypes";
 import { SupplierData } from "../pricing/_types/pricingTypes";
+import { getCachedSuppliers, getCachedCalculatorPrices } from "@/lib/cachedQueries";
 
 export const metadata: Metadata = {
   title: "Склад материалов и учет остатков цеха | ADLight CRM",
@@ -21,26 +22,7 @@ export default async function WarehousePage() {
     prisma.warehouseItem.findMany({
       orderBy: { name: "asc" },
     }),
-    prisma.supplierPrice.findMany({
-      select: {
-        id: true,
-        name: true,
-        supplier: true,
-        price: true,
-        unit: true,
-        category: true,
-        subcategory: true,
-        supplierId: true,
-        imageUrl: true,
-        description: true,
-        sourceUrl: true,
-      },
-      orderBy: [
-        { isFavorite: "desc" },
-        { supplier: "asc" },
-        { name: "asc" },
-      ],
-    }),
+    getCachedCalculatorPrices(),
     prisma.warehouseTransaction.findMany({
       include: {
         item: {
@@ -53,16 +35,9 @@ export default async function WarehousePage() {
         },
       },
       orderBy: { createdAt: "desc" },
-      take: 150,
+      take: 60,
     }),
-    prisma.supplier.findMany({
-      orderBy: { name: "asc" },
-      include: {
-        _count: {
-          select: { prices: true },
-        },
-      },
-    }),
+    getCachedSuppliers(),
   ]);
 
   const initialItems: WarehouseItemData[] = itemsRaw.map((i) => ({
@@ -87,9 +62,6 @@ export default async function WarehousePage() {
     category: s.category,
     subcategory: s.subcategory,
     supplierId: s.supplierId,
-    imageUrl: s.imageUrl,
-    description: s.description,
-    sourceUrl: s.sourceUrl,
   }));
 
   const initialTransactions: WarehouseTransactionData[] = transactionsRaw.map((t) => ({
@@ -116,8 +88,8 @@ export default async function WarehousePage() {
     website: s.website,
     instagram: s.instagram,
     notes: s.notes,
-    createdAt: s.createdAt.toISOString(),
-    updatedAt: s.updatedAt.toISOString(),
+    createdAt: typeof s.createdAt === "string" ? s.createdAt : s.createdAt.toISOString(),
+    updatedAt: typeof s.updatedAt === "string" ? s.updatedAt : s.updatedAt.toISOString(),
     _count: s._count,
   }));
 

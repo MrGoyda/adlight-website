@@ -2,24 +2,29 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const globalForPrisma = global as unknown as {
+  prisma?: PrismaClient;
+  pool?: Pool;
+};
 
 let prismaInstance: PrismaClient;
 
 if (typeof window === "undefined") {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 10,
-    idleTimeoutMillis: 30000,
-  });
+  if (!globalForPrisma.prisma) {
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: process.env.NODE_ENV === "production" ? 10 : 3,
+      idleTimeoutMillis: 15000,
+      connectionTimeoutMillis: 5000,
+    });
 
-  const adapter = new PrismaPg(pool);
-  
-  prismaInstance =
-    globalForPrisma.prisma ||
-    new PrismaClient({ adapter });
+    globalForPrisma.pool = pool;
 
-  if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prismaInstance;
+    const adapter = new PrismaPg(pool);
+    globalForPrisma.prisma = new PrismaClient({ adapter });
+  }
+
+  prismaInstance = globalForPrisma.prisma;
 } else {
   // В браузере (для заглушек Next.js Turbopack) возвращаем пустой PrismaClient
   prismaInstance = null as unknown as PrismaClient;
