@@ -6,11 +6,18 @@ import { revalidatePath } from "next/cache";
 import { sendMetaConversionEvent, sendYandexConversionEvent } from "@/lib/analytics";
 import { normalizePhone } from "@/lib/phoneUtils";
 
-export async function updateLeadStatus(leadId: string, status: LeadStatus) {
+export async function updateLeadStatus(
+  leadId: string, 
+  status: LeadStatus,
+  rejectionReason?: string | null
+) {
   try {
     await prisma.lead.update({
       where: { id: leadId },
-      data: { status },
+      data: { 
+        status,
+        ...(rejectionReason !== undefined ? { rejectionReason } : {}),
+      },
     });
     
     revalidatePath("/admin/leads");
@@ -335,10 +342,48 @@ export async function updateLeadDetails(
   }
 }
 
+/**
+ * Мягкое удаление (Soft Delete) - перемещение лида в Корзину
+ */
 export async function deleteLead(leadId: string) {
   try {
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: { deletedAt: new Date() },
+    });
+
+    revalidatePath("/admin/leads");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to soft delete lead:", error);
+    return { error: "Не удалось переместить лид в корзину" };
+  }
+}
+
+/**
+ * Восстановление лида из Корзины
+ */
+export async function restoreLeadFromTrash(leadId: string) {
+  try {
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: { deletedAt: null },
+    });
+
+    revalidatePath("/admin/leads");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to restore lead from trash:", error);
+    return { error: "Не удалось восстановить лид из корзины" };
+  }
+}
+
+/**
+ * Окончательное безвозвратное удаление лида из базы данных (Hard Delete)
+ */
+export async function permanentDeleteLead(leadId: string) {
+  try {
     await prisma.$transaction(async (tx) => {
-      // 1. Получаем лид и его транзакции
       const lead = await tx.lead.findUnique({
         where: { id: leadId },
       });
@@ -347,10 +392,8 @@ export async function deleteLead(leadId: string) {
         throw new Error("Лид не найден");
       }
 
-      // 2. Если лид COMPLETED, скорректируем баланс кассы
       if (lead.status === LeadStatus.COMPLETED) {
         const netProfit = lead.revenue - lead.expenses;
-        
         const currentState = await tx.companyState.findUnique({
           where: { id: "global" },
         });
@@ -363,12 +406,10 @@ export async function deleteLead(leadId: string) {
         }
       }
 
-      // 3. Удаляем транзакции по этому лиду
       await tx.dbTransaction.deleteMany({
         where: { leadId: leadId },
       });
 
-      // 4. Удаляем сам лид
       await tx.lead.delete({
         where: { id: leadId },
       });
@@ -378,8 +419,63 @@ export async function deleteLead(leadId: string) {
     revalidatePath("/admin/finance");
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete lead:", error);
-    return { error: "Не удалось удалить лид" };
+    console.error("Failed to permanently delete lead:", error);
+    return { error: "Не удалось окончательно удалить лид" };
+  }
+}
+
+/**
+ * Полная очистка корзины
+ */
+export async function emptyTrash() {
+  try {
+    const trashedLeads = await prisma.lead.findMany({
+      where: { deletedAt: { not: null } },
+      select: { id: true, status: true, revenue: true, expenses: true },
+    });
+
+    if (trashedLeads.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const ids = trashedLeads.map((l) => l.id);
+
+      let totalCompletedProfit = 0;
+      trashedLeads.forEach((l) => {
+        if (l.status === LeadStatus.COMPLETED) {
+          const profit = l.revenue - l.expenses;
+          if (profit > 0) totalCompletedProfit += profit;
+        }
+      });
+
+      if (totalCompletedProfit > 0) {
+        const currentState = await tx.companyState.findUnique({
+          where: { id: "global" },
+        });
+        if (currentState) {
+          await tx.companyState.update({
+            where: { id: "global" },
+            data: { cashbox: Math.max(0, currentState.cashbox - totalCompletedProfit) },
+          });
+        }
+      }
+
+      await tx.dbTransaction.deleteMany({
+        where: { leadId: { in: ids } },
+      });
+
+      await tx.lead.deleteMany({
+        where: { id: { in: ids } },
+      });
+    });
+
+    revalidatePath("/admin/leads");
+    revalidatePath("/admin/finance");
+    return { success: true, count: trashedLeads.length };
+  } catch (error) {
+    console.error("Failed to empty trash:", error);
+    return { error: "Не удалось очистить корзину" };
   }
 }
 

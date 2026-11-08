@@ -44,6 +44,7 @@ export const LEADS_DICTIONARY = {
     workViewActive: "В работе",
     workViewOnHold: "На паузе",
     workViewArchive: "Архив",
+    workViewTrash: "Корзина",
     viewKanban: "Канбан",
     viewCards: "Сетка",
     viewList: "Список",
@@ -65,6 +66,7 @@ export const LEADS_DICTIONARY = {
     newDealBtn: "Новая сделка",
     coldWarningBadge: "Ждут ответа >2ч",
     appointmentsTodayBadge: "Замеры сегодня",
+    staleWarningBadge: "Без движения >14д",
     resetFilters: "Сбросить фильтры",
     emptyStateText: "Сделки не найдены по заданным критериям",
   },
@@ -205,11 +207,50 @@ export const LEADS_DICTIONARY = {
   },
 
   deleteModal: {
-    title: "Удалить заявку?",
-    description: "Вы действительно хотите безвозвратно удалить эту заявку? Это действие нельзя будет отменить.",
-    warning: "Это действие невозможно отменить.",
+    title: "Переместить в корзину?",
+    description: "Заявка будет скрыта из активных списков и перемещена в Корзину. Вы всегда сможете восстановить её в 1 клик.",
+    warning: "Перемещение в корзину",
     cancelBtn: "Отмена",
-    confirmBtn: "Да, удалить",
+    confirmBtn: "В корзину",
+    permanentTitle: "Удалить заявку навсегда?",
+    permanentDescription: "Заявка будет безвозвратно удалена из базы данных вместе с привязанными записями. Восстановить её будет невозможно.",
+    permanentWarning: "Это действие невозможно отменить.",
+    permanentConfirmBtn: "Удалить навсегда",
+  },
+
+  rejectionModal: {
+    title: "Причина отказа / завершения",
+    subtitle: "Выберите причину для аналитики качества и маркетинга",
+    reasons: [
+      { id: "EXPENSIVE", label: "💰 Дорого / Не устроила цена" },
+      { id: "NO_ANSWER", label: "📞 Не дозвонились (3+ звонка)" },
+      { id: "SPAM", label: "🚫 Спам / Ошиблись номером" },
+      { id: "COMPETITOR", label: "👥 Выбрали конкурента" },
+      { id: "POSTPONED", label: "⏳ Передумали / Отложили" },
+      { id: "OTHER", label: "📝 Другая причина" },
+    ],
+    customReasonPlaceholder: "Опишите причину подробнее...",
+    confirmBtn: "Зафиксировать причину",
+    skipBtn: "Без причины",
+  },
+
+  trash: {
+    title: "Корзина удаленных заявок",
+    subtitle: "Защита от случайной потери данных. Заявки можно восстановить или очистить навсегда.",
+    emptyTrashBtn: "Очистить корзину",
+    restoreBtn: "Восстановить",
+    permanentDeleteBtn: "Удалить навсегда",
+    emptyState: "Корзина пуста. Удаленные заявки будут отображаться здесь.",
+    restoreSuccess: "Заявка успешно восстановлена из корзины!",
+    permanentDeleteSuccess: "Заявка окончательно удалена",
+    emptyTrashSuccess: "Корзина очищена",
+    confirmEmptyTitle: "Очистить корзину?",
+    confirmEmptyText: "Все заявки в корзине будут безвозвратно стерты. Продолжить?",
+  },
+
+  duplicates: {
+    badge: "Повторный клиент",
+    filterTitle: "Сделок с этим номером:",
   },
 
   createModal: {

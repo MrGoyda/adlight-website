@@ -8,13 +8,20 @@ import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 interface LeadDeleteConfirmModalProps {
   onClose: () => void;
   onConfirm: () => Promise<void>;
+  isPermanent?: boolean;
 }
 
 export default function LeadDeleteConfirmModal({
   onClose,
   onConfirm,
+  isPermanent = false,
 }: LeadDeleteConfirmModalProps) {
   const dict = LEADS_DICTIONARY.deleteModal;
+
+  const title = isPermanent ? dict.permanentTitle : dict.title;
+  const description = isPermanent ? dict.permanentDescription : dict.description;
+  const warning = isPermanent ? dict.permanentWarning : dict.warning;
+  const confirmBtn = isPermanent ? dict.permanentConfirmBtn : dict.confirmBtn;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 animate-in fade-in duration-200">
@@ -25,16 +32,16 @@ export default function LeadDeleteConfirmModal({
           </div>
           <div>
             <h3 className="text-base font-black text-slate-900 leading-tight">
-              {dict.title}
+              {title}
             </h3>
             <p className="text-[11px] text-slate-400 font-semibold mt-0.5">
-              {dict.warning}
+              {warning}
             </p>
           </div>
         </div>
 
         <p className="text-xs text-slate-600 leading-relaxed font-medium">
-          {dict.description}
+          {description}
         </p>
 
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -52,7 +59,7 @@ export default function LeadDeleteConfirmModal({
             onClick={onConfirm}
             className="text-xs font-black py-2 px-4 bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20"
           >
-            {dict.confirmBtn}
+            {confirmBtn}
           </Button>
         </div>
       </div>

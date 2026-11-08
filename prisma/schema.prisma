@@ -77,6 +77,10 @@ model Lead {
   googleClientId  String?
   fbBrowserId     String?         // fbp/fbc
 
+  // Мягкое удаление и причины отказа
+  deletedAt       DateTime?       // Дата мягкого удаления (в корзину)
+  rejectionReason String?         // Причина отказа / не отработан
+
   // Финансы сделки
   offeredPrice    Float?          // Озвученная клиенту стоимость
   isDiscounted    Boolean         @default(false) // Озвучено со скидкой
@@ -117,6 +121,7 @@ model Lead {
   @@index([contactId])
   @@index([manager])
   @@index([phone])
+  @@index([deletedAt])
   @@index([createdAt(sort: Desc)])
 }
 

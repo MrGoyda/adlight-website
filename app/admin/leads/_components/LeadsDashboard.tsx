@@ -22,7 +22,9 @@ import {
   Columns,
   Phone, 
   Check, 
-  Copy
+  Copy,
+  Trash2,
+  RotateCcw
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -44,6 +46,7 @@ const LeadDetailSheet = dynamic(() => import("./detail/LeadDetailSheet"), { ssr:
 const LeadCreateModal = dynamic(() => import("./dashboard/LeadCreateModal"), { ssr: false });
 const LeadFinanceModal = dynamic(() => import("./dashboard/LeadFinanceModal"), { ssr: false });
 const LeadDeleteConfirmModal = dynamic(() => import("./dashboard/LeadDeleteConfirmModal"), { ssr: false });
+const LeadRejectionModal = dynamic(() => import("./dashboard/LeadRejectionModal"), { ssr: false });
 const EstimateModal = dynamic(() => import("./EstimateModal"), { ssr: false });
 const CreateClientModal = dynamic(
   () => import("../../clients/_components/CreateClientModal").then((m) => m.CreateClientModal),
@@ -116,6 +119,7 @@ export default function LeadsDashboard({
   const [showCreateClientModal, setShowCreateClientModal] = useState(false);
   const [showBatchImportModal, setShowBatchImportModal] = useState(false);
   const [showExportAudienceModal, setShowExportAudienceModal] = useState(false);
+  const [rejectionLead, setRejectionLead] = useState<{ id: string; name: string; targetStatus: LeadStatus } | null>(null);
 
   // Мемоизированные стабильные обработчики для React.memo карточек
   const handleSelectLead = useCallback((lead: Lead) => {
@@ -137,6 +141,17 @@ export default function LeadsDashboard({
 
   // Быстрый перевод сделки на следующий этап с оптимистичным обновлением
   const handleStatusChangeQuick = useCallback(async (leadId: string, newStatus: LeadStatus) => {
+    // Если статус переводится в Отказ или Не отработан — запрашиваем причину
+    if (newStatus === "CANCELLED" || newStatus === "UNPROCESSED") {
+      const leadToReject = ops.leads.find((l) => l.id === leadId);
+      setRejectionLead({
+        id: leadId,
+        name: leadToReject?.name || "",
+        targetStatus: newStatus,
+      });
+      return;
+    }
+
     triggerHaptic("medium");
     ops.setLeads((prev) =>
       prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
@@ -155,6 +170,39 @@ export default function LeadsDashboard({
       router.refresh();
     }
   }, [ops, router, toastDict]);
+
+  // Подтверждение причины отказа
+  const handleConfirmRejection = useCallback(async (reason: string | null) => {
+    if (!rejectionLead) return;
+    const { id, targetStatus } = rejectionLead;
+    setRejectionLead(null);
+    triggerHaptic("medium");
+
+    ops.setLeads((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, status: targetStatus, rejectionReason: reason } : l))
+    );
+    setDetailLead((prev) => (prev && prev.id === id ? { ...prev, status: targetStatus, rejectionReason: reason } : prev));
+
+    try {
+      const res = await updateLeadStatus(id, targetStatus, reason);
+      if (!res.success) {
+        toast.error(res.error || toastDict.statusError);
+        router.refresh();
+      } else {
+        toast.success(toastDict.stageUpdated);
+      }
+    } catch (err: any) {
+      toast.error(err.message || toastDict.statusError);
+      router.refresh();
+    }
+  }, [rejectionLead, ops, router, toastDict]);
+
+  // Фильтрация сделок по номеру телефона дубликата
+  const handleFilterDuplicatePhone = useCallback((phone: string) => {
+    triggerHaptic("light");
+    filters.setSearchTerm(phone);
+    filters.setWorkView("ACTIVE");
+  }, [filters]);
 
   // Копирование телефона с уведомлением
   const handleCopyPhone = useCallback(async (e: React.MouseEvent, phone: string) => {
@@ -268,6 +316,22 @@ export default function LeadsDashboard({
               >
                 <Archive className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                 <span>{t.workViewArchive} ({filters.archiveLeads.length})</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setWorkView("TRASH");
+                  filters.setStatusFilter("ALL");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                  filters.workView === "TRASH"
+                    ? "bg-white text-rose-700 shadow-2xs font-extrabold"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                <span>{t.workViewTrash} ({filters.trashLeads.length})</span>
               </button>
             </div>
 
@@ -508,6 +572,25 @@ export default function LeadsDashboard({
               </button>
             )}
 
+            {/* Смарт-чипс зависших заявок > 14 дней */}
+            {filters.timingStats.stale14d > 0 && (
+              <button
+                onClick={() => {
+                  triggerHaptic("light");
+                  filters.setTimingFilter(filters.timingFilter === "STALE_14D" ? "ALL" : "STALE_14D");
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
+                  filters.timingFilter === "STALE_14D"
+                    ? "bg-slate-800 text-white shadow-xs"
+                    : "bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200"
+                }`}
+                title="Заявки в статусе Новые более 14 дней"
+              >
+                <Clock className="w-3.5 h-3.5" />
+                <span>{t.staleWarningBadge} ({filters.timingStats.stale14d})</span>
+              </button>
+            )}
+
             {/* Кнопка сброса всех фильтров */}
             {(filters.statusFilter !== "ALL" || filters.timingFilter !== "ALL" || managerFilter !== "ALL" || filters.searchTerm) && (
               <button
@@ -528,41 +611,85 @@ export default function LeadsDashboard({
 
       </div>
 
+      {/* ── БАННЕР КОРЗИНЫ (ТОЛЬКО В РЕЖИМЕ TRASH) ── */}
+      {filters.workView === "TRASH" && (
+        <div className="bg-rose-50/70 border border-rose-200 rounded-3xl p-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+              <Trash2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-slate-900">
+                {LEADS_DICTIONARY.trash.title} ({filters.trashLeads.length})
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                {LEADS_DICTIONARY.trash.subtitle}
+              </p>
+            </div>
+          </div>
+
+          {filters.trashLeads.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(LEADS_DICTIONARY.trash.confirmEmptyText)) {
+                  ops.handleEmptyTrash();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black shadow-xs transition active:scale-95 cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{LEADS_DICTIONARY.trash.emptyTrashBtn}</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ── ОСНОВНОЙ КОНТЕНТ: КАНБАН-ДОСКА, СЕТКА КАРТОЧЕК ИЛИ РЕЕСТР ТАБЛИЦЫ ── */}
       <div className="w-full">
         {finalLeads.length === 0 ? (
           <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
-            {t.emptyStateText}
+            {filters.workView === "TRASH" ? LEADS_DICTIONARY.trash.emptyState : t.emptyStateText}
           </div>
         ) : viewMode === "kanban" ? (
           /* ── РЕЖИМ 1: ИНТЕРАКТИВНАЯ КАНБАН-ДОСКА ПО ЭТАПАМ ── */
           <LeadKanbanBoard
             leads={finalLeads}
             selectedLeadId={detailLead?.id}
+            phoneOccurrences={filters.phoneOccurrences}
+            onFilterDuplicatePhone={handleFilterDuplicatePhone}
             onSelectLead={handleSelectLead}
             onOpenEstimate={handleOpenEstimate}
             onOpenFullCard={handleOpenFullCard}
             onDeleteClick={ops.handleDeleteClick}
             onRestoreLead={ops.handleRestoreLead}
+            onRestoreFromTrash={ops.handleRestoreFromTrash}
             onStatusChangeQuick={handleStatusChangeQuick}
             onOpenCreateModal={handleOpenCreateModal}
           />
         ) : viewMode === "cards" ? (
           /* ── РЕЖИМ 2: СЕТКА КАРТОЧЕК ── */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3.5 items-start">
-            {finalLeads.map((lead) => (
-              <LeadCard
-                key={lead.id}
-                lead={lead}
-                isSelected={detailLead?.id === lead.id}
-                onSelect={handleSelectLead}
-                onOpenEstimate={handleOpenEstimate}
-                onOpenFullCard={handleOpenFullCard}
-                onDeleteClick={ops.handleDeleteClick}
-                onRestoreLead={ops.handleRestoreLead}
-                onStatusChangeQuick={handleStatusChangeQuick}
-              />
-            ))}
+            {finalLeads.map((lead) => {
+              const cleanDigits = (lead.phone || "").replace(/\D/g, "").slice(-10);
+              const dupCount = cleanDigits && filters.phoneOccurrences ? (filters.phoneOccurrences[cleanDigits] || 0) : 0;
+              return (
+                <LeadCard
+                  key={lead.id}
+                  lead={lead}
+                  isSelected={detailLead?.id === lead.id}
+                  duplicateCount={dupCount}
+                  onFilterDuplicatePhone={handleFilterDuplicatePhone}
+                  onSelect={handleSelectLead}
+                  onOpenEstimate={handleOpenEstimate}
+                  onOpenFullCard={handleOpenFullCard}
+                  onDeleteClick={ops.handleDeleteClick}
+                  onRestoreLead={ops.handleRestoreLead}
+                  onRestoreFromTrash={ops.handleRestoreFromTrash}
+                  onStatusChangeQuick={handleStatusChangeQuick}
+                />
+              );
+            })}
           </div>
         ) : (
           /* ── РЕЖИМ 3: СОВРЕМЕННЫЙ РЕЕСТР (ДАТА-ТАБЛИЦА) ── */
@@ -584,6 +711,8 @@ export default function LeadsDashboard({
                     const status = STATUS_MAP[lead.status] || { label: lead.status, color: "text-slate-600", bg: "bg-slate-100" };
                     const amount = lead.offeredPrice || lead.revenue || 0;
                     const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
+                    const cleanDigits = (lead.phone || "").replace(/\D/g, "").slice(-10);
+                    const dupCount = cleanDigits && filters.phoneOccurrences ? (filters.phoneOccurrences[cleanDigits] || 0) : 0;
 
                     return (
                       <tr
@@ -598,8 +727,28 @@ export default function LeadsDashboard({
                         }`}
                       >
                         <td className="py-3 px-4">
-                          <span className="font-extrabold text-slate-900 block truncate max-w-xs">{lead.name || tableDict.noName}</span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-extrabold text-slate-900 block truncate max-w-xs">{lead.name || tableDict.noName}</span>
+                            {dupCount > 1 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleFilterDuplicatePhone(cleanDigits);
+                                }}
+                                className="px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 text-[9px] font-black border border-purple-200 hover:bg-purple-100 transition"
+                                title={`${LEADS_DICTIONARY.duplicates.filterTitle} ${dupCount}`}
+                              >
+                                🔁 {dupCount}
+                              </button>
+                            )}
+                          </div>
                           <span className="text-[10px] text-slate-400 font-medium">{lead.phone || "—"}</span>
+                          {lead.rejectionReason && (
+                            <span className="text-[10px] text-rose-600 font-bold block truncate max-w-xs mt-0.5">
+                              🏷️ {lead.rejectionReason}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 px-4 max-w-[200px] truncate text-slate-500 font-medium">
                           {lead.comment || "—"}
@@ -617,48 +766,82 @@ export default function LeadsDashboard({
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                            {/* Смета калькулятор */}
-                            <a
-                              href={`/admin/calculator?leadId=${lead.id}`}
-                              className="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center justify-center transition"
-                              title={tableDict.calcTooltip}
-                            >
-                              <Calculator className="w-3.5 h-3.5" />
-                            </a>
+                            {lead.deletedAt ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={(e) => ops.handleRestoreFromTrash(lead.id, e)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-[10px] border border-emerald-200 transition"
+                                  title={LEADS_DICTIONARY.trash.restoreBtn}
+                                >
+                                  <RotateCcw className="w-3 h-3" />
+                                  <span>{LEADS_DICTIONARY.trash.restoreBtn}</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => ops.handleDeleteClick(lead.id, e, true)}
+                                  className="p-1 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 transition"
+                                  title={LEADS_DICTIONARY.trash.permanentDeleteBtn}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                {/* Смета калькулятор */}
+                                <a
+                                  href={`/admin/calculator?leadId=${lead.id}`}
+                                  className="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center justify-center transition"
+                                  title={tableDict.calcTooltip}
+                                >
+                                  <Calculator className="w-3.5 h-3.5" />
+                                </a>
 
-                            {/* Копировать телефон */}
-                            {cleanPhone && (
-                              <button
-                                type="button"
-                                onClick={(e) => handleCopyPhone(e, lead.phone || "")}
-                                className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
-                                title={tableDict.copyPhoneTooltip}
-                              >
-                                <Copy className="w-3.5 h-3.5" />
-                              </button>
+                                {/* Копировать телефон */}
+                                {cleanPhone && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleCopyPhone(e, lead.phone || "")}
+                                    className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+                                    title={tableDict.copyPhoneTooltip}
+                                  >
+                                    <Copy className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
+
+                                {/* Позвонить */}
+                                {cleanPhone && (
+                                  <a
+                                    href={`tel:${cleanPhone}`}
+                                    className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"
+                                    title={tableDict.callTooltip}
+                                  >
+                                    <Phone className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+
+                                {/* WhatsApp */}
+                                <a
+                                  href={getWhatsAppUrl(lead.phone || "", `Здравствуйте, ${lead.name || tableDict.whatsAppGreeting}!`)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition"
+                                  title={tableDict.whatsAppTooltip}
+                                >
+                                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                                </a>
+
+                                {/* В корзину */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => ops.handleDeleteClick(lead.id, e, false)}
+                                  className="w-7 h-7 rounded-lg bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition cursor-pointer"
+                                  title="В корзину"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </>
                             )}
-
-                            {/* Позвонить */}
-                            {cleanPhone && (
-                              <a
-                                href={`tel:${cleanPhone}`}
-                                className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"
-                                title={tableDict.callTooltip}
-                              >
-                                <Phone className="w-3.5 h-3.5" />
-                              </a>
-                            )}
-
-                            {/* WhatsApp */}
-                            <a
-                              href={getWhatsAppUrl(lead.phone || "", `Здравствуйте, ${lead.name || tableDict.whatsAppGreeting}!`)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition"
-                              title={tableDict.whatsAppTooltip}
-                            >
-                              <WhatsAppIcon className="w-3.5 h-3.5" />
-                            </a>
                           </div>
                         </td>
                       </tr>
@@ -714,6 +897,16 @@ export default function LeadsDashboard({
         <LeadDeleteConfirmModal
           onClose={() => ops.setShowDeleteConfirm(false)}
           onConfirm={ops.handleDeleteConfirm}
+          isPermanent={ops.isPermanentDelete}
+        />
+      )}
+
+      {rejectionLead && (
+        <LeadRejectionModal
+          isOpen={Boolean(rejectionLead)}
+          leadName={rejectionLead.name}
+          onClose={() => setRejectionLead(null)}
+          onConfirm={handleConfirmRejection}
         />
       )}
 

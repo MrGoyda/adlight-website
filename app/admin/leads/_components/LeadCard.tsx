@@ -21,25 +21,35 @@ import {
   Copy, 
   FileText, 
   ArrowRight, 
-  Check 
+  Check,
+  RotateCcw,
+  Trash2 
 } from "lucide-react";
 
 interface LeadCardProps {
   lead: Lead;
   isSelected: boolean;
   isGloballyExpanded?: boolean;
+  duplicateCount?: number;
+  onFilterDuplicatePhone?: (phone: string) => void;
   onSelect: (lead: Lead) => void;
   onOpenEstimate?: (lead: Lead) => void;
   onOpenFullCard?: (leadId: string) => void;
-  onDeleteClick?: (leadId: string, e: React.MouseEvent) => void;
+  onDeleteClick?: (leadId: string, e: React.MouseEvent, isPermanent?: boolean) => void;
   onRestoreLead?: (leadId: string, e: React.MouseEvent) => void;
+  onRestoreFromTrash?: (leadId: string, e: React.MouseEvent) => void;
   onStatusChangeQuick?: (leadId: string, status: LeadStatus) => void;
 }
 
 function LeadCard({
   lead,
   isSelected,
+  duplicateCount = 0,
+  onFilterDuplicatePhone,
   onSelect,
+  onDeleteClick,
+  onRestoreLead,
+  onRestoreFromTrash,
   onStatusChangeQuick,
 }: LeadCardProps) {
   const router = useRouter();
@@ -178,6 +188,13 @@ function LeadCard({
 
   return (
     <div
+      draggable={!lead.deletedAt}
+      onDragStart={(e) => {
+        if (lead.deletedAt) return;
+        e.dataTransfer.setData("text/plain", lead.id);
+        e.dataTransfer.effectAllowed = "move";
+        triggerHaptic("medium");
+      }}
       onClick={() => {
         triggerHaptic("light");
         onSelect(lead);
@@ -250,6 +267,34 @@ function LeadCard({
         </span>
       </div>
 
+      {/* ── СТРОКА 2.1: Бейджи дубликата и причины отказа ── */}
+      {(duplicateCount > 1 || lead.rejectionReason) && (
+        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+          {duplicateCount > 1 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onFilterDuplicatePhone?.(cleanPhone);
+              }}
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 text-[10px] font-bold border border-purple-200 transition"
+              title={`${LEADS_DICTIONARY.duplicates.filterTitle} ${duplicateCount}`}
+            >
+              <span>🔁 {LEADS_DICTIONARY.duplicates.badge} ({duplicateCount})</span>
+            </button>
+          )}
+
+          {lead.rejectionReason && (
+            <span 
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200 truncate max-w-full"
+              title={lead.rejectionReason}
+            >
+              🏷️ {lead.rejectionReason}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* ── СТРОКА 2.5: Быстрая заметка менеджера (если есть или редактируется) ── */}
       <div
         className="mb-2"
@@ -316,74 +361,152 @@ function LeadCard({
       </div>
 
       {/* ── СТРОКА 3: Сумма сделки + Быстрый следующий этап + Действия (Калькулятор / WA / Звонок) ── */}
-      <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100/80">
-        {/* Сумма и статус оплаты */}
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight whitespace-nowrap">
-            {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "— ₸"}
+      {lead.deletedAt ? (
+        <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100/80">
+          <span className="text-[10px] font-black text-rose-500 uppercase tracking-wider">
+            В корзине
           </span>
 
-          {lead.isBalancePaid && (
-            <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[9px] font-extrabold border border-emerald-200 shrink-0">
-              100%
-            </span>
-          )}
-          {!lead.isBalancePaid && lead.isPrepaymentPaid && (
-            <span className="px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 text-[9px] font-extrabold border border-teal-200 shrink-0">
-              {LEADS_DICTIONARY.drawer.prepayment}
-            </span>
-          )}
-        </div>
+          <div className="flex items-center gap-1.5">
+            {onRestoreFromTrash && (
+              <button
+                type="button"
+                onClick={(e) => onRestoreFromTrash(lead.id, e)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition active:scale-95"
+                title={LEADS_DICTIONARY.trash.restoreBtn}
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>{LEADS_DICTIONARY.trash.restoreBtn}</span>
+              </button>
+            )}
 
-        {/* Быстрые действия */}
-        <div className="flex items-center gap-1 shrink-0">
-          {/* Быстрый перевод на следующий этап воронки */}
-          {nextStage && (
+            {onDeleteClick && (
+              <button
+                type="button"
+                onClick={(e) => onDeleteClick(lead.id, e, true)}
+                className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition active:scale-95"
+                title={LEADS_DICTIONARY.trash.permanentDeleteBtn}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (lead.status === "CANCELLED" || lead.status === "UNPROCESSED") ? (
+        <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-100/80">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight whitespace-nowrap">
+              {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "— ₸"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            {onRestoreLead && (
+              <button
+                type="button"
+                onClick={(e) => onRestoreLead(lead.id, e)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition active:scale-95"
+                title="Вернуть в работу"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Восстановить</span>
+              </button>
+            )}
+
+            {onDeleteClick && (
+              <button
+                type="button"
+                onClick={(e) => onDeleteClick(lead.id, e, false)}
+                className="p-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 transition active:scale-95"
+                title="В корзину"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100/80">
+          {/* Сумма и статус оплаты */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight whitespace-nowrap">
+              {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "— ₸"}
+            </span>
+
+            {lead.isBalancePaid && (
+              <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 text-[9px] font-extrabold border border-emerald-200 shrink-0">
+                100%
+              </span>
+            )}
+            {!lead.isBalancePaid && lead.isPrepaymentPaid && (
+              <span className="px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 text-[9px] font-extrabold border border-teal-200 shrink-0">
+                {LEADS_DICTIONARY.drawer.prepayment}
+              </span>
+            )}
+          </div>
+
+          {/* Быстрые действия */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Быстрый перевод на следующий этап воронки */}
+            {nextStage && (
+              <button
+                type="button"
+                onClick={handleAdvanceStage}
+                disabled={isUpdatingStatus}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-black bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 border border-slate-200 hover:border-orange-200 transition cursor-pointer active:scale-95"
+                title={`${LEADS_DICTIONARY.toasts.stageUpdated}: ${nextStage.label}`}
+              >
+                <span>{nextStage.label}</span>
+                {nextStage.icon}
+              </button>
+            )}
+
+            {/* Быстрый переход в Калькулятор сметы */}
             <button
               type="button"
-              onClick={handleAdvanceStage}
-              disabled={isUpdatingStatus}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-black bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 border border-slate-200 hover:border-orange-200 transition cursor-pointer active:scale-95"
-              title={`${LEADS_DICTIONARY.toasts.stageUpdated}: ${nextStage.label}`}
+              onClick={handleOpenCalculator}
+              className="w-7 h-7 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-90 border border-orange-200/60"
+              title={LEADS_DICTIONARY.table.calcTooltip}
             >
-              <span>{nextStage.label}</span>
-              {nextStage.icon}
+              <Calculator className="w-3.5 h-3.5" />
             </button>
-          )}
 
-          {/* Быстрый переход в Калькулятор сметы */}
-          <button
-            type="button"
-            onClick={handleOpenCalculator}
-            className="w-7 h-7 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-90 border border-orange-200/60"
-            title={LEADS_DICTIONARY.table.calcTooltip}
-          >
-            <Calculator className="w-3.5 h-3.5" />
-          </button>
+            {/* Звонок */}
+            {cleanPhone && (
+              <button
+                type="button"
+                onClick={handleCallClick}
+                className="w-7 h-7 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition active:scale-90 border border-blue-200/60"
+                title={`${LEADS_DICTIONARY.table.callTooltip}: ${lead.phone}`}
+              >
+                <Phone className="w-3.5 h-3.5" />
+              </button>
+            )}
 
-          {/* Звонок */}
-          {cleanPhone && (
+            {/* WhatsApp */}
             <button
               type="button"
-              onClick={handleCallClick}
-              className="w-7 h-7 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition active:scale-90 border border-blue-200/60"
-              title={`${LEADS_DICTIONARY.table.callTooltip}: ${lead.phone}`}
+              onClick={handleWhatsAppClick}
+              className="w-7 h-7 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-90 border border-emerald-200/60"
+              title={LEADS_DICTIONARY.table.whatsAppTooltip}
             >
-              <Phone className="w-3.5 h-3.5" />
+              <WhatsAppIcon className="w-3.5 h-3.5" />
             </button>
-          )}
 
-          {/* WhatsApp */}
-          <button
-            type="button"
-            onClick={handleWhatsAppClick}
-            className="w-7 h-7 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-90 border border-emerald-200/60"
-            title={LEADS_DICTIONARY.table.whatsAppTooltip}
-          >
-            <WhatsAppIcon className="w-3.5 h-3.5" />
-          </button>
+            {/* В корзину */}
+            {onDeleteClick && (
+              <button
+                type="button"
+                onClick={(e) => onDeleteClick(lead.id, e, false)}
+                className="w-7 h-7 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition active:scale-90 border border-slate-200/60"
+                title="Переместить в корзину"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

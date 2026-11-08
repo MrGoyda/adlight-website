@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { LeadStatus } from "@prisma/client";
 import { Lead } from "../../_types/leadTypes";
 import LeadCard from "../LeadCard";
@@ -76,27 +76,34 @@ const KANBAN_COLUMNS: KanbanColumnConfig[] = [
 interface LeadKanbanBoardProps {
   leads: Lead[];
   selectedLeadId?: string;
+  phoneOccurrences?: Record<string, number>;
+  onFilterDuplicatePhone?: (phone: string) => void;
   onSelectLead: (lead: Lead) => void;
   onOpenEstimate?: (lead: Lead) => void;
   onOpenFullCard?: (leadId: string) => void;
   onOpenCreateModal?: (defaultStatus?: LeadStatus) => void;
-  onDeleteClick?: (leadId: string, e: React.MouseEvent) => void;
+  onDeleteClick?: (leadId: string, e: React.MouseEvent, isPermanent?: boolean) => void;
   onRestoreLead?: (leadId: string, e: React.MouseEvent) => void;
+  onRestoreFromTrash?: (leadId: string, e: React.MouseEvent) => void;
   onStatusChangeQuick?: (leadId: string, status: LeadStatus) => void;
 }
 
 function LeadKanbanBoard({
   leads,
   selectedLeadId,
+  phoneOccurrences,
+  onFilterDuplicatePhone,
   onSelectLead,
   onOpenEstimate,
   onOpenFullCard,
   onOpenCreateModal,
   onDeleteClick,
   onRestoreLead,
+  onRestoreFromTrash,
   onStatusChangeQuick,
 }: LeadKanbanBoardProps) {
   const dict = LEADS_DICTIONARY.kanban;
+  const [dragOverColId, setDragOverColId] = useState<string | null>(null);
 
   // Группировка лидов по колонкам воронки
   const columnsData = useMemo(() => {
@@ -115,71 +122,105 @@ function LeadKanbanBoard({
   return (
     <div className="w-full overflow-x-auto pb-4">
       <div className="inline-flex items-start gap-4 min-w-[1280px] w-full">
-        {columnsData.map((col) => (
-          <div
-            key={col.id}
-            className="flex-1 min-w-[280px] max-w-[340px] bg-slate-100/70 rounded-3xl p-3 border border-slate-200/80 flex flex-col max-h-[calc(100vh-250px)]"
-          >
-            {/* ── ШАПКА КОЛОНКИ ── */}
-            <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-200/80">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-white shadow-2xs border border-slate-200/70 flex items-center justify-center shrink-0">
-                  {col.icon}
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-extrabold text-xs text-slate-900">
-                      {col.title}
-                    </h3>
-                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${col.badgeBg}`}>
-                      {col.leads.length}
-                    </span>
+        {columnsData.map((col) => {
+          const isOver = dragOverColId === col.id;
+          return (
+            <div
+              key={col.id}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                if (dragOverColId !== col.id) {
+                  setDragOverColId(col.id);
+                }
+              }}
+              onDragLeave={(e) => {
+                if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                setDragOverColId(null);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOverColId(null);
+                const leadId = e.dataTransfer.getData("text/plain");
+                if (leadId && onStatusChangeQuick) {
+                  triggerHaptic("medium");
+                  onStatusChangeQuick(leadId, col.primaryStatus);
+                }
+              }}
+              className={`flex-1 min-w-[280px] max-w-[340px] rounded-3xl p-3 border flex flex-col max-h-[calc(100vh-250px)] transition-all duration-150 ${
+                isOver
+                  ? "bg-blue-50/90 border-blue-400 ring-4 ring-blue-500/20 scale-[1.01]"
+                  : "bg-slate-100/70 border-slate-200/80"
+              }`}
+            >
+              {/* ── ШАПКА КОЛОНКИ ── */}
+              <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-200/80">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-white shadow-2xs border border-slate-200/70 flex items-center justify-center shrink-0">
+                    {col.icon}
                   </div>
-                  <p className="text-[10px] font-mono font-bold text-slate-500">
-                    {col.totalSum > 0 ? `${col.totalSum.toLocaleString("ru-RU")} ₸` : "0 ₸"}
-                  </p>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-extrabold text-xs text-slate-900">
+                        {col.title}
+                      </h3>
+                      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${col.badgeBg}`}>
+                        {col.leads.length}
+                      </span>
+                    </div>
+                    <p className="text-[10px] font-mono font-bold text-slate-500">
+                      {col.totalSum > 0 ? `${col.totalSum.toLocaleString("ru-RU")} ₸` : "0 ₸"}
+                    </p>
+                  </div>
                 </div>
+
+                {onOpenCreateModal && col.id !== "archive" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      onOpenCreateModal(col.primaryStatus);
+                    }}
+                    className="w-7 h-7 rounded-xl bg-white hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border border-slate-200 shadow-2xs cursor-pointer"
+                    title={`${dict.createInStageTooltip} "${col.title}"`}
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
 
-              {onOpenCreateModal && col.id !== "archive" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic("light");
-                    onOpenCreateModal(col.primaryStatus);
-                  }}
-                  className="w-7 h-7 rounded-xl bg-white hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border border-slate-200 shadow-2xs cursor-pointer"
-                  title={`${dict.createInStageTooltip} "${col.title}"`}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              )}
+              {/* ── КАРТОЧКИ СДЕЛОК В КОЛОНКЕ ── */}
+              <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar min-h-[120px]">
+                {col.leads.length === 0 ? (
+                  <div className="h-28 rounded-2xl border-2 border-dashed border-slate-200/90 flex items-center justify-center text-slate-400 text-xs font-semibold select-none">
+                    {dict.noDealsInStage}
+                  </div>
+                ) : (
+                  col.leads.map((lead) => {
+                    const cleanDigits = (lead.phone || "").replace(/\D/g, "").slice(-10);
+                    const dupCount = cleanDigits && phoneOccurrences ? (phoneOccurrences[cleanDigits] || 0) : 0;
+                    return (
+                      <LeadCard
+                        key={lead.id}
+                        lead={lead}
+                        isSelected={selectedLeadId === lead.id}
+                        duplicateCount={dupCount}
+                        onFilterDuplicatePhone={onFilterDuplicatePhone}
+                        onSelect={onSelectLead}
+                        onOpenEstimate={onOpenEstimate}
+                        onOpenFullCard={onOpenFullCard}
+                        onDeleteClick={onDeleteClick}
+                        onRestoreLead={onRestoreLead}
+                        onRestoreFromTrash={onRestoreFromTrash}
+                        onStatusChangeQuick={onStatusChangeQuick}
+                      />
+                    );
+                  })
+                )}
+              </div>
             </div>
-
-            {/* ── КАРТОЧКИ СДЕЛОК В КОЛОНКЕ ── */}
-            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar min-h-[120px]">
-              {col.leads.length === 0 ? (
-                <div className="h-28 rounded-2xl border-2 border-dashed border-slate-200/90 flex items-center justify-center text-slate-400 text-xs font-semibold select-none">
-                  {dict.noDealsInStage}
-                </div>
-              ) : (
-                col.leads.map((lead) => (
-                  <LeadCard
-                    key={lead.id}
-                    lead={lead}
-                    isSelected={selectedLeadId === lead.id}
-                    onSelect={onSelectLead}
-                    onOpenEstimate={onOpenEstimate}
-                    onOpenFullCard={onOpenFullCard}
-                    onDeleteClick={onDeleteClick}
-                    onRestoreLead={onRestoreLead}
-                    onStatusChangeQuick={onStatusChangeQuick}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

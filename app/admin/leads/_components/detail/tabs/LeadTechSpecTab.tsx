@@ -97,7 +97,9 @@ export default function LeadTechSpecTab({ techSpec: rawTechSpec, setTechSpec, on
 
   // Ссылка на актуальные items для debounce-сохранения
   const itemsRef = useRef(items);
-  itemsRef.current = items;
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   // Формирование и сохранение итогового объекта тех-спецификации
   const buildTechSpecPayload = useCallback((currentItems: LeadConstructionItem[]): LeadTechSpec => {

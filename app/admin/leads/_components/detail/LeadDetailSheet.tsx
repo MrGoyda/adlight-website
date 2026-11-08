@@ -59,13 +59,13 @@ export default function LeadDetailSheet({
 }: LeadDetailSheetProps) {
   const [showEstimateModal, setShowEstimateModal] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
-  const lastLeadRef = React.useRef<LeadFullDetails | null>(lead);
+  const [cachedLead, setCachedLead] = useState<LeadFullDetails | null>(lead);
 
-  if (lead) {
-    lastLeadRef.current = lead;
+  if (lead && lead !== cachedLead) {
+    setCachedLead(lead);
   }
 
-  const activeLead = lead || lastLeadRef.current;
+  const activeLead = lead || cachedLead;
   if (!activeLead) return null;
 
   return (

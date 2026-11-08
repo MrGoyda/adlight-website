@@ -47,6 +47,8 @@ export interface Lead {
   utmCampaign: string | null;
   yandexClientId: string | null;
   clientId: string | null;
+  deletedAt?: string | null;
+  rejectionReason?: string | null;
   createdAt: string;
   updatedAt: string;
   client?: {

@@ -71,6 +71,16 @@ export default function MediaViewerModal({
     setRotation(0);
   }, [currentIndex]);
 
+  const handlePrev = useCallback(() => {
+    triggerHaptic("light");
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : files.length - 1));
+  }, [files.length]);
+
+  const handleNext = useCallback(() => {
+    triggerHaptic("light");
+    setCurrentIndex((prev) => (prev < files.length - 1 ? prev + 1 : 0));
+  }, [files.length]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -80,7 +90,7 @@ export default function MediaViewerModal({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, currentIndex, files]);
+  }, [isOpen, handlePrev, handleNext, onClose]);
 
   if (!isOpen || files.length === 0 || typeof window === "undefined") return null;
 
@@ -98,15 +108,7 @@ export default function MediaViewerModal({
   const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(currentFile.url)}`;
   const currentDocViewerUrl = viewerEngine === "google" ? googleViewerUrl : officeViewerUrl;
 
-  const handlePrev = () => {
-    triggerHaptic("light");
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : files.length - 1));
-  };
 
-  const handleNext = () => {
-    triggerHaptic("light");
-    setCurrentIndex((prev) => (prev < files.length - 1 ? prev + 1 : 0));
-  };
 
   const handleDownload = async () => {
     triggerHaptic("success");

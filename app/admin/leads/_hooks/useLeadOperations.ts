@@ -11,6 +11,9 @@ import {
   createLeadManual, 
   updateLeadDetails, 
   deleteLead, 
+  restoreLeadFromTrash,
+  permanentDeleteLead,
+  emptyTrash,
   convertLeadToProjectAndCompany 
 } from "../actions";
 import { linkLeadToClient, createClientFromLead } from "../../clients/actions";
@@ -43,6 +46,7 @@ export function useLeadOperations({
 
   // Состояния для удаления лида
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isPermanentDelete, setIsPermanentDelete] = useState(false);
   const [leadToDeleteId, setLeadToDeleteId] = useState<string | null>(null);
 
   // Состояния для редактирования полей в шторке
@@ -300,44 +304,97 @@ export function useLeadOperations({
     setIsSavingDetails(false);
   };
 
-  // Удаление лида
-  const handleDeleteClick = (leadId: string, e: React.MouseEvent) => {
+  // Удаление лида (мягкое или окончательное)
+  const handleDeleteClick = (leadId: string, e: React.MouseEvent, isPermanent = false) => {
     e.stopPropagation();
     triggerHaptic("light");
     setLeadToDeleteId(leadId);
+    setIsPermanentDelete(isPermanent);
     setShowDeleteConfirm(true);
   };
 
   const handleDeleteConfirm = async () => {
     if (!leadToDeleteId) return;
-    triggerHaptic("error");
+    triggerHaptic(isPermanentDelete ? "error" : "light");
 
-    const res = await deleteLead(leadToDeleteId);
-    if (res.success) {
-      toast.success("Заявка успешно удалена");
-      setLeads((prev) => prev.filter((l) => l.id !== leadToDeleteId));
-      if (activeLead && activeLead.id === leadToDeleteId) {
-        setActiveLead(null);
+    if (isPermanentDelete) {
+      const res = await permanentDeleteLead(leadToDeleteId);
+      if (res.success) {
+        toast.success("Заявка окончательно удалена");
+        setLeads((prev) => prev.filter((l) => l.id !== leadToDeleteId));
+        if (activeLead && activeLead.id === leadToDeleteId) {
+          setActiveLead(null);
+        }
+        setShowDeleteConfirm(false);
+        setLeadToDeleteId(null);
+        setIsPermanentDelete(false);
+        router.refresh();
+      } else {
+        toast.error(res.error || "Не удалось окончательно удалить заявку");
       }
-      setShowDeleteConfirm(false);
-      setLeadToDeleteId(null);
+    } else {
+      const res = await deleteLead(leadToDeleteId);
+      if (res.success) {
+        toast.success("Заявка перемещена в Корзину");
+        const nowIso = new Date().toISOString();
+        setLeads((prev) =>
+          prev.map((l) => (l.id === leadToDeleteId ? { ...l, deletedAt: nowIso } : l))
+        );
+        if (activeLead && activeLead.id === leadToDeleteId) {
+          setActiveLead((prev) => (prev ? { ...prev, deletedAt: nowIso } : null));
+        }
+        setShowDeleteConfirm(false);
+        setLeadToDeleteId(null);
+        router.refresh();
+      } else {
+        toast.error(res.error || "Не удалось переместить в корзину");
+      }
+    }
+  };
+
+  // Восстановление лида из Корзины
+  const handleRestoreFromTrash = async (leadId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic("success");
+    const res = await restoreLeadFromTrash(leadId);
+    if (res.success) {
+      toast.success("Заявка восстановлена из корзины!");
+      setLeads((prev) =>
+        prev.map((l) => (l.id === leadId ? { ...l, deletedAt: null } : l))
+      );
+      if (activeLead && activeLead.id === leadId) {
+        setActiveLead((prev) => (prev ? { ...prev, deletedAt: null } : null));
+      }
       router.refresh();
     } else {
-      toast.error(res.error || "Не удалось удалить заявку");
+      toast.error(res.error || "Не удалось восстановить заявку");
+    }
+  };
+
+  // Очистка всей корзины
+  const handleEmptyTrash = async () => {
+    triggerHaptic("error");
+    const res = await emptyTrash();
+    if (res.success) {
+      toast.success("Корзина очищена");
+      setLeads((prev) => prev.filter((l) => !l.deletedAt));
+      router.refresh();
+    } else {
+      toast.error(res.error || "Не удалось очистить корзину");
     }
   };
 
   const handleRestoreLead = async (leadId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("success");
-    const res = await updateLeadStatus(leadId, LeadStatus.NEW);
+    const res = await updateLeadStatus(leadId, LeadStatus.NEW, null);
     if (res.success) {
       toast.success("Заявка восстановлена в статус «Новый»!");
       setLeads((prev) =>
-        prev.map((l) => (l.id === leadId ? { ...l, status: LeadStatus.NEW } : l))
+        prev.map((l) => (l.id === leadId ? { ...l, status: LeadStatus.NEW, rejectionReason: null } : l))
       );
       if (activeLead && activeLead.id === leadId) {
-        setActiveLead((prev) => (prev ? { ...prev, status: LeadStatus.NEW } : null));
+        setActiveLead((prev) => (prev ? { ...prev, status: LeadStatus.NEW, rejectionReason: null } : null));
       }
       router.refresh();
     } else {
@@ -442,9 +499,12 @@ export function useLeadOperations({
     // Модалка удаления
     showDeleteConfirm,
     setShowDeleteConfirm,
+    isPermanentDelete,
     leadToDeleteId,
     handleDeleteClick,
     handleDeleteConfirm,
+    handleRestoreFromTrash,
+    handleEmptyTrash,
     handleRestoreLead,
     // Форма шторки
     editName,
