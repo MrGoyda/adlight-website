@@ -85,7 +85,7 @@ interface LeadKanbanBoardProps {
   onStatusChangeQuick?: (leadId: string, status: LeadStatus) => void;
 }
 
-export default function LeadKanbanBoard({
+function LeadKanbanBoard({
   leads,
   selectedLeadId,
   onSelectLead,
@@ -184,3 +184,5 @@ export default function LeadKanbanBoard({
     </div>
   );
 }
+
+export default React.memo(LeadKanbanBoard);

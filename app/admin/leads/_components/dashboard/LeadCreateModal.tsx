@@ -77,7 +77,7 @@ export default function LeadCreateModal({
     >
       <div className="flex flex-col h-full w-full max-w-full overflow-hidden overflow-x-hidden">
         {/* Шапка шторки */}
-        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white/95 backdrop-blur-md sticky top-0 z-20 shrink-0 w-full max-w-full">
+        <div className="p-4 sm:px-6 sm:py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-20 shrink-0 w-full max-w-full">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md shadow-orange-500/20 shrink-0">
               <UserPlus className="w-5 h-5" />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { 
@@ -103,41 +103,6 @@ export default function LeadsDashboard({
   // Фильтр по менеджеру
   const [managerFilter, setManagerFilter] = useState<string>("ALL");
 
-  // Быстрый перевод сделки на следующий этап с оптимистичным обновлением
-  const handleStatusChangeQuick = async (leadId: string, newStatus: LeadStatus) => {
-    triggerHaptic("medium");
-    ops.setLeads((prev) =>
-      prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
-    );
-    if (detailLead && detailLead.id === leadId) {
-      setDetailLead((prev) => (prev ? { ...prev, status: newStatus } : null));
-    }
-    try {
-      const res = await updateLeadStatus(leadId, newStatus);
-      if (!res.success) {
-        toast.error(res.error || toastDict.statusError);
-        router.refresh();
-      } else {
-        toast.success(toastDict.stageUpdated);
-      }
-    } catch (err: any) {
-      toast.error(err.message || toastDict.statusError);
-      router.refresh();
-    }
-  };
-
-  // Копирование телефона с уведомлением
-  const handleCopyPhone = async (e: React.MouseEvent, phone: string) => {
-    e.stopPropagation();
-    triggerHaptic("light");
-    try {
-      await navigator.clipboard.writeText(phone);
-      toast.success(toastDict.phoneCopied);
-    } catch {
-      toast.error(toastDict.copyError);
-    }
-  };
-
   // Состояние меню «Действия»
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showManagerMenu, setShowManagerMenu] = useState(false);
@@ -151,6 +116,57 @@ export default function LeadsDashboard({
   const [showCreateClientModal, setShowCreateClientModal] = useState(false);
   const [showBatchImportModal, setShowBatchImportModal] = useState(false);
   const [showExportAudienceModal, setShowExportAudienceModal] = useState(false);
+
+  // Мемоизированные стабильные обработчики для React.memo карточек
+  const handleSelectLead = useCallback((lead: Lead) => {
+    setDetailLead(lead);
+  }, []);
+
+  const handleOpenEstimate = useCallback((lead: Lead) => {
+    setEstimateLead(lead);
+    setShowEstimateModal(true);
+  }, []);
+
+  const handleOpenFullCard = useCallback((id: string) => {
+    router.push(`/admin/leads/${id}`);
+  }, [router]);
+
+  const handleOpenCreateModal = useCallback(() => {
+    ops.setShowCreateModal(true);
+  }, [ops]);
+
+  // Быстрый перевод сделки на следующий этап с оптимистичным обновлением
+  const handleStatusChangeQuick = useCallback(async (leadId: string, newStatus: LeadStatus) => {
+    triggerHaptic("medium");
+    ops.setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
+    );
+    setDetailLead((prev) => (prev && prev.id === leadId ? { ...prev, status: newStatus } : prev));
+    try {
+      const res = await updateLeadStatus(leadId, newStatus);
+      if (!res.success) {
+        toast.error(res.error || toastDict.statusError);
+        router.refresh();
+      } else {
+        toast.success(toastDict.stageUpdated);
+      }
+    } catch (err: any) {
+      toast.error(err.message || toastDict.statusError);
+      router.refresh();
+    }
+  }, [ops, router, toastDict]);
+
+  // Копирование телефона с уведомлением
+  const handleCopyPhone = useCallback(async (e: React.MouseEvent, phone: string) => {
+    e.stopPropagation();
+    triggerHaptic("light");
+    try {
+      await navigator.clipboard.writeText(phone);
+      toast.success(toastDict.phoneCopied);
+    } catch {
+      toast.error(toastDict.copyError);
+    }
+  }, [toastDict]);
 
   // Закрытие выпадающих списков по клику вне
   useEffect(() => {
@@ -523,20 +539,13 @@ export default function LeadsDashboard({
           <LeadKanbanBoard
             leads={finalLeads}
             selectedLeadId={detailLead?.id}
-            onSelectLead={(lead) => setDetailLead(lead)}
-            onOpenEstimate={(lead) => {
-              setEstimateLead(lead);
-              setShowEstimateModal(true);
-            }}
-            onOpenFullCard={(id) => {
-              router.push(`/admin/leads/${id}`);
-            }}
+            onSelectLead={handleSelectLead}
+            onOpenEstimate={handleOpenEstimate}
+            onOpenFullCard={handleOpenFullCard}
             onDeleteClick={ops.handleDeleteClick}
             onRestoreLead={ops.handleRestoreLead}
             onStatusChangeQuick={handleStatusChangeQuick}
-            onOpenCreateModal={() => {
-              ops.setShowCreateModal(true);
-            }}
+            onOpenCreateModal={handleOpenCreateModal}
           />
         ) : viewMode === "cards" ? (
           /* ── РЕЖИМ 2: СЕТКА КАРТОЧЕК ── */
@@ -546,14 +555,9 @@ export default function LeadsDashboard({
                 key={lead.id}
                 lead={lead}
                 isSelected={detailLead?.id === lead.id}
-                onSelect={(selected) => setDetailLead(selected)}
-                onOpenEstimate={(selected) => {
-                  setEstimateLead(selected);
-                  setShowEstimateModal(true);
-                }}
-                onOpenFullCard={(id) => {
-                  router.push(`/admin/leads/${id}`);
-                }}
+                onSelect={handleSelectLead}
+                onOpenEstimate={handleOpenEstimate}
+                onOpenFullCard={handleOpenFullCard}
                 onDeleteClick={ops.handleDeleteClick}
                 onRestoreLead={ops.handleRestoreLead}
                 onStatusChangeQuick={handleStatusChangeQuick}
@@ -584,9 +588,10 @@ export default function LeadsDashboard({
                     return (
                       <tr
                         key={lead.id}
+                        style={{ contentVisibility: "auto", containIntrinsicSize: "44px" }}
                         onClick={() => {
                           triggerHaptic("light");
-                          setDetailLead(lead);
+                          handleSelectLead(lead);
                         }}
                         className={`hover:bg-slate-50/80 cursor-pointer transition ${
                           detailLead?.id === lead.id ? "bg-orange-50/40" : ""

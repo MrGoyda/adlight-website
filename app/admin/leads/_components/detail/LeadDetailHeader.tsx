@@ -93,7 +93,7 @@ export default function LeadDetailHeader({
   const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
 
   return (
-    <div className="p-2.5 sm:px-6 sm:py-3.5 border-b border-slate-100 flex items-center justify-between gap-1.5 sm:gap-3 sticky top-0 bg-white/95 backdrop-blur-md z-30 shrink-0">
+    <div className="p-2.5 sm:px-6 sm:py-3.5 border-b border-slate-100 flex items-center justify-between gap-1.5 sm:gap-3 sticky top-0 bg-white z-30 shrink-0">
       {/* Левая часть: Статус + Рейтинг + Индикатор сохранения */}
       <div className="flex items-center gap-1.5 min-w-0 shrink">
         {/* Интерактивный этап сделки (Кастомный Apple Dropdown) */}

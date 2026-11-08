@@ -41,7 +41,7 @@ export default function LeadDetailTabs({
   }, [activeTab]);
 
   return (
-    <div className="px-2.5 sm:px-6 pt-2 sm:pt-3 pb-2 bg-slate-50/90 border-b border-slate-200/80 sticky top-[48px] sm:top-[57px] z-20 backdrop-blur-md">
+    <div className="px-2.5 sm:px-6 pt-2 sm:pt-3 pb-2 bg-slate-50 border-b border-slate-200/80 sticky top-[48px] sm:top-[57px] z-20">
       <div 
         ref={containerRef}
         className="flex items-center gap-1.5 p-1 bg-slate-200/70 rounded-2xl overflow-x-auto no-scrollbar shadow-inner"

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { LeadStatus } from "@prisma/client";
+import { useState, useMemo, useDeferredValue } from "react";
 import { Lead } from "../_types/leadTypes";
 import { getLeadTimingInfo } from "../_utils/leadTimelineUtils";
 
@@ -11,6 +10,9 @@ export function useLeadFilters(leads: Lead[]) {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [timingFilter, setTimingFilter] = useState<"ALL" | "APPOINTMENTS_TODAY" | "COLD_WARNING" | "URGENT_DEADLINES">("ALL");
   const [isGlobalExpanded, setIsGlobalExpanded] = useState(false);
+
+  // Плавный deferred-поиск без фризов при вводе текста
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   // Разделение на 3 пространства: Активные (В фокусе), На паузе (Отложенные), Архив/Отказы
   const activeLeads = useMemo(() => {
@@ -71,16 +73,20 @@ export function useLeadFilters(leads: Lead[]) {
     return { appointmentsToday, coldWarnings, urgentDeadlines };
   }, [activeLeads]);
 
-  // Фильтрованный список текущего пространства
+  // Фильтрованный список текущего пространства с concurrent-поиском
   const filteredLeads = useMemo(() => {
+    const cleanSearch = deferredSearchTerm.toLowerCase().trim();
     return currentWorkspaceLeads.filter((lead) => {
-      const matchesSearch =
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone.includes(searchTerm) ||
-        (lead.address && lead.address.toLowerCase().includes(searchTerm.toLowerCase()));
+      if (cleanSearch) {
+        const matchesSearch =
+          (lead.name && lead.name.toLowerCase().includes(cleanSearch)) ||
+          (lead.phone && lead.phone.includes(cleanSearch)) ||
+          (lead.address && lead.address.toLowerCase().includes(cleanSearch));
+        if (!matchesSearch) return false;
+      }
 
       const matchesStatus = statusFilter === "ALL" || lead.status === statusFilter;
-      if (!matchesSearch || !matchesStatus) return false;
+      if (!matchesStatus) return false;
 
       if (timingFilter === "APPOINTMENTS_TODAY") {
         const t = getLeadTimingInfo(lead.createdAt, lead.status, lead.appointmentDate, lead.deadline);
@@ -97,7 +103,7 @@ export function useLeadFilters(leads: Lead[]) {
 
       return true;
     });
-  }, [currentWorkspaceLeads, searchTerm, statusFilter, timingFilter]);
+  }, [currentWorkspaceLeads, deferredSearchTerm, statusFilter, timingFilter]);
 
   return {
     searchTerm,
@@ -113,7 +119,6 @@ export function useLeadFilters(leads: Lead[]) {
     activeLeads,
     onHoldLeads,
     archiveLeads,
-    currentWorkspaceLeads,
     filteredLeads,
     totalRevenue,
     conversionRate,

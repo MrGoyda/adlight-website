@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { STATUS_MAP, LEADS_DICTIONARY } from "../_data/leadsDictionary";
@@ -37,7 +36,7 @@ interface LeadCardProps {
   onStatusChangeQuick?: (leadId: string, status: LeadStatus) => void;
 }
 
-export default function LeadCard({
+function LeadCard({
   lead,
   isSelected,
   onSelect,
@@ -178,13 +177,13 @@ export default function LeadCard({
   };
 
   return (
-    <motion.div
-      layout
+    <div
       onClick={() => {
         triggerHaptic("light");
         onSelect(lead);
       }}
-      className={`group relative bg-white rounded-2xl p-3 border transition-all cursor-pointer select-none overflow-hidden ${
+      style={{ contentVisibility: "auto", containIntrinsicSize: "130px" }}
+      className={`group relative bg-white rounded-2xl p-3 border transition-all duration-150 ease-out cursor-pointer select-none overflow-hidden ${
         isSelected
           ? "border-orange-500 shadow-md ring-2 ring-orange-500/10"
           : "border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs"
@@ -385,6 +384,8 @@ export default function LeadCard({
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
+
+export default React.memo(LeadCard);
