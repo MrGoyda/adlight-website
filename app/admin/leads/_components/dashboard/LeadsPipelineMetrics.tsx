@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useSyncExternalStore } from "react";
 import { 
   TrendingUp, 
   Hammer, 
@@ -22,6 +22,10 @@ interface LeadsPipelineMetricsProps {
   appointmentsToday?: number;
 }
 
+const emptySubscribe = () => () => {};
+const getClientMounted = () => true;
+const getServerMounted = () => false;
+
 export default function LeadsPipelineMetrics({
   leads,
   currentStatusFilter,
@@ -31,6 +35,9 @@ export default function LeadsPipelineMetrics({
   coldWarnings = 0,
   appointmentsToday = 0,
 }: LeadsPipelineMetricsProps) {
+  // Официальный паттерн React 19 для детекта гидратации без каскадных setState
+  const isMounted = useSyncExternalStore(emptySubscribe, getClientMounted, getServerMounted);
+
   const metrics = useMemo(() => {
     let pipelineRevenue = 0;
     let pipelineCount = 0;
@@ -174,50 +181,59 @@ export default function LeadsPipelineMetrics({
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
             Срочные действия
           </span>
-          <div className="flex items-center gap-2 flex-wrap">
-            {coldWarnings > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  triggerHaptic("medium");
-                  onSelectTimingFilter(timingFilter === "COLD_WARNING" ? "ALL" : "COLD_WARNING");
-                }}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
-                  timingFilter === "COLD_WARNING"
-                    ? "bg-rose-600 text-white shadow-2xs"
-                    : "bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100"
-                }`}
-                title="Клиенты ждут ответа более 2 часов"
-              >
-                <Flame className="w-3.5 h-3.5" />
-                <span>{coldWarnings}&nbsp;ждёт</span>
-              </button>
-            )}
-
-            {appointmentsToday > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  triggerHaptic("light");
-                  onSelectTimingFilter(timingFilter === "APPOINTMENTS_TODAY" ? "ALL" : "APPOINTMENTS_TODAY");
-                }}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
-                  timingFilter === "APPOINTMENTS_TODAY"
-                    ? "bg-amber-600 text-white shadow-2xs"
-                    : "bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100"
-                }`}
-                title="Замеры назначены на сегодня"
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{appointmentsToday}&nbsp;замер</span>
-              </button>
-            )}
-
-            {coldWarnings === 0 && appointmentsToday === 0 && (
-              <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Все в графике
+          <div className="flex items-center gap-2 flex-wrap min-h-[28px]" suppressHydrationWarning>
+            {!isMounted ? (
+              <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" />
+                Сверка графика...
               </span>
+            ) : (
+              <>
+                {coldWarnings > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("medium");
+                      onSelectTimingFilter(timingFilter === "COLD_WARNING" ? "ALL" : "COLD_WARNING");
+                    }}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
+                      timingFilter === "COLD_WARNING"
+                        ? "bg-rose-600 text-white shadow-2xs"
+                        : "bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100"
+                    }`}
+                    title="Клиенты ждут ответа более 2 часов"
+                  >
+                    <Flame className="w-3.5 h-3.5" />
+                    <span>{coldWarnings}&nbsp;ждёт</span>
+                  </button>
+                )}
+
+                {appointmentsToday > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      onSelectTimingFilter(timingFilter === "APPOINTMENTS_TODAY" ? "ALL" : "APPOINTMENTS_TODAY");
+                    }}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
+                      timingFilter === "APPOINTMENTS_TODAY"
+                        ? "bg-amber-600 text-white shadow-2xs"
+                        : "bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100"
+                    }`}
+                    title="Замеры назначены на сегодня"
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{appointmentsToday}&nbsp;замер</span>
+                  </button>
+                )}
+
+                {coldWarnings === 0 && appointmentsToday === 0 && (
+                  <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Все в графике
+                  </span>
+                )}
+              </>
             )}
           </div>
         </div>
