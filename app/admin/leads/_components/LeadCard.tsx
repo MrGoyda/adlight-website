@@ -1,16 +1,29 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
 import { STATUS_MAP } from "../_data/leadsDictionary";
 import { Lead } from "../_types/leadTypes";
+import { LeadStatus } from "@prisma/client";
 import { getLeadTimingInfo } from "../_utils/leadTimelineUtils";
 import { parseLeadMetadata } from "../_utils/leadMetaUtils";
 import { SIGN_TYPES } from "../_data/leadDetailDictionary";
 import { getWhatsAppUrl } from "@/lib/phoneUtils";
+import { updateLeadComment, updateLeadStatus } from "../actions";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
-import { Phone, Crown, AlertCircle } from "lucide-react";
+import { 
+  Phone, 
+  Crown, 
+  AlertCircle, 
+  Calculator, 
+  Copy, 
+  FileText, 
+  ArrowRight, 
+  Check 
+} from "lucide-react";
 
 interface LeadCardProps {
   lead: Lead;
@@ -21,13 +34,21 @@ interface LeadCardProps {
   onOpenFullCard?: (leadId: string) => void;
   onDeleteClick?: (leadId: string, e: React.MouseEvent) => void;
   onRestoreLead?: (leadId: string, e: React.MouseEvent) => void;
+  onStatusChangeQuick?: (leadId: string, status: LeadStatus) => void;
 }
 
 export default function LeadCard({
   lead,
   isSelected,
   onSelect,
+  onStatusChangeQuick,
 }: LeadCardProps) {
+  const router = useRouter();
+
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [quickNote, setQuickNote] = useState(lead.comment || "");
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
   const status = STATUS_MAP[lead.status] || {
     label: lead.status,
     color: "text-slate-600 border-slate-200",
@@ -65,7 +86,7 @@ export default function LeadCard({
   const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
   const amount = lead.offeredPrice || lead.revenue || 0;
 
-  // Быстрый клик по WhatsApp
+  // 1. Быстрый клик по WhatsApp
   const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("light");
@@ -76,12 +97,81 @@ export default function LeadCard({
     if (waUrl) window.open(waUrl, "_blank");
   };
 
-  // Быстрый клик по Звонку
+  // 2. Быстрый звонок
   const handleCallClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("light");
     if (cleanPhone) {
       window.location.href = `tel:${cleanPhone}`;
+    }
+  };
+
+  // 3. Копирование номера в буфер обмена в 1 клик
+  const handleCopyPhone = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!cleanPhone) return;
+    triggerHaptic("success");
+    navigator.clipboard.writeText(cleanPhone);
+    toast.success(`Номер скопирован: ${cleanPhone}`);
+  };
+
+  // 4. Прямой переход в калькулятор сметы
+  const handleOpenCalculator = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic("light");
+    router.push(`/admin/calculator?leadId=${lead.id}`);
+  };
+
+  // 5. Быстрый переход на следующий этап воронки
+  const getNextStage = (current: LeadStatus) => {
+    switch (current) {
+      case "NEW":
+        return { next: LeadStatus.ESTIMATE, label: "В смету", icon: <ArrowRight className="w-3 h-3" /> };
+      case "IN_PROGRESS":
+      case "ESTIMATE":
+        return { next: LeadStatus.PROCESSED, label: "В цех", icon: <ArrowRight className="w-3 h-3" /> };
+      case "PROCESSED":
+        return { next: LeadStatus.COMPLETED, label: "Сдан", icon: <Check className="w-3 h-3" /> };
+      default:
+        return null;
+    }
+  };
+
+  const nextStage = getNextStage(lead.status);
+
+  const handleAdvanceStage = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!nextStage || isUpdatingStatus) return;
+
+    triggerHaptic("medium");
+    setIsUpdatingStatus(true);
+
+    if (onStatusChangeQuick) {
+      onStatusChangeQuick(lead.id, nextStage.next);
+    } else {
+      const res = await updateLeadStatus(lead.id, nextStage.next);
+      if (res.error) {
+        toast.error(res.error);
+      } else {
+        toast.success(`Сделка переведена: ${STATUS_MAP[nextStage.next]?.label || nextStage.next}`);
+        router.refresh();
+      }
+    }
+    setIsUpdatingStatus(false);
+  };
+
+  // 6. Сохранение быстрой заметки
+  const handleSaveNote = async () => {
+    setIsEditingNote(false);
+    if (quickNote.trim() === (lead.comment || "").trim()) return;
+
+    triggerHaptic("medium");
+    const res = await updateLeadComment(lead.id, quickNote);
+    if (res.success) {
+      toast.success("Заметка обновлена");
+      router.refresh();
+    } else {
+      toast.error(res.error || "Ошибка сохранения");
     }
   };
 
@@ -92,7 +182,7 @@ export default function LeadCard({
         triggerHaptic("light");
         onSelect(lead);
       }}
-      className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[110px] select-none ${
+      className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[120px] select-none ${
         isSelected
           ? "bg-orange-50/30 border-orange-400 ring-2 ring-orange-500/20 shadow-sm"
           : "bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-2xs active:bg-slate-50/50"
@@ -133,7 +223,7 @@ export default function LeadCard({
           {lead.manager === "ELISEY" && (
             <span
               className="w-5 h-5 rounded-full bg-orange-100 text-orange-700 font-extrabold text-[10px] flex items-center justify-center border border-orange-200"
-              title="Ответственный: Елисей (Я)"
+              title="Ответственный: Елисей"
             >
               Е
             </span>
@@ -159,12 +249,77 @@ export default function LeadCard({
         </span>
       </div>
 
-      {/* ── СТРОКА 3: Сумма сделки + Оплата + Кнопки связи (WhatsApp / Звонок) ── */}
+      {/* ── СТРОКА 2.5: Быстрая заметка менеджера (если есть или редактируется) ── */}
+      <div
+        className="mb-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {isEditingNote ? (
+          <div className="flex items-center gap-1.5 pt-0.5">
+            <input
+              type="text"
+              autoFocus
+              value={quickNote}
+              onChange={(e) => setQuickNote(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveNote();
+                if (e.key === "Escape") setIsEditingNote(false);
+              }}
+              onBlur={handleSaveNote}
+              placeholder="Заметка к сделке..."
+              className="w-full text-[11px] px-2 py-1 bg-amber-50/60 border border-amber-300 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-1 text-[10px] text-slate-400">
+            {lead.comment ? (
+              <span
+                onClick={() => {
+                  triggerHaptic("light");
+                  setIsEditingNote(true);
+                }}
+                className="truncate text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60 max-w-[220px]"
+                title="Нажмите чтобы изменить заметку"
+              >
+                💬 {lead.comment}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic("light");
+                  setIsEditingNote(true);
+                }}
+                className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-600 hover:bg-slate-50 px-1.5 py-0.5 rounded transition"
+                title="Добавить быструю заметку"
+              >
+                <FileText className="w-3 h-3" />
+                <span>Заметка</span>
+              </button>
+            )}
+
+            {/* Копировать телефон */}
+            {cleanPhone && (
+              <button
+                type="button"
+                onClick={handleCopyPhone}
+                className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 font-mono text-[10px] hover:underline"
+                title="Скопировать номер"
+              >
+                <span>{cleanPhone}</span>
+                <Copy className="w-2.5 h-2.5 opacity-60" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── СТРОКА 3: Сумма сделки + Быстрый следующий этап + Действия (Калькулятор / WA / Звонок) ── */}
       <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100/80">
         {/* Сумма и статус оплаты */}
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight whitespace-nowrap">
-            {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "Сумма не указана"}
+            {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "— ₸"}
           </span>
 
           {lead.isBalancePaid && (
@@ -179,8 +334,33 @@ export default function LeadCard({
           )}
         </div>
 
-        {/* Быстрые круглые кнопки связи (по 1 клику, без открытия карточки) */}
+        {/* Быстрые действия */}
         <div className="flex items-center gap-1 shrink-0">
+          {/* Быстрый перевод на следующий этап воронки */}
+          {nextStage && (
+            <button
+              type="button"
+              onClick={handleAdvanceStage}
+              disabled={isUpdatingStatus}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-black bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 border border-slate-200 hover:border-orange-200 transition cursor-pointer active:scale-95"
+              title={`Перевести на этап: ${nextStage.label}`}
+            >
+              <span>{nextStage.label}</span>
+              {nextStage.icon}
+            </button>
+          )}
+
+          {/* Быстрый переход в Калькулятор сметы */}
+          <button
+            type="button"
+            onClick={handleOpenCalculator}
+            className="w-7 h-7 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-90 border border-orange-200/60"
+            title="Открыть смету в Калькуляторе"
+          >
+            <Calculator className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Звонок */}
           {cleanPhone && (
             <button
               type="button"
@@ -192,6 +372,7 @@ export default function LeadCard({
             </button>
           )}
 
+          {/* WhatsApp */}
           <button
             type="button"
             onClick={handleWhatsAppClick}

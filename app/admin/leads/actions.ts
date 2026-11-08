@@ -21,6 +21,23 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus) {
   }
 }
 
+/**
+ * Быстрое сохранение заметки/комментария менеджера прямо с карточки
+ */
+export async function updateLeadComment(leadId: string, comment: string) {
+  try {
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: { comment: comment.trim() },
+    });
+    revalidatePath("/admin/leads");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update lead comment:", error);
+    return { error: "Не удалось сохранить заметку" };
+  }
+}
+
 export async function closeLeadWithFinance(
   leadId: string,
   revenue: number,

@@ -9,7 +9,6 @@ import {
   Plus, 
   Search, 
   X, 
-  Filter, 
   Flame, 
   Calendar, 
   Calculator, 
@@ -19,19 +18,24 @@ import {
   ChevronDown, 
   LayoutGrid, 
   List, 
+  Columns,
   Phone, 
   Check, 
-  MoreHorizontal,
-  ExternalLink
+  Copy
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { toast } from "@/lib/toast";
+import { LeadStatus } from "@prisma/client";
 import { Lead } from "../_types/leadTypes";
 import { STATUS_MAP } from "../_data/leadsDictionary";
 import { useLeadFilters } from "../_hooks/useLeadFilters";
 import { useLeadOperations } from "../_hooks/useLeadOperations";
+import { updateLeadStatus } from "../actions";
 import LeadCard from "./LeadCard";
 import LeadDetailSheet from "./detail/LeadDetailSheet";
 import ClickMatcherWidget from "@/components/admin/ClickMatcherWidget";
+import LeadsPipelineMetrics from "./dashboard/LeadsPipelineMetrics";
+import LeadKanbanBoard from "./kanban/LeadKanbanBoard";
 import LeadCreateModal from "./dashboard/LeadCreateModal";
 import LeadFinanceModal from "./dashboard/LeadFinanceModal";
 import LeadDeleteConfirmModal from "./dashboard/LeadDeleteConfirmModal";
@@ -79,11 +83,46 @@ export default function LeadsDashboard({
     return null;
   });
 
-  // Режим отображения: Карточки (Канбан-сетка) или Список (Таблица)
-  const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
+  // Режим отображения: Канбан-доска, Сетка карточек или Список (Таблица)
+  const [viewMode, setViewMode] = useState<"kanban" | "cards" | "list">("kanban");
 
   // Фильтр по менеджеру
   const [managerFilter, setManagerFilter] = useState<string>("ALL");
+
+  // Быстрый перевод сделки на следующий этап с оптимистичным обновлением
+  const handleStatusChangeQuick = async (leadId: string, newStatus: LeadStatus) => {
+    triggerHaptic("medium");
+    ops.setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, status: newStatus } : l))
+    );
+    if (detailLead && detailLead.id === leadId) {
+      setDetailLead((prev) => (prev ? { ...prev, status: newStatus } : null));
+    }
+    try {
+      const res = await updateLeadStatus(leadId, newStatus);
+      if (!res.success) {
+        toast.error(res.error || "Не удалось изменить статус сделки");
+        router.refresh();
+      } else {
+        toast.success("Этап сделки обновлен");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Ошибка обновления статуса");
+      router.refresh();
+    }
+  };
+
+  // Копирование телефона с уведомлением
+  const handleCopyPhone = async (e: React.MouseEvent, phone: string) => {
+    e.stopPropagation();
+    triggerHaptic("light");
+    try {
+      await navigator.clipboard.writeText(phone);
+      toast.success("Номер скопирован в буфер");
+    } catch {
+      toast.error("Не удалось скопировать");
+    }
+  };
 
   // Состояние меню «Действия»
   const [showActionsMenu, setShowActionsMenu] = useState(false);
@@ -132,13 +171,22 @@ export default function LeadsDashboard({
       {/* ── НЕРАСПРЕДЕЛЕННЫЕ КЛИКИ (КОМПАКТНЫЙ СТРИП, ИСЧЕЗАЕТ ПРИ 0 КЛИКОВ) ── */}
       <ClickMatcherWidget onMatched={() => router.refresh()} />
 
+      {/* ── ФИНАНСОВЫЕ KPI И МЕТРИКИ ВОРОНКИ ПРОИЗВОДСТВА ── */}
+      <LeadsPipelineMetrics
+        leads={ops.leads}
+        currentStatusFilter={filters.statusFilter}
+        onSelectStatusFilter={(s: string) => filters.setStatusFilter(s)}
+        timingFilter={filters.timingFilter}
+        onSelectTimingFilter={(f: "ALL" | "APPOINTMENTS_TODAY" | "COLD_WARNING") => filters.setTimingFilter(f)}
+      />
+
       {/* ── ЕДИНЫЙ СОВРЕМЕННЫЙ TOOLBAR (APPLE / LINEAR STYLE) ── */}
       <div className="bg-white rounded-3xl p-3 sm:p-4 border border-slate-200/90 shadow-xs space-y-3">
         
         {/* Верхний ряд: Переключатель пространств + Вид + Поиск + Действия + Новая сделка */}
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           
-          {/* Слева: Сегментированный переключатель 3 пространств + Вид (Доска / Список) */}
+          {/* Слева: Сегментированный переключатель 3 пространств + Вид (Канбан / Сетка / Список) */}
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             {/* 3 пространства: В работе / На паузе / Архив */}
             <div className="inline-flex bg-slate-100 p-1 rounded-2xl select-none">
@@ -191,25 +239,37 @@ export default function LeadsDashboard({
               </button>
             </div>
 
-            {/* Переключатель вида: Карточки / Таблица */}
+            {/* Переключатель вида: Канбан / Сетка / Таблица */}
             <div className="hidden sm:inline-flex bg-slate-100 p-1 rounded-2xl select-none">
               <button
+                onClick={() => { triggerHaptic("light"); setViewMode("kanban"); }}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "kanban" ? "bg-white text-slate-900 shadow-2xs font-black" : "text-slate-400 hover:text-slate-700"
+                }`}
+                title="Вид: Канбан-доска по этапам"
+              >
+                <Columns className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Канбан</span>
+              </button>
+              <button
                 onClick={() => { triggerHaptic("light"); setViewMode("cards"); }}
-                className={`p-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === "cards" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-400 hover:text-slate-700"
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "cards" ? "bg-white text-slate-900 shadow-2xs font-black" : "text-slate-400 hover:text-slate-700"
                 }`}
                 title="Вид: Сетка карточек"
               >
-                <LayoutGrid className="w-4 h-4" />
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Сетка</span>
               </button>
               <button
                 onClick={() => { triggerHaptic("light"); setViewMode("list"); }}
-                className={`p-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  viewMode === "list" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-400 hover:text-slate-700"
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  viewMode === "list" ? "bg-white text-slate-900 shadow-2xs font-black" : "text-slate-400 hover:text-slate-700"
                 }`}
                 title="Вид: Таблица / Реестр"
               >
-                <List className="w-4 h-4" />
+                <List className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Список</span>
               </button>
             </div>
           </div>
@@ -442,8 +502,28 @@ export default function LeadsDashboard({
           <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
             Сделки не найдены по заданным критериям
           </div>
+        ) : viewMode === "kanban" ? (
+          /* ── РЕЖИМ 1: ИНТЕРАКТИВНАЯ КАНБАН-ДОСКА ПО ЭТАПАМ ── */
+          <LeadKanbanBoard
+            leads={finalLeads}
+            selectedLeadId={detailLead?.id}
+            onSelectLead={(lead) => setDetailLead(lead)}
+            onOpenEstimate={(lead) => {
+              setEstimateLead(lead);
+              setShowEstimateModal(true);
+            }}
+            onOpenFullCard={(id) => {
+              router.push(`/admin/leads/${id}`);
+            }}
+            onDeleteClick={ops.handleDeleteClick}
+            onRestoreLead={ops.handleRestoreLead}
+            onStatusChangeQuick={handleStatusChangeQuick}
+            onOpenCreateModal={() => {
+              ops.setShowCreateModal(true);
+            }}
+          />
         ) : viewMode === "cards" ? (
-          /* ── РЕЖИМ 1: СЕТКА КАРТОЧЕК (КАРТОЧКИ ВЫСОТОЙ ~110px) ── */
+          /* ── РЕЖИМ 2: СЕТКА КАРТОЧЕК ── */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3.5 items-start">
             {finalLeads.map((lead) => (
               <LeadCard
@@ -460,21 +540,23 @@ export default function LeadsDashboard({
                 }}
                 onDeleteClick={ops.handleDeleteClick}
                 onRestoreLead={ops.handleRestoreLead}
+                onStatusChangeQuick={handleStatusChangeQuick}
               />
             ))}
           </div>
         ) : (
-          /* ── РЕЖИМ 2: СОВРЕМЕННЫЙ РЕЕСТР (ДАТА-ТАБЛИЦА) ── */
+          /* ── РЕЖИМ 3: СОВРЕМЕННЫЙ РЕЕСТР (ДАТА-ТАБЛИЦА) ── */
           <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
                     <th className="py-3 px-4">Клиент</th>
+                    <th className="py-3 px-4">Заметка</th>
                     <th className="py-3 px-4">Этап</th>
                     <th className="py-3 px-4">Ответственный</th>
                     <th className="py-3 px-4">Сумма сделки</th>
-                    <th className="py-3 px-4">Связь</th>
+                    <th className="py-3 px-4 text-right">Действия</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -496,7 +578,10 @@ export default function LeadsDashboard({
                       >
                         <td className="py-3 px-4">
                           <span className="font-extrabold text-slate-900 block truncate max-w-xs">{lead.name || "Без имени"}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">{lead.phone}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">{lead.phone || "—"}</span>
+                        </td>
+                        <td className="py-3 px-4 max-w-[200px] truncate text-slate-500 font-medium">
+                          {lead.comment || "—"}
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">
                           <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${status.color} ${status.bg}`}>
@@ -509,8 +594,30 @@ export default function LeadsDashboard({
                         <td className="py-3 px-4 whitespace-nowrap font-black text-slate-900">
                           {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "—"}
                         </td>
-                        <td className="py-3 px-4 whitespace-nowrap">
-                          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <td className="py-3 px-4 whitespace-nowrap text-right">
+                          <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            {/* Смета калькулятор */}
+                            <a
+                              href={`/admin/calculator?leadId=${lead.id}`}
+                              className="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center justify-center transition"
+                              title="Открыть в калькуляторе смет"
+                            >
+                              <Calculator className="w-3.5 h-3.5" />
+                            </a>
+
+                            {/* Копировать телефон */}
+                            {cleanPhone && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleCopyPhone(e, lead.phone || "")}
+                                className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+                                title="Скопировать телефон"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+
+                            {/* Позвонить */}
                             {cleanPhone && (
                               <a
                                 href={`tel:${cleanPhone}`}
@@ -520,6 +627,8 @@ export default function LeadsDashboard({
                                 <Phone className="w-3.5 h-3.5" />
                               </a>
                             )}
+
+                            {/* WhatsApp */}
                             <a
                               href={getWhatsAppUrl(lead.phone || "", `Здравствуйте, ${lead.name || "клиент"}!`)}
                               target="_blank"
