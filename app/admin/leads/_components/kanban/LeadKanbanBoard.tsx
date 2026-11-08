@@ -86,6 +86,8 @@ interface LeadKanbanBoardProps {
   onRestoreLead?: (leadId: string, e: React.MouseEvent) => void;
   onRestoreFromTrash?: (leadId: string, e: React.MouseEvent) => void;
   onStatusChangeQuick?: (leadId: string, status: LeadStatus) => void;
+  selectedLeadIds?: Set<string>;
+  onToggleBatchSelect?: (leadId: string, e: React.MouseEvent) => void;
 }
 
 function LeadKanbanBoard({
@@ -101,6 +103,8 @@ function LeadKanbanBoard({
   onRestoreLead,
   onRestoreFromTrash,
   onStatusChangeQuick,
+  selectedLeadIds,
+  onToggleBatchSelect,
 }: LeadKanbanBoardProps) {
   const dict = LEADS_DICTIONARY.kanban;
   const [dragOverColId, setDragOverColId] = useState<string | null>(null);
@@ -213,6 +217,9 @@ function LeadKanbanBoard({
                         onRestoreLead={onRestoreLead}
                         onRestoreFromTrash={onRestoreFromTrash}
                         onStatusChangeQuick={onStatusChangeQuick}
+                        isBatchSelected={selectedLeadIds ? selectedLeadIds.has(lead.id) : false}
+                        onToggleBatchSelect={onToggleBatchSelect}
+                        isBatchSelectionActive={selectedLeadIds ? selectedLeadIds.size > 0 : false}
                       />
                     );
                   })

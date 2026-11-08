@@ -24,7 +24,9 @@ import {
   Check, 
   Copy,
   Trash2,
-  RotateCcw
+  RotateCcw,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -60,6 +62,8 @@ const ExportAudienceModal = dynamic(
   () => import("../../clients/_components/ExportAudienceModal").then((m) => m.ExportAudienceModal),
   { ssr: false }
 );
+const LeadBulkActionDock = dynamic(() => import("./dashboard/LeadBulkActionDock"), { ssr: false });
+const LeadBulkConfirmModal = dynamic(() => import("./dashboard/LeadBulkConfirmModal"), { ssr: false });
 
 interface LeadsDashboardProps {
   initialLeads: Lead[];
@@ -242,6 +246,100 @@ export default function LeadsDashboard({
     }
     return result;
   }, [filters.filteredLeads, managerFilter]);
+
+  // Массовые операции (выбор чекбоксами)
+  const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(new Set());
+  const [bulkModalConfig, setBulkModalConfig] = useState<{
+    isOpen: boolean;
+    type: "ARCHIVE" | "TRASH" | "STALE_ALL";
+    count: number;
+  } | null>(null);
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
+  // Очистка выделения при смене пространства воронки
+  useEffect(() => {
+    setSelectedLeadIds(new Set());
+  }, [filters.workView, filters.statusFilter, managerFilter]);
+
+  const handleToggleBatchSelect = useCallback((leadId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    triggerHaptic("light");
+    setSelectedLeadIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(leadId)) {
+        next.delete(leadId);
+      } else {
+        next.add(leadId);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleToggleSelectAll = useCallback(() => {
+    triggerHaptic("medium");
+    setSelectedLeadIds((prev) => {
+      if (prev.size === finalLeads.length && finalLeads.length > 0) {
+        return new Set();
+      } else {
+        return new Set(finalLeads.map((l) => l.id));
+      }
+    });
+  }, [finalLeads]);
+
+  const handleClearSelection = useCallback(() => {
+    triggerHaptic("light");
+    setSelectedLeadIds(new Set());
+  }, []);
+
+  const handleOpenBulkArchiveConfirm = useCallback(() => {
+    if (selectedLeadIds.size === 0) return;
+    setBulkModalConfig({
+      isOpen: true,
+      type: "ARCHIVE",
+      count: selectedLeadIds.size,
+    });
+  }, [selectedLeadIds]);
+
+  const handleOpenBulkDeleteConfirm = useCallback(() => {
+    if (selectedLeadIds.size === 0) return;
+    setBulkModalConfig({
+      isOpen: true,
+      type: "TRASH",
+      count: selectedLeadIds.size,
+    });
+  }, [selectedLeadIds]);
+
+  const handleOpenArchiveStaleConfirm = useCallback(() => {
+    if (filters.timingStats.stale14d === 0) {
+      toast.info(LEADS_DICTIONARY.bulkActions.noStaleToArchive);
+      return;
+    }
+    setBulkModalConfig({
+      isOpen: true,
+      type: "STALE_ALL",
+      count: filters.timingStats.stale14d,
+    });
+  }, [filters.timingStats.stale14d]);
+
+  const handleExecuteBulkConfirm = useCallback(async () => {
+    if (!bulkModalConfig) return;
+    setIsBulkProcessing(true);
+    try {
+      if (bulkModalConfig.type === "ARCHIVE") {
+        await ops.handleBulkArchive(Array.from(selectedLeadIds));
+        setSelectedLeadIds(new Set());
+      } else if (bulkModalConfig.type === "TRASH") {
+        await ops.handleBulkDelete(Array.from(selectedLeadIds));
+        setSelectedLeadIds(new Set());
+      } else if (bulkModalConfig.type === "STALE_ALL") {
+        await ops.handleArchiveAllStale(14);
+        setSelectedLeadIds(new Set());
+      }
+      setBulkModalConfig(null);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  }, [bulkModalConfig, ops, selectedLeadIds]);
 
   return (
     <div className="space-y-4 max-w-7xl mx-auto pb-16">
@@ -513,6 +611,20 @@ export default function LeadsDashboard({
                     <Target className="w-4 h-4 text-emerald-500" />
                     <span>{t.actionExportAudience}</span>
                   </button>
+                  <button
+                    onClick={() => {
+                      triggerHaptic("light");
+                      setShowActionsMenu(false);
+                      handleOpenArchiveStaleConfirm();
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-amber-50 text-slate-700 hover:text-amber-800 flex items-center gap-2 transition border-t border-slate-100"
+                  >
+                    <Archive className="w-4 h-4 text-amber-600" />
+                    <span>
+                      {t.actionArchiveStale}
+                      {filters.timingStats.stale14d > 0 ? ` (${filters.timingStats.stale14d})` : ""}
+                    </span>
+                  </button>
                 </div>
               )}
             </div>
@@ -645,6 +757,35 @@ export default function LeadsDashboard({
         </div>
       )}
 
+      {/* ── БАННЕР ЗАВИСШИХ ЗАЯВОК (ПРИ АКТИВНОМ СМАРТ-ФИЛЬТРЕ STALE_14D) ── */}
+      {filters.timingFilter === "STALE_14D" && filters.timingStats.stale14d > 0 && (
+        <div className="bg-slate-900 text-white rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg border border-slate-800 animate-in fade-in duration-200">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white">
+                {LEADS_DICTIONARY.bulkActions.staleBannerTitle} ({filters.timingStats.stale14d})
+              </h3>
+              <p className="text-xs text-slate-300 font-medium mt-0.5">
+                {LEADS_DICTIONARY.bulkActions.staleBannerDesc}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handleOpenArchiveStaleConfirm}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow-md shadow-orange-600/30 transition active:scale-95 cursor-pointer"
+            >
+              <Archive className="w-4 h-4" />
+              <span>{LEADS_DICTIONARY.bulkActions.archiveStaleBtn}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── ОСНОВНОЙ КОНТЕНТ: КАНБАН-ДОСКА, СЕТКА КАРТОЧЕК ИЛИ РЕЕСТР ТАБЛИЦЫ ── */}
       <div className="w-full">
         {finalLeads.length === 0 ? (
@@ -666,6 +807,8 @@ export default function LeadsDashboard({
             onRestoreFromTrash={ops.handleRestoreFromTrash}
             onStatusChangeQuick={handleStatusChangeQuick}
             onOpenCreateModal={handleOpenCreateModal}
+            selectedLeadIds={selectedLeadIds}
+            onToggleBatchSelect={handleToggleBatchSelect}
           />
         ) : viewMode === "cards" ? (
           /* ── РЕЖИМ 2: СЕТКА КАРТОЧЕК ── */
@@ -687,6 +830,9 @@ export default function LeadsDashboard({
                   onRestoreLead={ops.handleRestoreLead}
                   onRestoreFromTrash={ops.handleRestoreFromTrash}
                   onStatusChangeQuick={handleStatusChangeQuick}
+                  isBatchSelected={selectedLeadIds.has(lead.id)}
+                  onToggleBatchSelect={handleToggleBatchSelect}
+                  isBatchSelectionActive={selectedLeadIds.size > 0}
                 />
               );
             })}
@@ -698,6 +844,24 @@ export default function LeadsDashboard({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
+                    <th className="w-10 py-3 px-3 text-center">
+                      <button
+                        type="button"
+                        onClick={handleToggleSelectAll}
+                        className="p-1 rounded hover:bg-slate-200 text-slate-600 transition cursor-pointer"
+                        title={selectedLeadIds.size === finalLeads.length ? LEADS_DICTIONARY.bulkActions.deselectAll : LEADS_DICTIONARY.bulkActions.selectAll}
+                      >
+                        {selectedLeadIds.size > 0 && selectedLeadIds.size === finalLeads.length ? (
+                          <CheckSquare className="w-4 h-4 text-orange-600" />
+                        ) : selectedLeadIds.size > 0 ? (
+                          <div className="w-4 h-4 rounded border-2 border-orange-600 bg-orange-50 flex items-center justify-center">
+                            <div className="w-2 h-0.5 bg-orange-600" />
+                          </div>
+                        ) : (
+                          <Square className="w-4 h-4 text-slate-400" />
+                        )}
+                      </button>
+                    </th>
                     <th className="py-3 px-4">{tableDict.colClient}</th>
                     <th className="py-3 px-4">{tableDict.colNote}</th>
                     <th className="py-3 px-4">{tableDict.colStage}</th>
@@ -713,6 +877,7 @@ export default function LeadsDashboard({
                     const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
                     const cleanDigits = (lead.phone || "").replace(/\D/g, "").slice(-10);
                     const dupCount = cleanDigits && filters.phoneOccurrences ? (filters.phoneOccurrences[cleanDigits] || 0) : 0;
+                    const isRowSelected = selectedLeadIds.has(lead.id);
 
                     return (
                       <tr
@@ -723,9 +888,22 @@ export default function LeadsDashboard({
                           handleSelectLead(lead);
                         }}
                         className={`hover:bg-slate-50/80 cursor-pointer transition ${
-                          detailLead?.id === lead.id ? "bg-orange-50/40" : ""
+                          isRowSelected ? "bg-orange-50/60" : detailLead?.id === lead.id ? "bg-orange-50/40" : ""
                         }`}
                       >
+                        <td className="w-10 py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleBatchSelect(lead.id, e)}
+                            className="p-1 rounded hover:bg-slate-200 text-slate-600 transition cursor-pointer"
+                          >
+                            {isRowSelected ? (
+                              <CheckSquare className="w-4 h-4 text-orange-600" />
+                            ) : (
+                              <Square className="w-4 h-4 text-slate-300 hover:text-slate-500" />
+                            )}
+                          </button>
+                        </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-extrabold text-slate-900 block truncate max-w-xs">{lead.name || tableDict.noName}</span>
@@ -958,6 +1136,56 @@ export default function LeadsDashboard({
         <ExportAudienceModal
           isOpen={showExportAudienceModal}
           onClose={() => setShowExportAudienceModal(false)}
+        />
+      )}
+
+      {/* ── ПЛАВАЮЩИЙ BOTTOM ACTION DOCK ДЛЯ МАССОВЫХ ДЕЙСТВИЙ (APPLE / LINEAR STYLE) ── */}
+      <LeadBulkActionDock
+        selectedCount={selectedLeadIds.size}
+        totalFilteredCount={finalLeads.length}
+        isAllSelected={selectedLeadIds.size === finalLeads.length && finalLeads.length > 0}
+        onToggleSelectAll={handleToggleSelectAll}
+        onBulkArchive={handleOpenBulkArchiveConfirm}
+        onBulkDelete={handleOpenBulkDeleteConfirm}
+        onClearSelection={handleClearSelection}
+        isProcessing={isBulkProcessing}
+      />
+
+      {/* ── ДИАЛОГ ПОДТВЕРЖДЕНИЯ МАССОВЫХ ДЕЙСТВИЙ ── */}
+      {bulkModalConfig && (
+        <LeadBulkConfirmModal
+          isOpen={bulkModalConfig.isOpen}
+          title={
+            bulkModalConfig.type === "STALE_ALL"
+              ? LEADS_DICTIONARY.bulkActions.archiveStaleTitle
+              : bulkModalConfig.type === "ARCHIVE"
+              ? LEADS_DICTIONARY.bulkActions.archiveBtn
+              : LEADS_DICTIONARY.bulkActions.trashBtn
+          }
+          description={
+            bulkModalConfig.type === "STALE_ALL"
+              ? LEADS_DICTIONARY.bulkActions.archiveStaleConfirm(bulkModalConfig.count)
+              : bulkModalConfig.type === "ARCHIVE"
+              ? LEADS_DICTIONARY.bulkActions.bulkArchiveConfirm(bulkModalConfig.count)
+              : LEADS_DICTIONARY.bulkActions.bulkTrashConfirm(bulkModalConfig.count)
+          }
+          count={bulkModalConfig.count}
+          confirmBtnText={
+            bulkModalConfig.type === "STALE_ALL" || bulkModalConfig.type === "ARCHIVE"
+              ? LEADS_DICTIONARY.bulkActions.archiveBtn
+              : LEADS_DICTIONARY.bulkActions.trashBtn
+          }
+          confirmBtnVariant={bulkModalConfig.type === "TRASH" ? "danger" : "warning"}
+          icon={
+            bulkModalConfig.type === "TRASH" ? (
+              <Trash2 className="w-5 h-5 text-rose-600" />
+            ) : (
+              <Archive className="w-5 h-5 text-amber-600" />
+            )
+          }
+          onClose={() => setBulkModalConfig(null)}
+          onConfirm={handleExecuteBulkConfirm}
+          isProcessing={isBulkProcessing}
         />
       )}
 

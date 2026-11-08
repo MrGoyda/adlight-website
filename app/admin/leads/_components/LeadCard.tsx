@@ -39,6 +39,9 @@ interface LeadCardProps {
   onRestoreLead?: (leadId: string, e: React.MouseEvent) => void;
   onRestoreFromTrash?: (leadId: string, e: React.MouseEvent) => void;
   onStatusChangeQuick?: (leadId: string, status: LeadStatus) => void;
+  isBatchSelected?: boolean;
+  onToggleBatchSelect?: (leadId: string, e: React.MouseEvent) => void;
+  isBatchSelectionActive?: boolean;
 }
 
 function LeadCard({
@@ -51,6 +54,9 @@ function LeadCard({
   onRestoreLead,
   onRestoreFromTrash,
   onStatusChangeQuick,
+  isBatchSelected = false,
+  onToggleBatchSelect,
+  isBatchSelectionActive = false,
 }: LeadCardProps) {
   const router = useRouter();
   const dict = LEADS_DICTIONARY.card;
@@ -201,7 +207,9 @@ function LeadCard({
       }}
       style={{ contentVisibility: "auto", containIntrinsicSize: "130px" }}
       className={`group relative bg-white rounded-2xl p-3 border transition-all duration-150 ease-out cursor-pointer select-none overflow-hidden ${
-        isSelected
+        isBatchSelected
+          ? "border-orange-500 bg-orange-50/20 ring-2 ring-orange-500/20 shadow-xs"
+          : isSelected
           ? "border-orange-500 shadow-md ring-2 ring-orange-500/10"
           : "border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs"
       }`}
@@ -214,9 +222,30 @@ function LeadCard({
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-rose-500" />
       )}
 
-      {/* ── СТРОКА 1: Имя клиента + Рейтинг VIP + Дата + Аватар менеджера ── */}
+      {/* ── СТРОКА 1: Чекбокс выбора + Имя клиента + Рейтинг VIP + Дата + Аватар менеджера ── */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
+          {onToggleBatchSelect && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic("light");
+                onToggleBatchSelect(lead.id, e);
+              }}
+              className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                isBatchSelected
+                  ? "bg-orange-600 border-orange-600 text-white opacity-100"
+                  : isBatchSelectionActive
+                  ? "border-slate-300 bg-white opacity-100 hover:border-orange-400"
+                  : "border-slate-300 bg-white opacity-0 group-hover:opacity-100 hover:border-orange-400"
+              }`}
+              title="Выбрать заявку для массовых действий"
+            >
+              {isBatchSelected && <Check className="w-3 h-3 stroke-[3]" />}
+            </button>
+          )}
+
           <span className="font-extrabold text-xs sm:text-sm text-slate-900 truncate">
             {lead.name || LEADS_DICTIONARY.table.noName}
           </span>

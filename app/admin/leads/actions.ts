@@ -480,6 +480,83 @@ export async function emptyTrash() {
 }
 
 /**
+ * Массовая отправка лидов в архив
+ */
+export async function bulkArchiveLeads(leadIds: string[], reason: string = "Массовое архивирование") {
+  try {
+    if (!leadIds || leadIds.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    const result = await prisma.lead.updateMany({
+      where: { id: { in: leadIds } },
+      data: {
+        status: LeadStatus.UNPROCESSED,
+        rejectionReason: reason,
+      },
+    });
+
+    revalidatePath("/admin/leads");
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Failed to bulk archive leads:", error);
+    return { error: "Не удалось архивировать выбранные заявки" };
+  }
+}
+
+/**
+ * Массовое перемещение лидов в корзину (soft delete)
+ */
+export async function bulkDeleteLeads(leadIds: string[]) {
+  try {
+    if (!leadIds || leadIds.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    const result = await prisma.lead.updateMany({
+      where: { id: { in: leadIds } },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    revalidatePath("/admin/leads");
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Failed to bulk delete leads:", error);
+    return { error: "Не удалось переместить выбранные заявки в корзину" };
+  }
+}
+
+/**
+ * Быстрая архивация всех зависших заявок (статус NEW старше X дней)
+ */
+export async function archiveAllStaleLeads(days: number = 14, reason: string = "Без движения более 14 дней") {
+  try {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const result = await prisma.lead.updateMany({
+      where: {
+        status: LeadStatus.NEW,
+        createdAt: { lte: cutoffDate },
+        deletedAt: null,
+      },
+      data: {
+        status: LeadStatus.UNPROCESSED,
+        rejectionReason: reason,
+      },
+    });
+
+    revalidatePath("/admin/leads");
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Failed to archive all stale leads:", error);
+    return { error: "Не удалось архивировать зависшие заявки" };
+  }
+}
+
+/**
  * Конвертация лида в производственный Проект и привязка Компании (B2B CRM)
  */
 export async function convertLeadToProjectAndCompany(

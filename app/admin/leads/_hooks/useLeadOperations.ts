@@ -14,8 +14,12 @@ import {
   restoreLeadFromTrash,
   permanentDeleteLead,
   emptyTrash,
+  bulkArchiveLeads,
+  bulkDeleteLeads,
+  archiveAllStaleLeads,
   convertLeadToProjectAndCompany 
 } from "../actions";
+import { LEADS_DICTIONARY } from "../_data/leadsDictionary";
 import { linkLeadToClient, createClientFromLead } from "../../clients/actions";
 import { Lead, Client } from "../_types/leadTypes";
 
@@ -477,6 +481,72 @@ export function useLeadOperations({
     }
   };
 
+  // Массовая архивация выбранных лидов
+  const handleBulkArchive = async (leadIds: string[], reason: string = "Массовое архивирование") => {
+    if (!leadIds || leadIds.length === 0) return { success: true };
+    triggerHaptic("medium");
+    
+    // Оптимистичное обновление
+    const idsSet = new Set(leadIds);
+    setLeads((prev) =>
+      prev.map((l) => (idsSet.has(l.id) ? { ...l, status: LeadStatus.UNPROCESSED, rejectionReason: reason } : l))
+    );
+
+    const res = await bulkArchiveLeads(leadIds, reason);
+    if (res.success) {
+      toast.success(LEADS_DICTIONARY.bulkActions.archiveSuccess(res.count ?? leadIds.length));
+      router.refresh();
+      return { success: true, count: res.count };
+    } else {
+      toast.error(res.error || "Ошибка при массовой архивации");
+      router.refresh();
+      return { success: false, error: res.error };
+    }
+  };
+
+  // Массовое удаление в корзину (soft delete)
+  const handleBulkDelete = async (leadIds: string[]) => {
+    if (!leadIds || leadIds.length === 0) return { success: true };
+    triggerHaptic("medium");
+
+    // Оптимистичное обновление
+    const idsSet = new Set(leadIds);
+    const now = new Date().toISOString();
+    setLeads((prev) =>
+      prev.map((l) => (idsSet.has(l.id) ? { ...l, deletedAt: now } : l))
+    );
+
+    const res = await bulkDeleteLeads(leadIds);
+    if (res.success) {
+      toast.success(LEADS_DICTIONARY.bulkActions.trashSuccess(res.count ?? leadIds.length));
+      router.refresh();
+      return { success: true, count: res.count };
+    } else {
+      toast.error(res.error || "Ошибка при перемещении в корзину");
+      router.refresh();
+      return { success: false, error: res.error };
+    }
+  };
+
+  // Быстрая архивация всех зависших (>14 дней)
+  const handleArchiveAllStale = async (days: number = 14, reason: string = "Без движения более 14 дней") => {
+    triggerHaptic("medium");
+    const res = await archiveAllStaleLeads(days, reason);
+    if (res.success) {
+      const count = res.count ?? 0;
+      if (count > 0) {
+        toast.success(LEADS_DICTIONARY.bulkActions.staleArchiveSuccess(count));
+      } else {
+        toast.info(LEADS_DICTIONARY.bulkActions.noStaleToArchive);
+      }
+      router.refresh();
+      return { success: true, count };
+    } else {
+      toast.error(res.error || "Ошибка при архивации зависших заявок");
+      return { success: false, error: res.error };
+    }
+  };
+
   return {
     leads,
     setLeads,
@@ -506,6 +576,10 @@ export function useLeadOperations({
     handleRestoreFromTrash,
     handleEmptyTrash,
     handleRestoreLead,
+    // Массовые операции
+    handleBulkArchive,
+    handleBulkDelete,
+    handleArchiveAllStale,
     // Форма шторки
     editName,
     setEditName,

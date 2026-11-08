@@ -63,12 +63,14 @@ export const LEADS_DICTIONARY = {
     actionNewClient: "Новый профиль клиента",
     actionImportExcel: "Импорт из Excel",
     actionExportAudience: "Выгрузка аудитории",
+    actionArchiveStale: "Архивировать зависшие (>14д)",
     newDealBtn: "Новая сделка",
     coldWarningBadge: "Ждут ответа >2ч",
     appointmentsTodayBadge: "Замеры сегодня",
     staleWarningBadge: "Без движения >14д",
     resetFilters: "Сбросить фильтры",
     emptyStateText: "Сделки не найдены по заданным критериям",
+    bulkSelectToggle: "Выбор нескольких",
   },
 
   pipeline: {
@@ -276,6 +278,27 @@ export const LEADS_DICTIONARY = {
     profitLabel: "Чистая прибыль",
     submitBtn: "Зафиксировать и завершить",
     cancelBtn: "Отмена",
+  },
+
+  bulkActions: {
+    selectedCount: "Выбрано",
+    selectAll: "Выбрать все",
+    deselectAll: "Снять выбор",
+    archiveBtn: "В архив",
+    trashBtn: "В корзину",
+    archiveStaleBtn: "Архивировать все зависшие (>14д)",
+    archiveStaleTitle: "Архивация зависших заявок",
+    archiveStaleConfirm: (count: number) => `Архивировать ${count} зависших заявок без движения более 14 дней? Они будут перемещены в архив со статусом «Не отработан».`,
+    bulkArchiveConfirm: (count: number) => `Переместить ${count} выбранных заявок в архив?`,
+    bulkTrashConfirm: (count: number) => `Переместить ${count} выбранных заявок в корзину?`,
+    archiveSuccess: (count: number) => `В архив перемещено заявок: ${count}`,
+    trashSuccess: (count: number) => `В корзину перемещено заявок: ${count}`,
+    staleArchiveSuccess: (count: number) => `Зависших заявок архивировано: ${count}`,
+    noStaleToArchive: "Нет зависших заявок для архивации",
+    staleBannerTitle: "Зависшие заявки без движения (>14 дней)",
+    staleBannerDesc: "В списке есть заявки, которые ожидают ответа или не продвинулись по воронке более 14 дней. Вы можете отправить их в архив в один клик.",
+    quickArchiveStale: "Архивировать все зависшие",
+    processing: "Обработка...",
   },
 
   stats: {
