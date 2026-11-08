@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Button from "@/components/ui/Button";
 import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
@@ -18,6 +18,8 @@ interface LeadBulkConfirmModalProps {
   isProcessing?: boolean;
 }
 
+const emptySubscribe = () => () => {};
+
 export default function LeadBulkConfirmModal({
   isOpen,
   title,
@@ -30,11 +32,14 @@ export default function LeadBulkConfirmModal({
   onConfirm,
   isProcessing = false,
 }: LeadBulkConfirmModalProps) {
-  const [mounted, setMounted] = useState(false);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const deleteDict = LEADS_DICTIONARY.deleteModal;
 
   useEffect(() => {
-    setMounted(true);
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !isProcessing) onClose();
     };
@@ -42,7 +47,7 @@ export default function LeadBulkConfirmModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose, isProcessing]);
 
-  if (!mounted || !isOpen) return null;
+  if (!isClient || !isOpen) return null;
 
   const btnColor =
     confirmBtnVariant === "danger"

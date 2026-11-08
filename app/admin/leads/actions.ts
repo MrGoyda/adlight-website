@@ -557,6 +557,50 @@ export async function archiveAllStaleLeads(days: number = 14, reason: string = "
 }
 
 /**
+ * Возврат архивной заявки в активную воронку (статус NEW, сброс причины отказа)
+ */
+export async function reactivateLead(leadId: string) {
+  try {
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: {
+        status: LeadStatus.NEW,
+        rejectionReason: null,
+      },
+    });
+
+    revalidatePath("/admin/leads");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to reactivate lead:", error);
+    return { error: "Не удалось вернуть заявку в работу" };
+  }
+}
+
+/**
+ * Пакетный возврат архивных заявок в активную воронку
+ */
+export async function bulkReactivateLeads(leadIds: string[]) {
+  try {
+    if (!leadIds || leadIds.length === 0) return { success: true, count: 0 };
+
+    const result = await prisma.lead.updateMany({
+      where: { id: { in: leadIds } },
+      data: {
+        status: LeadStatus.NEW,
+        rejectionReason: null,
+      },
+    });
+
+    revalidatePath("/admin/leads");
+    return { success: true, count: result.count };
+  } catch (error) {
+    console.error("Failed to bulk reactivate leads:", error);
+    return { error: "Не удалось вернуть заявки в работу" };
+  }
+}
+
+/**
  * Конвертация лида в производственный Проект и привязка Компании (B2B CRM)
  */
 export async function convertLeadToProjectAndCompany(

@@ -11,6 +11,10 @@ export function useLeadFilters(leads: Lead[]) {
   const [timingFilter, setTimingFilter] = useState<"ALL" | "APPOINTMENTS_TODAY" | "COLD_WARNING" | "URGENT_DEADLINES" | "STALE_14D">("ALL");
   const [isGlobalExpanded, setIsGlobalExpanded] = useState(false);
 
+  // Подфильтры в архиве: Все / Выполненные / Не выполненные
+  const [archiveSubTab, setArchiveSubTab] = useState<"ALL" | "COMPLETED" | "UNSUCCESSFUL">("ALL");
+  const [archiveReasonFilter, setArchiveReasonFilter] = useState<string>("ALL");
+
   // Плавный deferred-поиск без фризов при вводе текста
   const deferredSearchTerm = useDeferredValue(searchTerm);
 
@@ -46,10 +50,36 @@ export function useLeadFilters(leads: Lead[]) {
     });
   }, [leads]);
 
-  // 4. Архив (Отказы и не отработанные, не в корзине)
+  // 4. Архив (Выполненные проекты, отказы и не отработанные, не в корзине)
   const archiveLeads = useMemo(() => {
-    return leads.filter((l) => !l.deletedAt && (l.status === "CANCELLED" || l.status === "UNPROCESSED"));
+    return leads.filter(
+      (l) => !l.deletedAt && (l.status === "COMPLETED" || l.status === "CANCELLED" || l.status === "UNPROCESSED")
+    );
   }, [leads]);
+
+  // Статистика архива
+  const archiveStats = useMemo(() => {
+    const completed = archiveLeads.filter((l) => l.status === "COMPLETED");
+    const unsuccessful = archiveLeads.filter((l) => l.status === "CANCELLED" || l.status === "UNPROCESSED");
+    const completedRevenue = completed.reduce((sum, l) => sum + (l.revenue || l.offeredPrice || 0), 0);
+    const totalCount = archiveLeads.length;
+    const conversion = totalCount > 0 ? Math.round((completed.length / totalCount) * 100) : 0;
+
+    const reasonsCount: Record<string, number> = {};
+    unsuccessful.forEach((l) => {
+      const r = l.rejectionReason || "Не указана";
+      reasonsCount[r] = (reasonsCount[r] || 0) + 1;
+    });
+
+    return {
+      totalCount,
+      completedCount: completed.length,
+      completedRevenue,
+      unsuccessfulCount: unsuccessful.length,
+      conversion,
+      reasonsCount,
+    };
+  }, [archiveLeads]);
 
   const currentWorkspaceLeads = useMemo(() => {
     if (workView === "TRASH") return trashLeads;
@@ -146,9 +176,18 @@ export function useLeadFilters(leads: Lead[]) {
         return lead.status === "NEW" && (now - new Date(lead.createdAt).getTime()) > FOURTEEN_DAYS_MS;
       }
 
+      if (workView === "ARCHIVE") {
+        if (archiveSubTab === "COMPLETED" && lead.status !== "COMPLETED") return false;
+        if (archiveSubTab === "UNSUCCESSFUL" && lead.status !== "CANCELLED" && lead.status !== "UNPROCESSED") return false;
+        if (archiveReasonFilter !== "ALL") {
+          const r = lead.rejectionReason || "Не указана";
+          if (r !== archiveReasonFilter) return false;
+        }
+      }
+
       return true;
     });
-  }, [currentWorkspaceLeads, deferredSearchTerm, statusFilter, timingFilter]);
+  }, [currentWorkspaceLeads, deferredSearchTerm, statusFilter, timingFilter, workView, archiveSubTab, archiveReasonFilter]);
 
   return {
     searchTerm,
@@ -161,6 +200,11 @@ export function useLeadFilters(leads: Lead[]) {
     setTimingFilter,
     isGlobalExpanded,
     setIsGlobalExpanded,
+    archiveSubTab,
+    setArchiveSubTab,
+    archiveReasonFilter,
+    setArchiveReasonFilter,
+    archiveStats,
     activeLeads,
     onHoldLeads,
     archiveLeads,

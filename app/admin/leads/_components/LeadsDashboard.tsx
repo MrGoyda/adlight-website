@@ -64,6 +64,7 @@ const ExportAudienceModal = dynamic(
 );
 const LeadBulkActionDock = dynamic(() => import("./dashboard/LeadBulkActionDock"), { ssr: false });
 const LeadBulkConfirmModal = dynamic(() => import("./dashboard/LeadBulkConfirmModal"), { ssr: false });
+const LeadArchiveView = dynamic(() => import("./archive/LeadArchiveView"), { ssr: false });
 
 interface LeadsDashboardProps {
   initialLeads: Lead[];
@@ -251,7 +252,7 @@ export default function LeadsDashboard({
   const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(new Set());
   const [bulkModalConfig, setBulkModalConfig] = useState<{
     isOpen: boolean;
-    type: "ARCHIVE" | "TRASH" | "STALE_ALL";
+    type: "ARCHIVE" | "TRASH" | "STALE_ALL" | "REACTIVATE";
     count: number;
   } | null>(null);
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
@@ -309,6 +310,15 @@ export default function LeadsDashboard({
     });
   }, [selectedLeadIds]);
 
+  const handleOpenBulkReactivateConfirm = useCallback(() => {
+    if (selectedLeadIds.size === 0) return;
+    setBulkModalConfig({
+      isOpen: true,
+      type: "REACTIVATE",
+      count: selectedLeadIds.size,
+    });
+  }, [selectedLeadIds]);
+
   const handleOpenArchiveStaleConfirm = useCallback(() => {
     if (filters.timingStats.stale14d === 0) {
       toast.info(LEADS_DICTIONARY.bulkActions.noStaleToArchive);
@@ -333,6 +343,9 @@ export default function LeadsDashboard({
         setSelectedLeadIds(new Set());
       } else if (bulkModalConfig.type === "STALE_ALL") {
         await ops.handleArchiveAllStale(14);
+        setSelectedLeadIds(new Set());
+      } else if (bulkModalConfig.type === "REACTIVATE") {
+        await ops.handleBulkReactivate(Array.from(selectedLeadIds));
         setSelectedLeadIds(new Set());
       }
       setBulkModalConfig(null);
@@ -786,9 +799,29 @@ export default function LeadsDashboard({
         </div>
       )}
 
-      {/* ── ОСНОВНОЙ КОНТЕНТ: КАНБАН-ДОСКА, СЕТКА КАРТОЧЕК ИЛИ РЕЕСТР ТАБЛИЦЫ ── */}
+      {/* ── ОСНОВНОЙ КОНТЕНТ: ВЫДЕЛЕННЫЙ АРХИВ / КАНБАН-ДОСКА / СЕТКА КАРТОЧЕК / РЕЕСТР ТАБЛИЦЫ ── */}
       <div className="w-full">
-        {finalLeads.length === 0 ? (
+        {filters.workView === "ARCHIVE" ? (
+          /* ── РЕЖИМ 0: ВЫДЕЛЕННЫЙ АРХИВ СДЕЛОК (ВЫПОЛНЕННЫЕ И ОТКАЗЫ) ── */
+          <LeadArchiveView
+            leads={finalLeads}
+            allArchiveLeads={filters.archiveLeads}
+            selectedLeadIds={selectedLeadIds}
+            onToggleBatchSelect={handleToggleBatchSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            onSelectLead={handleSelectLead}
+            onReactivateLead={ops.handleReactivateLead}
+            onDeleteClick={ops.handleDeleteClick}
+            onCopyPhone={handleCopyPhone}
+            onFilterDuplicatePhone={handleFilterDuplicatePhone}
+            phoneOccurrences={filters.phoneOccurrences}
+            archiveSubTab={filters.archiveSubTab}
+            onSelectSubTab={filters.setArchiveSubTab}
+            archiveReasonFilter={filters.archiveReasonFilter}
+            onSelectReasonFilter={filters.setArchiveReasonFilter}
+            archiveStats={filters.archiveStats}
+          />
+        ) : finalLeads.length === 0 ? (
           <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
             {filters.workView === "TRASH" ? LEADS_DICTIONARY.trash.emptyState : t.emptyStateText}
           </div>
@@ -1149,6 +1182,8 @@ export default function LeadsDashboard({
         onBulkDelete={handleOpenBulkDeleteConfirm}
         onClearSelection={handleClearSelection}
         isProcessing={isBulkProcessing}
+        isArchiveMode={filters.workView === "ARCHIVE"}
+        onBulkReactivate={handleOpenBulkReactivateConfirm}
       />
 
       {/* ── ДИАЛОГ ПОДТВЕРЖДЕНИЯ МАССОВЫХ ДЕЙСТВИЙ ── */}
@@ -1158,6 +1193,8 @@ export default function LeadsDashboard({
           title={
             bulkModalConfig.type === "STALE_ALL"
               ? LEADS_DICTIONARY.bulkActions.archiveStaleTitle
+              : bulkModalConfig.type === "REACTIVATE"
+              ? LEADS_DICTIONARY.archive.bulkReactivateBtn
               : bulkModalConfig.type === "ARCHIVE"
               ? LEADS_DICTIONARY.bulkActions.archiveBtn
               : LEADS_DICTIONARY.bulkActions.trashBtn
@@ -1165,6 +1202,8 @@ export default function LeadsDashboard({
           description={
             bulkModalConfig.type === "STALE_ALL"
               ? LEADS_DICTIONARY.bulkActions.archiveStaleConfirm(bulkModalConfig.count)
+              : bulkModalConfig.type === "REACTIVATE"
+              ? LEADS_DICTIONARY.archive.bulkReactivateConfirm(bulkModalConfig.count)
               : bulkModalConfig.type === "ARCHIVE"
               ? LEADS_DICTIONARY.bulkActions.bulkArchiveConfirm(bulkModalConfig.count)
               : LEADS_DICTIONARY.bulkActions.bulkTrashConfirm(bulkModalConfig.count)
@@ -1173,12 +1212,22 @@ export default function LeadsDashboard({
           confirmBtnText={
             bulkModalConfig.type === "STALE_ALL" || bulkModalConfig.type === "ARCHIVE"
               ? LEADS_DICTIONARY.bulkActions.archiveBtn
+              : bulkModalConfig.type === "REACTIVATE"
+              ? LEADS_DICTIONARY.archive.bulkReactivateBtn
               : LEADS_DICTIONARY.bulkActions.trashBtn
           }
-          confirmBtnVariant={bulkModalConfig.type === "TRASH" ? "danger" : "warning"}
+          confirmBtnVariant={
+            bulkModalConfig.type === "TRASH"
+              ? "danger"
+              : bulkModalConfig.type === "REACTIVATE"
+              ? "primary"
+              : "warning"
+          }
           icon={
             bulkModalConfig.type === "TRASH" ? (
               <Trash2 className="w-5 h-5 text-rose-600" />
+            ) : bulkModalConfig.type === "REACTIVATE" ? (
+              <RotateCcw className="w-5 h-5 text-orange-600" />
             ) : (
               <Archive className="w-5 h-5 text-amber-600" />
             )

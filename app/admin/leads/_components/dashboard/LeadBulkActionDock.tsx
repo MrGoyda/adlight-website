@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { Archive, Trash2, X, CheckSquare, Square } from "lucide-react";
+import { Archive, Trash2, X, CheckSquare, Square, RotateCcw } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 
@@ -15,7 +15,11 @@ interface LeadBulkActionDockProps {
   onBulkDelete: () => void;
   onClearSelection: () => void;
   isProcessing?: boolean;
+  isArchiveMode?: boolean;
+  onBulkReactivate?: () => void;
 }
+
+const emptySubscribe = () => () => {};
 
 export default function LeadBulkActionDock({
   selectedCount,
@@ -26,15 +30,17 @@ export default function LeadBulkActionDock({
   onBulkDelete,
   onClearSelection,
   isProcessing = false,
+  isArchiveMode = false,
+  onBulkReactivate,
 }: LeadBulkActionDockProps) {
-  const [mounted, setMounted] = useState(false);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const dict = LEADS_DICTIONARY.bulkActions;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || selectedCount === 0) return null;
+  if (!isClient || selectedCount === 0) return null;
 
   return createPortal(
     <div className="fixed bottom-6 inset-x-0 z-[9000] flex justify-center pointer-events-none px-4 animate-in slide-in-from-bottom-6 duration-200">
@@ -71,19 +77,35 @@ export default function LeadBulkActionDock({
 
         {/* Кнопки массовых действий */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            disabled={isProcessing}
-            onClick={() => {
-              triggerHaptic("medium");
-              onBulkArchive();
-            }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-black text-xs transition cursor-pointer active:scale-95 border border-amber-500/30 disabled:opacity-50"
-            title={dict.archiveBtn}
-          >
-            <Archive className="w-3.5 h-3.5" />
-            <span>{dict.archiveBtn}</span>
-          </button>
+          {isArchiveMode && onBulkReactivate ? (
+            <button
+              type="button"
+              disabled={isProcessing}
+              onClick={() => {
+                triggerHaptic("medium");
+                onBulkReactivate();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 font-black text-xs transition cursor-pointer active:scale-95 border border-orange-500/30 disabled:opacity-50"
+              title={LEADS_DICTIONARY.archive.bulkReactivateBtn}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>{LEADS_DICTIONARY.archive.bulkReactivateBtn}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={isProcessing}
+              onClick={() => {
+                triggerHaptic("medium");
+                onBulkArchive();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-black text-xs transition cursor-pointer active:scale-95 border border-amber-500/30 disabled:opacity-50"
+              title={dict.archiveBtn}
+            >
+              <Archive className="w-3.5 h-3.5" />
+              <span>{dict.archiveBtn}</span>
+            </button>
+          )}
 
           <button
             type="button"

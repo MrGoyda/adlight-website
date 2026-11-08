@@ -17,6 +17,8 @@ import {
   bulkArchiveLeads,
   bulkDeleteLeads,
   archiveAllStaleLeads,
+  reactivateLead,
+  bulkReactivateLeads,
   convertLeadToProjectAndCompany 
 } from "../actions";
 import { LEADS_DICTIONARY } from "../_data/leadsDictionary";
@@ -547,6 +549,50 @@ export function useLeadOperations({
     }
   };
 
+  // Возврат одного лида из архива в работу
+  const handleReactivateLead = async (leadId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    triggerHaptic("success");
+    
+    // Оптимистично
+    setLeads((prev) =>
+      prev.map((l) => (l.id === leadId ? { ...l, status: LeadStatus.NEW, rejectionReason: null } : l))
+    );
+
+    const res = await reactivateLead(leadId);
+    if (res.success) {
+      toast.success(LEADS_DICTIONARY.archive.reactivateSuccess);
+      router.refresh();
+      return { success: true };
+    } else {
+      toast.error(res.error || LEADS_DICTIONARY.archive.reactivateError);
+      router.refresh();
+      return { success: false, error: res.error };
+    }
+  };
+
+  // Пакетный возврат лидов из архива в работу
+  const handleBulkReactivate = async (leadIds: string[]) => {
+    if (!leadIds || leadIds.length === 0) return { success: true };
+    triggerHaptic("success");
+
+    const idsSet = new Set(leadIds);
+    setLeads((prev) =>
+      prev.map((l) => (idsSet.has(l.id) ? { ...l, status: LeadStatus.NEW, rejectionReason: null } : l))
+    );
+
+    const res = await bulkReactivateLeads(leadIds);
+    if (res.success) {
+      toast.success(LEADS_DICTIONARY.archive.bulkReactivateSuccess(res.count ?? leadIds.length));
+      router.refresh();
+      return { success: true, count: res.count };
+    } else {
+      toast.error(res.error || LEADS_DICTIONARY.archive.reactivateError);
+      router.refresh();
+      return { success: false, error: res.error };
+    }
+  };
+
   return {
     leads,
     setLeads,
@@ -580,6 +626,8 @@ export function useLeadOperations({
     handleBulkArchive,
     handleBulkDelete,
     handleArchiveAllStale,
+    handleReactivateLead,
+    handleBulkReactivate,
     // Форма шторки
     editName,
     setEditName,
