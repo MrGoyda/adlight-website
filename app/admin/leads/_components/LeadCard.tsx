@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
-import { STATUS_MAP } from "../_data/leadsDictionary";
+import { STATUS_MAP, LEADS_DICTIONARY } from "../_data/leadsDictionary";
 import { Lead } from "../_types/leadTypes";
 import { LeadStatus } from "@prisma/client";
 import { getLeadTimingInfo } from "../_utils/leadTimelineUtils";
@@ -44,6 +44,8 @@ export default function LeadCard({
   onStatusChangeQuick,
 }: LeadCardProps) {
   const router = useRouter();
+  const dict = LEADS_DICTIONARY.card;
+  const toasts = LEADS_DICTIONARY.toasts;
 
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [quickNote, setQuickNote] = useState(lead.comment || "");
@@ -69,18 +71,18 @@ export default function LeadCard({
   let constructionSummary = "";
   if (techSpec?.items && techSpec.items.length > 0) {
     const first = techSpec.items[0];
-    const signTypeLabel = SIGN_TYPES.find((s) => s.id === first.signType)?.label || first.title || "Вывеска";
+    const signTypeLabel = SIGN_TYPES.find((s) => s.id === first.signType)?.label || first.title || dict.defaultConstruction;
     const dim = first.lengthMm && first.heightMm ? ` ${first.lengthMm}×${first.heightMm} мм` : "";
     constructionSummary = `${signTypeLabel}${dim}`;
   } else if (techSpec?.signTypes && techSpec.signTypes.length > 0) {
-    const signTypeLabel = SIGN_TYPES.find((s) => s.id === techSpec.signTypes?.[0])?.label || "Вывеска";
+    const signTypeLabel = SIGN_TYPES.find((s) => s.id === techSpec.signTypes?.[0])?.label || dict.defaultConstruction;
     constructionSummary = signTypeLabel;
   } else if (lead.address) {
     constructionSummary = lead.address;
   } else if (lead.source) {
     constructionSummary = lead.source;
   } else {
-    constructionSummary = "Рекламная конструкция";
+    constructionSummary = dict.defaultConstruction;
   }
 
   const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
@@ -92,7 +94,7 @@ export default function LeadCard({
     triggerHaptic("light");
     const waUrl = getWhatsAppUrl(
       lead.phone || "",
-      `Здравствуйте, ${lead.name || "клиент"}! По вашей заявке на изготовление вывески в компании ADLight:`
+      `Здравствуйте, ${lead.name || LEADS_DICTIONARY.table.whatsAppGreeting}! По вашей заявке на изготовление вывески в компании ADLight:`
     );
     if (waUrl) window.open(waUrl, "_blank");
   };
@@ -112,7 +114,7 @@ export default function LeadCard({
     if (!cleanPhone) return;
     triggerHaptic("success");
     navigator.clipboard.writeText(cleanPhone);
-    toast.success(`Номер скопирован: ${cleanPhone}`);
+    toast.success(`${toasts.phoneCopied}: ${cleanPhone}`);
   };
 
   // 4. Прямой переход в калькулятор сметы
@@ -126,12 +128,12 @@ export default function LeadCard({
   const getNextStage = (current: LeadStatus) => {
     switch (current) {
       case "NEW":
-        return { next: LeadStatus.ESTIMATE, label: "В смету", icon: <ArrowRight className="w-3 h-3" /> };
+        return { next: LeadStatus.ESTIMATE, label: dict.quickAdvanceEstimate, icon: <ArrowRight className="w-3 h-3" /> };
       case "IN_PROGRESS":
       case "ESTIMATE":
-        return { next: LeadStatus.PROCESSED, label: "В цех", icon: <ArrowRight className="w-3 h-3" /> };
+        return { next: LeadStatus.PROCESSED, label: dict.quickAdvanceProduction, icon: <ArrowRight className="w-3 h-3" /> };
       case "PROCESSED":
-        return { next: LeadStatus.COMPLETED, label: "Сдан", icon: <Check className="w-3 h-3" /> };
+        return { next: LeadStatus.COMPLETED, label: dict.quickAdvanceComplete, icon: <Check className="w-3 h-3" /> };
       default:
         return null;
     }
@@ -153,7 +155,7 @@ export default function LeadCard({
       if (res.error) {
         toast.error(res.error);
       } else {
-        toast.success(`Сделка переведена: ${STATUS_MAP[nextStage.next]?.label || nextStage.next}`);
+        toast.success(`${toasts.stageUpdated}: ${STATUS_MAP[nextStage.next]?.label || nextStage.next}`);
         router.refresh();
       }
     }
@@ -168,10 +170,10 @@ export default function LeadCard({
     triggerHaptic("medium");
     const res = await updateLeadComment(lead.id, quickNote);
     if (res.success) {
-      toast.success("Заметка обновлена");
+      toast.success(toasts.noteSaved);
       router.refresh();
     } else {
-      toast.error(res.error || "Ошибка сохранения");
+      toast.error(res.error || toasts.noteSaveError);
     }
   };
 
@@ -182,10 +184,10 @@ export default function LeadCard({
         triggerHaptic("light");
         onSelect(lead);
       }}
-      className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[120px] select-none ${
+      className={`group relative bg-white rounded-2xl p-3 border transition-all cursor-pointer select-none overflow-hidden ${
         isSelected
-          ? "bg-orange-50/30 border-orange-400 ring-2 ring-orange-500/20 shadow-sm"
-          : "bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-2xs active:bg-slate-50/50"
+          ? "border-orange-500 shadow-md ring-2 ring-orange-500/10"
+          : "border-slate-200/90 shadow-2xs hover:border-slate-300 hover:shadow-xs"
       }`}
     >
       {/* Акцентная левая полоска при горящем замере сегодня или остывающем лиде */}
@@ -200,7 +202,7 @@ export default function LeadCard({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="font-extrabold text-xs sm:text-sm text-slate-900 truncate">
-            {lead.name || "Без имени"}
+            {lead.name || LEADS_DICTIONARY.table.noName}
           </span>
           {lead.rating === "EASY" && (
             <span title="VIP Заказчик" className="inline-flex shrink-0">
@@ -216,7 +218,7 @@ export default function LeadCard({
 
         <div className="flex items-center gap-1.5 shrink-0">
           <span className="text-[10px] text-slate-400 font-semibold" suppressHydrationWarning>
-            {timing.timeSinceCreationStr || "Недавно"}
+            {timing.timeSinceCreationStr || dict.recentTimeDefault}
           </span>
 
           {/* Аватар ответственного менеджера */}
@@ -266,7 +268,7 @@ export default function LeadCard({
                 if (e.key === "Escape") setIsEditingNote(false);
               }}
               onBlur={handleSaveNote}
-              placeholder="Заметка к сделке..."
+              placeholder={dict.notePlaceholder}
               className="w-full text-[11px] px-2 py-1 bg-amber-50/60 border border-amber-300 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
@@ -279,7 +281,7 @@ export default function LeadCard({
                   setIsEditingNote(true);
                 }}
                 className="truncate text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60 max-w-[220px]"
-                title="Нажмите чтобы изменить заметку"
+                title={dict.addNoteHint}
               >
                 💬 {lead.comment}
               </span>
@@ -291,10 +293,10 @@ export default function LeadCard({
                   setIsEditingNote(true);
                 }}
                 className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-600 hover:bg-slate-50 px-1.5 py-0.5 rounded transition"
-                title="Добавить быструю заметку"
+                title={dict.addNoteHint}
               >
                 <FileText className="w-3 h-3" />
-                <span>Заметка</span>
+                <span>{dict.noteBadge}</span>
               </button>
             )}
 
@@ -304,7 +306,7 @@ export default function LeadCard({
                 type="button"
                 onClick={handleCopyPhone}
                 className="inline-flex items-center gap-1 text-slate-400 hover:text-slate-700 font-mono text-[10px] hover:underline"
-                title="Скопировать номер"
+                title={LEADS_DICTIONARY.table.copyPhoneTooltip}
               >
                 <span>{cleanPhone}</span>
                 <Copy className="w-2.5 h-2.5 opacity-60" />
@@ -329,7 +331,7 @@ export default function LeadCard({
           )}
           {!lead.isBalancePaid && lead.isPrepaymentPaid && (
             <span className="px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 text-[9px] font-extrabold border border-teal-200 shrink-0">
-              Аванс
+              {LEADS_DICTIONARY.drawer.prepayment}
             </span>
           )}
         </div>
@@ -343,7 +345,7 @@ export default function LeadCard({
               onClick={handleAdvanceStage}
               disabled={isUpdatingStatus}
               className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-black bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-700 border border-slate-200 hover:border-orange-200 transition cursor-pointer active:scale-95"
-              title={`Перевести на этап: ${nextStage.label}`}
+              title={`${LEADS_DICTIONARY.toasts.stageUpdated}: ${nextStage.label}`}
             >
               <span>{nextStage.label}</span>
               {nextStage.icon}
@@ -355,7 +357,7 @@ export default function LeadCard({
             type="button"
             onClick={handleOpenCalculator}
             className="w-7 h-7 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-90 border border-orange-200/60"
-            title="Открыть смету в Калькуляторе"
+            title={LEADS_DICTIONARY.table.calcTooltip}
           >
             <Calculator className="w-3.5 h-3.5" />
           </button>
@@ -366,7 +368,7 @@ export default function LeadCard({
               type="button"
               onClick={handleCallClick}
               className="w-7 h-7 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition active:scale-90 border border-blue-200/60"
-              title={`Позвонить клиенту: ${lead.phone}`}
+              title={`${LEADS_DICTIONARY.table.callTooltip}: ${lead.phone}`}
             >
               <Phone className="w-3.5 h-3.5" />
             </button>
@@ -377,7 +379,7 @@ export default function LeadCard({
             type="button"
             onClick={handleWhatsAppClick}
             className="w-7 h-7 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-90 border border-emerald-200/60"
-            title="Написать в WhatsApp"
+            title={LEADS_DICTIONARY.table.whatsAppTooltip}
           >
             <WhatsAppIcon className="w-3.5 h-3.5" />
           </button>

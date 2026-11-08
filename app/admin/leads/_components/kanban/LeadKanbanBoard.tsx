@@ -13,10 +13,11 @@ import {
   Plus
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 
 interface KanbanColumnConfig {
   id: string;
-  title: string;
+  titleKey: keyof typeof LEADS_DICTIONARY.kanban;
   statuses: LeadStatus[];
   primaryStatus: LeadStatus;
   colorClass: string;
@@ -27,7 +28,7 @@ interface KanbanColumnConfig {
 const KANBAN_COLUMNS: KanbanColumnConfig[] = [
   {
     id: "new",
-    title: "Новые заявки",
+    titleKey: "newTitle",
     statuses: [LeadStatus.NEW],
     primaryStatus: LeadStatus.NEW,
     colorClass: "text-blue-700 border-blue-200 bg-blue-50/50",
@@ -36,7 +37,7 @@ const KANBAN_COLUMNS: KanbanColumnConfig[] = [
   },
   {
     id: "estimate",
-    title: "Замер и смета",
+    titleKey: "estimateTitle",
     statuses: [LeadStatus.IN_PROGRESS, LeadStatus.ESTIMATE],
     primaryStatus: LeadStatus.ESTIMATE,
     colorClass: "text-purple-700 border-purple-200 bg-purple-50/50",
@@ -45,7 +46,7 @@ const KANBAN_COLUMNS: KanbanColumnConfig[] = [
   },
   {
     id: "production",
-    title: "В производстве",
+    titleKey: "processedTitle",
     statuses: [LeadStatus.PROCESSED],
     primaryStatus: LeadStatus.PROCESSED,
     colorClass: "text-indigo-700 border-indigo-200 bg-indigo-50/50",
@@ -54,7 +55,7 @@ const KANBAN_COLUMNS: KanbanColumnConfig[] = [
   },
   {
     id: "completed",
-    title: "Готово / Оплачено",
+    titleKey: "completedTitle",
     statuses: [LeadStatus.COMPLETED],
     primaryStatus: LeadStatus.COMPLETED,
     colorClass: "text-emerald-700 border-emerald-200 bg-emerald-50/50",
@@ -63,7 +64,7 @@ const KANBAN_COLUMNS: KanbanColumnConfig[] = [
   },
   {
     id: "archive",
-    title: "Архив / Отказ",
+    titleKey: "archiveTitle",
     statuses: [LeadStatus.CANCELLED, LeadStatus.UNPROCESSED],
     primaryStatus: LeadStatus.CANCELLED,
     colorClass: "text-slate-700 border-slate-200 bg-slate-50/50",
@@ -95,6 +96,8 @@ export default function LeadKanbanBoard({
   onRestoreLead,
   onStatusChangeQuick,
 }: LeadKanbanBoardProps) {
+  const dict = LEADS_DICTIONARY.kanban;
+
   // Группировка лидов по колонкам воронки
   const columnsData = useMemo(() => {
     return KANBAN_COLUMNS.map((col) => {
@@ -102,11 +105,12 @@ export default function LeadKanbanBoard({
       const colTotalSum = colLeads.reduce((acc, l) => acc + (l.offeredPrice || l.revenue || 0), 0);
       return {
         ...col,
+        title: dict[col.titleKey],
         leads: colLeads,
         totalSum: colTotalSum,
       };
     });
-  }, [leads]);
+  }, [leads, dict]);
 
   return (
     <div className="w-full overflow-x-auto pb-4">
@@ -145,7 +149,7 @@ export default function LeadKanbanBoard({
                     onOpenCreateModal(col.primaryStatus);
                   }}
                   className="w-7 h-7 rounded-xl bg-white hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border border-slate-200 shadow-2xs cursor-pointer"
-                  title={`Добавить заявку в этап "${col.title}"`}
+                  title={`${dict.createInStageTooltip} "${col.title}"`}
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -156,7 +160,7 @@ export default function LeadKanbanBoard({
             <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar min-h-[120px]">
               {col.leads.length === 0 ? (
                 <div className="h-28 rounded-2xl border-2 border-dashed border-slate-200/90 flex items-center justify-center text-slate-400 text-xs font-semibold select-none">
-                  Нет сделок
+                  {dict.noDealsInStage}
                 </div>
               ) : (
                 col.leads.map((lead) => (

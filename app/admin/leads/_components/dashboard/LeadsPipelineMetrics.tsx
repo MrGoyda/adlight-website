@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Lead } from "../../_types/leadTypes";
 import { triggerHaptic } from "@/lib/haptics";
+import { LEADS_DICTIONARY } from "../../_data/leadsDictionary";
 
 interface LeadsPipelineMetricsProps {
   leads: Lead[];
@@ -35,6 +36,8 @@ export default function LeadsPipelineMetrics({
   coldWarnings = 0,
   appointmentsToday = 0,
 }: LeadsPipelineMetricsProps) {
+  const dict = LEADS_DICTIONARY.pipeline;
+
   // Официальный паттерн React 19 для детекта гидратации без каскадных setState
   const isMounted = useSyncExternalStore(emptySubscribe, getClientMounted, getServerMounted);
 
@@ -97,7 +100,7 @@ export default function LeadsPipelineMetrics({
       >
         <div className="space-y-1">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-            Активный пайплайн
+            {dict.activePipeline}
           </span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">
@@ -105,7 +108,7 @@ export default function LeadsPipelineMetrics({
             </span>
           </div>
           <p className="text-[11px] text-slate-400 font-medium">
-            {metrics.pipelineCount} активных сделок
+            {metrics.pipelineCount} {dict.activeDealsSuffix}
           </p>
         </div>
         <div className="w-11 h-11 rounded-2xl bg-orange-50 border border-orange-200/70 text-orange-600 flex items-center justify-center shrink-0">
@@ -128,7 +131,7 @@ export default function LeadsPipelineMetrics({
       >
         <div className="space-y-1">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-            В производстве (цех)
+            {dict.inProduction}
           </span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-black text-blue-700 font-mono tracking-tight">
@@ -136,7 +139,7 @@ export default function LeadsPipelineMetrics({
             </span>
           </div>
           <p className="text-[11px] text-slate-400 font-medium">
-            {metrics.inProductionCount} заказов в работе
+            {metrics.inProductionCount} {dict.ordersInProductionSuffix}
           </p>
         </div>
         <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200/70 text-blue-600 flex items-center justify-center shrink-0">
@@ -159,7 +162,7 @@ export default function LeadsPipelineMetrics({
       >
         <div className="space-y-1">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-            Сдано / Оплачено
+            {dict.completedPaid}
           </span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-black text-emerald-700 font-mono tracking-tight">
@@ -167,7 +170,7 @@ export default function LeadsPipelineMetrics({
             </span>
           </div>
           <p className="text-[11px] text-slate-400 font-medium">
-            {metrics.completedCount} завершенных проектов
+            {metrics.completedCount} {dict.completedProjectsSuffix}
           </p>
         </div>
         <div className="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200/70 text-emerald-600 flex items-center justify-center shrink-0">
@@ -179,13 +182,13 @@ export default function LeadsPipelineMetrics({
       <div className="p-4 bg-white border border-slate-200/80 rounded-3xl shadow-2xs flex items-center justify-between">
         <div className="space-y-2 flex-1 mr-2">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-            Срочные действия
+            {dict.urgentActions}
           </span>
           <div className="flex items-center gap-2 flex-wrap min-h-[28px]" suppressHydrationWarning>
             {!isMounted ? (
               <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" />
-                Сверка графика...
+                {dict.checkingSchedule}
               </span>
             ) : (
               <>
@@ -201,10 +204,10 @@ export default function LeadsPipelineMetrics({
                         ? "bg-rose-600 text-white shadow-2xs"
                         : "bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100"
                     }`}
-                    title="Клиенты ждут ответа более 2 часов"
+                    title={dict.waitingTooltip}
                   >
                     <Flame className="w-3.5 h-3.5" />
-                    <span>{coldWarnings}&nbsp;ждёт</span>
+                    <span>{coldWarnings}&nbsp;{dict.waitingSuffix}</span>
                   </button>
                 )}
 
@@ -220,17 +223,17 @@ export default function LeadsPipelineMetrics({
                         ? "bg-amber-600 text-white shadow-2xs"
                         : "bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100"
                     }`}
-                    title="Замеры назначены на сегодня"
+                    title={dict.appointmentTooltip}
                   >
                     <Calendar className="w-3.5 h-3.5" />
-                    <span>{appointmentsToday}&nbsp;замер</span>
+                    <span>{appointmentsToday}&nbsp;{dict.appointmentSuffix}</span>
                   </button>
                 )}
 
                 {coldWarnings === 0 && appointmentsToday === 0 && (
                   <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    Все в графике
+                    {dict.allOnSchedule}
                   </span>
                 )}
               </>

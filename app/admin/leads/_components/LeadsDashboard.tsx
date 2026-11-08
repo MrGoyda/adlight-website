@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { 
   Zap, 
   Clock, 
@@ -27,24 +28,35 @@ import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { LeadStatus } from "@prisma/client";
 import { Lead } from "../_types/leadTypes";
-import { STATUS_MAP } from "../_data/leadsDictionary";
+import { STATUS_MAP, LEADS_DICTIONARY } from "../_data/leadsDictionary";
 import { useLeadFilters } from "../_hooks/useLeadFilters";
 import { useLeadOperations } from "../_hooks/useLeadOperations";
 import { updateLeadStatus } from "../actions";
 import LeadCard from "./LeadCard";
-import LeadDetailSheet from "./detail/LeadDetailSheet";
 import ClickMatcherWidget from "@/components/admin/ClickMatcherWidget";
 import LeadsPipelineMetrics from "./dashboard/LeadsPipelineMetrics";
 import LeadKanbanBoard from "./kanban/LeadKanbanBoard";
-import LeadCreateModal from "./dashboard/LeadCreateModal";
-import LeadFinanceModal from "./dashboard/LeadFinanceModal";
-import LeadDeleteConfirmModal from "./dashboard/LeadDeleteConfirmModal";
-import EstimateModal from "./EstimateModal";
-import { CreateClientModal } from "../../clients/_components/CreateClientModal";
-import { BatchImportClientsModal } from "../../clients/_components/BatchImportClientsModal";
-import { ExportAudienceModal } from "../../clients/_components/ExportAudienceModal";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { getWhatsAppUrl } from "@/lib/phoneUtils";
+
+// ── ДИНАМИЧЕСКИЙ ИМПОРТ ТЯЖЕЛЫХ МОДАЛЬНЫХ ОКОН (CODE SPLITTING / LAZY LOADING) ──
+const LeadDetailSheet = dynamic(() => import("./detail/LeadDetailSheet"), { ssr: false });
+const LeadCreateModal = dynamic(() => import("./dashboard/LeadCreateModal"), { ssr: false });
+const LeadFinanceModal = dynamic(() => import("./dashboard/LeadFinanceModal"), { ssr: false });
+const LeadDeleteConfirmModal = dynamic(() => import("./dashboard/LeadDeleteConfirmModal"), { ssr: false });
+const EstimateModal = dynamic(() => import("./EstimateModal"), { ssr: false });
+const CreateClientModal = dynamic(
+  () => import("../../clients/_components/CreateClientModal").then((m) => m.CreateClientModal),
+  { ssr: false }
+);
+const BatchImportClientsModal = dynamic(
+  () => import("../../clients/_components/BatchImportClientsModal").then((m) => m.BatchImportClientsModal),
+  { ssr: false }
+);
+const ExportAudienceModal = dynamic(
+  () => import("../../clients/_components/ExportAudienceModal").then((m) => m.ExportAudienceModal),
+  { ssr: false }
+);
 
 interface LeadsDashboardProps {
   initialLeads: Lead[];
@@ -62,10 +74,12 @@ export default function LeadsDashboard({
   initialCompanies = [],
   initialWarehouseItems = [],
   initialSupplierPrices = [],
-  initialPendingClicks = [],
   selectedLeadId,
 }: LeadsDashboardProps) {
   const router = useRouter();
+  const t = LEADS_DICTIONARY.toolbar;
+  const tableDict = LEADS_DICTIONARY.table;
+  const toastDict = LEADS_DICTIONARY.toasts;
 
   // Хуки логики операций и фильтрации
   const ops = useLeadOperations({
@@ -101,13 +115,13 @@ export default function LeadsDashboard({
     try {
       const res = await updateLeadStatus(leadId, newStatus);
       if (!res.success) {
-        toast.error(res.error || "Не удалось изменить статус сделки");
+        toast.error(res.error || toastDict.statusError);
         router.refresh();
       } else {
-        toast.success("Этап сделки обновлен");
+        toast.success(toastDict.stageUpdated);
       }
     } catch (err: any) {
-      toast.error(err.message || "Ошибка обновления статуса");
+      toast.error(err.message || toastDict.statusError);
       router.refresh();
     }
   };
@@ -118,9 +132,9 @@ export default function LeadsDashboard({
     triggerHaptic("light");
     try {
       await navigator.clipboard.writeText(phone);
-      toast.success("Номер скопирован в буфер");
+      toast.success(toastDict.phoneCopied);
     } catch {
-      toast.error("Не удалось скопировать");
+      toast.error(toastDict.copyError);
     }
   };
 
@@ -205,7 +219,7 @@ export default function LeadsDashboard({
                 }`}
               >
                 <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-                <span>В работе ({filters.activeLeads.length})</span>
+                <span>{t.workViewActive} ({filters.activeLeads.length})</span>
               </button>
 
               <button
@@ -221,7 +235,7 @@ export default function LeadsDashboard({
                 }`}
               >
                 <Clock className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                <span>На паузе ({filters.onHoldLeads.length})</span>
+                <span>{t.workViewOnHold} ({filters.onHoldLeads.length})</span>
               </button>
 
               <button
@@ -237,7 +251,7 @@ export default function LeadsDashboard({
                 }`}
               >
                 <Archive className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                <span>Архив ({filters.archiveLeads.length})</span>
+                <span>{t.workViewArchive} ({filters.archiveLeads.length})</span>
               </button>
             </div>
 
@@ -248,30 +262,30 @@ export default function LeadsDashboard({
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "kanban" ? "bg-white text-slate-900 shadow-2xs font-black" : "text-slate-400 hover:text-slate-700"
                 }`}
-                title="Вид: Канбан-доска по этапам"
+                title={t.viewKanbanTitle}
               >
                 <Columns className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Канбан</span>
+                <span className="hidden md:inline">{t.viewKanban}</span>
               </button>
               <button
                 onClick={() => { triggerHaptic("light"); setViewMode("cards"); }}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "cards" ? "bg-white text-slate-900 shadow-2xs font-black" : "text-slate-400 hover:text-slate-700"
                 }`}
-                title="Вид: Сетка карточек"
+                title={t.viewCardsTitle}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Сетка</span>
+                <span className="hidden md:inline">{t.viewCards}</span>
               </button>
               <button
                 onClick={() => { triggerHaptic("light"); setViewMode("list"); }}
                 className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   viewMode === "list" ? "bg-white text-slate-900 shadow-2xs font-black" : "text-slate-400 hover:text-slate-700"
                 }`}
-                title="Вид: Таблица / Реестр"
+                title={t.viewListTitle}
               >
                 <List className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">Список</span>
+                <span className="hidden md:inline">{t.viewList}</span>
               </button>
             </div>
           </div>
@@ -281,7 +295,7 @@ export default function LeadsDashboard({
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder="Поиск по имени, телефону, адресу..."
+              placeholder={t.searchPlaceholder}
               value={filters.searchTerm}
               onChange={(e) => filters.setSearchTerm(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-8 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs placeholder:text-slate-400"
@@ -313,7 +327,7 @@ export default function LeadsDashboard({
               >
                 <User className="w-3.5 h-3.5 text-slate-400" />
                 <span>
-                  {managerFilter === "ELISEY" ? "Елисей" : managerFilter === "DANIIL" ? "Даниил" : managerFilter === "UNASSIGNED" ? "Без менеджера" : "Менеджер"}
+                  {managerFilter === "ELISEY" ? t.managerElisey : managerFilter === "DANIIL" ? t.managerDaniil : managerFilter === "UNASSIGNED" ? t.managerUnassigned : t.managerLabel}
                 </span>
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
@@ -326,7 +340,7 @@ export default function LeadsDashboard({
                       managerFilter === "ALL" ? "bg-slate-100 text-slate-900" : "hover:bg-slate-50 text-slate-700"
                     }`}
                   >
-                    <span>Все менеджеры</span>
+                    <span>{t.managerAll}</span>
                     {managerFilter === "ALL" && <Check className="w-3.5 h-3.5 text-orange-600" />}
                   </button>
                   <button
@@ -335,7 +349,7 @@ export default function LeadsDashboard({
                       managerFilter === "ELISEY" ? "bg-orange-50 text-orange-700" : "hover:bg-slate-50 text-slate-700"
                     }`}
                   >
-                    <span>Елисей (Я)</span>
+                    <span>{t.managerElisey}</span>
                     {managerFilter === "ELISEY" && <Check className="w-3.5 h-3.5 text-orange-600" />}
                   </button>
                   <button
@@ -344,7 +358,7 @@ export default function LeadsDashboard({
                       managerFilter === "DANIIL" ? "bg-blue-50 text-blue-700" : "hover:bg-slate-50 text-slate-700"
                     }`}
                   >
-                    <span>Даниил</span>
+                    <span>{t.managerDaniil}</span>
                     {managerFilter === "DANIIL" && <Check className="w-3.5 h-3.5 text-blue-600" />}
                   </button>
                   <button
@@ -353,7 +367,7 @@ export default function LeadsDashboard({
                       managerFilter === "UNASSIGNED" ? "bg-slate-100 text-slate-900" : "hover:bg-slate-50 text-slate-700"
                     }`}
                   >
-                    <span>Не назначен</span>
+                    <span>{t.managerUnassigned}</span>
                     {managerFilter === "UNASSIGNED" && <Check className="w-3.5 h-3.5 text-slate-600" />}
                   </button>
                 </div>
@@ -366,9 +380,9 @@ export default function LeadsDashboard({
                 type="button"
                 onClick={() => { triggerHaptic("light"); setShowActionsMenu((p) => !p); }}
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer active:scale-95"
-                title="Дополнительные операции"
+                title={t.actionsTooltip}
               >
-                <span>Действия</span>
+                <span>{t.actionsLabel}</span>
                 <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
 
@@ -384,7 +398,7 @@ export default function LeadsDashboard({
                     className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-orange-50 text-slate-700 hover:text-orange-700 flex items-center gap-2 transition"
                   >
                     <Calculator className="w-4 h-4 text-orange-500" />
-                    <span>Калькулятор сметы</span>
+                    <span>{t.actionEstimateCalc}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -395,7 +409,7 @@ export default function LeadsDashboard({
                     className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-blue-50 text-slate-700 hover:text-blue-700 flex items-center gap-2 transition"
                   >
                     <User className="w-4 h-4 text-blue-500" />
-                    <span>Новый профиль клиента</span>
+                    <span>{t.actionNewClient}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -406,7 +420,7 @@ export default function LeadsDashboard({
                     className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-purple-50 text-slate-700 hover:text-purple-700 flex items-center gap-2 transition"
                   >
                     <FileSpreadsheet className="w-4 h-4 text-purple-500" />
-                    <span>Импорт из Excel</span>
+                    <span>{t.actionImportExcel}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -417,7 +431,7 @@ export default function LeadsDashboard({
                     className="w-full text-left px-3 py-2 text-xs font-bold rounded-xl hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 flex items-center gap-2 transition"
                   >
                     <Target className="w-4 h-4 text-emerald-500" />
-                    <span>Выгрузка аудитории</span>
+                    <span>{t.actionExportAudience}</span>
                   </button>
                 </div>
               )}
@@ -433,7 +447,7 @@ export default function LeadsDashboard({
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-xs shadow-sm transition active:scale-95 cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
-              <span>Новая сделка</span>
+              <span>{t.newDealBtn}</span>
             </button>
 
           </div>
@@ -457,7 +471,7 @@ export default function LeadsDashboard({
                 }`}
               >
                 <Flame className="w-3.5 h-3.5" />
-                <span>Ждут ответа &gt;2ч ({filters.timingStats.coldWarnings})</span>
+                <span>{t.coldWarningBadge} ({filters.timingStats.coldWarnings})</span>
               </button>
             )}
 
@@ -474,7 +488,7 @@ export default function LeadsDashboard({
                 }`}
               >
                 <Calendar className="w-3.5 h-3.5" />
-                <span>Замеры сегодня ({filters.timingStats.appointmentsToday})</span>
+                <span>{t.appointmentsTodayBadge} ({filters.timingStats.appointmentsToday})</span>
               </button>
             )}
 
@@ -490,7 +504,7 @@ export default function LeadsDashboard({
                 }}
                 className="text-slate-400 hover:text-slate-700 text-xs font-semibold underline underline-offset-2 ml-auto cursor-pointer"
               >
-                Сбросить фильтры
+                {t.resetFilters}
               </button>
             )}
           </div>
@@ -498,11 +512,11 @@ export default function LeadsDashboard({
 
       </div>
 
-      {/* ── ОСНОВНОЙ КОНТЕНТ: СЕТКА КАРТОЧЕК ИЛИ РЕЕСТР ТАБЛИЦЫ ── */}
+      {/* ── ОСНОВНОЙ КОНТЕНТ: КАНБАН-ДОСКА, СЕТКА КАРТОЧЕК ИЛИ РЕЕСТР ТАБЛИЦЫ ── */}
       <div className="w-full">
         {finalLeads.length === 0 ? (
           <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium shadow-xs">
-            Сделки не найдены по заданным критериям
+            {t.emptyStateText}
           </div>
         ) : viewMode === "kanban" ? (
           /* ── РЕЖИМ 1: ИНТЕРАКТИВНАЯ КАНБАН-ДОСКА ПО ЭТАПАМ ── */
@@ -553,12 +567,12 @@ export default function LeadsDashboard({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
-                    <th className="py-3 px-4">Клиент</th>
-                    <th className="py-3 px-4">Заметка</th>
-                    <th className="py-3 px-4">Этап</th>
-                    <th className="py-3 px-4">Ответственный</th>
-                    <th className="py-3 px-4">Сумма сделки</th>
-                    <th className="py-3 px-4 text-right">Действия</th>
+                    <th className="py-3 px-4">{tableDict.colClient}</th>
+                    <th className="py-3 px-4">{tableDict.colNote}</th>
+                    <th className="py-3 px-4">{tableDict.colStage}</th>
+                    <th className="py-3 px-4">{tableDict.colManager}</th>
+                    <th className="py-3 px-4">{tableDict.colAmount}</th>
+                    <th className="py-3 px-4 text-right">{tableDict.colActions}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -579,7 +593,7 @@ export default function LeadsDashboard({
                         }`}
                       >
                         <td className="py-3 px-4">
-                          <span className="font-extrabold text-slate-900 block truncate max-w-xs">{lead.name || "Без имени"}</span>
+                          <span className="font-extrabold text-slate-900 block truncate max-w-xs">{lead.name || tableDict.noName}</span>
                           <span className="text-[10px] text-slate-400 font-medium">{lead.phone || "—"}</span>
                         </td>
                         <td className="py-3 px-4 max-w-[200px] truncate text-slate-500 font-medium">
@@ -591,7 +605,7 @@ export default function LeadsDashboard({
                           </span>
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap text-slate-600 font-bold">
-                          {lead.manager === "ELISEY" ? "Елисей" : lead.manager === "DANIIL" ? "Даниил" : "—"}
+                          {lead.manager === "ELISEY" ? t.managerElisey : lead.manager === "DANIIL" ? t.managerDaniil : "—"}
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap font-black text-slate-900">
                           {amount > 0 ? `${amount.toLocaleString("ru")} ₸` : "—"}
@@ -602,7 +616,7 @@ export default function LeadsDashboard({
                             <a
                               href={`/admin/calculator?leadId=${lead.id}`}
                               className="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center justify-center transition"
-                              title="Открыть в калькуляторе смет"
+                              title={tableDict.calcTooltip}
                             >
                               <Calculator className="w-3.5 h-3.5" />
                             </a>
@@ -613,7 +627,7 @@ export default function LeadsDashboard({
                                 type="button"
                                 onClick={(e) => handleCopyPhone(e, lead.phone || "")}
                                 className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
-                                title="Скопировать телефон"
+                                title={tableDict.copyPhoneTooltip}
                               >
                                 <Copy className="w-3.5 h-3.5" />
                               </button>
@@ -624,7 +638,7 @@ export default function LeadsDashboard({
                               <a
                                 href={`tel:${cleanPhone}`}
                                 className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"
-                                title="Позвонить"
+                                title={tableDict.callTooltip}
                               >
                                 <Phone className="w-3.5 h-3.5" />
                               </a>
@@ -632,11 +646,11 @@ export default function LeadsDashboard({
 
                             {/* WhatsApp */}
                             <a
-                              href={getWhatsAppUrl(lead.phone || "", `Здравствуйте, ${lead.name || "клиент"}!`)}
+                              href={getWhatsAppUrl(lead.phone || "", `Здравствуйте, ${lead.name || tableDict.whatsAppGreeting}!`)}
                               target="_blank"
                               rel="noreferrer"
                               className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition"
-                              title="WhatsApp"
+                              title={tableDict.whatsAppTooltip}
                             >
                               <WhatsAppIcon className="w-3.5 h-3.5" />
                             </a>
@@ -672,7 +686,7 @@ export default function LeadsDashboard({
         />
       )}
 
-      {/* ── МОДАЛЬНЫЕ ОКНА ── */}
+      {/* ── МОДАЛЬНЫЕ ОКНА (ДИНАМИЧЕСКИЕ ЧАНКИ) ── */}
       {ops.showFinanceModal && ops.financeLead && (
         <LeadFinanceModal
           lead={ops.financeLead}
@@ -682,12 +696,14 @@ export default function LeadsDashboard({
         />
       )}
 
-      <LeadCreateModal
-        isOpen={ops.showCreateModal}
-        onClose={() => ops.setShowCreateModal(false)}
-        onSubmit={ops.handleCreateLeadSubmit}
-        isCreating={ops.isCreatingLead}
-      />
+      {ops.showCreateModal && (
+        <LeadCreateModal
+          isOpen={ops.showCreateModal}
+          onClose={() => ops.setShowCreateModal(false)}
+          onSubmit={ops.handleCreateLeadSubmit}
+          isCreating={ops.isCreatingLead}
+        />
+      )}
 
       {ops.showDeleteConfirm && (
         <LeadDeleteConfirmModal
@@ -695,8 +711,6 @@ export default function LeadsDashboard({
           onConfirm={ops.handleDeleteConfirm}
         />
       )}
-
-
 
       {showEstimateModal && (
         <EstimateModal
@@ -723,25 +737,31 @@ export default function LeadsDashboard({
         />
       )}
 
-      <CreateClientModal
-        isOpen={showCreateClientModal}
-        onClose={() => setShowCreateClientModal(false)}
-        onSuccess={(client: any) => {
-          ops.setClients((prev) => [client, ...prev.filter((c) => c.id !== client.id)]);
-          router.refresh();
-        }}
-      />
+      {showCreateClientModal && (
+        <CreateClientModal
+          isOpen={showCreateClientModal}
+          onClose={() => setShowCreateClientModal(false)}
+          onSuccess={(client: any) => {
+            ops.setClients((prev) => [client, ...prev.filter((c) => c.id !== client.id)]);
+            router.refresh();
+          }}
+        />
+      )}
 
-      <BatchImportClientsModal
-        isOpen={showBatchImportModal}
-        onClose={() => setShowBatchImportModal(false)}
-        onSuccess={() => router.refresh()}
-      />
+      {showBatchImportModal && (
+        <BatchImportClientsModal
+          isOpen={showBatchImportModal}
+          onClose={() => setShowBatchImportModal(false)}
+          onSuccess={() => router.refresh()}
+        />
+      )}
 
-      <ExportAudienceModal
-        isOpen={showExportAudienceModal}
-        onClose={() => setShowExportAudienceModal(false)}
-      />
+      {showExportAudienceModal && (
+        <ExportAudienceModal
+          isOpen={showExportAudienceModal}
+          onClose={() => setShowExportAudienceModal(false)}
+        />
+      )}
 
     </div>
   );

@@ -2,27 +2,25 @@ import { prisma } from "@/lib/prisma";
 import LeadsDashboard from "./_components/LeadsDashboard";
 import { getCachedCalculatorPrices } from "@/lib/cachedQueries";
 
-export const revalidate = 0; // Отключаем кэширование страницы для получения актуальных данных
+export const revalidate = 0; // Актуальные оперативные данные CRM
 
 export default async function LeadsPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // В Next.js 15/16 searchParams является Promise, обязательно await-им его
   const resolvedParams = await searchParams;
   const selectedLeadId = typeof resolvedParams.id === "string" ? resolvedParams.id : undefined;
 
-  // Параллельное выполнение всех запросов с кэшированным каталогом (ускорение в 3-5 раз)
+  // Оптимизированное параллельное получение данных (без избыточных джойнов и кликов)
   const [
     leads,
     clients,
     companies,
     warehouseItems,
-    pendingClicks,
     supplierPrices
   ] = await Promise.all([
-    // 1. Лиды со связями и оптимизированными полями
+    // 1. Лиды с компактными связями
     prisma.lead.findMany({
       include: {
         client: true,
@@ -41,7 +39,7 @@ export default async function LeadsPage({
             createdAt: true,
           },
           orderBy: { createdAt: "desc" },
-          take: 10,
+          take: 5,
         },
         activities: {
           select: {
@@ -52,7 +50,7 @@ export default async function LeadsPage({
             type: true,
           },
           orderBy: { createdAt: "desc" },
-          take: 20,
+          take: 5,
         },
         estimate: {
           include: {
@@ -61,7 +59,7 @@ export default async function LeadsPage({
         },
       },
       orderBy: { createdAt: "desc" },
-      take: 250,
+      take: 200,
     }),
 
     // 2. Клиентская база
@@ -70,17 +68,17 @@ export default async function LeadsPage({
       take: 100,
     }),
 
-    // 3. Компании со связями
+    // 3. Компании
     prisma.company.findMany({
       include: {
         projects: true,
         contacts: true,
       },
       orderBy: { name: "asc" },
-      take: 100,
+      take: 80,
     }),
 
-    // 4. Складские позиции
+    // 4. Складские позиции (чистые скалярные поля без Date)
     prisma.warehouseItem.findMany({
       select: {
         id: true,
@@ -93,14 +91,7 @@ export default async function LeadsPage({
       orderBy: { name: "asc" },
     }),
 
-    // 5. Ожидающие клики аналитики
-    prisma.leadClick.findMany({
-      where: { status: "PENDING" },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    }),
-
-    // 6. Прайсы поставщиков (из Data Cache, 0ms вместо 1500ms)
+    // 5. Прайсы поставщиков (из Next.js Data Cache)
     getCachedCalculatorPrices(),
   ]);
 
@@ -110,9 +101,8 @@ export default async function LeadsPage({
         initialLeads={JSON.parse(JSON.stringify(leads))} 
         initialClients={JSON.parse(JSON.stringify(clients))}
         initialCompanies={JSON.parse(JSON.stringify(companies))}
-        initialWarehouseItems={JSON.parse(JSON.stringify(warehouseItems))}
-        initialSupplierPrices={JSON.parse(JSON.stringify(supplierPrices))}
-        initialPendingClicks={JSON.parse(JSON.stringify(pendingClicks))}
+        initialWarehouseItems={warehouseItems}
+        initialSupplierPrices={supplierPrices}
         selectedLeadId={selectedLeadId} 
       />
     </div>
