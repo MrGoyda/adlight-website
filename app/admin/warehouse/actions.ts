@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { InventoryUnit } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { WarehouseItemData } from "./_types/warehouseTypes";
 
 // Zod схемы валидации для безопасности API
 const WarehouseItemSchema = z.object({
@@ -18,107 +19,148 @@ const WarehouseItemSchema = z.object({
 
 const AdjustStockSchema = z.object({
   id: z.string().uuid(),
-  quantityChange: z.number(),
-  description: z.string().min(3, "Описание операции должно быть не менее 3 символов"),
+  quantityChange: z.number().refine((val) => val !== 0, "Изменение не может быть нулевым"),
+  description: z.string().min(2, "Укажите причину операции"),
+  leadId: z.string().uuid().nullable().optional(),
 });
 
-// ================= Warehouse Items =================
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof z.ZodError) {
+    return error.issues[0]?.message || fallback;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return fallback;
+}
 
-export async function getWarehouseItems() {
+// ================= 1. СКЛАДСКИЕ ОСТАТКИ (Warehouse Items) =================
+
+export async function getWarehouseItems(): Promise<{
+  success: boolean;
+  data?: WarehouseItemData[];
+  error?: string;
+}> {
   try {
     const items = await prisma.warehouseItem.findMany({
       orderBy: { name: "asc" },
     });
-    return { success: true, data: items };
+    return {
+      success: true,
+      data: items.map((i) => ({
+        ...i,
+        createdAt: i.createdAt.toISOString(),
+        updatedAt: i.updatedAt.toISOString(),
+      })),
+    };
   } catch (error) {
     console.error("Failed to get warehouse items:", error);
-    return { error: "Не удалось загрузить остатки склада" };
+    return { success: false, error: "Не удалось загрузить остатки склада" };
   }
 }
 
-export async function createWarehouseItem(rawData: any) {
+export async function createWarehouseItem(rawData: {
+  name: string;
+  category: string;
+  quantity: number;
+  unit: InventoryUnit;
+  price: number;
+  location?: string | null;
+  minStock: number;
+}) {
   try {
-    // Валидация входных данных
     const data = WarehouseItemSchema.parse(rawData);
 
-    const newItem = await prisma.warehouseItem.create({
-      data: {
-        name: data.name,
-        category: data.category,
-        quantity: data.quantity,
-        unit: data.unit,
-        price: data.price,
-        location: data.location || null,
-        minStock: data.minStock || 0,
-      },
-    });
-
-    // Создаем транзакцию оприходования
-    if (data.quantity > 0) {
-      await prisma.warehouseTransaction.create({
+    const newItem = await prisma.$transaction(async (tx) => {
+      const item = await tx.warehouseItem.create({
         data: {
-          itemId: newItem.id,
-          quantityChanged: data.quantity,
-          description: "Начальное оприходование при создании карточки товара",
+          name: data.name.trim(),
+          category: data.category.trim(),
+          quantity: data.quantity,
+          unit: data.unit,
+          price: data.price,
+          location: data.location?.trim() || null,
+          minStock: data.minStock || 0,
         },
       });
-    }
+
+      // Создаем транзакцию начального оприходования
+      if (data.quantity > 0) {
+        await tx.warehouseTransaction.create({
+          data: {
+            itemId: item.id,
+            quantityChanged: data.quantity,
+            description: "Начальное оприходование при создании карточки",
+          },
+        });
+      }
+
+      return item;
+    });
 
     revalidatePath("/admin/warehouse");
+    revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
     return { success: true, data: newItem };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to create warehouse item:", error);
-    if (error instanceof z.ZodError) {
-      return { error: error.issues[0].message };
-    }
-    if (error.code === "P2002") {
+    const msg = getErrorMessage(error, "Не удалось добавить материал на склад");
+    if (typeof error === "object" && error !== null && "code" in error && (error as { code: string }).code === "P2002") {
       return { error: "Материал с таким названием уже существует на складе" };
     }
-    return { error: "Не удалось добавить материал на склад" };
+    return { error: msg };
   }
 }
 
 export async function updateWarehouseItem(
   id: string,
-  rawData: any
+  rawData: {
+    name: string;
+    category: string;
+    unit: InventoryUnit;
+    price: number;
+    location?: string | null;
+    minStock: number;
+  }
 ) {
   try {
-    // Валидация входных данных
-    const data = WarehouseItemSchema.parse(rawData);
+    const data = WarehouseItemSchema.omit({ quantity: true }).parse(rawData);
 
     const updated = await prisma.warehouseItem.update({
       where: { id },
       data: {
-        name: data.name,
-        category: data.category,
+        name: data.name.trim(),
+        category: data.category.trim(),
         unit: data.unit,
         price: data.price,
-        location: data.location || null,
+        location: data.location?.trim() || null,
         minStock: data.minStock || 0,
       },
     });
 
     revalidatePath("/admin/warehouse");
+    revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
     return { success: true, data: updated };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to update warehouse item:", error);
-    if (error instanceof z.ZodError) {
-      return { error: error.issues[0].message };
-    }
-    return { error: "Не удалось обновить карточку товара" };
+    return { error: getErrorMessage(error, "Не удалось обновить карточку товара") };
   }
 }
 
 export async function adjustWarehouseStock(
   id: string,
   quantityChange: number,
-  description: string
+  description: string,
+  leadId?: string | null
 ) {
   try {
-    // Валидация входных данных
-    const validated = AdjustStockSchema.parse({ id, quantityChange, description });
+    const validated = AdjustStockSchema.parse({
+      id,
+      quantityChange,
+      description: description.trim(),
+      leadId: leadId || null,
+    });
 
     const result = await prisma.$transaction(async (tx) => {
       const item = await tx.warehouseItem.findUnique({ where: { id: validated.id } });
@@ -126,10 +168,10 @@ export async function adjustWarehouseStock(
 
       const newQty = item.quantity + validated.quantityChange;
 
-      // Защита от ухода остатков на складе в минус при ручных корректировках
+      // Защита от ухода остатков на складе в минус при ручных списаниях
       if (newQty < 0) {
         throw new Error(
-          `Недостаточно товара на складе для списания. Текущий остаток: ${item.quantity}, вы пытаетесь списать: ${Math.abs(validated.quantityChange)}`
+          `Недостаточно остатка на складе. В наличии: ${item.quantity}, попытка списать: ${Math.abs(validated.quantityChange)}`
         );
       }
 
@@ -143,6 +185,7 @@ export async function adjustWarehouseStock(
           itemId: validated.id,
           quantityChanged: validated.quantityChange,
           description: validated.description,
+          leadId: validated.leadId,
         },
       });
 
@@ -150,11 +193,12 @@ export async function adjustWarehouseStock(
     });
 
     revalidatePath("/admin/warehouse");
+    revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to adjust warehouse stock:", error);
-    return { error: error.message || "Не удалось изменить количество товара" };
+    return { error: getErrorMessage(error, "Не удалось изменить количество товара") };
   }
 }
 
@@ -164,233 +208,117 @@ export async function deleteWarehouseItem(id: string) {
       where: { id },
     });
     revalidatePath("/admin/warehouse");
+    revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Failed to delete warehouse item:", error);
-    return { error: "Не удалось удалить материал со склада" };
+    return { error: getErrorMessage(error, "Не удалось удалить материал со склада") };
   }
 }
 
-// ================= Suppliers CRUD =================
+// ================= 2. ОПРИХОДОВАНИЕ ИЗ ПРАЙСА ПОСТАВЩИКА =================
 
-export async function getSuppliers() {
-  try {
-    const suppliers = await prisma.supplier.findMany({
-      orderBy: { name: "asc" },
-      include: { prices: true }
-    });
-    return { success: true, data: suppliers };
-  } catch (error) {
-    console.error("Failed to get suppliers:", error);
-    return { error: "Не удалось загрузить поставщиков" };
-  }
-}
-
-export async function createSupplier(data: {
-  name: string;
-  address?: string;
-  phone?: string;
-  whatsapp?: string;
+export async function intakeFromSupplierPrice(data: {
+  supplierPriceId: string;
+  quantity: number;
+  location?: string | null;
   notes?: string;
 }) {
   try {
-    const newSupplier = await prisma.supplier.create({
-      data: {
-        name: data.name,
-        address: data.address || null,
-        phone: data.phone || null,
-        whatsapp: data.whatsapp || null,
-        notes: data.notes || null,
-      },
-    });
-
-    revalidatePath("/admin/warehouse");
-    revalidatePath("/admin/leads");
-    return { success: true, data: newSupplier };
-  } catch (error: any) {
-    console.error("Failed to create supplier:", error);
-    if (error.code === "P2002") {
-      return { error: "Поставщик с таким названием уже существует" };
+    if (data.quantity <= 0) {
+      return { error: "Количество для оприходования должно быть больше 0" };
     }
-    return { error: "Не удалось создать поставщика" };
-  }
-}
 
-export async function updateSupplier(
-  id: string,
-  data: {
-    name: string;
-    address?: string;
-    phone?: string;
-    whatsapp?: string;
-    notes?: string;
-  }
-) {
-  try {
-    const updated = await prisma.supplier.update({
-      where: { id },
-      data: {
-        name: data.name,
-        address: data.address || null,
-        phone: data.phone || null,
-        whatsapp: data.whatsapp || null,
-        notes: data.notes || null,
-      },
+    const supplierPrice = await prisma.supplierPrice.findUnique({
+      where: { id: data.supplierPriceId },
     });
 
-    // Также обновим текстовое поле supplier во всех связанных ценах для совместимости
-    await prisma.supplierPrice.updateMany({
-      where: { supplierId: id },
-      data: { supplier: data.name }
-    });
+    if (!supplierPrice) {
+      return { error: "Товар из прайса поставщика не найден" };
+    }
 
-    revalidatePath("/admin/warehouse");
-    revalidatePath("/admin/leads");
-    return { success: true, data: updated };
-  } catch (error) {
-    console.error("Failed to update supplier:", error);
-    return { error: "Не удалось обновить поставщика" };
-  }
-}
-
-export async function deleteSupplier(id: string) {
-  try {
-    await prisma.supplier.delete({
-      where: { id },
-    });
-    revalidatePath("/admin/warehouse");
-    revalidatePath("/admin/leads");
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to delete supplier:", error);
-    return { error: "Не удалось удалить поставщика" };
-  }
-}
-
-// ================= Supplier Prices =================
-
-export async function getSupplierPrices() {
-  try {
-    const prices = await prisma.supplierPrice.findMany({
-      orderBy: { supplier: "asc" },
-      include: { supplierObj: true }
-    });
-    return { success: true, data: prices };
-  } catch (error) {
-    console.error("Failed to get supplier prices:", error);
-    return { error: "Не удалось загрузить цены поставщиков" };
-  }
-}
-
-export async function createSupplierPrice(data: {
-  name: string;
-  supplier: string; // текстовое имя
-  supplierId?: string | null; // ссылка на контрагента
-  price: number;
-  unit: InventoryUnit;
-}) {
-  try {
-    let finalSupplierName = data.supplier;
-
-    // Если передан supplierId, возьмем название оттуда для точности
-    if (data.supplierId) {
-      const sup = await prisma.supplier.findUnique({
-        where: { id: data.supplierId }
+    const result = await prisma.$transaction(async (tx) => {
+      // Ищем, есть ли уже товар с таким названием на складе
+      const existingItem = await tx.warehouseItem.findUnique({
+        where: { name: supplierPrice.name },
       });
-      if (sup) {
-        finalSupplierName = sup.name;
+
+      let targetItem;
+
+      if (existingItem) {
+        // Увеличиваем остаток и обновляем себестоимость по накладной
+        targetItem = await tx.warehouseItem.update({
+          where: { id: existingItem.id },
+          data: {
+            quantity: existingItem.quantity + data.quantity,
+            price: supplierPrice.price, // обновляем цену на актуальную
+            location: data.location?.trim() || existingItem.location,
+          },
+        });
+      } else {
+        // Создаем новую складскую позицию
+        targetItem = await tx.warehouseItem.create({
+          data: {
+            name: supplierPrice.name,
+            category: supplierPrice.category || "Материалы поставщиков",
+            quantity: data.quantity,
+            unit: supplierPrice.unit,
+            price: supplierPrice.price,
+            location: data.location?.trim() || null,
+            minStock: 0,
+          },
+        });
       }
-    }
 
-    const newPrice = await prisma.supplierPrice.create({
-      data: {
-        name: data.name,
-        supplier: finalSupplierName,
-        supplierId: data.supplierId || null,
-        price: data.price,
-        unit: data.unit,
-      },
-    });
-
-    revalidatePath("/admin/warehouse");
-    revalidatePath("/admin/leads");
-    return { success: true, data: newPrice };
-  } catch (error) {
-    console.error("Failed to create supplier price:", error);
-    return { error: "Не удалось добавить цену поставщика" };
-  }
-}
-
-export async function updateSupplierPrice(
-  id: string,
-  data: {
-    name: string;
-    supplier: string;
-    supplierId?: string | null;
-    price: number;
-    unit: InventoryUnit;
-  }
-) {
-  try {
-    let finalSupplierName = data.supplier;
-
-    if (data.supplierId) {
-      const sup = await prisma.supplier.findUnique({
-        where: { id: data.supplierId }
+      // Фиксируем транзакцию поступления
+      await tx.warehouseTransaction.create({
+        data: {
+          itemId: targetItem.id,
+          quantityChanged: data.quantity,
+          description: `Поставка от поставщика "${supplierPrice.supplier}" (${data.notes?.trim() || "Оприходование по накладной"})`,
+        },
       });
-      if (sup) {
-        finalSupplierName = sup.name;
-      }
-    }
 
-    const updated = await prisma.supplierPrice.update({
-      where: { id },
-      data: {
-        name: data.name,
-        supplier: finalSupplierName,
-        supplierId: data.supplierId || null,
-        price: data.price,
-        unit: data.unit,
-      },
+      return targetItem;
     });
 
     revalidatePath("/admin/warehouse");
+    revalidatePath("/admin/calculator");
     revalidatePath("/admin/leads");
-    return { success: true, data: updated };
-  } catch (error) {
-    console.error("Failed to update supplier price:", error);
-    return { error: "Не удалось обновить цену поставщика" };
+    return { success: true, data: result };
+  } catch (error: unknown) {
+    console.error("Failed to intake from supplier price:", error);
+    return { error: getErrorMessage(error, "Не удалось оприходовать материал от поставщика") };
   }
 }
 
-export async function deleteSupplierPrice(id: string) {
-  try {
-    await prisma.supplierPrice.delete({
-      where: { id },
-    });
-    revalidatePath("/admin/warehouse");
-    revalidatePath("/admin/leads");
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to delete supplier price:", error);
-    return { error: "Не удалось удалить цену поставщика" };
-  }
-}
+// ================= 3. ЖУРНАЛ ОПЕРАЦИЙ (Transactions) =================
 
-// ================= Warehouse Transactions Log =================
-
-export async function getWarehouseTransactions() {
+export async function getWarehouseTransactions(take = 200) {
   try {
     const logs = await prisma.warehouseTransaction.findMany({
       include: {
-        item: true,
+        item: {
+          select: {
+            id: true,
+            name: true,
+            unit: true,
+            category: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
-      take: 200, // ограничение на последние 200 логов
+      take,
     });
-    return { success: true, data: logs };
-  } catch (error) {
+    return {
+      success: true,
+      data: logs.map((log) => ({
+        ...log,
+        createdAt: log.createdAt.toISOString(),
+      })),
+    };
+  } catch (error: unknown) {
     console.error("Failed to get warehouse transactions:", error);
     return { error: "Не удалось загрузить историю транзакций склада" };
   }
