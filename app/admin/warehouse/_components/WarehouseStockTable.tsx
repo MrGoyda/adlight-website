@@ -101,6 +101,13 @@ export default function WarehouseStockTable({
     return filteredItems.slice(0, visibleLimit);
   }, [filteredItems, visibleLimit]);
 
+  // Динамический список категорий на складе (учитывает как стандартные, так и таксономию из прайсов)
+  const availableCategories = useMemo(() => {
+    const itemCategories = items.map((i) => i.category).filter(Boolean);
+    const combined = Array.from(new Set([...itemCategories, ...WAREHOUSE_CATEGORIES]));
+    return combined.filter((cat) => items.some((i) => i.category === cat));
+  }, [items]);
+
   const hasMore = visibleLimit < filteredItems.length;
 
   const handleResetFilters = () => {
@@ -225,7 +232,7 @@ export default function WarehouseStockTable({
             Все категории ({items.length})
           </button>
 
-          {WAREHOUSE_CATEGORIES.map((cat) => {
+          {availableCategories.map((cat) => {
             const count = items.filter((i) => i.category === cat).length;
             const isActive = categoryFilter === cat;
 
