@@ -194,7 +194,7 @@ function LeadKanbanBoard({
               </div>
 
               {/* ── КАРТОЧКИ СДЕЛОК В КОЛОНКЕ ── */}
-              <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 no-scrollbar min-h-[120px]">
+              <div className="flex-1 overflow-y-auto overscroll-contain space-y-2.5 pr-1 no-scrollbar min-h-[120px]">
                 {col.leads.length === 0 ? (
                   <div className="h-28 rounded-2xl border-2 border-dashed border-slate-200/90 flex items-center justify-center text-slate-400 text-xs font-semibold select-none">
                     {dict.noDealsInStage}

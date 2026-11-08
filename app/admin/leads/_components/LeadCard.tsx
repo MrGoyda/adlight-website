@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -72,39 +72,36 @@ function LeadCard({
     bg: "bg-slate-100",
   };
 
-  const timing = getLeadTimingInfo(
-    lead.createdAt,
-    lead.status,
-    lead.appointmentDate,
-    lead.deadline
+  const timing = useMemo(
+    () => getLeadTimingInfo(lead.createdAt, lead.status, lead.appointmentDate, lead.deadline),
+    [lead.createdAt, lead.status, lead.appointmentDate, lead.deadline]
   );
 
   // Извлекаем краткую суть конструкции из метаданных или calcDetails
-  const meta = parseLeadMetadata(lead.calcDetails);
-  const techSpec = meta.techSpec;
+  const meta = useMemo(() => parseLeadMetadata(lead.calcDetails), [lead.calcDetails]);
   
-  let constructionSummary = "";
-  if (techSpec?.items && techSpec.items.length > 0) {
-    const first = techSpec.items[0];
-    const signTypeLabel = SIGN_TYPES.find((s) => s.id === first.signType)?.label || first.title || dict.defaultConstruction;
-    const dim = first.lengthMm && first.heightMm ? ` ${first.lengthMm}×${first.heightMm} мм` : "";
-    constructionSummary = `${signTypeLabel}${dim}`;
-  } else if (techSpec?.signTypes && techSpec.signTypes.length > 0) {
-    const signTypeLabel = SIGN_TYPES.find((s) => s.id === techSpec.signTypes?.[0])?.label || dict.defaultConstruction;
-    constructionSummary = signTypeLabel;
-  } else if (lead.address) {
-    constructionSummary = lead.address;
-  } else if (lead.source) {
-    constructionSummary = lead.source;
-  } else {
-    constructionSummary = dict.defaultConstruction;
-  }
+  const constructionSummary = useMemo(() => {
+    const techSpec = meta.techSpec;
+    if (techSpec?.items && techSpec.items.length > 0) {
+      const first = techSpec.items[0];
+      const signTypeLabel = SIGN_TYPES.find((s) => s.id === first.signType)?.label || first.title || dict.defaultConstruction;
+      const dim = first.lengthMm && first.heightMm ? ` ${first.lengthMm}×${first.heightMm} мм` : "";
+      return `${signTypeLabel}${dim}`;
+    }
+    if (techSpec?.signTypes && techSpec.signTypes.length > 0) {
+      const signTypeLabel = SIGN_TYPES.find((s) => s.id === techSpec.signTypes?.[0])?.label || dict.defaultConstruction;
+      return signTypeLabel;
+    }
+    if (lead.address) return lead.address;
+    if (lead.source) return lead.source;
+    return dict.defaultConstruction;
+  }, [meta.techSpec, lead.address, lead.source, dict.defaultConstruction]);
 
-  const cleanPhone = (lead.phone || "").replace(/[^0-9+]/g, "");
+  const cleanPhone = useMemo(() => (lead.phone || "").replace(/[^0-9+]/g, ""), [lead.phone]);
   const amount = lead.offeredPrice || lead.revenue || 0;
 
   // 1. Быстрый клик по WhatsApp
-  const handleWhatsAppClick = (e: React.MouseEvent) => {
+  const handleWhatsAppClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("light");
     const waUrl = getWhatsAppUrl(
@@ -112,35 +109,35 @@ function LeadCard({
       `Здравствуйте, ${lead.name || LEADS_DICTIONARY.table.whatsAppGreeting}! По вашей заявке на изготовление вывески в компании ADLight:`
     );
     if (waUrl) window.open(waUrl, "_blank");
-  };
+  }, [lead.phone, lead.name]);
 
   // 2. Быстрый звонок
-  const handleCallClick = (e: React.MouseEvent) => {
+  const handleCallClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("light");
     if (cleanPhone) {
       window.location.href = `tel:${cleanPhone}`;
     }
-  };
+  }, [cleanPhone]);
 
   // 3. Копирование номера в буфер обмена в 1 клик
-  const handleCopyPhone = (e: React.MouseEvent) => {
+  const handleCopyPhone = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (!cleanPhone) return;
     triggerHaptic("success");
     navigator.clipboard.writeText(cleanPhone);
     toast.success(`${toasts.phoneCopied}: ${cleanPhone}`);
-  };
+  }, [cleanPhone, toasts.phoneCopied]);
 
   // 4. Прямой переход в калькулятор сметы
-  const handleOpenCalculator = (e: React.MouseEvent) => {
+  const handleOpenCalculator = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("light");
     router.push(`/admin/calculator?leadId=${lead.id}`);
-  };
+  }, [lead.id, router]);
 
   // 5. Быстрый переход на следующий этап воронки
-  const getNextStage = (current: LeadStatus) => {
+  const getNextStage = useCallback((current: LeadStatus) => {
     switch (current) {
       case "NEW":
         return { next: LeadStatus.ESTIMATE, label: dict.quickAdvanceEstimate, icon: <ArrowRight className="w-3 h-3" /> };
@@ -152,11 +149,11 @@ function LeadCard({
       default:
         return null;
     }
-  };
+  }, [dict.quickAdvanceEstimate, dict.quickAdvanceProduction, dict.quickAdvanceComplete]);
 
   const nextStage = getNextStage(lead.status);
 
-  const handleAdvanceStage = async (e: React.MouseEvent) => {
+  const handleAdvanceStage = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!nextStage || isUpdatingStatus) return;
 
@@ -175,10 +172,10 @@ function LeadCard({
       }
     }
     setIsUpdatingStatus(false);
-  };
+  }, [nextStage, isUpdatingStatus, onStatusChangeQuick, lead.id, toasts.stageUpdated, router]);
 
   // 6. Сохранение быстрой заметки
-  const handleSaveNote = async () => {
+  const handleSaveNote = useCallback(async () => {
     setIsEditingNote(false);
     if (quickNote.trim() === (lead.comment || "").trim()) return;
 
@@ -190,7 +187,7 @@ function LeadCard({
     } else {
       toast.error(res.error || toasts.noteSaveError);
     }
-  };
+  }, [quickNote, lead.comment, lead.id, toasts.noteSaved, toasts.noteSaveError, router]);
 
   return (
     <div
@@ -205,7 +202,6 @@ function LeadCard({
         triggerHaptic("light");
         onSelect(lead);
       }}
-      style={{ contentVisibility: "auto", containIntrinsicSize: "130px" }}
       className={`group relative bg-white rounded-2xl p-3 border transition-all duration-150 ease-out cursor-pointer select-none overflow-hidden ${
         isBatchSelected
           ? "border-orange-500 bg-orange-50/20 ring-2 ring-orange-500/20 shadow-xs"
@@ -540,4 +536,27 @@ function LeadCard({
   );
 }
 
-export default React.memo(LeadCard);
+function areLeadCardPropsEqual(prev: LeadCardProps, next: LeadCardProps): boolean {
+  return (
+    prev.lead.id === next.lead.id &&
+    prev.lead.status === next.lead.status &&
+    prev.lead.comment === next.lead.comment &&
+    prev.lead.rating === next.lead.rating &&
+    prev.lead.revenue === next.lead.revenue &&
+    prev.lead.offeredPrice === next.lead.offeredPrice &&
+    prev.lead.isDiscounted === next.lead.isDiscounted &&
+    prev.lead.isPrepaymentPaid === next.lead.isPrepaymentPaid &&
+    prev.lead.isBalancePaid === next.lead.isBalancePaid &&
+    prev.lead.appointmentDate === next.lead.appointmentDate &&
+    prev.lead.deadline === next.lead.deadline &&
+    prev.lead.manager === next.lead.manager &&
+    prev.lead.rejectionReason === next.lead.rejectionReason &&
+    prev.lead.deletedAt === next.lead.deletedAt &&
+    prev.isSelected === next.isSelected &&
+    prev.isBatchSelected === next.isBatchSelected &&
+    prev.isBatchSelectionActive === next.isBatchSelectionActive &&
+    prev.duplicateCount === next.duplicateCount
+  );
+}
+
+export default React.memo(LeadCard, areLeadCardPropsEqual);
