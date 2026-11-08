@@ -36,6 +36,9 @@ export interface WarehouseSupplierPriceData {
   category?: string | null;
   subcategory?: string | null;
   supplierId?: string | null;
+  imageUrl?: string | null;
+  description?: string | null;
+  sourceUrl?: string | null;
 }
 
 export interface WarehouseSupplierData {

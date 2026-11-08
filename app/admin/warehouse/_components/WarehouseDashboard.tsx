@@ -14,15 +14,16 @@ import {
   WarehouseBreakdown, 
   StockStatusFilter 
 } from "../_types/warehouseTypes";
+import { SupplierData, SupplierPriceItem } from "@/app/admin/pricing/_types/pricingTypes";
 import { UNIT_LABELS } from "../constants";
 import WarehouseHeader from "./WarehouseHeader";
 import WarehouseMetrics from "./WarehouseMetrics";
 import WarehouseStockTable from "./WarehouseStockTable";
 import WarehouseHistoryTab from "./WarehouseHistoryTab";
-import WarehouseItemModal from "./WarehouseItemModal";
+import MaterialModal, { MaterialModalSavePayload } from "@/app/admin/pricing/_components/materials/MaterialModal";
 import WarehouseAdjustModal from "./WarehouseAdjustModal";
 import WarehouseSupplierIntakeModal from "./WarehouseSupplierIntakeModal";
-import { deleteWarehouseItem } from "../actions";
+import { deleteWarehouseItem, saveWarehouseMaterialUnified } from "../actions";
 import { toast } from "@/lib/toast";
 import { triggerHaptic } from "@/lib/haptics";
 
@@ -30,12 +31,14 @@ interface WarehouseDashboardProps {
   initialItems: WarehouseItemData[];
   initialSupplierPrices: WarehouseSupplierPriceData[];
   initialTransactions: WarehouseTransactionData[];
+  initialSuppliers: SupplierData[];
 }
 
 export default function WarehouseDashboard({
   initialItems,
   initialSupplierPrices,
   initialTransactions,
+  initialSuppliers,
 }: WarehouseDashboardProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"stock" | "history">("stock");
@@ -143,6 +146,48 @@ export default function WarehouseDashboard({
     });
   }, [router]);
 
+  // Преобразование редактируемого элемента склада в формат SupplierPriceItem для унифицированной модалки
+  const modalEditingItem = useMemo<SupplierPriceItem | null>(() => {
+    if (!editingItem) return null;
+    const match = initialSupplierPrices.find(
+      (sp) => sp.name.toLowerCase() === editingItem.name.toLowerCase()
+    );
+    const defaultSupplier = initialSuppliers[0]?.name || "Демер";
+    return {
+      id: editingItem.id,
+      name: editingItem.name,
+      supplier: match?.supplier || defaultSupplier,
+      supplierId: match?.supplierId || null,
+      price: editingItem.price,
+      unit: editingItem.unit,
+      category: match?.category || editingItem.category,
+      subcategory: match?.subcategory || null,
+      imageUrl: match?.imageUrl || null,
+      description: match?.description || null,
+      sourceUrl: match?.sourceUrl || null,
+      createdAt: editingItem.createdAt,
+      updatedAt: editingItem.updatedAt,
+    };
+  }, [editingItem, initialSupplierPrices, initialSuppliers]);
+
+  // Сохранение материала через унифицированное действие
+  const handleSaveMaterial = async (payload: MaterialModalSavePayload) => {
+    const res = await saveWarehouseMaterialUnified(payload);
+    if (res.error) {
+      toast.error(res.error);
+      throw new Error(res.error);
+    } else {
+      toast.success(
+        editingItem
+          ? `Карточка "${payload.name}" обновлена`
+          : `Материал "${payload.name}" добавлен на склад`
+      );
+      setIsItemModalOpen(false);
+      setEditingItem(null);
+      router.refresh();
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* 1. Шапка страницы */}
@@ -227,17 +272,28 @@ export default function WarehouseDashboard({
         <WarehouseHistoryTab transactions={initialTransactions} />
       )}
 
-      {/* 5. Модалка создания / редактирования карточки */}
+      {/* 5. Унифицированное модальное окно создания / редактирования карточки */}
       {isItemModalOpen && (
-        <WarehouseItemModal
+        <MaterialModal
           key={editingItem?.id || "new"}
           isOpen={isItemModalOpen}
           onClose={() => {
             setIsItemModalOpen(false);
             setEditingItem(null);
           }}
-          item={editingItem}
-          onSuccess={() => router.refresh()}
+          onSave={handleSaveMaterial}
+          editingItem={modalEditingItem}
+          suppliers={initialSuppliers}
+          showWarehouseFields={true}
+          initialWarehouseData={
+            editingItem
+              ? {
+                  quantity: editingItem.quantity,
+                  location: editingItem.location,
+                  minStock: editingItem.minStock,
+                }
+              : undefined
+          }
         />
       )}
 

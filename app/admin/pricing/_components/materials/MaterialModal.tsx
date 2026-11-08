@@ -13,6 +13,7 @@ import MaterialImageUploader from "./modal/MaterialImageUploader";
 import MaterialCategorySelects from "./modal/MaterialCategorySelects";
 import MaterialSpecChips from "./modal/MaterialSpecChips";
 import CustomSelect from "../common/CustomSelect";
+import { STOCK_LOCATIONS } from "@/app/admin/warehouse/constants";
 
 // Умные подсказки характеристик по категориям для быстрого наполнения в 1 клик
 const SUGGESTED_SPECS_BY_CATEGORY: Record<string, string[]> = {
@@ -46,26 +47,39 @@ const SUGGESTED_SPECS_BY_CATEGORY: Record<string, string[]> = {
   ],
 };
 
-interface MaterialModalProps {
+export interface MaterialModalWarehouseFields {
+  quantity?: number;
+  location?: string | null;
+  minStock?: number;
+}
+
+export interface MaterialModalSavePayload {
+  id?: string;
+  name: string;
+  supplier: string;
+  price: number;
+  unit: InventoryUnit;
+  category?: string | null;
+  subcategory?: string | null;
+  imageUrl?: string | null;
+  description?: string | null;
+  sourceUrl?: string | null;
+  isService?: boolean;
+  supplierId?: string | null;
+  quantity?: number;
+  location?: string | null;
+  minStock?: number;
+}
+
+export interface MaterialModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: {
-    id?: string;
-    name: string;
-    supplier: string;
-    price: number;
-    unit: InventoryUnit;
-    category?: string | null;
-    subcategory?: string | null;
-    imageUrl?: string | null;
-    description?: string | null;
-    sourceUrl?: string | null;
-    isService?: boolean;
-    supplierId?: string | null;
-  }) => Promise<void>;
+  onSave: (data: MaterialModalSavePayload) => Promise<void>;
   editingItem?: SupplierPriceItem | null;
   suppliers: SupplierData[];
   taxonomy?: MaterialCategoryItem[];
+  showWarehouseFields?: boolean;
+  initialWarehouseData?: MaterialModalWarehouseFields;
 }
 
 export default function MaterialModal({
@@ -75,6 +89,8 @@ export default function MaterialModal({
   editingItem,
   suppliers,
   taxonomy = MATERIAL_TAXONOMY,
+  showWarehouseFields = false,
+  initialWarehouseData,
 }: MaterialModalProps) {
   const [name, setName] = useState("");
   const [supplier, setSupplier] = useState("");
@@ -89,6 +105,18 @@ export default function MaterialModal({
   const [description, setDescription] = useState("");
   const [isService, setIsService] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Складские поля
+  const [warehouseQuantity, setWarehouseQuantity] = useState<number | "">(
+    initialWarehouseData?.quantity !== undefined ? initialWarehouseData.quantity : ""
+  );
+  const [warehouseLocation, setWarehouseLocation] = useState<string>(
+    initialWarehouseData?.location || STOCK_LOCATIONS[0]
+  );
+  const [customWarehouseLocation, setCustomWarehouseLocation] = useState<string>("");
+  const [warehouseMinStock, setWarehouseMinStock] = useState<number | "">(
+    initialWarehouseData?.minStock !== undefined ? initialWarehouseData.minStock : ""
+  );
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -144,6 +172,33 @@ export default function MaterialModal({
       const existingSub = editingItem.subcategory || "";
       setSubcategory(existingSub || matchedCat?.subcategories[0] || "");
       setCustomSubcategory("");
+
+      if (initialWarehouseData) {
+        setWarehouseQuantity(
+          initialWarehouseData.quantity !== undefined ? initialWarehouseData.quantity : ""
+        );
+        if (
+          initialWarehouseData.location &&
+          STOCK_LOCATIONS.includes(initialWarehouseData.location)
+        ) {
+          setWarehouseLocation(initialWarehouseData.location);
+          setCustomWarehouseLocation("");
+        } else if (initialWarehouseData.location) {
+          setWarehouseLocation("OTHER");
+          setCustomWarehouseLocation(initialWarehouseData.location);
+        } else {
+          setWarehouseLocation(STOCK_LOCATIONS[0]);
+          setCustomWarehouseLocation("");
+        }
+        setWarehouseMinStock(
+          initialWarehouseData.minStock !== undefined ? initialWarehouseData.minStock : ""
+        );
+      } else {
+        setWarehouseQuantity("");
+        setWarehouseLocation(STOCK_LOCATIONS[0]);
+        setCustomWarehouseLocation("");
+        setWarehouseMinStock("");
+      }
     } else {
       setName("");
       setSupplier(suppliers[0]?.name || "SignTech");
@@ -157,8 +212,16 @@ export default function MaterialModal({
       setCategoryId("sheets");
       setSubcategory(taxonomy[0]?.subcategories[0] || "");
       setCustomSubcategory("");
+      setWarehouseQuantity(
+        initialWarehouseData?.quantity !== undefined ? initialWarehouseData.quantity : ""
+      );
+      setWarehouseLocation(initialWarehouseData?.location || STOCK_LOCATIONS[0]);
+      setCustomWarehouseLocation("");
+      setWarehouseMinStock(
+        initialWarehouseData?.minStock !== undefined ? initialWarehouseData.minStock : ""
+      );
     }
-  }, [editingItem, suppliers, taxonomy, isOpen]);
+  }, [editingItem, suppliers, taxonomy, isOpen, initialWarehouseData]);
 
   const m = pricingDict.modals.material;
 
@@ -211,6 +274,11 @@ export default function MaterialModal({
     const categoryLabel = currentCategoryDef?.label || "Листовые материалы";
     const finalSubcategory = subcategory === "custom" ? customSubcategory.trim() : subcategory;
 
+    const finalLocation =
+      warehouseLocation === "OTHER"
+        ? customWarehouseLocation.trim()
+        : warehouseLocation;
+
     try {
       await onSave({
         id: editingItem?.id,
@@ -225,6 +293,9 @@ export default function MaterialModal({
         description: description.trim() || null,
         sourceUrl: sourceUrl.trim() || null,
         isService,
+        quantity: showWarehouseFields ? (Number(warehouseQuantity) || 0) : undefined,
+        location: showWarehouseFields ? (finalLocation || null) : undefined,
+        minStock: showWarehouseFields ? (Number(warehouseMinStock) || 0) : undefined,
       });
       onClose();
     } finally {
@@ -443,6 +514,95 @@ export default function MaterialModal({
               </div>
             </div>
           </div>
+
+          {/* Складские параметры в цехе (если модалка открыта со склада) */}
+          {showWarehouseFields && (
+            <div className="p-4 rounded-2xl bg-orange-50/50 border border-orange-200/80 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-orange-500 text-white flex items-center justify-center">
+                  <Package className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">
+                    Параметры складского учета в цехе
+                  </h4>
+                  <p className="text-[10px] text-slate-500">
+                    Остаток на балансе, место хранения и контроль минимального запаса
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Начальный или текущий остаток */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    {editingItem ? "Текущий остаток" : "Начальный остаток"}:
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={warehouseQuantity}
+                    onChange={(e) =>
+                      setWarehouseQuantity(
+                        e.target.value ? parseFloat(e.target.value) : ""
+                      )
+                    }
+                    placeholder="0"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-orange-500 transition"
+                  />
+                </div>
+
+                {/* Локация в цехе */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Локация в цехе:
+                  </label>
+                  <select
+                    value={warehouseLocation}
+                    onChange={(e) => setWarehouseLocation(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-orange-500 cursor-pointer"
+                  >
+                    {STOCK_LOCATIONS.map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
+                    <option value="OTHER">Своя локация...</option>
+                  </select>
+                  {warehouseLocation === "OTHER" && (
+                    <input
+                      type="text"
+                      placeholder="Например: Стеллаж Д"
+                      value={customWarehouseLocation}
+                      onChange={(e) => setCustomWarehouseLocation(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs mt-1"
+                    />
+                  )}
+                </div>
+
+                {/* Минимальный порог */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    Критический порог (minStock):
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={warehouseMinStock}
+                    onChange={(e) =>
+                      setWarehouseMinStock(
+                        e.target.value ? parseFloat(e.target.value) : ""
+                      )
+                    }
+                    placeholder="0 (без предупреждений)"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-orange-500 transition"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Фотография материала (Cloudflare R2 Uploader) */}
           <MaterialImageUploader

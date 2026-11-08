@@ -112,6 +112,165 @@ export async function createWarehouseItem(rawData: {
   }
 }
 
+/**
+ * Единое создание / обновление карточки материала со склада
+ * с одновременной синхронизацией в прайс-лист поставщика (SupplierPrice)
+ */
+export async function saveWarehouseMaterialUnified(payload: {
+  id?: string;
+  name: string;
+  supplier: string;
+  price: number;
+  unit: InventoryUnit;
+  category?: string | null;
+  subcategory?: string | null;
+  imageUrl?: string | null;
+  description?: string | null;
+  sourceUrl?: string | null;
+  isService?: boolean;
+  supplierId?: string | null;
+  quantity?: number;
+  location?: string | null;
+  minStock?: number;
+}) {
+  try {
+    const trimmedName = payload.name.trim();
+    if (!trimmedName) {
+      return { error: "Укажите наименование материала" };
+    }
+
+    const price = Number(payload.price) || 0;
+    const qty = Math.max(0, Number(payload.quantity) || 0);
+    const minStock = Math.max(0, Number(payload.minStock) || 0);
+    const category = payload.category?.trim() || "Листовые материалы";
+    const location = payload.location?.trim() || null;
+
+    const result = await prisma.$transaction(async (tx) => {
+      let warehouseItem = null;
+
+      // 1. Поиск существующего складского элемента по id
+      if (payload.id) {
+        const existingById = await tx.warehouseItem.findUnique({
+          where: { id: payload.id },
+        });
+
+        if (existingById) {
+          warehouseItem = await tx.warehouseItem.update({
+            where: { id: payload.id },
+            data: {
+              name: trimmedName,
+              category,
+              unit: payload.unit,
+              price,
+              location,
+              minStock,
+            },
+          });
+        }
+      }
+
+      // 2. Если не найден по id, ищем по имени (уникальное поле в WarehouseItem)
+      if (!warehouseItem) {
+        const existingByName = await tx.warehouseItem.findUnique({
+          where: { name: trimmedName },
+        });
+
+        if (existingByName) {
+          warehouseItem = await tx.warehouseItem.update({
+            where: { id: existingByName.id },
+            data: {
+              category,
+              unit: payload.unit,
+              price,
+              location,
+              minStock,
+            },
+          });
+        } else {
+          // Создаем новый складской элемент
+          warehouseItem = await tx.warehouseItem.create({
+            data: {
+              name: trimmedName,
+              category,
+              quantity: qty,
+              unit: payload.unit,
+              price,
+              location,
+              minStock,
+            },
+          });
+
+          // Фиксируем транзакцию начального оприходования, если остаток > 0
+          if (qty > 0) {
+            await tx.warehouseTransaction.create({
+              data: {
+                itemId: warehouseItem.id,
+                quantityChanged: qty,
+                description: payload.supplier?.trim()
+                  ? `Начальное оприходование (Поставщик: ${payload.supplier.trim()})`
+                  : "Начальное оприходование при создании карточки",
+              },
+            });
+          }
+        }
+      }
+
+      // 3. Синхронизируем карточку в каталоге поставщиков (SupplierPrice)
+      const supplierName = payload.supplier?.trim();
+      if (supplierName) {
+        const existingSp = await tx.supplierPrice.findFirst({
+          where: { name: trimmedName },
+        });
+
+        if (existingSp) {
+          await tx.supplierPrice.update({
+            where: { id: existingSp.id },
+            data: {
+              supplier: supplierName,
+              supplierId: payload.supplierId || null,
+              price,
+              unit: payload.unit,
+              category: payload.category?.trim() || null,
+              subcategory: payload.subcategory?.trim() || null,
+              imageUrl: payload.imageUrl?.trim() || null,
+              description: payload.description?.trim() || null,
+              sourceUrl: payload.sourceUrl?.trim() || null,
+              isService: Boolean(payload.isService),
+            },
+          });
+        } else {
+          await tx.supplierPrice.create({
+            data: {
+              name: trimmedName,
+              supplier: supplierName,
+              supplierId: payload.supplierId || null,
+              price,
+              unit: payload.unit,
+              category: payload.category?.trim() || null,
+              subcategory: payload.subcategory?.trim() || null,
+              imageUrl: payload.imageUrl?.trim() || null,
+              description: payload.description?.trim() || null,
+              sourceUrl: payload.sourceUrl?.trim() || null,
+              isService: Boolean(payload.isService),
+            },
+          });
+        }
+      }
+
+      return warehouseItem;
+    });
+
+    revalidatePath("/admin/warehouse");
+    revalidatePath("/admin/pricing");
+    revalidatePath("/admin/calculator");
+    revalidatePath("/admin/leads");
+    return { success: true, data: result };
+  } catch (error: unknown) {
+    console.error("Failed to save warehouse material unified:", error);
+    return { error: getErrorMessage(error, "Не удалось сохранить материал") };
+  }
+}
+
 export async function updateWarehouseItem(
   id: string,
   rawData: {

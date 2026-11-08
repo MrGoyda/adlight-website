@@ -7,6 +7,7 @@ import {
   WarehouseSupplierPriceData, 
   WarehouseTransactionData 
 } from "./_types/warehouseTypes";
+import { SupplierData } from "../pricing/_types/pricingTypes";
 
 export const metadata: Metadata = {
   title: "Склад материалов и учет остатков цеха | ADLight CRM",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function WarehousePage() {
-  const [itemsRaw, supplierPricesRaw, transactionsRaw] = await Promise.all([
+  const [itemsRaw, supplierPricesRaw, transactionsRaw, suppliersRaw] = await Promise.all([
     prisma.warehouseItem.findMany({
       orderBy: { name: "asc" },
     }),
@@ -30,6 +31,9 @@ export default async function WarehousePage() {
         category: true,
         subcategory: true,
         supplierId: true,
+        imageUrl: true,
+        description: true,
+        sourceUrl: true,
       },
       orderBy: [
         { isFavorite: "desc" },
@@ -50,6 +54,14 @@ export default async function WarehousePage() {
       },
       orderBy: { createdAt: "desc" },
       take: 150,
+    }),
+    prisma.supplier.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: { prices: true },
+        },
+      },
     }),
   ]);
 
@@ -75,6 +87,9 @@ export default async function WarehousePage() {
     category: s.category,
     subcategory: s.subcategory,
     supplierId: s.supplierId,
+    imageUrl: s.imageUrl,
+    description: s.description,
+    sourceUrl: s.sourceUrl,
   }));
 
   const initialTransactions: WarehouseTransactionData[] = transactionsRaw.map((t) => ({
@@ -91,12 +106,28 @@ export default async function WarehousePage() {
     },
   }));
 
+  const initialSuppliers: SupplierData[] = suppliersRaw.map((s) => ({
+    id: s.id,
+    name: s.name,
+    address: s.address,
+    phone: s.phone,
+    phones: s.phones,
+    whatsapp: s.whatsapp,
+    website: s.website,
+    instagram: s.instagram,
+    notes: s.notes,
+    createdAt: s.createdAt.toISOString(),
+    updatedAt: s.updatedAt.toISOString(),
+    _count: s._count,
+  }));
+
   return (
     <div className="w-full space-y-6">
       <WarehouseDashboard
         initialItems={initialItems}
         initialSupplierPrices={initialSupplierPrices}
         initialTransactions={initialTransactions}
+        initialSuppliers={initialSuppliers}
       />
     </div>
   );
