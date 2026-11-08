@@ -256,22 +256,65 @@ export function useEstimateSpreadsheet({
     toast.success(`Применена наценка x${multiplier}`);
   }, []);
 
+  // Актуализация цен сметы по актуальной базе поставщиков и склада
+  const handleSyncPricesFromCatalog = useCallback((
+    catalogPrices: CalculatorSupplierPrice[],
+    catalogStock: CalculatorWarehouseItem[]
+  ) => {
+    triggerHaptic("medium");
+    let updatedCount = 0;
+    const priceMap = new Map(catalogPrices.map((p) => [p.id, p.price]));
+    const stockMap = new Map(catalogStock.map((w) => [w.id, w.price]));
+
+    setItems((prev) =>
+      prev.map((item) => {
+        let newCost = item.costPrice;
+        if (item.supplierPriceId && priceMap.has(item.supplierPriceId)) {
+          newCost = priceMap.get(item.supplierPriceId)!;
+        } else if (item.warehouseItemId && stockMap.has(item.warehouseItemId)) {
+          newCost = stockMap.get(item.warehouseItemId)!;
+        }
+
+        if (newCost !== item.costPrice) {
+          updatedCount++;
+          return {
+            ...item,
+            costPrice: newCost,
+            sellPrice: Math.round(newCost * targetMultiplier),
+          };
+        }
+        return item;
+      })
+    );
+
+    if (updatedCount > 0) {
+      toast.success(`Актуализировано ${updatedCount} поз. по свежим ценам каталога`);
+    } else {
+      toast.info("Все цены в смете уже соответствуют актуальному каталогу");
+    }
+  }, [targetMultiplier]);
+
   // Генерация текста КП для клиента (для WhatsApp)
-  const generateClientProposalText = useCallback((): string => {
+  const generateClientProposalText = useCallback((mode: "summary" | "detailed" = "summary"): string => {
     if (items.length === 0) return "";
 
     const lines: string[] = [
       "✨ *Коммерческое предложение | Рекламно-производственная компания ADLight*",
       "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-      "📍 *Состав проекта и спецификация:*",
     ];
 
-    items.forEach((item, idx) => {
-      const q = Number(item.quantity) || 1;
-      const u = UNIT_LABELS[item.unit] || "шт.";
-      const s = (Number(item.sellPrice) || 0) * q;
-      lines.push(`${idx + 1}. ${item.name} — ${q} ${u} (${s.toLocaleString("ru-RU")} ₸)`);
-    });
+    if (mode === "summary") {
+      lines.push("📍 *Проект:* Изготовление и монтаж рекламной конструкции");
+      lines.push(`📋 *Объем работ:* ${items.length} производственных позиций (материалы, сборка, электрокомплектация)`);
+    } else {
+      lines.push("📍 *Состав проекта и спецификация:*");
+      items.forEach((item, idx) => {
+        const q = Number(item.quantity) || 1;
+        const u = UNIT_LABELS[item.unit] || "шт.";
+        const s = (Number(item.sellPrice) || 0) * q;
+        lines.push(`${idx + 1}. ${item.name} — ${q} ${u} (${s.toLocaleString("ru-RU")} ₸)`);
+      });
+    }
 
     lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     if (discountMode === "percent" && clientDiscount > 0) {
@@ -290,9 +333,9 @@ export function useEstimateSpreadsheet({
   }, [items, clientDiscount, discountAmountManual, discountMode, breakdown.totalSell]);
 
   // Копирование КП в буфер обмена
-  const handleCopyClientProposal = useCallback(async () => {
+  const handleCopyClientProposal = useCallback(async (mode: "summary" | "detailed" = "summary") => {
     triggerHaptic("success");
-    const text = generateClientProposalText();
+    const text = generateClientProposalText(mode);
     if (!text) {
       toast.error("Смета пуста, нечего копировать");
       return;
@@ -300,7 +343,11 @@ export function useEstimateSpreadsheet({
 
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("Текст КП для WhatsApp скопирован в буфер обмена!");
+      toast.success(
+        mode === "summary"
+          ? "Укрупненное КП для WhatsApp скопировано!"
+          : "Полная спецификация для WhatsApp скопирована!"
+      );
     } catch {
       toast.error("Не удалось скопировать текст");
     }
@@ -326,6 +373,7 @@ export function useEstimateSpreadsheet({
     handleRemoveItem,
     handleClearAll,
     handleApplyMultiplierToAll,
+    handleSyncPricesFromCatalog,
     generateClientProposalText,
     handleCopyClientProposal,
   };

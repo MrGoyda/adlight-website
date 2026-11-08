@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { Sparkles, RotateCcw, Layers } from "lucide-react";
+import React, { useState, useCallback } from "react";
+import { Sparkles, RotateCcw, Layers, RefreshCw, Printer } from "lucide-react";
 import { 
   CalculatorInitialData, 
   EstimatePresetData, 
   SpreadsheetItem 
 } from "../_types/calculatorTypes";
 import { useEstimateSpreadsheet } from "../_hooks/useEstimateSpreadsheet";
+import { getEstimatePresets } from "../calculatorActions";
 import EstimateTableGrid from "./EstimateTableGrid";
 import EstimateQuickShelf from "./EstimateQuickShelf";
 import EstimateFloatingBar from "./EstimateFloatingBar";
@@ -32,7 +33,7 @@ export default function EstimateSpreadsheet({
   contextLeadName,
   onSaveSuccess,
 }: EstimateSpreadsheetProps) {
-  const [presets] = useState<EstimatePresetData[]>(initialData.presets || []);
+  const [presets, setPresets] = useState<EstimatePresetData[]>(initialData.presets || []);
   const [isPresetsModalOpen, setIsPresetsModalOpen] = useState(false);
   const [isSavePresetModalOpen, setIsSavePresetModalOpen] = useState(false);
   const [isLeadBinderModalOpen, setIsLeadBinderModalOpen] = useState(false);
@@ -55,16 +56,46 @@ export default function EstimateSpreadsheet({
     handleRemoveItem,
     handleClearAll,
     handleApplyMultiplierToAll,
+    handleSyncPricesFromCatalog,
     handleCopyClientProposal,
   } = useEstimateSpreadsheet({
     initialItems,
     storageKey,
   });
 
+  const handleRefreshPresets = useCallback(async () => {
+    const res = await getEstimatePresets();
+    if (res.success && res.data) {
+      setPresets(res.data);
+    }
+  }, []);
+
+  const handlePrint = useCallback(() => {
+    triggerHaptic("light");
+    window.print();
+  }, []);
+
   return (
     <div className="space-y-4">
+      {/* Печатный фирменный заголовок коммерческого предложения (виден только при печати) */}
+      <div className="hidden print:block mb-6 p-4 border-b border-slate-300">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900">ADLight | Спецификация сметы</h1>
+            <p className="text-xs text-slate-600">Производство наружной рекламы полного цикла, г. Астана</p>
+            <p className="text-xs text-slate-500">Тел: +7 (778) 003-22-26 | info@adlight.kz</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-bold text-slate-800">
+              {contextLeadName ? `Проект: ${contextLeadName}` : "Коммерческое предложение"}
+            </p>
+            <p className="text-xs text-slate-500">Дата: {new Date().toLocaleDateString("ru-RU")}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Верхняя компактная панель действий */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 sm:px-5 rounded-3xl border border-slate-200/80 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 sm:px-5 rounded-3xl border border-slate-200/80 shadow-2xs print:hidden">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 flex items-center justify-center font-bold">
             <Sparkles className="w-4 h-4" />
@@ -84,8 +115,8 @@ export default function EstimateSpreadsheet({
           </div>
         </div>
 
-        {/* Кнопки управления пресетами и очисткой */}
-        <div className="flex items-center gap-2">
+        {/* Кнопки управления пресетами, актуализацией и очисткой */}
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Открыть каталог пресетов */}
           <button
             type="button"
@@ -101,6 +132,32 @@ export default function EstimateSpreadsheet({
               {presets.length}
             </span>
           </button>
+
+          {/* Актуализировать цены позиций по свежему каталогу */}
+          {items.length > 0 && (
+            <button
+              type="button"
+              onClick={() => handleSyncPricesFromCatalog(initialData.supplierPrices, initialData.warehouseItems)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer active:scale-95"
+              title="Обновить закупочные цены позиций сметы из текущего каталога поставщиков и склада"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+              <span>Свежие цены</span>
+            </button>
+          )}
+
+          {/* Быстрая печать / PDF */}
+          {items.length > 0 && (
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer active:scale-95"
+              title="Распечатать смету или сохранить в PDF"
+            >
+              <Printer className="w-3.5 h-3.5 text-slate-500" />
+              <span>Печать</span>
+            </button>
+          )}
 
           {/* Переключатель видимости полки накидывания */}
           <button
@@ -138,7 +195,7 @@ export default function EstimateSpreadsheet({
       {/* Основная рабочая область: Таблица + Полка */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
         {/* Табличная сетка */}
-        <div className={`transition-all duration-200 ${isShelfVisible ? "xl:col-span-8 2xl:col-span-9" : "xl:col-span-12"}`}>
+        <div className={`transition-all duration-200 ${isShelfVisible ? "xl:col-span-8 2xl:col-span-9 print:w-full" : "xl:col-span-12 print:w-full"}`}>
           <EstimateTableGrid
             items={items}
             supplierPrices={initialData.supplierPrices}
@@ -149,12 +206,13 @@ export default function EstimateSpreadsheet({
             onAddEmptyRow={handleAddEmptyRow}
             onAddSupplierMaterial={handleAddSupplierMaterial}
             onAddWorkOperation={handleAddWorkOperation}
+            onAddWarehouseItem={handleAddWarehouseItem}
           />
         </div>
 
         {/* Боковая полка быстрого накидывания */}
         {isShelfVisible && (
-          <div className="xl:col-span-4 2xl:col-span-3 sticky top-4">
+          <div className="xl:col-span-4 2xl:col-span-3 sticky top-4 print:hidden">
             <EstimateQuickShelf
               supplierPrices={initialData.supplierPrices}
               workOperations={initialData.workOperations}
@@ -167,6 +225,20 @@ export default function EstimateSpreadsheet({
         )}
       </div>
 
+      {/* Печатный подвал с условиями гарантии и подписью (виден только при печати) */}
+      <div className="hidden print:block mt-8 pt-4 border-t border-slate-300 text-xs text-slate-600 space-y-2">
+        <div className="flex justify-between items-center font-bold text-sm text-slate-900">
+          <span>Итого к оплате:</span>
+          <span className="font-mono text-base">{breakdown.totalSell.toLocaleString("ru-RU")} ₸</span>
+        </div>
+        <p>• Гарантия на электронные компоненты (блоки питания, светодиоды): 12 месяцев.</p>
+        <p>• Срок производства: 3–7 рабочих дней с момента внесения предоплаты и согласования макета.</p>
+        <div className="pt-6 flex justify-between text-slate-500">
+          <span>Исполнитель: ТОО &quot;ADLight&quot; _______________</span>
+          <span>Заказчик: ___________________________</span>
+        </div>
+      </div>
+
       {/* Нижняя плавающая планка с моментальным пересчетом и экспортом */}
       <EstimateFloatingBar
         breakdown={breakdown}
@@ -175,6 +247,7 @@ export default function EstimateSpreadsheet({
         onCopyProposal={handleCopyClientProposal}
         onOpenSavePreset={() => setIsSavePresetModalOpen(true)}
         onOpenLeadBinder={() => setIsLeadBinderModalOpen(true)}
+        onPrint={handlePrint}
       />
 
       {/* Модальное окно просмотра и применения пресетов */}
@@ -184,9 +257,7 @@ export default function EstimateSpreadsheet({
           onClose={() => setIsPresetsModalOpen(false)}
           presets={presets}
           onApplyPreset={handleApplyPreset}
-          onRefreshPresets={() => {
-            // обновить список пресетов
-          }}
+          onRefreshPresets={handleRefreshPresets}
         />
       )}
 
@@ -196,9 +267,7 @@ export default function EstimateSpreadsheet({
           isOpen={isSavePresetModalOpen}
           onClose={() => setIsSavePresetModalOpen(false)}
           items={items}
-          onSavedSuccess={() => {
-            // обновить пресеты
-          }}
+          onSavedSuccess={handleRefreshPresets}
         />
       )}
 

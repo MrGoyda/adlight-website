@@ -20,12 +20,13 @@ interface EstimateTableGridProps {
   items: SpreadsheetItem[];
   supplierPrices: CalculatorSupplierPrice[];
   workOperations: CalculatorWorkOperation[];
-  warehouseItems: CalculatorWarehouseItem[];
+  warehouseItems?: CalculatorWarehouseItem[];
   onUpdateItem: (id: string, field: keyof SpreadsheetItem, value: string | number | InventoryUnit) => void;
   onRemoveItem: (id: string) => void;
   onAddEmptyRow: (type?: EstimateItemType) => void;
   onAddSupplierMaterial: (price: CalculatorSupplierPrice) => void;
   onAddWorkOperation: (op: CalculatorWorkOperation) => void;
+  onAddWarehouseItem?: (item: CalculatorWarehouseItem) => void;
 }
 
 const QUICK_CHIPS = [
@@ -41,11 +42,13 @@ export default function EstimateTableGrid({
   items,
   supplierPrices,
   workOperations,
+  warehouseItems = [],
   onUpdateItem,
   onRemoveItem,
   onAddEmptyRow,
   onAddSupplierMaterial,
   onAddWorkOperation,
+  onAddWarehouseItem,
 }: EstimateTableGridProps) {
   const [inlineSearch, setInlineSearch] = useState("");
   const deferredInlineSearch = useDeferredValue(inlineSearch);
@@ -83,6 +86,27 @@ export default function EstimateTableGrid({
         raw: p,
       }));
 
+    const matchedWarehouse = (warehouseItems || [])
+      .filter((w) =>
+        matchSearchQuery(
+          {
+            name: w.name,
+            category: w.category,
+          },
+          deferredInlineSearch
+        )
+      )
+      .slice(0, 3)
+      .map((w) => ({
+        type: "warehouse" as const,
+        id: w.id,
+        name: w.name,
+        badge: `Склад (${w.quantity} ${UNIT_LABELS[w.unit] || ""})`,
+        price: w.price,
+        unit: w.unit,
+        raw: w,
+      }));
+
     const matchedWorks = workOperations
       .filter((w) => matchSearchQuery({ name: w.name }, deferredInlineSearch))
       .slice(0, 4)
@@ -96,8 +120,8 @@ export default function EstimateTableGrid({
         raw: w,
       }));
 
-    return [...matchedMaterials, ...matchedWorks];
-  }, [deferredInlineSearch, supplierPrices, workOperations]);
+    return [...matchedMaterials, ...matchedWarehouse, ...matchedWorks];
+  }, [deferredInlineSearch, supplierPrices, warehouseItems, workOperations]);
 
   // Подсказки при пустом поиске (интерактивная шпаргалка по категориям и ходовым позициям)
   const cheatSheetResults = React.useMemo(() => {
@@ -294,6 +318,18 @@ export default function EstimateTableGrid({
                               context: "calculator",
                             });
                           }
+                        } else if (res.type === "warehouse") {
+                          const stock = res.raw as CalculatorWarehouseItem;
+                          onAddWarehouseItem?.(stock);
+                          if (currentQuery.trim()) {
+                            recordSearchSelectionAction({
+                              query: currentQuery,
+                              entityId: stock.id,
+                              entityType: "warehouse_item",
+                              selectedTitle: stock.name,
+                              context: "calculator",
+                            });
+                          }
                         } else {
                           const work = res.raw as CalculatorWorkOperation;
                           onAddWorkOperation(work);
@@ -314,7 +350,13 @@ export default function EstimateTableGrid({
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="p-1.5 rounded-lg bg-slate-100 text-slate-600 group-hover:bg-orange-100 group-hover:text-orange-700 transition">
-                          {res.type === "material" ? <Layers className="w-3.5 h-3.5" /> : <Cpu className="w-3.5 h-3.5" />}
+                          {res.type === "material" ? (
+                            <Layers className="w-3.5 h-3.5" />
+                          ) : res.type === "warehouse" ? (
+                            <Boxes className="w-3.5 h-3.5 text-blue-600" />
+                          ) : (
+                            <Cpu className="w-3.5 h-3.5" />
+                          )}
                         </span>
                         <div className="truncate">
                           <div className="text-xs font-semibold text-slate-800 truncate">{res.name}</div>

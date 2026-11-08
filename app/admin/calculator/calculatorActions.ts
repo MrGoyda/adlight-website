@@ -248,6 +248,36 @@ export async function togglePresetFavorite(id: string, isFavorite: boolean) {
   }
 }
 
+export async function getEstimatePresets(): Promise<{ success: boolean; data?: EstimatePresetData[]; error?: string }> {
+  try {
+    const presets = await prisma.estimatePreset.findMany({
+      orderBy: [
+        { isFavorite: "desc" },
+        { name: "asc" },
+      ],
+    });
+    return {
+      success: true,
+      data: presets.map((p) => ({
+        id: p.id,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+        name: p.name,
+        category: p.category,
+        description: p.description,
+        items: p.items as unknown as EstimatePresetItem[],
+        isFavorite: p.isFavorite,
+      })),
+    };
+  } catch (error) {
+    console.error("Failed to load presets:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Не удалось загрузить шаблоны",
+    };
+  }
+}
+
 export async function saveEstimateToLead(
   leadId: string,
   items: Array<{
@@ -258,6 +288,7 @@ export async function saveEstimateToLead(
     costPrice: number;
     sellPrice: number;
     warehouseItemId?: string | null;
+    supplierPriceId?: string | null;
   }>
 ) {
   try {
@@ -287,6 +318,7 @@ export async function saveEstimateToLead(
             costPrice: Number(i.costPrice) || 0,
             sellPrice: Number(i.sellPrice) || 0,
             warehouseItemId: i.warehouseItemId || null,
+            supplierPriceId: i.supplierPriceId || null,
           })),
         });
       }
@@ -333,6 +365,7 @@ export async function createLeadFromEstimate(
     costPrice: number;
     sellPrice: number;
     warehouseItemId?: string | null;
+    supplierPriceId?: string | null;
   }>
 ) {
   try {
@@ -373,6 +406,7 @@ export async function createLeadFromEstimate(
             costPrice: Number(i.costPrice) || 0,
             sellPrice: Number(i.sellPrice) || 0,
             warehouseItemId: i.warehouseItemId || null,
+            supplierPriceId: i.supplierPriceId || null,
           })),
         });
       }

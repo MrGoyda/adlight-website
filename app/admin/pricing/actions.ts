@@ -56,9 +56,28 @@ export async function getPricingData() {
 
     return {
       success: true,
-      suppliers: JSON.parse(JSON.stringify(suppliers)),
-      supplierPrices: JSON.parse(JSON.stringify(supplierPrices)),
-      workOperations: JSON.parse(JSON.stringify(workOperations)),
+      suppliers: suppliers.map((s) => ({
+        ...s,
+        createdAt: s.createdAt.toISOString(),
+        updatedAt: s.updatedAt.toISOString(),
+      })),
+      supplierPrices: supplierPrices.map((sp) => ({
+        ...sp,
+        createdAt: sp.createdAt.toISOString(),
+        updatedAt: sp.updatedAt.toISOString(),
+        supplierObj: sp.supplierObj
+          ? {
+              ...sp.supplierObj,
+              createdAt: sp.supplierObj.createdAt.toISOString(),
+              updatedAt: sp.supplierObj.updatedAt.toISOString(),
+            }
+          : null,
+      })),
+      workOperations: workOperations.map((wo) => ({
+        ...wo,
+        createdAt: wo.createdAt.toISOString(),
+        updatedAt: wo.updatedAt.toISOString(),
+      })),
     };
   } catch (error: unknown) {
     console.error("Ошибка при получении данных прайсов:", error);

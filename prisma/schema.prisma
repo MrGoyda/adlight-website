@@ -408,9 +408,11 @@ model EstimateItem {
   
   // Для связи со складом при ручном списании
   warehouseItemId String?
+  supplierPriceId String?
 
   @@index([estimateId])
   @@index([warehouseItemId])
+  @@index([supplierPriceId])
 }
 
 enum UserRole {

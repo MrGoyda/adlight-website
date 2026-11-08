@@ -52,7 +52,8 @@ export default function EstimateLeadBinderModal({
       unit: i.unit,
       costPrice: Number(i.costPrice) || 0,
       sellPrice: Number(i.sellPrice) || 0,
-      warehouseItemId: i.warehouseItemId,
+      warehouseItemId: i.warehouseItemId || null,
+      supplierPriceId: i.supplierPriceId || null,
     }));
 
     if (mode === "existing") {
