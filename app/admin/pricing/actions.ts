@@ -15,26 +15,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
  */
 export async function getPricingData() {
   try {
-    // 1. Проверяем наличие базовых тарифов работ
-    const operationsCount = await prisma.workOperation.count();
-    if (operationsCount === 0) {
-      for (const op of DEFAULT_WORK_OPERATIONS) {
-        await prisma.workOperation.upsert({
-          where: { name: op.name },
-          update: {},
-          create: {
-            type: op.type,
-            name: op.name,
-            unit: op.unit,
-            defaultCost: op.defaultCost,
-            defaultPrice: op.defaultPrice,
-            isCustom: false,
-          },
-        });
-      }
-    }
-
-    const [suppliers, supplierPrices, workOperations] = await Promise.all([
+    const [suppliers, supplierPrices, initialOperations] = await Promise.all([
       prisma.supplier.findMany({
         orderBy: { name: "asc" },
         include: {
@@ -53,6 +34,29 @@ export async function getPricingData() {
         orderBy: [{ type: "asc" }, { name: "asc" }],
       }),
     ]);
+
+    let workOperations = initialOperations;
+
+    // Инициализация базовых тарифов работ только при первом запуске (если таблица пуста)
+    if (workOperations.length === 0) {
+      for (const op of DEFAULT_WORK_OPERATIONS) {
+        await prisma.workOperation.upsert({
+          where: { name: op.name },
+          update: {},
+          create: {
+            type: op.type,
+            name: op.name,
+            unit: op.unit,
+            defaultCost: op.defaultCost,
+            defaultPrice: op.defaultPrice,
+            isCustom: false,
+          },
+        });
+      }
+      workOperations = await prisma.workOperation.findMany({
+        orderBy: [{ type: "asc" }, { name: "asc" }],
+      });
+    }
 
     return {
       success: true,
