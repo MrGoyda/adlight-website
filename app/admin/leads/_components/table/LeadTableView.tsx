@@ -181,7 +181,7 @@ function LeadTableView({
                           {/* Смета калькулятор */}
                           <a
                             href={`/admin/calculator?leadId=${lead.id}`}
-                            className="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center justify-center transition"
+                            className="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 flex items-center justify-center transition touch-manipulation"
                             title={tableDict.calcTooltip}
                           >
                             <Calculator className="w-3.5 h-3.5" />
@@ -192,7 +192,7 @@ function LeadTableView({
                             <button
                               type="button"
                               onClick={(e) => onCopyPhone(e, lead.phone || "")}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+                              className="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer touch-manipulation"
                               title={tableDict.copyPhoneTooltip}
                             >
                               <Copy className="w-3.5 h-3.5" />
@@ -203,7 +203,7 @@ function LeadTableView({
                           {cleanPhone && (
                             <a
                               href={`tel:${cleanPhone}`}
-                              className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"
+                              className="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition touch-manipulation"
                               title={tableDict.callTooltip}
                             >
                               <Phone className="w-3.5 h-3.5" />
@@ -215,7 +215,7 @@ function LeadTableView({
                             href={getWhatsAppUrl(lead.phone || "", `Здравствуйте, ${lead.name || tableDict.whatsAppGreeting}!`)}
                             target="_blank"
                             rel="noreferrer"
-                            className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition"
+                            className="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition touch-manipulation"
                             title={tableDict.whatsAppTooltip}
                           >
                             <WhatsAppIcon className="w-3.5 h-3.5" />
@@ -226,7 +226,7 @@ function LeadTableView({
                             <button
                               type="button"
                               onClick={(e) => onDeleteClick(lead.id, e, false)}
-                              className="w-7 h-7 rounded-lg bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition cursor-pointer"
+                              className="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition cursor-pointer touch-manipulation"
                               title="В корзину"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

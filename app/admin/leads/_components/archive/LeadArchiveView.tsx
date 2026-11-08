@@ -321,7 +321,6 @@ export default function LeadArchiveView({
                   return (
                     <tr
                       key={lead.id}
-                      style={{ contentVisibility: "auto", containIntrinsicSize: "50px" }}
                       onClick={() => {
                         triggerHaptic("light");
                         onSelectLead(lead);
@@ -458,7 +457,7 @@ export default function LeadArchiveView({
                           {cleanPhone && (
                             <a
                               href={`tel:${cleanPhone}`}
-                              className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition border border-blue-200/50"
+                              className="w-8 h-8 sm:w-7 sm:h-7 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition border border-blue-200/50 touch-manipulation"
                               title={tableDict.callTooltip}
                             >
                               <Phone className="w-3.5 h-3.5" />
@@ -471,7 +470,7 @@ export default function LeadArchiveView({
                               href={getWhatsAppUrl(cleanPhone, `Здравствуйте, ${lead.name || tableDict.whatsAppGreeting}!`)}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition border border-emerald-200/50"
+                              className="w-8 h-8 sm:w-7 sm:h-7 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 flex items-center justify-center transition border border-emerald-200/50 touch-manipulation"
                               title={tableDict.whatsAppTooltip}
                             >
                               <WhatsAppIcon className="w-3.5 h-3.5" />
@@ -482,7 +481,7 @@ export default function LeadArchiveView({
                           <button
                             type="button"
                             onClick={(e) => onDeleteClick(lead.id, e, false)}
-                            className="w-7 h-7 rounded-xl bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition cursor-pointer"
+                            className="w-8 h-8 sm:w-7 sm:h-7 rounded-xl bg-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition cursor-pointer touch-manipulation"
                             title="В корзину"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

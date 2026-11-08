@@ -41,7 +41,7 @@ export default function CrmAppShell({ children }: { children: React.ReactNode })
         />
 
         {/* Прокручиваемый рабочий контент */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain p-3 sm:p-5 lg:p-6 pb-24 lg:pb-6">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain p-3 sm:p-5 lg:p-6 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] lg:pb-6">
           {children}
         </main>
       </div>

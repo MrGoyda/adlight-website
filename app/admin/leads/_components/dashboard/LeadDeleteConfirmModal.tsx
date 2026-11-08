@@ -38,11 +38,11 @@ export default function LeadDeleteConfirmModal({
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/60 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/60 animate-in fade-in duration-200 overflow-y-auto"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-3xl p-5 sm:p-6 w-full max-w-sm shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-200"
+        className="bg-white rounded-3xl p-5 sm:p-6 w-full max-w-sm shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-200 max-h-[90dvh] overflow-y-auto my-auto"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

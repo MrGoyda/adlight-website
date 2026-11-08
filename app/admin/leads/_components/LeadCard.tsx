@@ -338,7 +338,7 @@ function LeadCard({
               }}
               onBlur={handleSaveNote}
               placeholder={dict.notePlaceholder}
-              className="w-full text-[11px] px-2 py-1 bg-amber-50/60 border border-amber-300 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="w-full text-base sm:text-[11px] px-2 py-1 bg-amber-50/60 border border-amber-300 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
         ) : (
@@ -490,7 +490,7 @@ function LeadCard({
             <button
               type="button"
               onClick={handleOpenCalculator}
-              className="w-7 h-7 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-90 border border-orange-200/60"
+              className="w-8 h-8 sm:w-7 sm:h-7 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-90 border border-orange-200/60 touch-manipulation"
               title={LEADS_DICTIONARY.table.calcTooltip}
             >
               <Calculator className="w-3.5 h-3.5" />
@@ -501,7 +501,7 @@ function LeadCard({
               <button
                 type="button"
                 onClick={handleCallClick}
-                className="w-7 h-7 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition active:scale-90 border border-blue-200/60"
+                className="w-8 h-8 sm:w-7 sm:h-7 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition active:scale-90 border border-blue-200/60 touch-manipulation"
                 title={`${LEADS_DICTIONARY.table.callTooltip}: ${lead.phone}`}
               >
                 <Phone className="w-3.5 h-3.5" />
@@ -512,7 +512,7 @@ function LeadCard({
             <button
               type="button"
               onClick={handleWhatsAppClick}
-              className="w-7 h-7 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-90 border border-emerald-200/60"
+              className="w-8 h-8 sm:w-7 sm:h-7 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-90 border border-emerald-200/60 touch-manipulation"
               title={LEADS_DICTIONARY.table.whatsAppTooltip}
             >
               <WhatsAppIcon className="w-3.5 h-3.5" />
@@ -523,7 +523,7 @@ function LeadCard({
               <button
                 type="button"
                 onClick={(e) => onDeleteClick(lead.id, e, false)}
-                className="w-7 h-7 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition active:scale-90 border border-slate-200/60"
+                className="w-8 h-8 sm:w-7 sm:h-7 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition active:scale-90 border border-slate-200/60 touch-manipulation"
                 title="Переместить в корзину"
               >
                 <Trash2 className="w-3.5 h-3.5" />

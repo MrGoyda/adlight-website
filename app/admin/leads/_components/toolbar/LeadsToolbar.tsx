@@ -108,8 +108,8 @@ export default function LeadsToolbar({
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         
         {/* Слева: 3 пространства + Вид */}
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <div className="inline-flex bg-slate-100 p-1 rounded-2xl select-none">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap min-w-0 max-w-full">
+          <div className="inline-flex bg-slate-100 p-1 rounded-2xl select-none max-w-full overflow-x-auto no-scrollbar shrink-0">
             <button
               onClick={() => {
                 triggerHaptic("light");
@@ -216,7 +216,7 @@ export default function LeadsToolbar({
             placeholder={t.searchPlaceholder}
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-8 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs placeholder:text-slate-400"
+            className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl pl-9 pr-8 py-2 text-base sm:text-xs font-semibold text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs placeholder:text-slate-400"
           />
           {searchTerm && (
             <button

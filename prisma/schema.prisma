@@ -20,6 +20,24 @@ enum TransactionType {
   INCOME
   EXPENSE_COMPANY
   WITHDRAWAL_PARTNER
+  TRANSFER_BETWEEN_ACCOUNTS
+}
+
+enum AccountType {
+  BANK_CHECKING
+  KASPI_PAY
+  CASH_OFFICE
+  PETTY_CASH
+  SAFE
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE_DIRECT
+  EXPENSE_OVERHEAD
+  EXPENSE_COMMERCIAL
+  EXPENSE_TAX
+  WITHDRAWAL
 }
 
 enum PartnerName {
@@ -198,20 +216,83 @@ model LeadActivity {
 }
 
 model DbTransaction {
-  id          String          @id @default(uuid())
-  createdAt   DateTime        @default(now())
-  type        TransactionType
-  amount      Float
-  description String
+  id              String           @id @default(uuid())
+  createdAt       DateTime         @default(now())
+  transactionDate DateTime         @default(now())
+  type            TransactionType
+  amount          Float
+  description     String
   
-  leadId      String?
-  lead        Lead?           @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  leadId          String?
+  lead            Lead?            @relation(fields: [leadId], references: [id], onDelete: SetNull)
   
-  partner     PartnerName?
+  partner         PartnerName?
+
+  accountId       String?
+  account         FinanceAccount?  @relation("AccountTransactions", fields: [accountId], references: [id], onDelete: SetNull)
+
+  targetAccountId String?
+  targetAccount   FinanceAccount?  @relation("TargetAccountTransactions", fields: [targetAccountId], references: [id], onDelete: SetNull)
+
+  categoryId      String?
+  category        FinanceCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  receiptUrl      String?
 
   @@index([leadId])
   @@index([createdAt(sort: Desc)])
+  @@index([transactionDate(sort: Desc)])
   @@index([type])
+  @@index([accountId])
+  @@index([targetAccountId])
+  @@index([categoryId])
+}
+
+model FinanceAccount {
+  id           String          @id @default(uuid())
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  name         String
+  type         AccountType     @default(CASH_OFFICE)
+  balance      Float           @default(0)
+  currency     String          @default("KZT")
+  isDefault    Boolean         @default(false)
+  color        String          @default("orange")
+  icon         String?
+  isArchived   Boolean         @default(false)
+
+  transactions DbTransaction[] @relation("AccountTransactions")
+  transfersTo  DbTransaction[] @relation("TargetAccountTransactions")
+
+  @@index([type])
+  @@index([isArchived])
+}
+
+model FinanceCategory {
+  id           String            @id @default(uuid())
+  name         String
+  type         CategoryType
+  color        String            @default("slate")
+  icon         String?
+  parentId     String?
+  parent       FinanceCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children     FinanceCategory[] @relation("CategoryHierarchy")
+  isArchived   Boolean           @default(false)
+
+  transactions DbTransaction[]
+
+  @@index([type])
+  @@index([parentId])
+}
+
+model CompanyFund {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  name          String
+  targetPercent Float    @default(0) // % от чистой прибыли
+  balance       Float    @default(0)
+  color         String   @default("blue")
 }
 
 model CompanyState {

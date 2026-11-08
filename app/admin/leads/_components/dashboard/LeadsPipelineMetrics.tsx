@@ -84,7 +84,7 @@ export default function LeadsPipelineMetrics({
   }, [leads]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
       {/* ── 1. ОБЩИЙ ПАЙПЛАЙН В РАБОТЕ ── */}
       <button
         type="button"
@@ -92,27 +92,27 @@ export default function LeadsPipelineMetrics({
           triggerHaptic("light");
           onSelectStatusFilter("ALL");
         }}
-        className={`p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 ${
+        className={`p-3 sm:p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 min-w-0 ${
           currentStatusFilter === "ALL" && timingFilter === "ALL"
             ? "border-orange-500 ring-2 ring-orange-500/10"
             : "border-slate-200/80 hover:border-slate-300"
         }`}
       >
-        <div className="space-y-1">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="space-y-1 min-w-0 flex-1 pr-1.5">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block truncate">
             {dict.activePipeline}
           </span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className="text-xs xs:text-sm sm:text-2xl font-black text-slate-900 font-mono tracking-tight truncate block">
               {metrics.pipelineRevenue.toLocaleString("ru-RU")}&nbsp;₸
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 font-medium">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
             {metrics.pipelineCount} {dict.activeDealsSuffix}
           </p>
         </div>
-        <div className="w-11 h-11 rounded-2xl bg-orange-50 border border-orange-200/70 text-orange-600 flex items-center justify-center shrink-0">
-          <TrendingUp className="w-5 h-5" />
+        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-orange-50 border border-orange-200/70 text-orange-600 flex items-center justify-center shrink-0">
+          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
       </button>
 
@@ -123,27 +123,27 @@ export default function LeadsPipelineMetrics({
           triggerHaptic("light");
           onSelectStatusFilter(currentStatusFilter === "PROCESSED" ? "ALL" : "PROCESSED");
         }}
-        className={`p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 ${
+        className={`p-3 sm:p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 min-w-0 ${
           currentStatusFilter === "PROCESSED"
             ? "border-blue-500 ring-2 ring-blue-500/10"
             : "border-slate-200/80 hover:border-slate-300"
         }`}
       >
-        <div className="space-y-1">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="space-y-1 min-w-0 flex-1 pr-1.5">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block truncate">
             {dict.inProduction}
           </span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-xl sm:text-2xl font-black text-blue-700 font-mono tracking-tight">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className="text-xs xs:text-sm sm:text-2xl font-black text-blue-700 font-mono tracking-tight truncate block">
               {metrics.inProductionRevenue.toLocaleString("ru-RU")}&nbsp;₸
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 font-medium">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
             {metrics.inProductionCount} {dict.ordersInProductionSuffix}
           </p>
         </div>
-        <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200/70 text-blue-600 flex items-center justify-center shrink-0">
-          <Hammer className="w-5 h-5" />
+        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-blue-50 border border-blue-200/70 text-blue-600 flex items-center justify-center shrink-0">
+          <Hammer className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
       </button>
 
@@ -154,37 +154,37 @@ export default function LeadsPipelineMetrics({
           triggerHaptic("light");
           onSelectStatusFilter(currentStatusFilter === "COMPLETED" ? "ALL" : "COMPLETED");
         }}
-        className={`p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 ${
+        className={`p-3 sm:p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 min-w-0 ${
           currentStatusFilter === "COMPLETED"
             ? "border-emerald-500 ring-2 ring-emerald-500/10"
             : "border-slate-200/80 hover:border-slate-300"
         }`}
       >
-        <div className="space-y-1">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="space-y-1 min-w-0 flex-1 pr-1.5">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block truncate">
             {dict.completedPaid}
           </span>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-xl sm:text-2xl font-black text-emerald-700 font-mono tracking-tight">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className="text-xs xs:text-sm sm:text-2xl font-black text-emerald-700 font-mono tracking-tight truncate block">
               {metrics.completedRevenue.toLocaleString("ru-RU")}&nbsp;₸
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 font-medium">
+          <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
             {metrics.completedCount} {dict.completedProjectsSuffix}
           </p>
         </div>
-        <div className="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200/70 text-emerald-600 flex items-center justify-center shrink-0">
-          <CheckCircle2 className="w-5 h-5" />
+        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-emerald-50 border border-emerald-200/70 text-emerald-600 flex items-center justify-center shrink-0">
+          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
       </button>
 
       {/* ── 4. АЛЕРТЫ СРОЧНОСТИ (Горящие / Замеры) ── */}
-      <div className="p-4 bg-white border border-slate-200/80 rounded-3xl shadow-2xs flex items-center justify-between">
-        <div className="space-y-2 flex-1 mr-2">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+      <div className="p-3 sm:p-4 bg-white border border-slate-200/80 rounded-3xl shadow-2xs flex items-center justify-between min-w-0">
+        <div className="space-y-2 flex-1 mr-1.5 min-w-0">
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block truncate">
             {dict.urgentActions}
           </span>
-          <div className="flex items-center gap-2 flex-wrap min-h-[28px]" suppressHydrationWarning>
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-h-[28px]" suppressHydrationWarning>
             {!isMounted ? (
               <span className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-300 animate-pulse" />
@@ -199,14 +199,14 @@ export default function LeadsPipelineMetrics({
                       triggerHaptic("medium");
                       onSelectTimingFilter(timingFilter === "COLD_WARNING" ? "ALL" : "COLD_WARNING");
                     }}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] sm:text-xs font-black transition cursor-pointer ${
                       timingFilter === "COLD_WARNING"
                         ? "bg-rose-600 text-white shadow-2xs"
                         : "bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100"
                     }`}
                     title={dict.waitingTooltip}
                   >
-                    <Flame className="w-3.5 h-3.5" />
+                    <Flame className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     <span>{coldWarnings}&nbsp;{dict.waitingSuffix}</span>
                   </button>
                 )}
@@ -218,22 +218,22 @@ export default function LeadsPipelineMetrics({
                       triggerHaptic("light");
                       onSelectTimingFilter(timingFilter === "APPOINTMENTS_TODAY" ? "ALL" : "APPOINTMENTS_TODAY");
                     }}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer ${
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] sm:text-xs font-black transition cursor-pointer ${
                       timingFilter === "APPOINTMENTS_TODAY"
                         ? "bg-amber-600 text-white shadow-2xs"
                         : "bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100"
                     }`}
                     title={dict.appointmentTooltip}
                   >
-                    <Calendar className="w-3.5 h-3.5" />
+                    <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     <span>{appointmentsToday}&nbsp;{dict.appointmentSuffix}</span>
                   </button>
                 )}
 
                 {coldWarnings === 0 && appointmentsToday === 0 && (
-                  <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    {dict.allOnSchedule}
+                  <span className="text-[11px] sm:text-xs text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    <span className="truncate">{dict.allOnSchedule}</span>
                   </span>
                 )}
               </>
@@ -241,8 +241,8 @@ export default function LeadsPipelineMetrics({
           </div>
         </div>
 
-        <div className="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 text-slate-500 flex items-center justify-center shrink-0">
-          <AlertTriangle className="w-5 h-5 text-slate-400" />
+        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200/70 text-slate-500 flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
         </div>
       </div>
     </div>

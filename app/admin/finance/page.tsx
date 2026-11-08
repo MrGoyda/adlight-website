@@ -1,72 +1,30 @@
-import { prisma } from "@/lib/prisma";
+import { getFinanceInitialData } from "./actions";
 import FinanceDashboard from "./_components/FinanceDashboard";
-import { PartnerName, TransactionType } from "@prisma/client";
 
 export const revalidate = 0; // Отключаем кэширование для получения свежих финансовых логов
 
 export default async function FinancePage() {
-  // Параллельный запрос состояния кассы, транзакций, выводов и сделок через Promise.all
-  const [
-    state,
-    transactions,
-    withdrawals,
-    leads
-  ] = await Promise.all([
-    // 1. Получаем состояние кассы
-    prisma.companyState.findUnique({
-      where: { id: "global" },
-    }),
+  const result = await getFinanceInitialData();
 
-    // 2. Получаем все транзакции
-    prisma.dbTransaction.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { lead: true }
-    }),
+  if (!result.success || !result.data) {
+    return (
+      <div className="p-8 text-center text-rose-500 bg-rose-50 rounded-3xl border border-rose-200">
+        Не удалось загрузить финансовую систему: {result.error || "Неизвестная ошибка"}
+      </div>
+    );
+  }
 
-    // 3. Высчитываем суммарные выводы партнеров
-    prisma.dbTransaction.groupBy({
-      by: ["partner"],
-      where: {
-        type: TransactionType.WITHDRAWAL_PARTNER,
-      },
-      _sum: {
-        amount: true,
-      },
-    }),
-
-    // 4. Получаем список сделок для привязки к доходу
-    prisma.lead.findMany({
-      where: {
-        status: {
-          not: "CANCELLED"
-        }
-      },
-      orderBy: { updatedAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        phone: true,
-        status: true,
-        prepayment: true,
-        revenue: true,
-      }
-    }),
-  ]);
-
-  const cashbox = state?.cashbox || 0;
-
-  const withdrawalsMap = {
-    DANIIL: withdrawals.find(w => w.partner === PartnerName.DANIIL)?._sum.amount || 0,
-    ELISEY: withdrawals.find(w => w.partner === PartnerName.ELISEY)?._sum.amount || 0,
-  };
+  const { accounts, categories, funds, transactions, leads, totalCashbox } = result.data;
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full">
       <FinanceDashboard 
-        cashbox={cashbox}
-        transactions={JSON.parse(JSON.stringify(transactions))}
-        withdrawals={withdrawalsMap}
-        leads={JSON.parse(JSON.stringify(leads))}
+        accounts={accounts}
+        categories={categories}
+        funds={funds}
+        transactions={transactions}
+        leads={leads}
+        totalCashbox={totalCashbox}
       />
     </div>
   );

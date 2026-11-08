@@ -43,9 +43,9 @@ export default function LeadBulkActionDock({
   if (!isClient || selectedCount === 0) return null;
 
   return createPortal(
-    <div className="fixed bottom-6 inset-x-0 z-[9000] flex justify-center pointer-events-none px-4 animate-in slide-in-from-bottom-6 duration-200">
+    <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 inset-x-0 z-[9000] flex justify-center pointer-events-none px-3 sm:px-4 animate-in slide-in-from-bottom-6 duration-200">
       <div 
-        className="pointer-events-auto bg-slate-900/95 backdrop-blur-md text-white rounded-3xl px-4 py-2.5 sm:px-5 sm:py-3 shadow-2xl border border-slate-700/80 flex items-center gap-3 sm:gap-4 max-w-xl w-full justify-between select-none"
+        className="pointer-events-auto bg-slate-900/95 backdrop-blur-md text-white rounded-3xl px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-2xl border border-slate-700/80 flex items-center gap-2 sm:gap-4 max-w-xl w-full justify-between select-none"
         role="toolbar"
         aria-label="Массовые операции"
       >

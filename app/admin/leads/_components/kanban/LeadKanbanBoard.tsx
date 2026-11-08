@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { LeadStatus } from "@prisma/client";
 import { Lead } from "../../_types/leadTypes";
 import LeadCard from "../LeadCard";
@@ -108,6 +108,17 @@ function LeadKanbanBoard({
 }: LeadKanbanBoardProps) {
   const dict = LEADS_DICTIONARY.kanban;
   const [dragOverColId, setDragOverColId] = useState<string | null>(null);
+  const [activeMobileColId, setActiveMobileColId] = useState<string>("new");
+  const columnRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const handleScrollToColumn = (colId: string) => {
+    triggerHaptic("light");
+    setActiveMobileColId(colId);
+    const el = columnRefs.current[colId];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  };
 
   // Группировка лидов по колонкам воронки
   const columnsData = useMemo(() => {
@@ -124,39 +135,65 @@ function LeadKanbanBoard({
   }, [leads, dict]);
 
   return (
-    <div className="w-full overflow-x-auto pb-4">
-      <div className="inline-flex items-start gap-4 min-w-[1280px] w-full">
+    <div className="w-full pb-4">
+      {/* ── МОБИЛЬНЫЙ НАВИГАТОР ПО ЭТАПАМ ВОРОНКИ (< sm) ── */}
+      <div className="sm:hidden flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl overflow-x-auto no-scrollbar mb-3 select-none">
         {columnsData.map((col) => {
-          const isOver = dragOverColId === col.id;
+          const isActive = activeMobileColId === col.id;
           return (
-            <div
+            <button
               key={col.id}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = "move";
-                if (dragOverColId !== col.id) {
-                  setDragOverColId(col.id);
-                }
-              }}
-              onDragLeave={(e) => {
-                if (e.currentTarget.contains(e.relatedTarget as Node)) return;
-                setDragOverColId(null);
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDragOverColId(null);
-                const leadId = e.dataTransfer.getData("text/plain");
-                if (leadId && onStatusChangeQuick) {
-                  triggerHaptic("medium");
-                  onStatusChangeQuick(leadId, col.primaryStatus);
-                }
-              }}
-              className={`flex-1 min-w-[280px] max-w-[340px] rounded-3xl p-3 border flex flex-col max-h-[calc(100vh-250px)] transition-all duration-150 ${
-                isOver
-                  ? "bg-blue-50/90 border-blue-400 ring-4 ring-blue-500/20 scale-[1.01]"
-                  : "bg-slate-100/70 border-slate-200/80"
+              type="button"
+              onClick={() => handleScrollToColumn(col.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer ${
+                isActive
+                  ? "bg-white text-slate-900 shadow-2xs"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
+              <span>{col.title}</span>
+              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${col.badgeBg}`}>
+                {col.leads.length}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="w-full overflow-x-auto pb-2 snap-x snap-mandatory sm:snap-none no-scrollbar">
+        <div className="inline-flex items-start gap-3 sm:gap-4 min-w-full sm:min-w-[1280px] w-full px-0.5">
+          {columnsData.map((col) => {
+            const isOver = dragOverColId === col.id;
+            return (
+              <div
+                key={col.id}
+                ref={(el) => { columnRefs.current[col.id] = el; }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  if (dragOverColId !== col.id) {
+                    setDragOverColId(col.id);
+                  }
+                }}
+                onDragLeave={(e) => {
+                  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                  setDragOverColId(null);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOverColId(null);
+                  const leadId = e.dataTransfer.getData("text/plain");
+                  if (leadId && onStatusChangeQuick) {
+                    triggerHaptic("medium");
+                    onStatusChangeQuick(leadId, col.primaryStatus);
+                  }
+                }}
+                className={`w-[85vw] max-w-[340px] sm:w-auto sm:flex-1 sm:min-w-[280px] sm:max-w-[340px] shrink-0 snap-center rounded-3xl p-3 border flex flex-col max-h-[calc(100vh-250px)] transition-all duration-150 ${
+                  isOver
+                    ? "bg-blue-50/90 border-blue-400 ring-4 ring-blue-500/20 scale-[1.01]"
+                    : "bg-slate-100/70 border-slate-200/80"
+                }`}
+              >
               {/* ── ШАПКА КОЛОНКИ ── */}
               <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-200/80">
                 <div className="flex items-center gap-2">
@@ -228,6 +265,7 @@ function LeadKanbanBoard({
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );
