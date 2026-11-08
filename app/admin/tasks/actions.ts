@@ -8,18 +8,22 @@ import {
   PartnerName, 
   TransactionType, 
   CategoryType,
-  LeadStatus 
+  LeadStatus,
+  Prisma
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { TaskQuickCreatePayload, CrmTaskItem } from "./_types/taskTypes";
+import { TaskQuickCreatePayload, CrmTaskItem, TaskActionResult } from "./_types/taskTypes";
 
 /**
- * Получение всех стартовых данных для центра задач
+ * Получение всех стартовых данных для центра задач с оптимизированными выборками
  */
 export async function getTasksInitialData() {
   try {
     const [tasks, leads, accounts, categories] = await Promise.all([
       prisma.crmTask.findMany({
+        where: {
+          status: { not: TaskStatus.CANCELLED },
+        },
         orderBy: [
           { status: "asc" },
           { priority: "asc" },
@@ -130,16 +134,17 @@ export async function getTasksInitialData() {
         categories,
       },
     };
-  } catch (error: any) {
-    console.error("Failed to get tasks initial data:", error);
-    return { success: false, error: error.message || "Ошибка загрузки задач" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Ошибка загрузки задач";
+    console.error("[Tasks] Failed to get initial data:", error);
+    return { success: false, error: message };
   }
 }
 
 /**
- * Создание задачи
+ * Создание задачи с подзадачами в атомарной операции
  */
-export async function createTask(data: TaskQuickCreatePayload) {
+export async function createTask(data: TaskQuickCreatePayload): Promise<TaskActionResult> {
   try {
     const {
       title,
@@ -153,11 +158,14 @@ export async function createTask(data: TaskQuickCreatePayload) {
       subtaskTitles = [],
     } = data;
 
-    if (!title.trim()) return { error: "Укажите название задачи" };
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      return { success: false, error: "Укажите название задачи" };
+    }
 
     const task = await prisma.crmTask.create({
       data: {
-        title: title.trim(),
+        title: trimmedTitle,
         description: description?.trim() || null,
         stage,
         priority,
@@ -174,21 +182,23 @@ export async function createTask(data: TaskQuickCreatePayload) {
             })),
         } : undefined,
       },
+      select: { id: true },
     });
 
     revalidatePath("/admin/tasks");
     revalidatePath("/admin/leads");
     return { success: true, taskId: task.id };
-  } catch (error: any) {
-    console.error("Failed to create task:", error);
-    return { error: error.message || "Не удалось создать задачу" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Не удалось создать задачу";
+    console.error("[Tasks] Failed to create task:", error);
+    return { success: false, error: message };
   }
 }
 
 /**
  * Быстрое переключение статуса задачи
  */
-export async function updateTaskStatus(taskId: string, status: TaskStatus) {
+export async function updateTaskStatus(taskId: string, status: TaskStatus): Promise<TaskActionResult> {
   try {
     await prisma.crmTask.update({
       where: { id: taskId },
@@ -196,66 +206,74 @@ export async function updateTaskStatus(taskId: string, status: TaskStatus) {
         status,
         completedAt: status === TaskStatus.DONE ? new Date() : null,
       },
+      select: { id: true },
     });
 
     revalidatePath("/admin/tasks");
     return { success: true };
-  } catch (error: any) {
-    console.error("Failed to update task status:", error);
-    return { error: error.message || "Не удалось обновить статус" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Не удалось обновить статус";
+    console.error("[Tasks] Failed to update task status:", error);
+    return { success: false, error: message };
   }
 }
 
 /**
  * Смена этапа производства задачи
  */
-export async function updateTaskStage(taskId: string, stage: TaskStage) {
+export async function updateTaskStage(taskId: string, stage: TaskStage): Promise<TaskActionResult> {
   try {
     await prisma.crmTask.update({
       where: { id: taskId },
       data: { stage },
+      select: { id: true },
     });
 
     revalidatePath("/admin/tasks");
     return { success: true };
-  } catch (error: any) {
-    console.error("Failed to update task stage:", error);
-    return { error: error.message || "Не удалось сменить этап" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Не удалось сменить этап";
+    console.error("[Tasks] Failed to update task stage:", error);
+    return { success: false, error: message };
   }
 }
 
 /**
  * Переключение выполнения подпункта чек-листа
  */
-export async function toggleSubtask(subtaskId: string, isCompleted: boolean) {
+export async function toggleSubtask(subtaskId: string, isCompleted: boolean): Promise<TaskActionResult> {
   try {
     await prisma.crmSubtask.update({
       where: { id: subtaskId },
       data: { isCompleted },
+      select: { id: true },
     });
 
     revalidatePath("/admin/tasks");
     return { success: true };
-  } catch (error: any) {
-    console.error("Failed to toggle subtask:", error);
-    return { error: error.message || "Не удалось обновить подпункт" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Не удалось обновить подпункт";
+    console.error("[Tasks] Failed to toggle subtask:", error);
+    return { success: false, error: message };
   }
 }
 
 /**
  * Удаление задачи
  */
-export async function deleteTask(taskId: string) {
+export async function deleteTask(taskId: string): Promise<TaskActionResult> {
   try {
     await prisma.crmTask.delete({
       where: { id: taskId },
+      select: { id: true },
     });
 
     revalidatePath("/admin/tasks");
     return { success: true };
-  } catch (error: any) {
-    console.error("Failed to delete task:", error);
-    return { error: error.message || "Не удалось удалить задачу" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Не удалось удалить задачу";
+    console.error("[Tasks] Failed to delete task:", error);
+    return { success: false, error: message };
   }
 }
 
@@ -269,15 +287,22 @@ export async function recordTaskExpense(data: {
   categoryId?: string;
   description: string;
   leadId?: string | null;
-}) {
+}): Promise<TaskActionResult> {
   try {
     const { taskId, amount, accountId, categoryId, description, leadId } = data;
-    if (!amount || amount <= 0) return { error: "Сумма должна быть больше нуля" };
-    if (!accountId) return { error: "Выберите счет списания" };
+    if (!amount || amount <= 0) {
+      return { success: false, error: "Сумма должна быть больше нуля" };
+    }
+    if (!accountId) {
+      return { success: false, error: "Выберите счет списания" };
+    }
 
     await prisma.$transaction(async (tx) => {
       // 1. Получаем счет
-      const sourceAcc = await tx.financeAccount.findUnique({ where: { id: accountId } });
+      const sourceAcc = await tx.financeAccount.findUnique({ 
+        where: { id: accountId },
+        select: { id: true, balance: true },
+      });
       if (!sourceAcc) throw new Error("Счет списания не найден");
 
       // 2. Создаем проводку в казначействе
@@ -291,31 +316,41 @@ export async function recordTaskExpense(data: {
           leadId: leadId || null,
           transactionDate: new Date(),
         },
+        select: { id: true },
       });
 
       // 3. Уменьшаем баланс счета
       await tx.financeAccount.update({
         where: { id: sourceAcc.id },
         data: { balance: sourceAcc.balance - amount },
+        select: { id: true },
       });
 
-      // 4. Синхронизируем старый cashbox
-      const state = await tx.companyState.findUnique({ where: { id: "global" } });
+      // 4. Синхронизируем legacy cashbox
+      const state = await tx.companyState.findUnique({ 
+        where: { id: "global" },
+        select: { id: true, cashbox: true },
+      });
       if (state) {
         await tx.companyState.update({
           where: { id: "global" },
           data: { cashbox: state.cashbox - amount },
+          select: { id: true },
         });
       }
 
       // 5. Фиксируем фактический расход в самой задаче
-      const task = await tx.crmTask.findUnique({ where: { id: taskId } });
+      const task = await tx.crmTask.findUnique({ 
+        where: { id: taskId },
+        select: { id: true, actualCost: true },
+      });
       if (task) {
         await tx.crmTask.update({
           where: { id: taskId },
           data: {
             actualCost: (task.actualCost || 0) + amount,
           },
+          select: { id: true },
         });
       }
     });
@@ -324,16 +359,21 @@ export async function recordTaskExpense(data: {
     revalidatePath("/admin/finance");
     revalidatePath("/admin/leads");
     return { success: true };
-  } catch (error: any) {
-    console.error("Failed to record task expense:", error);
-    return { error: error.message || "Не удалось списать расход" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Не удалось списать расход";
+    console.error("[Tasks] Failed to record task expense:", error);
+    return { success: false, error: message };
   }
 }
 
 /**
- * Авто-нарезка задач производственного цикла при смене статуса заказа
+ * Авто-нарезка задач производственного цикла при смене статуса заказа.
+ * Выполняется единым атомарным батчем через prisma.$transaction.
  */
-export async function generateLeadPipelineTasks(leadId: string, targetStatus: LeadStatus) {
+export async function generateLeadPipelineTasks(
+  leadId: string, 
+  targetStatus: LeadStatus
+): Promise<TaskActionResult> {
   try {
     const lead = await prisma.lead.findUnique({
       where: { id: leadId },
@@ -348,7 +388,7 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
       return { success: true, count: 0 };
     }
 
-    const tasksToCreate: any[] = [];
+    const tasksToCreate: Prisma.CrmTaskCreateInput[] = [];
     const now = new Date();
 
     // 1. Статус ESTIMATE (Замер и смета)
@@ -362,7 +402,7 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
           priority: TaskPriority.HIGH,
           dueDate: lead.appointmentDate || new Date(now.getTime() + 24 * 3600 * 1000),
           assignee: lead.manager || PartnerName.ELISEY,
-          leadId: lead.id,
+          lead: { connect: { id: lead.id } },
           isAutoGenerated: true,
           subtasks: {
             create: [
@@ -387,7 +427,7 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
           priority: TaskPriority.URGENT,
           dueDate: new Date(now.getTime() + 24 * 3600 * 1000),
           assignee: PartnerName.ELISEY,
-          leadId: lead.id,
+          lead: { connect: { id: lead.id } },
           isAutoGenerated: true,
           subtasks: {
             create: [
@@ -406,7 +446,7 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
           priority: TaskPriority.HIGH,
           dueDate: new Date(now.getTime() + 2 * 24 * 3600 * 1000),
           assignee: PartnerName.DANIIL,
-          leadId: lead.id,
+          lead: { connect: { id: lead.id } },
           isAutoGenerated: true,
           subtasks: {
             create: [
@@ -424,7 +464,7 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
           priority: TaskPriority.NORMAL,
           dueDate: new Date(now.getTime() + 3 * 24 * 3600 * 1000),
           assignee: PartnerName.DANIIL,
-          leadId: lead.id,
+          lead: { connect: { id: lead.id } },
           isAutoGenerated: true,
           subtasks: {
             create: [
@@ -443,7 +483,7 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
           priority: TaskPriority.HIGH,
           dueDate: lead.deadline || new Date(now.getTime() + 5 * 24 * 3600 * 1000),
           assignee: PartnerName.ELISEY,
-          leadId: lead.id,
+          lead: { connect: { id: lead.id } },
           isAutoGenerated: true,
           subtasks: {
             create: [
@@ -467,7 +507,7 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
           priority: TaskPriority.NORMAL,
           dueDate: now,
           assignee: lead.manager || PartnerName.ELISEY,
-          leadId: lead.id,
+          lead: { connect: { id: lead.id } },
           isAutoGenerated: true,
           subtasks: {
             create: [
@@ -480,17 +520,24 @@ export async function generateLeadPipelineTasks(leadId: string, targetStatus: Le
       }
     }
 
+    // Выполняем создание пачки задач в единой транзакции
     if (tasksToCreate.length > 0) {
-      for (const t of tasksToCreate) {
-        await prisma.crmTask.create({ data: t });
-      }
+      await prisma.$transaction(
+        tasksToCreate.map((taskData) =>
+          prisma.crmTask.create({
+            data: taskData,
+            select: { id: true },
+          })
+        )
+      );
       revalidatePath("/admin/tasks");
       revalidatePath("/admin/leads");
     }
 
     return { success: true, count: tasksToCreate.length };
-  } catch (error: any) {
-    console.error("Failed to generate lead pipeline tasks:", error);
-    return { success: false, error: error.message };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Не удалось сформировать пайплайн задач";
+    console.error("[Tasks] Failed to generate lead pipeline tasks:", error);
+    return { success: false, error: message };
   }
 }

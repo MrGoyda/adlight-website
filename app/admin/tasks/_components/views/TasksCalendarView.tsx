@@ -2,13 +2,12 @@
 
 import React, { useState, useMemo } from "react";
 import { 
-  Calendar as CalendarIcon, 
+  Calendar as CalendarIcon,
   MapPin, 
   Phone, 
   ExternalLink, 
   Clock, 
   User, 
-  CheckCircle2, 
   Compass,
   AlertTriangle,
   ChevronLeft,
@@ -17,7 +16,6 @@ import {
 import { triggerHaptic } from "@/lib/haptics";
 import { CrmTaskItem } from "../../_types/taskTypes";
 import { TASKS_DICTIONARY } from "../../_data/tasksDictionary";
-import TaskCard from "../TaskCard";
 
 interface TasksCalendarViewProps {
   tasks: CrmTaskItem[];
@@ -29,8 +27,6 @@ interface TasksCalendarViewProps {
 export default function TasksCalendarView({
   tasks,
   onOpenExpenseModal,
-  onOpenDetailModal,
-  onRefresh,
 }: TasksCalendarViewProps) {
   const dict = TASKS_DICTIONARY;
 
@@ -38,23 +34,28 @@ export default function TasksCalendarView({
     () => new Date().toISOString().split("T")[0]
   );
 
-  // Фильтруем задачи, у которых есть дата выполнения
-  const datedTasks = useMemo(() => {
-    return tasks.filter((t) => t.dueDate !== null);
-  }, [tasks]);
+  // Оптимизация O(N): Единый проход для выборки задач на выбранный день и счетчиков
+  const { currentDayTasks, measurementsCount, installsCount } = useMemo(() => {
+    const list: CrmTaskItem[] = [];
+    let measurements = 0;
+    let installs = 0;
 
-  // Задачи на выбранный день
-  const currentDayTasks = useMemo(() => {
-    return datedTasks.filter((t) => {
-      if (!t.dueDate) return false;
+    for (const t of tasks) {
+      if (!t.dueDate) continue;
       const taskDate = new Date(t.dueDate).toISOString().split("T")[0];
-      return taskDate === selectedDate;
-    });
-  }, [datedTasks, selectedDate]);
+      if (taskDate === selectedDate) {
+        list.push(t);
+        if (t.stage === "MEASUREMENT") measurements++;
+        else if (t.stage === "INSTALLATION") installs++;
+      }
+    }
 
-  // Замеры и Монтажи
-  const measurementsCount = currentDayTasks.filter((t) => t.stage === "MEASUREMENT").length;
-  const installsCount = currentDayTasks.filter((t) => t.stage === "INSTALLATION").length;
+    return {
+      currentDayTasks: list,
+      measurementsCount: measurements,
+      installsCount: installs,
+    };
+  }, [tasks, selectedDate]);
 
   const handlePrevDay = () => {
     triggerHaptic("light");
@@ -90,6 +91,7 @@ export default function TasksCalendarView({
           <button
             type="button"
             onClick={handlePrevDay}
+            aria-label="Предыдущий день"
             className="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer touch-manipulation"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -107,6 +109,7 @@ export default function TasksCalendarView({
           <button
             type="button"
             onClick={handleNextDay}
+            aria-label="Следующий день"
             className="w-9 h-9 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition cursor-pointer touch-manipulation"
           >
             <ChevronRight className="w-4 h-4" />
@@ -162,57 +165,67 @@ export default function TasksCalendarView({
                         {dict.kanbanStages[t.stage] || t.stage}
                       </span>
 
-                      {t.assignee && (
-                        <span className="text-[10px] font-extrabold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
-                          👤 {dict.assignees[t.assignee]}
+                      {t.dueDate && (
+                        <span className="text-xs font-mono font-bold text-slate-500 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-slate-400" />
+                          {new Date(t.dueDate).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       )}
                     </div>
 
-                    <h4 className="font-extrabold text-sm text-slate-900 leading-snug">
+                    {/* Название и описание */}
+                    <h4 className="font-black text-sm sm:text-base text-slate-900 leading-snug">
                       {t.title}
                     </h4>
 
-                    {/* Адрес объекта */}
+                    {t.lead && (
+                      <div className="text-xs font-bold text-slate-600">
+                        Клиент: <span className="text-slate-900">{t.lead.name}</span>
+                      </div>
+                    )}
+
+                    {/* Адрес с переходом в 2ГИС */}
                     {address && (
-                      <div className="p-2.5 bg-slate-50 rounded-2xl flex items-start gap-2 text-xs text-slate-700">
-                        <MapPin className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                        <span className="font-semibold line-clamp-2">{address}</span>
+                      <div className="flex items-start gap-1.5 p-2 rounded-2xl bg-slate-50 border border-slate-200/60 text-xs">
+                        <MapPin className="w-3.5 h-3.5 text-orange-500 shrink-0 mt-0.5" />
+                        <span className="font-semibold text-slate-700 flex-1 leading-snug">
+                          {address}
+                        </span>
                       </div>
                     )}
                   </div>
 
-                  {/* Быстрые действия: 2GIS / Звонок / Смета */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-slate-100 flex-wrap">
-                    {hasAddress && (
-                      <a
-                        href={`https://2gis.kz/search/${encodeURIComponent(t.lead!.address!)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-black transition cursor-pointer"
-                      >
-                        <Compass className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>2GIS Карты</span>
-                      </a>
-                    )}
-
+                  {/* Кнопки выезда: Звонок клиенту + 2ГИС навигация */}
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-100 flex-wrap">
                     {phone && (
                       <a
                         href={`tel:${phone}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-black transition cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs transition cursor-pointer active:scale-95 touch-manipulation"
                       >
-                        <Phone className="w-3.5 h-3.5 text-blue-600" />
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
                         <span>Позвонить</span>
                       </a>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={() => onOpenExpenseModal(t)}
-                      className="ml-auto text-xs font-black text-rose-600 hover:text-rose-800 transition cursor-pointer"
-                    >
-                      {dict.actions.recordExpense}
-                    </button>
+                    {hasAddress && t.lead?.address && (
+                      <a
+                        href={`https://2gis.kz/search/${encodeURIComponent(t.lead.address)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-xs transition cursor-pointer active:scale-95 touch-manipulation"
+                      >
+                        <Compass className="w-3.5 h-3.5 text-blue-600" />
+                        <span>2ГИС Маршрут</span>
+                        <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                      </a>
+                    )}
+
+                    {t.assignee && (
+                      <span className="ml-auto text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        {dict.assignees[t.assignee] || t.assignee}
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -220,8 +233,8 @@ export default function TasksCalendarView({
           </div>
         </div>
       ) : (
-        <div className="p-16 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium text-xs space-y-1">
-          <CalendarIcon className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-medium text-xs space-y-2">
+          <CalendarIcon className="w-8 h-8 text-slate-300 mx-auto stroke-1" />
           <p>{dict.calendar.noEventsDay}</p>
         </div>
       )}

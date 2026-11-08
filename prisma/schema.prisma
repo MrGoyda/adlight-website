@@ -360,6 +360,8 @@ model CrmTask {
   @@index([assignee])
   @@index([dueDate])
   @@index([leadId])
+  @@index([status, priority, dueDate])
+  @@index([createdAt(sort: Desc)])
 }
 
 model CrmSubtask {

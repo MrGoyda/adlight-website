@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { 
   ArrowRight, 
   ArrowLeft, 
-  Layers, 
-  Plus, 
-  User 
+  Plus 
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
@@ -27,14 +25,14 @@ interface TasksKanbanViewProps {
   onRefresh: () => void;
 }
 
-const KANBAN_STAGES: TaskStage[] = [
+const KANBAN_STAGES: readonly TaskStage[] = [
   "MEASUREMENT",
   "SUPPLY",
   "PRODUCTION",
   "ASSEMBLY",
   "INSTALLATION",
   "HANDOVER",
-];
+] as const;
 
 const STAGE_HEADERS: Record<TaskStage, { icon: string; color: string }> = {
   MEASUREMENT: { icon: "📐", color: "border-blue-300 bg-blue-50 text-blue-900" },
@@ -56,25 +54,48 @@ export default function TasksKanbanView({
   const dict = TASKS_DICTIONARY;
   const [assigneeFilter, setAssigneeFilter] = useState<TaskFilterAssignee>("ALL");
 
+  // 1. Фильтрация по исполнителю
   const filteredTasks = useMemo(() => {
+    if (assigneeFilter === "ALL") return tasks;
     return tasks.filter((t) => {
-      if (assigneeFilter === "DANIIL" && t.assignee !== "DANIIL") return false;
-      if (assigneeFilter === "ELISEY" && t.assignee !== "ELISEY") return false;
-      if (assigneeFilter === "UNASSIGNED" && t.assignee !== null) return false;
+      if (assigneeFilter === "DANIIL") return t.assignee === "DANIIL";
+      if (assigneeFilter === "ELISEY") return t.assignee === "ELISEY";
+      if (assigneeFilter === "UNASSIGNED") return t.assignee === null;
       return true;
     });
   }, [tasks, assigneeFilter]);
 
-  const handleMoveStage = async (taskId: string, nextStage: TaskStage) => {
+  // 2. Оптимизация O(N): Единая группировка активных задач по колонкам
+  const tasksByStage = useMemo(() => {
+    const map: Record<TaskStage, CrmTaskItem[]> = {
+      MEASUREMENT: [],
+      SUPPLY: [],
+      PRODUCTION: [],
+      ASSEMBLY: [],
+      INSTALLATION: [],
+      HANDOVER: [],
+      GENERAL: [],
+    };
+
+    for (const t of filteredTasks) {
+      if (t.status !== "DONE" && map[t.stage]) {
+        map[t.stage].push(t);
+      }
+    }
+
+    return map;
+  }, [filteredTasks]);
+
+  const handleMoveStage = useCallback(async (taskId: string, nextStage: TaskStage) => {
     triggerHaptic("medium");
     const res = await updateTaskStage(taskId, nextStage);
-    if (res.error) {
+    if (!res.success && "error" in res) {
       toast.error(res.error);
     } else {
       toast.success(dict.toasts.stageUpdated);
       onRefresh();
     }
-  };
+  }, [dict.toasts.stageUpdated, onRefresh]);
 
   return (
     <div className="space-y-4 animate-in fade-in duration-150">
@@ -118,7 +139,7 @@ export default function TasksKanbanView({
       {/* ── ГОРИЗОНТАЛЬНАЯ КАНБАН-ДОСКА (6 КОЛОНОК) ── */}
       <div className="flex gap-3.5 overflow-x-auto no-scrollbar pb-6 pt-1 items-start snap-x snap-mandatory">
         {KANBAN_STAGES.map((stageKey, colIdx) => {
-          const stageTasks = filteredTasks.filter((t) => t.stage === stageKey && t.status !== "DONE");
+          const stageTasks = tasksByStage[stageKey] || [];
           const header = STAGE_HEADERS[stageKey];
           const prevStage = colIdx > 0 ? KANBAN_STAGES[colIdx - 1] : null;
           const nextStage = colIdx < KANBAN_STAGES.length - 1 ? KANBAN_STAGES[colIdx + 1] : null;
@@ -152,6 +173,7 @@ export default function TasksKanbanView({
                       triggerHaptic("light");
                       onOpenQuickCreate(stageKey);
                     }}
+                    aria-label={`Добавить задачу в этап ${dict.kanbanStages[stageKey]}`}
                     className="w-6 h-6 rounded-lg bg-white hover:bg-orange-50 text-slate-400 hover:text-orange-600 flex items-center justify-center shadow-2xs border border-slate-200 transition cursor-pointer"
                     title="+ Добавить в этот этап"
                   >
@@ -180,7 +202,8 @@ export default function TasksKanbanView({
                             e.stopPropagation();
                             handleMoveStage(t.id, prevStage);
                           }}
-                          className="p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-900"
+                          aria-label={`Вернуть на «${dict.kanbanStages[prevStage]}»`}
+                          className="p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-900 cursor-pointer"
                           title={`Вернуть на «${dict.kanbanStages[prevStage]}»`}
                         >
                           <ArrowLeft className="w-3 h-3" />
@@ -193,7 +216,8 @@ export default function TasksKanbanView({
                             e.stopPropagation();
                             handleMoveStage(t.id, nextStage);
                           }}
-                          className="p-1 hover:bg-orange-50 rounded text-slate-500 hover:text-orange-600"
+                          aria-label={`Перевести на «${dict.kanbanStages[nextStage]}»`}
+                          className="p-1 hover:bg-orange-50 rounded text-slate-500 hover:text-orange-600 cursor-pointer"
                           title={`Перевести на «${dict.kanbanStages[nextStage]}»`}
                         >
                           <ArrowRight className="w-3 h-3" />

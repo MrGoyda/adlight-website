@@ -1,26 +1,21 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import { 
   Check, 
   Clock, 
-  AlertCircle, 
   DollarSign, 
-  MapPin, 
   User, 
   ChevronDown, 
   ChevronUp, 
   Trash2, 
   ExternalLink,
-  Sparkles,
   Layers,
-  ArrowRight
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { toast } from "@/lib/toast";
 import { 
   updateTaskStatus, 
-  updateTaskStage, 
   toggleSubtask, 
   deleteTask 
 } from "../actions";
@@ -56,20 +51,29 @@ const PRIORITY_BADGES: Record<TaskPriority, { text: string; dot: string }> = {
   LOW: { text: "text-slate-500 bg-slate-50 border-slate-200", dot: "bg-slate-300" },
 };
 
-export default function TaskCard({
+function TaskCardComponent({
   task,
   onOpenExpenseModal,
   onOpenDetailModal,
   onRefresh,
 }: TaskCardProps) {
   const dict = TASKS_DICTIONARY;
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
-  // Оптимистичный статус
+  // Оптимистичный локальный статус и подзадачи
   const [currentStatus, setCurrentStatus] = useState<TaskStatus>(task.status);
   const [subtasks, setSubtasks] = useState(task.subtasks);
   const [showSubtasks, setShowSubtasks] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Синхронизация при обновлении родительских данных
+  useEffect(() => {
+    setCurrentStatus(task.status);
+  }, [task.status]);
+
+  useEffect(() => {
+    setSubtasks(task.subtasks);
+  }, [task.subtasks]);
 
   const isDone = currentStatus === "DONE";
   const stageStyle = STAGE_COLORS[task.stage] || STAGE_COLORS.GENERAL;
@@ -88,7 +92,7 @@ export default function TaskCard({
 
     startTransition(async () => {
       const res = await updateTaskStatus(task.id, nextStatus);
-      if (res.error) {
+      if (!res.success && "error" in res) {
         toast.error(res.error);
         setCurrentStatus(task.status);
       } else {
@@ -109,7 +113,7 @@ export default function TaskCard({
     );
 
     const res = await toggleSubtask(subtaskId, nextCompleted);
-    if (res.error) {
+    if (!res.success && "error" in res) {
       toast.error(res.error);
       setSubtasks(task.subtasks);
     }
@@ -118,11 +122,11 @@ export default function TaskCard({
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic("warning");
-    if (!confirm("Удалить эту задачу?")) return;
+    if (!window.confirm("Удалить эту задачу?")) return;
 
     setIsDeleting(true);
     const res = await deleteTask(task.id);
-    if (res.error) {
+    if (!res.success && "error" in res) {
       toast.error(res.error);
       setIsDeleting(false);
     } else {
@@ -150,6 +154,7 @@ export default function TaskCard({
         <button
           type="button"
           onClick={handleToggleComplete}
+          aria-label={isDone ? "Вернуть в работу" : "Отметить выполненной"}
           className={`w-6 h-6 rounded-xl flex items-center justify-center border transition-all shrink-0 mt-0.5 cursor-pointer touch-manipulation active:scale-90 ${
             isDone
               ? "bg-emerald-600 border-emerald-600 text-white shadow-xs shadow-emerald-600/30"
@@ -198,6 +203,7 @@ export default function TaskCard({
           type="button"
           onClick={handleDelete}
           disabled={isDeleting}
+          aria-label={dict.actions.delete}
           className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer shrink-0"
           title={dict.actions.delete}
         >
@@ -269,6 +275,7 @@ export default function TaskCard({
             triggerHaptic("medium");
             onOpenExpenseModal(task);
           }}
+          aria-label={dict.actions.recordExpense}
           className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-700 font-extrabold text-[11px] transition cursor-pointer active:scale-95 touch-manipulation"
         >
           <DollarSign className="w-3.5 h-3.5 text-rose-500" />
@@ -289,6 +296,7 @@ export default function TaskCard({
               triggerHaptic("light");
               setShowSubtasks((prev) => !prev);
             }}
+            aria-label="Показать чек-лист подзадач"
             className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-slate-800 transition cursor-pointer py-1"
           >
             <Layers className="w-3 h-3 text-slate-400" />
@@ -335,3 +343,5 @@ export default function TaskCard({
     </div>
   );
 }
+
+export default React.memo(TaskCardComponent);

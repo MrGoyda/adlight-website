@@ -7,15 +7,12 @@ import {
   Layers, 
   CheckCircle2, 
   Search, 
-  X, 
-  User,
-  Filter
+  X
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { 
   CrmTaskItem, 
-  TaskFilterAssignee, 
-  PartnerName 
+  TaskFilterAssignee
 } from "../../_types/taskTypes";
 import { TASKS_DICTIONARY } from "../../_data/tasksDictionary";
 import TaskCard from "../TaskCard";
@@ -60,7 +57,7 @@ export default function TasksAgendaView({
     });
   }, [tasks, assigneeFilter, searchQuery]);
 
-  // Разделение по секциям
+  // Разделение по секциям за 1 проход O(N)
   const { urgentTasks, upcomingTasks, noDateTasks, completedTasks } = useMemo(() => {
     const urgent: CrmTaskItem[] = [];
     const upcoming: CrmTaskItem[] = [];
@@ -155,7 +152,8 @@ export default function TasksAgendaView({
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5 rounded-full"
+              aria-label="Очистить поиск"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5 rounded-full cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>

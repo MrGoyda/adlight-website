@@ -74,7 +74,7 @@ export default function TaskExpenseModal({
         leadId: task.leadId,
       });
 
-      if (res.error) {
+      if (!res.success && "error" in res) {
         toast.error(res.error);
       } else {
         toast.success(TASKS_DICTIONARY.toasts.expenseRecorded);

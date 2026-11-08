@@ -77,7 +77,7 @@ export default function TaskQuickCreateModal({
         subtaskTitles: subtasks,
       });
 
-      if (res.error) {
+      if (!res.success && "error" in res) {
         toast.error(res.error);
       } else {
         toast.success(TASKS_DICTIONARY.toasts.created);

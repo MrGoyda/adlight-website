@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { 
@@ -39,14 +39,26 @@ export default function TasksDashboard({
   const [createDefaultStage, setCreateDefaultStage] = useState<TaskStage>("GENERAL");
   const [expenseTask, setExpenseTask] = useState<CrmTaskItem | null>(null);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     router.refresh();
-  };
+  }, [router]);
 
-  const handleOpenCreateForStage = (stage: TaskStage) => {
+  const handleOpenCreateForStage = useCallback((stage: TaskStage) => {
     setCreateDefaultStage(stage);
     setIsCreateOpen(true);
-  };
+  }, []);
+
+  const handleOpenExpenseModal = useCallback((task: CrmTaskItem) => {
+    setExpenseTask(task);
+  }, []);
+
+  const handleCloseCreateModal = useCallback(() => {
+    setIsCreateOpen(false);
+  }, []);
+
+  const handleCloseExpenseModal = useCallback(() => {
+    setExpenseTask(null);
+  }, []);
 
   return (
     <div className="space-y-4 max-w-7xl mx-auto pb-16">
@@ -64,7 +76,7 @@ export default function TasksDashboard({
       {viewMode === "AGENDA" && (
         <TasksAgendaView
           tasks={tasks}
-          onOpenExpenseModal={(t) => setExpenseTask(t)}
+          onOpenExpenseModal={handleOpenExpenseModal}
           onRefresh={handleRefresh}
         />
       )}
@@ -73,7 +85,7 @@ export default function TasksDashboard({
       {viewMode === "KANBAN" && (
         <TasksKanbanView
           tasks={tasks}
-          onOpenExpenseModal={(t) => setExpenseTask(t)}
+          onOpenExpenseModal={handleOpenExpenseModal}
           onOpenQuickCreate={handleOpenCreateForStage}
           onRefresh={handleRefresh}
         />
@@ -83,7 +95,7 @@ export default function TasksDashboard({
       {viewMode === "CALENDAR" && (
         <TasksCalendarView
           tasks={tasks}
-          onOpenExpenseModal={(t) => setExpenseTask(t)}
+          onOpenExpenseModal={handleOpenExpenseModal}
           onRefresh={handleRefresh}
         />
       )}
@@ -92,7 +104,7 @@ export default function TasksDashboard({
       {isCreateOpen && (
         <TaskQuickCreateModal
           isOpen={isCreateOpen}
-          onClose={() => setIsCreateOpen(false)}
+          onClose={handleCloseCreateModal}
           leads={leads}
           defaultStage={createDefaultStage}
           onSuccess={handleRefresh}
@@ -103,7 +115,7 @@ export default function TasksDashboard({
       {expenseTask && (
         <TaskExpenseModal
           isOpen={Boolean(expenseTask)}
-          onClose={() => setExpenseTask(null)}
+          onClose={handleCloseExpenseModal}
           task={expenseTask}
           accounts={accounts}
           categories={categories}

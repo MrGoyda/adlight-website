@@ -60,3 +60,8 @@ export interface TaskQuickCreatePayload {
   estimatedCost?: number;
   subtaskTitles?: string[];
 }
+
+export type TaskActionResult<T = void> =
+  | { success: true; data?: T; taskId?: string; count?: number }
+  | { success: false; error: string };
+
