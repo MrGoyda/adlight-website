@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { CheckCircle2, TrendingUp, ArrowRight } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { CheckCircle2, TrendingUp, ArrowRight, X } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import Button from "@/components/ui/Button";
 import { Lead } from "../../_types/leadTypes";
@@ -20,7 +21,18 @@ export default function LeadFinanceModal({
   onSubmit,
   isFinancing,
 }: LeadFinanceModalProps) {
+  const [mounted, setMounted] = useState(false);
   const dict = LEADS_DICTIONARY.financeModal;
+
+  useEffect(() => {
+    setMounted(true);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const initialEstimateTotal = lead.estimate?.items?.reduce(
     (sum, i) => sum + (i.totalCost || 0),
     0
@@ -28,6 +40,8 @@ export default function LeadFinanceModal({
 
   const [revenue, setRevenue] = useState(initialEstimateTotal ? String(initialEstimateTotal) : "");
   const [expenses, setExpenses] = useState("");
+
+  if (!mounted) return null;
 
   const numRevenue = parseFloat(revenue) || 0;
   const numExpenses = parseFloat(expenses) || 0;
@@ -39,9 +53,17 @@ export default function LeadFinanceModal({
     await onSubmit(numRevenue, numExpenses);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl p-5 sm:p-6 w-full max-w-md shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-200">
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/60 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-3xl p-5 sm:p-6 w-full max-w-md shadow-2xl border border-slate-100 space-y-4 animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
@@ -125,6 +147,7 @@ export default function LeadFinanceModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

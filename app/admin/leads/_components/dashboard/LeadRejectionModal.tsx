@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AlertCircle, X, Check } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { triggerHaptic } from "@/lib/haptics";
@@ -19,12 +20,22 @@ export default function LeadRejectionModal({
   onClose,
   onConfirm,
 }: LeadRejectionModalProps) {
+  const [mounted, setMounted] = useState(false);
   const dict = LEADS_DICTIONARY.rejectionModal;
   const [selectedReasonId, setSelectedReasonId] = useState<string>("EXPENSIVE");
   const [customReason, setCustomReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  if (!isOpen || !mounted) return null;
 
   const handleSelectReason = (id: string) => {
     triggerHaptic("light");
@@ -60,10 +71,14 @@ export default function LeadRejectionModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 animate-in fade-in duration-200">
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/60 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
       <div 
         className="bg-white rounded-3xl p-5 sm:p-6 w-full max-w-md shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
       >
@@ -161,6 +176,7 @@ export default function LeadRejectionModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
