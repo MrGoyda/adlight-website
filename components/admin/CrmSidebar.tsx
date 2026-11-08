@@ -20,7 +20,8 @@ import {
   Sparkles,
   Radio,
   ExternalLink,
-  Calculator
+  Calculator,
+  CheckSquare
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { triggerHaptic } from "@/lib/haptics";
@@ -93,6 +94,7 @@ export default function CrmSidebar({
       title: "ОСНОВНОЕ",
       items: [
         { label: "Заявки", href: "/admin/leads", icon: Inbox },
+        { label: "Задачи цеха", href: "/admin/tasks", icon: CheckSquare },
         { label: "Финансы", href: "/admin/finance", icon: Wallet },
         { label: "Проекты цеха", href: "/admin/projects", icon: FolderKanban },
       ],

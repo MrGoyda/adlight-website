@@ -5,6 +5,7 @@ import { LeadStatus, TransactionType, PartnerName } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { sendMetaConversionEvent, sendYandexConversionEvent } from "@/lib/analytics";
 import { normalizePhone } from "@/lib/phoneUtils";
+import { generateLeadPipelineTasks } from "@/app/admin/tasks/actions";
 
 export async function updateLeadStatus(
   leadId: string, 
@@ -19,8 +20,16 @@ export async function updateLeadStatus(
         ...(rejectionReason !== undefined ? { rejectionReason } : {}),
       },
     });
+
+    // Запуск умного пайплайна авто-нарезки задач для производства
+    try {
+      await generateLeadPipelineTasks(leadId, status);
+    } catch (pipelineErr) {
+      console.error("Auto pipeline tasks error:", pipelineErr);
+    }
     
     revalidatePath("/admin/leads");
+    revalidatePath("/admin/tasks");
     return { success: true };
   } catch (error) {
     console.error("Failed to update lead status:", error);

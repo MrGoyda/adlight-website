@@ -19,7 +19,8 @@ import {
   Users, 
   BarChart3, 
   MousePointer, 
-  LogOut 
+  LogOut,
+  CheckSquare
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { CRM_EVENTS, dispatchCrmEvent } from "@/lib/crmEvents";
@@ -73,6 +74,7 @@ export default function CrmBottomBar({
   };
 
   const moreNavItems = [
+    { label: "Задачи цеха", href: "/admin/tasks", icon: CheckSquare },
     { label: "Склад материалов", href: "/admin/warehouse", icon: Warehouse },
     { label: "Тарифы и прайсы", href: "/admin/pricing", icon: Tags },
     { label: "Калькулятор смет", href: "/admin/calculator", icon: Calculator },
