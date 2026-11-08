@@ -178,6 +178,8 @@ export default function LeadsDashboard({
         onSelectStatusFilter={(s: string) => filters.setStatusFilter(s)}
         timingFilter={filters.timingFilter}
         onSelectTimingFilter={(f: "ALL" | "APPOINTMENTS_TODAY" | "COLD_WARNING") => filters.setTimingFilter(f)}
+        coldWarnings={filters.timingStats.coldWarnings}
+        appointmentsToday={filters.timingStats.appointmentsToday}
       />
 
       {/* ── ЕДИНЫЙ СОВРЕМЕННЫЙ TOOLBAR (APPLE / LINEAR STYLE) ── */}

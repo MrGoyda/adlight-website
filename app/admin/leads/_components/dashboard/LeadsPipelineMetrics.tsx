@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useSyncExternalStore } from "react";
+import React, { useMemo } from "react";
 import { 
   TrendingUp, 
   Hammer, 
@@ -18,14 +18,9 @@ interface LeadsPipelineMetricsProps {
   onSelectStatusFilter: (status: string) => void;
   timingFilter: string;
   onSelectTimingFilter: (filter: "ALL" | "APPOINTMENTS_TODAY" | "COLD_WARNING") => void;
+  coldWarnings?: number;
+  appointmentsToday?: number;
 }
-
-const subscribe = (callback: () => void) => {
-  const timer = setInterval(callback, 60_000);
-  return () => clearInterval(timer);
-};
-const getClientSnapshot = () => Date.now();
-const getServerSnapshot = () => 0;
 
 export default function LeadsPipelineMetrics({
   leads,
@@ -33,11 +28,9 @@ export default function LeadsPipelineMetrics({
   onSelectStatusFilter,
   timingFilter,
   onSelectTimingFilter,
+  coldWarnings = 0,
+  appointmentsToday = 0,
 }: LeadsPipelineMetricsProps) {
-  // Безопасное чтение внешнего времени без побочных эффектов в рендере
-  const currentTime = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
-  const todayDateStr = currentTime > 0 ? new Date(currentTime).toISOString().split("T")[0] : "";
-
   const metrics = useMemo(() => {
     let pipelineRevenue = 0;
     let pipelineCount = 0;
@@ -47,10 +40,6 @@ export default function LeadsPipelineMetrics({
 
     let completedRevenue = 0;
     let completedCount = 0;
-
-    let coldWarnings = 0;
-    let appointmentsToday = 0;
-
 
     for (const lead of leads) {
       const val = lead.offeredPrice || lead.revenue || 0;
@@ -72,23 +61,6 @@ export default function LeadsPipelineMetrics({
         completedRevenue += val;
         completedCount++;
       }
-
-      // 4. Замеры сегодня
-      if (lead.appointmentDate) {
-        const appDateStr = new Date(lead.appointmentDate).toISOString().split("T")[0];
-        if (appDateStr === todayDateStr) {
-          appointmentsToday++;
-        }
-      }
-
-      // 5. Ждут ответа > 2ч (новые без ответа)
-      if (lead.status === "NEW" && currentTime > 0) {
-        const diffMs = currentTime - new Date(lead.createdAt).getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-        if (diffHours >= 2) {
-          coldWarnings++;
-        }
-      }
     }
 
     return {
@@ -98,10 +70,8 @@ export default function LeadsPipelineMetrics({
       inProductionCount,
       completedRevenue,
       completedCount,
-      coldWarnings,
-      appointmentsToday,
     };
-  }, [leads, currentTime, todayDateStr]);
+  }, [leads]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
@@ -120,7 +90,7 @@ export default function LeadsPipelineMetrics({
       >
         <div className="space-y-1">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-            Сделки в воронке
+            Активный пайплайн
           </span>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono tracking-tight">
@@ -136,7 +106,7 @@ export default function LeadsPipelineMetrics({
         </div>
       </button>
 
-      {/* ── 2. В ПРОИЗВОДСТВЕ (ЦЕХ) ── */}
+      {/* ── 2. В ПРОИЗВОДСТВЕ (В ЦЕХУ) ── */}
       <button
         type="button"
         onClick={() => {
@@ -145,24 +115,24 @@ export default function LeadsPipelineMetrics({
         }}
         className={`p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 ${
           currentStatusFilter === "PROCESSED"
-            ? "border-indigo-500 ring-2 ring-indigo-500/10 bg-indigo-50/20"
+            ? "border-blue-500 ring-2 ring-blue-500/10"
             : "border-slate-200/80 hover:border-slate-300"
         }`}
       >
         <div className="space-y-1">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-            В производстве
+            В производстве (цех)
           </span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-xl sm:text-2xl font-black text-indigo-700 font-mono tracking-tight">
+            <span className="text-xl sm:text-2xl font-black text-blue-700 font-mono tracking-tight">
               {metrics.inProductionRevenue.toLocaleString("ru-RU")}&nbsp;₸
             </span>
           </div>
           <p className="text-[11px] text-slate-400 font-medium">
-            {metrics.inProductionCount} заказов в цехе
+            {metrics.inProductionCount} заказов в работе
           </p>
         </div>
-        <div className="w-11 h-11 rounded-2xl bg-indigo-50 border border-indigo-200/70 text-indigo-600 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200/70 text-blue-600 flex items-center justify-center shrink-0">
           <Hammer className="w-5 h-5" />
         </div>
       </button>
@@ -176,7 +146,7 @@ export default function LeadsPipelineMetrics({
         }}
         className={`p-4 bg-white border rounded-3xl shadow-2xs flex items-center justify-between text-left transition cursor-pointer active:scale-98 ${
           currentStatusFilter === "COMPLETED"
-            ? "border-emerald-500 ring-2 ring-emerald-500/10 bg-emerald-50/20"
+            ? "border-emerald-500 ring-2 ring-emerald-500/10"
             : "border-slate-200/80 hover:border-slate-300"
         }`}
       >
@@ -205,7 +175,7 @@ export default function LeadsPipelineMetrics({
             Срочные действия
           </span>
           <div className="flex items-center gap-2 flex-wrap">
-            {metrics.coldWarnings > 0 && (
+            {coldWarnings > 0 && (
               <button
                 type="button"
                 onClick={() => {
@@ -220,11 +190,11 @@ export default function LeadsPipelineMetrics({
                 title="Клиенты ждут ответа более 2 часов"
               >
                 <Flame className="w-3.5 h-3.5" />
-                <span>{metrics.coldWarnings}&nbsp;ждёт</span>
+                <span>{coldWarnings}&nbsp;ждёт</span>
               </button>
             )}
 
-            {metrics.appointmentsToday > 0 && (
+            {appointmentsToday > 0 && (
               <button
                 type="button"
                 onClick={() => {
@@ -239,11 +209,11 @@ export default function LeadsPipelineMetrics({
                 title="Замеры назначены на сегодня"
               >
                 <Calendar className="w-3.5 h-3.5" />
-                <span>{metrics.appointmentsToday}&nbsp;замер</span>
+                <span>{appointmentsToday}&nbsp;замер</span>
               </button>
             )}
 
-            {metrics.coldWarnings === 0 && metrics.appointmentsToday === 0 && (
+            {coldWarnings === 0 && appointmentsToday === 0 && (
               <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Все в графике
