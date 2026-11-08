@@ -10,13 +10,20 @@ const globalForPrisma = global as unknown as {
 let prismaInstance: PrismaClient;
 
 if (typeof window === "undefined") {
-  if (!globalForPrisma.prisma) {
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      max: process.env.NODE_ENV === "production" ? 10 : 3,
-      idleTimeoutMillis: 15000,
-      connectionTimeoutMillis: 5000,
-    });
+  const hasStaleDevClient =
+    Boolean(globalForPrisma.prisma) &&
+    process.env.NODE_ENV !== "production" &&
+    !("crmTask" in (globalForPrisma.prisma as unknown as Record<string, unknown>));
+
+  if (!globalForPrisma.prisma || hasStaleDevClient) {
+    const pool =
+      globalForPrisma.pool ??
+      new Pool({
+        connectionString: process.env.DATABASE_URL,
+        max: process.env.NODE_ENV === "production" ? 10 : 3,
+        idleTimeoutMillis: 15000,
+        connectionTimeoutMillis: 5000,
+      });
 
     globalForPrisma.pool = pool;
 
